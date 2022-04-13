@@ -264,8 +264,11 @@ class APIEndpoints:
     def get_animes_url(self) -> str:
         return f"{self.base_url}/animes"
 
-    def get_certain_anime_url(self, anime_id: int) -> str:
+    def get_anime_url(self, anime_id: int) -> str:
         return f"{self.base_url}/animes/{anime_id}"
+
+    def get_anime_roles_url(self, anime_id: int) -> str:
+        return f"{self.base_url}/animes/{anime_id}/roles"
 
     # Users
     def get_whoami_url(self) -> str:
