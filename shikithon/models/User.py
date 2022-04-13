@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -34,7 +35,7 @@ class User(BaseModel):
     banned: Optional[bool]
     about: Optional[str]
     about_html: Optional[str]
-    common_info: Optional[list[str]]
+    common_info: Optional[List[str]]
     show_comments: Optional[bool]
     in_friends: Optional[bool]
     is_ignored: Optional[str]

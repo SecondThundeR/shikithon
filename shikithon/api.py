@@ -1,6 +1,8 @@
 import json
-from typing import Any
 from typing import Union
+from typing import Any
+from typing import Dict
+from typing import List
 
 from requests import Session
 
@@ -12,48 +14,48 @@ from .models.User import User
 
 
 class API:
-    def __init__(self, api_config: dict[str, str]):
+    def __init__(self, api_config: Dict[str, str]):
         self.endpoints: APIEndpoints = APIEndpoints()
         self.session: Session = Session()
         self.__init_api_vars(api_config)
         self.__api_vars_validation()
 
-    def __get(self, url: str, headers: dict[str, str] = {}, query: dict[str, str] = {}, data: dict[str, str] = {}):
+    def __get(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.get(url, headers=headers, params=query, data=data)
         if response.status_code == 401:
             self.__update_tokens(self.__get_tokens_from_api(refresh_tokens=True))
             return self.__get(url, headers, query, data)
         return response.json()
 
-    def __post(self, url: str, headers: dict[str, str] = {}, query: dict[str, str] = {}, data: dict[str, str] = {}):
+    def __post(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.post(url, headers=headers, params=query, data=data)
         if response.status_code == 401:
             self.__update_tokens(self.__get_tokens_from_api(refresh_tokens=True))
             return self.__post(url, headers, query, data)
         return response.json()
 
-    def __put(self, url: str, headers: dict[str, str] = {}, query: dict[str, str] = {}, data: dict[str, str] = {}):
+    def __put(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.put(url, headers=headers, params=query, data=data)
         if response.status_code == 401:
             self.__update_tokens(self.__get_tokens_from_api(refresh_tokens=True))
             return self.__put(url, headers, query, data)
         return response.json()
 
-    def __patch(self, url: str, headers: dict[str, str] = {}, query: dict[str, str] = {}, data: dict[str, str] = {}):
+    def __patch(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.patch(url, headers=headers, params=query, data=data)
         if response.status_code == 401:
             self.__update_tokens(self.__get_tokens_from_api(refresh_tokens=True))
             return self.__patch(url, headers, query, data)
         return response.json()
 
-    def __delete(self, url: str, headers: dict[str, str] = {}, query: dict[str, str] = {}, data: dict[str, str] = {}):
+    def __delete(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.delete(url, headers=headers, params=query, data=data)
         if response.status_code == 401:
             self.__update_tokens(self.__get_tokens_from_api(refresh_tokens=True))
             return self.__delete(url, headers, query, data)
         return response.json()
 
-    def get_api_config_dict(self) -> dict[str, str]:
+    def get_api_config_dict(self) -> Dict[str, str]:
         """Return config dictionary with current values."""
         return {
             "app_name": self.app_name,
@@ -66,12 +68,12 @@ class API:
             "refresh_token": self.refresh_token
         }
 
-    def set_api_config_dict(self, api_config: dict[str, str]):
+    def set_api_config_dict(self, api_config: Dict[str, str]):
         self.__init_api_vars(api_config)
         self.__api_vars_validation()
 
     def __export_api_config(self, file_name: str = "new_config.json"):
-        current_config: dict[str, str] = self.get_api_config_dict()
+        current_config: Dict[str, str] = self.get_api_config_dict()
         with open(file_name, "w", encoding="utf-8") as config_file:
             json.dump(current_config, config_file, indent=4, separators=(", ", ": "))
 
@@ -98,7 +100,7 @@ class API:
             raise MissingConfigData("Missing Client ID and/or Client Secret")
 
         if not self.auth_code:
-            oauth_url_data: Union[str, list[str]] = self.endpoints.get_filled_oauth_url(self.client_id, self.redirect_uri, self.scopes)
+            oauth_url_data: Union[str, List[str]] = self.endpoints.get_filled_oauth_url(self.client_id, self.redirect_uri, self.scopes)
             exception_msg: str = self.__parse_oauth_url_data(oauth_url_data)
             raise MissingConfigData(exception_msg)
 
@@ -108,7 +110,7 @@ class API:
         self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
 
     def __raise_config_mismatch(self, api_config):
-        configs_keys: tuple[list[str], list[str]] = list(api_config.keys()), list(APIHelpers.get_blank_config().keys())
+        configs_keys: tuple[List[str], List[str]] = list(api_config.keys()), list(APIHelpers.get_blank_config().keys())
         missing_keys_str: str = ", ".join(APIHelpers.get_missing_keys_list(configs_keys))
         raise MissingConfigData(f"It is impossible to initialize an object without missing variables. Here is the list of missing: {missing_keys_str}")
 
@@ -148,15 +150,15 @@ class API:
         return "The authorization code is missing. " \
             f"It's okay, just paste this link \"{oauth_url_data}\" and then save the authorization code in your configuration"
 
-    def get_achievements(self, user_id: int) -> list[Achievement]:
-        query: dict[str, str] = {
+    def get_achievements(self, user_id: int) -> List[Achievement]:
+        query: Dict[str, str] = {
             "user_id": str(user_id)
         }
-        res: list[dict[str, Any]] = self.__get(url=self.endpoints.get_achievements_url(), query=query)
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_achievements_url(), query=query)
 
         return [Achievement(**data) for data in res]
 
-    def get_list_of_animes(self, page: int = 1, limit: int = 1, order: Order = Order.NONE, kind: Kind = Kind.NONE, status: Status = Status.NONE, season: str = "", score: int = 1, duration: Duration = Duration.NONE, rating: Rating = Rating.NONE, genre: list[int] = [], studio: list[int] = [], franchise: list[int] = [], censored: bool = True, my_list: MyList = MyList.NONE, ids: list[int] = [], exclude_ids: list[int] = [], search: str = "") -> list[Anime]:
+    def get_list_of_animes(self, page: int = 1, limit: int = 1, order: Order = Order.NONE, kind: Kind = Kind.NONE, status: Status = Status.NONE, season: str = "", score: int = 1, duration: Duration = Duration.NONE, rating: Rating = Rating.NONE, genre: List[int] = [], studio: List[int] = [], franchise: List[int] = [], censored: bool = True, my_list: MyList = MyList.NONE, ids: List[int] = [], exclude_ids: List[int] = [], search: str = "") -> List[Anime]:
         # Query checks
         if page < 1 or page > 10000:
             page = 1
@@ -167,7 +169,7 @@ class API:
         if score < 1 or score > 9:
             score = 1
 
-        query: dict[str, str] = {
+        query: Dict[str, str] = {
             "page": str(page),
             "limit": str(limit),
             "order": order.value,
@@ -186,17 +188,17 @@ class API:
             "exclude_ids": ",".join([str(id) for id in exclude_ids]),
             "search": search
         }
-        res: list[dict[str, Any]] = self.__get(url=self.endpoints.get_animes_url(), query=query)
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_animes_url(), query=query)
 
         return [Anime(**anime) for anime in res]
 
     def get_current_user(self) -> User:
-        res: dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
+        res: Dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
         return User(**res)
 
 class APIHelpers:
     @staticmethod
-    def get_missing_keys_list(configs_tuple: tuple[list[str], list[str]]) -> list[str]:
+    def get_missing_keys_list(configs_tuple: tuple[List[str], List[str]]) -> List[str]:
         return [key for key in configs_tuple[1] if key not in configs_tuple[0]]
 
     @staticmethod
@@ -223,7 +225,7 @@ class APIEndpoints:
     def get_oauth_url(self) -> str:
         return self.oauth_url
 
-    def get_filled_oauth_url(self, client_id: str, redirect_uri: str, scopes: str) -> Union[str, list[str]]:
+    def get_filled_oauth_url(self, client_id: str, redirect_uri: str, scopes: str) -> Union[str, List[str]]:
         missing_variables = []
 
         if not redirect_uri:

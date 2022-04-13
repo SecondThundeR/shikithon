@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -7,7 +8,7 @@ from .Person import Person
 
 
 class Creator(BaseModel):
-    roles: list[str]
-    roles_russian: list[str]
+    roles: List[str]
+    roles_russian: List[str]
     character: Optional[Character]
     person: Optional[Person]
