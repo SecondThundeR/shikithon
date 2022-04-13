@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import List
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -13,13 +14,13 @@ class Status(BaseModel):
 
 
 class Statuses(BaseModel):
-    anime: Optional[list[Status]]
-    manga: Optional[list[Status]]
+    anime: Optional[List[Status]]
+    manga: Optional[List[Status]]
 
 
 class FullStatuses(BaseModel):
-    anime: Optional[list[Status]]
-    manga: Optional[list[Status]]
+    anime: Optional[List[Status]]
+    manga: Optional[List[Status]]
 
 
 class Score(BaseModel):
@@ -28,8 +29,8 @@ class Score(BaseModel):
 
 
 class Scores(BaseModel):
-    anime: Optional[list[Score]]
-    manga: Optional[list[Score]]
+    anime: Optional[List[Score]]
+    manga: Optional[List[Score]]
 
 
 class Type(BaseModel):
@@ -38,8 +39,8 @@ class Type(BaseModel):
 
 
 class Types(BaseModel):
-    anime: Optional[list[Type]]
-    manga: Optional[list[Type]]
+    anime: Optional[List[Type]]
+    manga: Optional[List[Type]]
 
 
 class Rating(BaseModel):
@@ -48,12 +49,12 @@ class Rating(BaseModel):
 
 
 class Ratings(BaseModel):
-    anime: Optional[list[Rating]]
-    manga: Optional[list[Rating]]
+    anime: Optional[List[Rating]]
+    manga: Optional[List[Rating]]
 
 
 class Activity(BaseModel):
-    name: list[int]
+    name: List[int]
     value: int
 
 
@@ -71,7 +72,7 @@ class Stats(BaseModel):
     ratings: Optional[Ratings]
     has_anime: Optional[bool] = Field(alias='has_anime?')
     has_manga: Optional[bool] = Field(alias='has_manga?')
-    genres: Optional[list[str]]
-    studios: Optional[list[str]]
-    publishers: Optional[list[str]]
-    activity: Optional[list[Activity]]
+    genres: Optional[List[str]]
+    studios: Optional[List[str]]
+    publishers: Optional[List[str]]
+    activity: Optional[List[Activity]]

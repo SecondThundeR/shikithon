@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -33,9 +34,9 @@ class Anime(BaseModel):
     aired_on: str
     released_on: Optional[str]
     rating: Optional[str]
-    english: Optional[list[str]]
-    japanese: Optional[list[str]]
-    synonyms: Optional[list[str]]
+    english: Optional[List[str]]
+    japanese: Optional[List[str]]
+    synonyms: Optional[List[str]]
     license_name_ru: Optional[str]
     duration: Optional[int]
     description: Optional[str]
@@ -48,17 +49,17 @@ class Anime(BaseModel):
     thread_id: Optional[int]
     topic_id: Optional[int]
     myanimelist_id: Optional[int]
-    rates_scores_stats: Optional[list[RateScore]]
-    rates_statuses_stats: Optional[list[RateStatus]]
+    rates_scores_stats: Optional[List[RateScore]]
+    rates_statuses_stats: Optional[List[RateStatus]]
     updated_at: Optional[datetime]
     next_episode_at: Optional[datetime]
-    fansubbers: Optional[list[str]]
-    fandubbers: Optional[list[str]]
-    licensors: Optional[list[str]]
-    genres: Optional[list[Genre]]
-    studios: Optional[list[Studio]]
-    videos: Optional[list[Video]]
-    screenshots: Optional[list[Screenshot]]
+    fansubbers: Optional[List[str]]
+    fandubbers: Optional[List[str]]
+    licensors: Optional[List[str]]
+    genres: Optional[List[Genre]]
+    studios: Optional[List[Studio]]
+    videos: Optional[List[Video]]
+    screenshots: Optional[List[Screenshot]]
     user_rate: Optional[UserRate]
-    roles: Optional[list[str]]
+    roles: Optional[List[str]]
     role: Optional[str]
