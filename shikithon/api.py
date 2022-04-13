@@ -9,6 +9,7 @@ from requests import Session
 from .enums.Anime import *
 from .models.Achievement import Achievement
 from .models.Anime import Anime
+from .models.Creator import Creator
 from .models.User import User
 
 
@@ -188,12 +189,15 @@ class API:
             "search": search
         }
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_animes_url(), query=query)
-
         return [Anime(**anime) for anime in res]
 
-    def get_anime_by_id(self, anime_id: int) -> Anime:
-        res: dict[str, Any] = self.__get(url=self.endpoints.get_certain_anime_url(anime_id))
+    def get_anime(self, anime_id: int) -> Anime:
+        res: Dict[str, Any] = self.__get(url=self.endpoints.get_anime_url(anime_id))
         return Anime(**res)
+
+    def get_anime_creators(self, anime_id: int) -> List[Creator]:
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_roles_url(anime_id))
+        return [Creator(**creator) for creator in res]
 
     def get_current_user(self) -> User:
         res: Dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
