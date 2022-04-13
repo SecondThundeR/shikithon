@@ -281,6 +281,21 @@ class APIEndpoints:
     def get_similar_animes_url(self, anime_id: int) -> str:
         return f"{self.base_url}/animes/{anime_id}/similar"
 
+    def get_anime_related_content_url(self, anime_id: int) -> str:
+        return f"{self.base_url}/animes/{anime_id}/related"
+
+    def get_anime_screenshots_url(self, anime_id: int) -> str:
+        return f"{self.base_url}/animes/{anime_id}/screenshots"
+
+    def get_anime_franchise_tree_url(self, anime_id: int) -> str:
+        return f"{self.base_url}/animes/{anime_id}/franchise"
+
+    def get_anime_external_links_url(self, anime_id: int) -> str:
+        return f"{self.base_url}/animes/{anime_id}/external_links"
+
+    def get_anime_topics_url(self, anime_id: int) -> str:
+        return f"{self.base_url}/animes/{anime_id}/topics"
+
     # Users
     def get_whoami_url(self) -> str:
         return f"{self.base_url}/users/whoami"
