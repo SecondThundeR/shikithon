@@ -164,7 +164,34 @@ class API:
         return [Achievement(**data) for data in res]
 
     def get_list_of_animes(self, page: int = 1, limit: int = 1, order: Order = Order.NONE, kind: Kind = Kind.NONE, status: Status = Status.NONE, season: str = "", score: int = 1, duration: Duration = Duration.NONE, rating: Rating = Rating.NONE, genre: List[int] = [], studio: List[int] = [], franchise: List[int] = [], censored: Censorship = Censorship.CENSORED, my_list: MyList = MyList.NONE, ids: List[int] = [], exclude_ids: List[int] = [], search: str = "") -> List[Anime]:
-        # Query checks
+        """
+            Returns list of animes.
+
+            If some data not provided, using fallback values
+
+            Parameters:
+                page (int): number of page
+                limit (int): number of limit results
+                order (Order): type of order in list
+                kind (Status): type of anime topic
+                status (Status): type of anime status
+                season (str): name of anime season
+                score (int): minimal anime score
+                duration (Duration): duration size of anime
+                rating (Rating): type of anime rating
+                genre (List[int]): IDs of genres
+                studio (List[int]): IDs of studios
+                franchise (str): IDs of franchises
+                censored (Censorship): type of anime censorship
+                my_list (MyList): status of anime in current user list
+                ids (List[int]): IDs of animes to include
+                excluded_ids (List[int]): IDs of animes to exclude
+                search (str): search phrase to filter animes by name.
+
+
+            Returns:
+                List[Anime]: list of animes
+        """
         if page < 1 or page > 10000:
             page = 1
 
@@ -197,34 +224,112 @@ class API:
         return [Anime(**anime) for anime in res]
 
     def get_anime(self, anime_id: int) -> Anime:
+        """
+            Returns info about anime
+
+            Parameters:
+                anime_id (int): ID of anime
+
+            Returns:
+                Anime: info about anime
+        """
         res: Dict[str, Any] = self.__get(url=self.endpoints.get_anime_url(anime_id))
         return Anime(**res)
 
     def get_anime_creators(self, anime_id: int) -> List[Creator]:
+        """
+            Returns list of anime creators
+
+            Parameters:
+                anime_id (int): ID of anime
+
+            Returns:
+                List[Creator]: list of anime creators
+        """
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_roles_url(anime_id))
         return [Creator(**creator) for creator in res]
 
     def get_list_of_similar_animes(self, anime_id: int) -> List[Anime]:
+        """
+            Returns list of similar animes
+
+            Parameters:
+                anime_id (int): ID of anime
+
+            Returns:
+                List[Anime]: list of similar animes
+        """
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_similar_animes_url(anime_id))
         return [Anime(**anime) for anime in res]
 
     def get_anime_related_content(self, anime_id: int) -> List[Relation]:
+        """
+            Returns list of anime related content
+
+            Parameters:
+                anime_id (int): ID of anime
+
+            Returns:
+                List[Relation]: list of anime related content
+        """
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_related_content_url(anime_id))
         return [Relation(**relation) for relation in res]
 
     def get_anime_screenshots(self, anime_id: int) -> List[Screenshot]:
+        """
+            Returns list of anime screenshots links
+
+            Parameters:
+                anime_id (int): ID of anime
+
+            Returns:
+                List[Screenshot]: list of anime screenshots links
+        """
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_screenshots_url(anime_id))
         return [Screenshot(**screenshot) for screenshot in res]
 
     def get_anime_franchise_tree(self, anime_id: int) -> FranchiseTree:
+        """
+            Returns anime franchise tree
+
+            Parameters:
+                anime_id (int): ID of anime
+
+            Returns:
+                FranchiseTree: franchise tree of anime
+        """
         res: Dict[str, Any] = self.__get(url=self.endpoints.get_anime_franchise_tree_url(anime_id))
         return FranchiseTree(**res)
 
     def get_anime_external_links(self, anime_id: int) -> List[Link]:
+        """
+            Returns list of anime external links
+
+            Parameters:
+                anime_id (int): ID of anime
+
+            Returns:
+                List[Link]: list of anime links
+        """
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_external_links_url(anime_id))
         return [Link(**link) for link in res]
 
     def get_anime_topics(self, anime_id: int, page: int = 1, limit: int = 1, kind: Status = Status.EPISODE, episode: Union[int, str] = "") -> List[Topic]:
+        """
+            Returns list of anime topics.
+
+            If some data not provided, using fallback values
+
+            Parameters:
+                anime_id (int): ID of anime
+                page (int): number of page
+                limit (int): number of limit results
+                kind (Status): type of topic
+                episode (int): number of anime episode
+
+            Returns:
+                List[Topic]: list of anime topics
+        """
         if page < 1 or page > 100000:
             page = 1
 
