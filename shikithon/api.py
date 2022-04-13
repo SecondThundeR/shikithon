@@ -7,7 +7,6 @@ from typing import List
 from requests import Session
 
 from .enums.Anime import *
-
 from .models.Achievement import Achievement
 from .models.Anime import Anime
 from .models.User import User
