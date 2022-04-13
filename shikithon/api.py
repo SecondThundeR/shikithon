@@ -220,7 +220,7 @@ class API:
         return FranchiseTree(**res)
 
     def get_anime_external_links(self, anime_id: int) -> List[Link]:
-        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_franchise_tree_url(anime_id))
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_external_links_url(anime_id))
         return [Link(**link) for link in res]
 
     def get_current_user(self) -> User:
