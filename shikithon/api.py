@@ -4,7 +4,10 @@ from typing import Union
 
 from requests import Session
 
+from .enums.Anime import *
+
 from .models.Achievement import Achievement
+from .models.Anime import Anime
 from .models.User import User
 
 
@@ -152,6 +155,40 @@ class API:
         res: list[dict[str, Any]] = self.__get(url=self.endpoints.get_achievements_url(), query=query)
 
         return [Achievement(**data) for data in res]
+
+    def get_list_of_animes(self, page: int = 1, limit: int = 1, order: Order = Order.NONE, kind: Kind = Kind.NONE, status: Status = Status.NONE, season: str = "", score: int = 1, duration: Duration = Duration.NONE, rating: Rating = Rating.NONE, genre: list[int] = [], studio: list[int] = [], franchise: list[int] = [], censored: bool = True, my_list: MyList = MyList.NONE, ids: list[int] = [], exclude_ids: list[int] = [], search: str = "") -> list[Anime]:
+        # Query checks
+        if page < 1 or page > 10000:
+            page = 1
+
+        if limit < 1 or limit > 50:
+            limit = 10
+
+        if score < 1 or score > 9:
+            score = 1
+
+        query: dict[str, str] = {
+            "page": str(page),
+            "limit": str(limit),
+            "order": order.value,
+            "kind": kind.value,
+            "status": status.value,
+            "season": season,
+            "score": str(score),
+            "duration": duration.value,
+            "rating": rating.value,
+            "genre": ",".join([str(id) for id in genre]),
+            "studio": ",".join([str(id) for id in studio]),
+            "franchise": ",".join([str(id) for id in franchise]),
+            "censored": censored,
+            "mylist": my_list.value,
+            "ids": ",".join([str(id) for id in ids]),
+            "exclude_ids": ",".join([str(id) for id in exclude_ids]),
+            "search": search
+        }
+        res: list[dict[str, Any]] = self.__get(url=self.endpoints.get_animes_url(), query=query)
+
+        return [Anime(**anime) for anime in res]
 
     def get_current_user(self) -> User:
         res: dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
