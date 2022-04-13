@@ -10,6 +10,10 @@ from .enums.Anime import *
 from .models.Achievement import Achievement
 from .models.Anime import Anime
 from .models.Creator import Creator
+from .models.FranchiseTree import FranchiseTree
+from .models.Link import Link
+from .models.Relation import Relation
+from .models.Screenshot import Screenshot
 from .models.User import User
 
 
@@ -202,6 +206,22 @@ class API:
     def get_list_of_similar_animes(self, anime_id: int) -> List[Anime]:
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_similar_animes_url(anime_id))
         return [Anime(**anime) for anime in res]
+
+    def get_anime_related_content(self, anime_id: int) -> List[Relation]:
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_related_content_url(anime_id))
+        return [Relation(**relation) for relation in res]
+
+    def get_anime_screenshots(self, anime_id: int) -> List[Screenshot]:
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_screenshots_url(anime_id))
+        return [Screenshot(**screenshot) for screenshot in res]
+
+    def get_anime_franchise_tree(self, anime_id: int) -> FranchiseTree:
+        res: Dict[str, Any] = self.__get(url=self.endpoints.get_anime_franchise_tree_url(anime_id))
+        return FranchiseTree(**res)
+
+    def get_anime_external_links(self, anime_id: int) -> List[Link]:
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_franchise_tree_url(anime_id))
+        return [Link(**link) for link in res]
 
     def get_current_user(self) -> User:
         res: Dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
