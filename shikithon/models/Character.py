@@ -20,7 +20,7 @@ class Character(BaseModel):
     japanese: Optional[str]
     description: Optional[str]
     description_html: Optional[str]
-    description_source: Optional[None]  # TODO: Change type to correct one
+    description_source: Optional[str]
     favoured: Optional[bool]
     thread_id: Optional[int]
     topic_id: Optional[int]
