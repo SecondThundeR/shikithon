@@ -191,6 +191,10 @@ class API:
 
         return [Anime(**anime) for anime in res]
 
+    def get_anime_by_id(self, anime_id: int) -> Anime:
+        res: dict[str, Any] = self.__get(url=self.endpoints.get_certain_anime_url(anime_id))
+        return Anime(**res)
+
     def get_current_user(self) -> User:
         res: Dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
         return User(**res)
