@@ -47,6 +47,10 @@ class Rating(Enum):
     MILD_NUDITY = "r_plus"
     HENTAI = "rx"
 
+class Censorship(Enum):
+    CENSORED = "true"
+    UNCENSORED = "false"
+
 class MyList(Enum):
     NONE = "",
     PLANNED = "planned",
