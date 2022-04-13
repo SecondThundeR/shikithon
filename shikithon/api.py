@@ -14,6 +14,7 @@ from .models.FranchiseTree import FranchiseTree
 from .models.Link import Link
 from .models.Relation import Relation
 from .models.Screenshot import Screenshot
+from .models.Topic import Topic
 from .models.User import User
 
 
@@ -222,6 +223,22 @@ class API:
     def get_anime_external_links(self, anime_id: int) -> List[Link]:
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_external_links_url(anime_id))
         return [Link(**link) for link in res]
+
+    def get_anime_topics(self, anime_id: int, page: int = 1, limit: int = 1, kind: Status = Status.EPISODE, episode: Union[int, str] = "") -> List[Topic]:
+        if page < 1 or page > 100000:
+            page = 1
+
+        if limit < 1 or limit > 30:
+            limit = 1
+
+        query: Dict[str, str] = {
+            "page": str(page),
+            "limit": str(limit),
+            "kind": kind.value,
+            "episode": str(episode)
+        }
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_topics_url(anime_id), query=query)
+        return [Topic(**topic) for topic in res]
 
     def get_current_user(self) -> User:
         res: Dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
