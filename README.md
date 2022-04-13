@@ -48,17 +48,15 @@ api: API = API(config)
 
 # Получение текущего пользователя через /users/whoami
 current_user: User = api.get_current_user()
-# >> Current user is SecondThundeR
-print(f"Current user is: {current_user.nickname}")
+print(f"Current user is {current_user.nickname}")
 
 # Получение достижений пользователя через /achievements
 user_achievements: list[Achievement] = api.get_achievements(
     current_user.id
 )
+print(user_achievements[0])
 
-# На самом деле выводится одна строка с данными полей.
-# Для удобства они выведены здесь раздельно
-
+# >> Current user is SecondThundeR
 # >> id=719972946
 # >> neko_id='animelist'
 # >> level=1
@@ -66,7 +64,9 @@ user_achievements: list[Achievement] = api.get_achievements(
 # >> user_id=723052
 # >> created_at=datetime.datetime(2020, 12, 15, ...)
 # >> updated_at=datetime.datetime(2022, 4, 11, ...)
-print(user_achievements[0])
+
+# На самом деле выводится одна строка с данными полей.
+# Для удобства они выведены здесь раздельно
 ```
 
 > Пара уточнений:
