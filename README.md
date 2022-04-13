@@ -22,13 +22,16 @@
 ## Пример использования
 
 ```py
+from typing import Dict
+from typing import List
+
 from shikithon.api import API
 
 from shikithon.models.Achievement import Achievement
 from shikithon.models.User import User
 
 # Конфигурация в коде
-config: dict[str, str] = {
+config: Dict[str, str] = {
     "app_name": "...",
     "client_id": "...",
     "client_secret": "...",
@@ -51,7 +54,7 @@ current_user: User = api.get_current_user()
 print(f"Current user is {current_user.nickname}")
 
 # Получение достижений пользователя через /achievements
-user_achievements: list[Achievement] = api.get_achievements(
+user_achievements: List[Achievement] = api.get_achievements(
     current_user.id
 )
 print(user_achievements[0])

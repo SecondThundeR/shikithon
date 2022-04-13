@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -18,5 +19,5 @@ class Manga(BaseModel):
     chapters: int
     aired_on: str
     released_on: Optional[str]
-    roles: Optional[list[str]]
+    roles: Optional[List[str]]
     role: Optional[str]

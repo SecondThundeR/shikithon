@@ -5,12 +5,12 @@ from pydantic import BaseModel
 
 
 class Link(BaseModel):
-    id: int
+    id: Optional[int]
     kind: str
     url: str
     source: str
     entry_id: int
     entry_type: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
     imported_at: Optional[datetime]

@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -12,10 +13,10 @@ class FavoriteData(BaseModel):
 
 
 class Favorites(BaseModel):
-    animes: list[Optional[FavoriteData]]
-    mangas: list[Optional[FavoriteData]]
-    characters: list[Optional[FavoriteData]]
-    people: list[Optional[FavoriteData]]
-    mangakas: list[Optional[FavoriteData]]
-    seyu: list[Optional[FavoriteData]]
-    producers: list[Optional[FavoriteData]]
+    animes: List[Optional[FavoriteData]]
+    mangas: List[Optional[FavoriteData]]
+    characters: List[Optional[FavoriteData]]
+    people: List[Optional[FavoriteData]]
+    mangakas: List[Optional[FavoriteData]]
+    seyu: List[Optional[FavoriteData]]
+    producers: List[Optional[FavoriteData]]
