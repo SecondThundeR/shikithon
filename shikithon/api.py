@@ -199,6 +199,10 @@ class API:
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_roles_url(anime_id))
         return [Creator(**creator) for creator in res]
 
+    def get_list_of_similar_animes(self, anime_id: int) -> List[Anime]:
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_similar_animes_url(anime_id))
+        return [Anime(**anime) for anime in res]
+
     def get_current_user(self) -> User:
         res: Dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
         return User(**res)
@@ -273,6 +277,9 @@ class APIEndpoints:
 
     def get_anime_roles_url(self, anime_id: int) -> str:
         return f"{self.base_url}/animes/{anime_id}/roles"
+
+    def get_similar_animes_url(self, anime_id: int) -> str:
+        return f"{self.base_url}/animes/{anime_id}/similar"
 
     # Users
     def get_whoami_url(self) -> str:
