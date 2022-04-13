@@ -34,9 +34,9 @@ class Anime(BaseModel):
     aired_on: str
     released_on: Optional[str]
     rating: Optional[str]
-    english: Optional[List[str]]
-    japanese: Optional[List[str]]
-    synonyms: Optional[List[str]]
+    english: Optional[List[str | None]]
+    japanese: Optional[List[str | None]]
+    synonyms: Optional[List[str | None]]
     license_name_ru: Optional[str]
     duration: Optional[int]
     description: Optional[str]
