@@ -30,6 +30,7 @@ class Status(Enum):
     ANONS = "anons",
     ONGOING = "ongoing"
     RELEASED = "released"
+    EPISODE = "episode"
 
 class Duration(Enum):
     NONE = ""
