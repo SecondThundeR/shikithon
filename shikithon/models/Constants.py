@@ -1,24 +1,26 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
 class AnimeConstants(BaseModel):
-    kind: list[str]
-    status: list[str]
+    kind: List[str]
+    status: List[str]
 
 
 class MangaConstants(BaseModel):
-    kind: list[str]
-    status: list[str]
+    kind: List[str]
+    status: List[str]
 
 
 class UserRateConstants(BaseModel):
-    status: list[str]
+    status: List[str]
 
 
 class ClubsConstants(BaseModel):
-    join_policy: list[str]
-    comment_policy: list[str]
-    image_upload_policy: list[str]
+    join_policy: List[str]
+    comment_policy: List[str]
+    image_upload_policy: List[str]
 
 
 class SmileyConstants(BaseModel):

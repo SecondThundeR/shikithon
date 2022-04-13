@@ -1,1 +1,2 @@
 recursive-include shikithon/models *.py
+recursive-include shikithon/enums *.py

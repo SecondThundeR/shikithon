@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -23,6 +25,6 @@ class TreeNode(BaseModel):
 
 
 class FranchiseTree(BaseModel):
-    links: list[TreeLink]
-    nodes: list[TreeNode]
+    links: List[TreeLink]
+    nodes: List[TreeNode]
     current_id: int

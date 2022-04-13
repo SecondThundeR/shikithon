@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Optional
+from typing import List
 
 from pydantic import BaseModel
-
 
 from .Anime import Anime
 from .Image import Image
@@ -20,11 +20,11 @@ class Character(BaseModel):
     japanese: Optional[str]
     description: Optional[str]
     description_html: Optional[str]
-    description_source: Optional[None]  # TODO: Change type to correct one
+    description_source: Optional[str]
     favoured: Optional[bool]
     thread_id: Optional[int]
     topic_id: Optional[int]
     updated_at: Optional[datetime]
-    seyu: Optional[list[Seyu]]
-    animes: Optional[list[Anime]]
-    mangas: Optional[list[Manga]]
+    seyu: Optional[List[Seyu]]
+    animes: Optional[List[Anime]]
+    mangas: Optional[List[Manga]]
