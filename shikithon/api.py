@@ -157,7 +157,7 @@ class API:
 
         return [Achievement(**data) for data in res]
 
-    def get_list_of_animes(self, page: int = 1, limit: int = 1, order: Order = Order.NONE, kind: Kind = Kind.NONE, status: Status = Status.NONE, season: str = "", score: int = 1, duration: Duration = Duration.NONE, rating: Rating = Rating.NONE, genre: List[int] = [], studio: List[int] = [], franchise: List[int] = [], censored: bool = True, my_list: MyList = MyList.NONE, ids: List[int] = [], exclude_ids: List[int] = [], search: str = "") -> List[Anime]:
+    def get_list_of_animes(self, page: int = 1, limit: int = 1, order: Order = Order.NONE, kind: Kind = Kind.NONE, status: Status = Status.NONE, season: str = "", score: int = 1, duration: Duration = Duration.NONE, rating: Rating = Rating.NONE, genre: List[int] = [], studio: List[int] = [], franchise: List[int] = [], censored: Censorship = Censorship.CENSORED, my_list: MyList = MyList.NONE, ids: List[int] = [], exclude_ids: List[int] = [], search: str = "") -> List[Anime]:
         # Query checks
         if page < 1 or page > 10000:
             page = 1
@@ -181,7 +181,7 @@ class API:
             "genre": ",".join([str(id) for id in genre]),
             "studio": ",".join([str(id) for id in studio]),
             "franchise": ",".join([str(id) for id in franchise]),
-            "censored": censored,
+            "censored": censored.value,
             "mylist": my_list.value,
             "ids": ",".join([str(id) for id in ids]),
             "exclude_ids": ",".join([str(id) for id in exclude_ids]),
