@@ -163,7 +163,7 @@ class API:
             page = 1
 
         if limit < 1 or limit > 50:
-            limit = 10
+            limit = 1
 
         if score < 1 or score > 9:
             score = 1
