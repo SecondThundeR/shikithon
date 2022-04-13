@@ -1,0 +1,11 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pydantic = "1.9.0"
+requests = "2.27.1"
+
+[dev-packages]
+autopep8 = "1.6.0"
