@@ -1,5 +1,6 @@
 import json
 from typing import Union
+from typing import Tuple
 from typing import Any
 from typing import Dict
 from typing import List
@@ -115,15 +116,15 @@ class API:
         self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
 
     def __raise_config_mismatch(self, api_config):
-        configs_keys: tuple[List[str], List[str]] = list(api_config.keys()), list(APIHelpers.get_blank_config().keys())
+        configs_keys: Tuple[List[str], List[str]] = list(api_config.keys()), list(APIHelpers.get_blank_config().keys())
         missing_keys_str: str = ", ".join(APIHelpers.get_missing_keys_list(configs_keys))
         raise MissingConfigData(f"It is impossible to initialize an object without missing variables. Here is the list of missing: {missing_keys_str}")
 
-    def __update_tokens(self, tokens_tuple: tuple[str, str]):
+    def __update_tokens(self, tokens_tuple: Tuple[str, str]):
         self.access_token, self.refresh_token = tokens_tuple
         self.__export_api_config()
 
-    def __get_tokens_from_api(self, refresh_tokens: bool = False) -> tuple[str, str]:
+    def __get_tokens_from_api(self, refresh_tokens: bool = False) -> Tuple[str, str]:
         token_url = self.endpoints.get_token_url()
         data = {
             "client_id": self.client_id,
@@ -351,7 +352,7 @@ class API:
 
 class APIHelpers:
     @staticmethod
-    def get_missing_keys_list(configs_tuple: tuple[List[str], List[str]]) -> List[str]:
+    def get_missing_keys_list(configs_tuple: Tuple[List[str], List[str]]) -> List[str]:
         return [key for key in configs_tuple[1] if key not in configs_tuple[0]]
 
     @staticmethod
