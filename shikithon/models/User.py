@@ -5,16 +5,7 @@ from typing import List
 from pydantic import BaseModel
 
 from .Stats import Stats
-
-
-class UserImage(BaseModel):
-    x160: str
-    x148: str
-    x80: str
-    x64: str
-    x48: str
-    x32: str
-    x16: str
+from .UserImage import UserImage
 
 
 class User(BaseModel):
@@ -24,14 +15,14 @@ class User(BaseModel):
     image: UserImage
     last_online_at: datetime
     url: str
-    name: Optional[str]  # TODO: Change type to correct one
+    name: Optional[str]
     sex: Optional[str]
     full_years: Optional[int]
     locale: Optional[str]
     last_online: Optional[str]
     website: Optional[str]
-    birth_on: Optional[str]  # TODO: Change type to correct one
-    location: Optional[str]  # TODO: Change type to correct one
+    birth_on: Optional[datetime]
+    location: Optional[str]
     banned: Optional[bool]
     about: Optional[str]
     about_html: Optional[str]
