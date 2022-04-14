@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 from .Anime import Anime
 from .Forum import Forum
-from .Image import Image
 from .Manga import Manga
 from .User import User
 
@@ -29,22 +28,3 @@ class Topic(BaseModel):
     last_comment_viewed: Optional[bool]
     event: Optional[str]
     episode: Optional[int]
-
-
-class LinkedTopic(BaseModel):
-    id: int
-    topic_url: str
-    thread_id: int
-    topic_id: int
-    type: str
-    name: str
-    russian: str
-    image: Image
-    url: str
-    kind: str
-    score: float
-    status: str
-    episodes: int
-    episodes_aired: int
-    aired_on: str
-    released_on: Optional[str]
