@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from typing import Union
 from typing import List
 
 from pydantic import BaseModel
@@ -34,9 +35,9 @@ class Anime(BaseModel):
     aired_on: str
     released_on: Optional[str]
     rating: Optional[str]
-    english: Optional[List[str | None]]
-    japanese: Optional[List[str | None]]
-    synonyms: Optional[List[str | None]]
+    english: Optional[List[Union[str, None]]]
+    japanese: Optional[List[Union[str, None]]]
+    synonyms: Optional[List[Union[str, None]]]
     license_name_ru: Optional[str]
     duration: Optional[int]
     description: Optional[str]
