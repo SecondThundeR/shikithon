@@ -3,20 +3,14 @@ from typing import List
 
 from pydantic import BaseModel
 
-
-class FavoriteData(BaseModel):
-    id: int
-    name: str
-    russian: str
-    image: str
-    url: Optional[str]
+from .Favorite import Favorite
 
 
 class Favorites(BaseModel):
-    animes: List[Optional[FavoriteData]]
-    mangas: List[Optional[FavoriteData]]
-    characters: List[Optional[FavoriteData]]
-    people: List[Optional[FavoriteData]]
-    mangakas: List[Optional[FavoriteData]]
-    seyu: List[Optional[FavoriteData]]
-    producers: List[Optional[FavoriteData]]
+    animes: List[Optional[Favorite]]
+    mangas: List[Optional[Favorite]]
+    characters: List[Optional[Favorite]]
+    people: List[Optional[Favorite]]
+    mangakas: List[Optional[Favorite]]
+    seyu: List[Optional[Favorite]]
+    producers: List[Optional[Favorite]]
