@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 from pydantic import Field
 
-from .Topic import LinkedTopic
+from .LinkedTopic import LinkedTopic
 from .User import User
 
 
