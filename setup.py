@@ -1,24 +1,29 @@
+"""Setup script for shikithon library."""
+
 import os
-from distutils.core import setup
+from setuptools import setup
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
+# pylint: disable=W0311 (Due to false triggering)
 try:
-    with open(os.path.join(current_directory, 'README.md'), encoding='utf-8') as f:
+    with open(
+        os.path.join(current_directory, "README.md"), encoding="utf-8"
+    ) as f:
         long_description = f.read()
-except Exception:
-    long_description = ''
+except OSError:
+    long_description = ""
 
 setup(
-    name='shikithon',
+    name="shikithon",
     version="0.0.3",
-    license='MIT',
-    description='Yet another Python wrapper for Shikimori API',
+    license="MIT",
+    description="Yet another Python wrapper for Shikimori API",
     long_description=long_description,
-    long_description_content_type='text/markdown',
-    author='SecondThundeR',
-    author_email='awayfromgalaxy@gmail.com',
-    url='https://github.com/SecondThunder/shikithon',
+    long_description_content_type="text/markdown",
+    author="SecondThundeR",
+    author_email="awayfromgalaxy@gmail.com",
+    url="https://github.com/SecondThunder/shikithon",
     project_urls={
         "Bug Tracker": "https://github.com/pypa/shikithon/issues",
     },
