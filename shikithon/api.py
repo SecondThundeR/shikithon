@@ -11,6 +11,7 @@ from .enums.Anime import *
 from .models.Achievement import Achievement
 from .models.Anime import Anime
 from .models.Ban import Ban
+from .models.CalendarEvent import CalendarEvent
 from .models.Creator import Creator
 from .models.FranchiseTree import FranchiseTree
 from .models.Link import Link
@@ -361,6 +362,13 @@ class API:
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_bans_list_url(), query=query)
         return [Ban(**ban) for ban in res]
 
+    def get_current_calendar(self, censored: Censorship = Censorship.CENSORED) -> list[CalendarEvent]:
+        query: Dict[str, str] = {
+            "censored": censored.value
+        }
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_calendar_url(), query=query)
+        return [CalendarEvent(**calendar_event) for calendar_event in res]
+
     def get_current_user(self) -> User:
         res: Dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
         return User(**res)
@@ -457,6 +465,10 @@ class APIEndpoints:
     # Bans
     def get_bans_list_url(self) -> str:
         return f"{self.base_url}/bans"
+
+    # Calendar
+    def get_calendar_url(self) -> str:
+        return f"{self.base_url}/calendar"
 
     # Users
     def get_whoami_url(self) -> str:
