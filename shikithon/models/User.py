@@ -14,7 +14,7 @@ class User(BaseModel):
     avatar: str
     image: UserImage
     last_online_at: datetime
-    url: str
+    url: Optional[str]
     name: Optional[str]
     sex: Optional[str]
     full_years: Optional[int]

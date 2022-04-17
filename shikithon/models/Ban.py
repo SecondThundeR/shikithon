@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -9,7 +10,7 @@ from .User import User
 class Ban(BaseModel):
     id: int
     user_id: int
-    comment: Comment
+    comment: Optional[Comment]
     moderator_id: int
     reason: str
     created_at: datetime
