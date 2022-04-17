@@ -10,6 +10,7 @@ from requests import Session
 from .enums.Anime import *
 from .models.Achievement import Achievement
 from .models.Anime import Anime
+from .models.Ban import Ban
 from .models.Creator import Creator
 from .models.FranchiseTree import FranchiseTree
 from .models.Link import Link
@@ -345,6 +346,20 @@ class API:
         }
         res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_anime_topics_url(anime_id), query=query)
         return [Topic(**topic) for topic in res]
+
+    def get_bans_list(self, page: int = 1, limit: int = 1) -> list[Ban]:
+        if page < 1 or page > 100000:
+            page = 1
+
+        if limit < 1 or limit > 30:
+            limit = 1
+
+        query: Dict[str, str] = {
+            "page": str(page),
+            "limit": str(limit)
+        }
+        res: List[Dict[str, Any]] = self.__get(url=self.endpoints.get_bans_list_url(), query=query)
+        return [Ban(**ban) for ban in res]
 
     def get_current_user(self) -> User:
         res: Dict[str, Any] = self.__get(url=self.endpoints.get_whoami_url())
