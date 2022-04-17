@@ -439,6 +439,10 @@ class APIEndpoints:
     def get_anime_topics_url(self, anime_id: int) -> str:
         return f"{self.base_url}/animes/{anime_id}/topics"
 
+    # Bans
+    def get_bans_list_url(self) -> str:
+        return f"{self.base_url}/bans"
+
     # Users
     def get_whoami_url(self) -> str:
         return f"{self.base_url}/users/whoami"
