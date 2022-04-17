@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -11,5 +12,5 @@ class Comment(BaseModel):
     user_id: int
     created_at: datetime
     updated_at: datetime
-    is_summary: bool
+    is_summary: Optional[bool]
     is_offtopic: bool
