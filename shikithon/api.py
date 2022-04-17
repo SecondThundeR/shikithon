@@ -349,6 +349,18 @@ class API:
         return [Topic(**topic) for topic in res]
 
     def get_bans_list(self, page: int = 1, limit: int = 1) -> list[Ban]:
+        """
+            Returns list of recent bans on Shikimori.
+
+            Current API method returns `limit + 1` elements, if API has next page.
+
+            Parameters:
+                page (int): Number of page (Defaults to 1)
+                limit (int): Number of results (Default to 1)
+
+            Returns:
+                list[Ban]: list of recent bans
+        """
         if page < 1 or page > 100000:
             page = 1
 
@@ -363,6 +375,15 @@ class API:
         return [Ban(**ban) for ban in res]
 
     def get_current_calendar(self, censored: Censorship = Censorship.CENSORED) -> list[CalendarEvent]:
+        """
+            Returns current calendar events.
+
+            Parameters:
+                censored (Censorship): Status of censorship (Defaults to Censorship.CENSORED)
+
+            Returns:
+                list[CalendarEvent]: list of calendar events
+        """
         query: Dict[str, str] = {
             "censored": censored.value
         }
