@@ -30,38 +30,48 @@ class API:
 
     def get(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.get(url, headers=headers, params=query, data=data)
+        response_data = response.json()
         if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.get(url, headers, query, data)
-        return response.json()
+            if response_data['error'] == "invalid_token":
+                self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
+                return self.get(url, headers, query, data)
+        return response_data
 
     def post(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.post(url, headers=headers, params=query, data=data)
+        response_data = response.json()
         if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.post(url, headers, query, data)
-        return response.json()
+            if response_data['error'] == "invalid_token":
+                self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
+                return self.post(url, headers, query, data)
+        return response_data
 
     def put(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.put(url, headers=headers, params=query, data=data)
+        response_data = response.json()
         if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.put(url, headers, query, data)
-        return response.json()
+            if response_data['error'] == "invalid_token":
+                self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
+                return self.put(url, headers, query, data)
+        return response_data
 
     def patch(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.patch(url, headers=headers, params=query, data=data)
+        response_data = response.json()
         if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.patch(url, headers, query, data)
-        return response.json()
+            if response_data['error'] == "invalid_token":
+                self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
+                return self.patch(url, headers, query, data)
+        return response_data
 
     def delete(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
         response = self.session.delete(url, headers=headers, params=query, data=data)
+        response_data = response.json()
         if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.delete(url, headers, query, data)
-        return response.json()
+            if response_data['error'] == "invalid_token":
+                self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
+                return self.delete(url, headers, query, data)
+        return response_data
 
     def get_api_config_dict(self) -> Dict[str, str]:
         """Return config dictionary with current values."""
@@ -136,6 +146,8 @@ class API:
         if refresh_tokens:
             data["grant_type"] = "refresh_token"
             data["refresh_token"] = self.refresh_token
+            self.session.headers.clear()
+            self.session.headers.update({"User-Agent": self.app_name})
         else:
             data["grant_type"] = "authorization_code"
             data["code"] = self.auth_code
@@ -144,7 +156,9 @@ class API:
         oauth_json = self.post(url=token_url, data=data)
 
         try:
-            return oauth_json["access_token"], oauth_json["refresh_token"]
+            tokens_data = oauth_json["access_token"], oauth_json["refresh_token"]
+            self.session.headers.update({"Authorization": f"Bearer {tokens_data[0]}"})
+            return tokens_data
         except KeyError:
             error_info = json.dumps(oauth_json)
             raise MissingConfigData(f"An error occurred while receiving tokens, here is the information from the response: {error_info}")
