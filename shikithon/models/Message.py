@@ -1,14 +1,17 @@
+"""Model for /api/messages"""
+# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
 from pydantic import Field
 
-from .LinkedTopic import LinkedTopic
-from .User import User
+from .linked_topic import LinkedTopic
+from .user import User
 
 
 class Message(BaseModel):
+    """Represents message entity."""
     id: int
     kind: str
     read: bool

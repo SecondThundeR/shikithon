@@ -3,7 +3,7 @@
 from pydantic import BaseModel
 
 
-class Screenshot(BaseModel):
-    """Represents screenshot links entity."""
-    original: str
-    preview: str
+class UserRateStatus(BaseModel):
+    """Represents user rate status entity."""
+    name: str
+    value: int

@@ -1,75 +1,25 @@
+"""Submodel for user.py"""
+# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from typing import Optional
 from typing import List
 
 from pydantic import BaseModel
 from pydantic import Field
 
-
-class Status(BaseModel):
-    id: int
-    grouped_id: str
-    name: str
-    size: int
-    type: str
-
-
-class Statuses(BaseModel):
-    anime: Optional[List[Status]]
-    manga: Optional[List[Status]]
-
-
-class FullStatuses(BaseModel):
-    anime: Optional[List[Status]]
-    manga: Optional[List[Status]]
-
-
-class Score(BaseModel):
-    name: str
-    value: int
-
-
-class Scores(BaseModel):
-    anime: Optional[List[Score]]
-    manga: Optional[List[Score]]
-
-
-class Type(BaseModel):
-    name: str
-    value: int
-
-
-class Types(BaseModel):
-    anime: Optional[List[Type]]
-    manga: Optional[List[Type]]
-
-
-class Rating(BaseModel):
-    name: str
-    value: int
-
-
-class Ratings(BaseModel):
-    anime: Optional[List[Rating]]
-    manga: Optional[List[Rating]]
-
-
-class Activity(BaseModel):
-    name: List[int]
-    value: int
-
-
-"""
-Only this model isn't using dataclass decorator
-due to unexpected fields name
-"""
+from .activity import Activity
+from .rating_list import RatingList
+from .score_list import ScoreList
+from .status_list import StatusList
+from .type_list import TypeList
 
 
 class Stats(BaseModel):
-    statuses: Optional[Statuses]
-    full_statuses: Optional[FullStatuses]
-    scores: Optional[Scores]
-    types: Optional[Types]
-    ratings: Optional[Ratings]
+    """Represents user's stats entity."""
+    statuses: Optional[StatusList]
+    full_statuses: Optional[StatusList]
+    scores: Optional[ScoreList]
+    types: Optional[TypeList]
+    ratings: Optional[RatingList]
     has_anime: Optional[bool] = Field(alias='has_anime?')
     has_manga: Optional[bool] = Field(alias='has_manga?')
     genres: Optional[List[str]]

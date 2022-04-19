@@ -1,16 +1,19 @@
+"""Submodel for creator.py"""
+# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Optional
 from typing import List
 
 from pydantic import BaseModel
 
-from .Anime import Anime
-from .Image import Image
-from .Manga import Manga
-from .Seyu import Seyu
+from .anime import Anime
+from .image import Image
+from .manga import Manga
+from .seyu import Seyu
 
 
 class Character(BaseModel):
+    """Represents character of anime."""
     id: int
     name: str
     russian: str

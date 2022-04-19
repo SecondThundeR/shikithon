@@ -1,14 +1,17 @@
+"""Model for /api/users"""
+# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Optional
 from typing import List
 
 from pydantic import BaseModel
 
-from .Stats import Stats
-from .UserImage import UserImage
+from .stats import Stats
+from .user_image import UserImage
 
 
 class User(BaseModel):
+    """Represents user entity."""
     id: int
     nickname: str
     avatar: str

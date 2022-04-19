@@ -1,3 +1,5 @@
+"""Model for /api/animes"""
+# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Optional
 from typing import Union
@@ -5,23 +7,18 @@ from typing import List
 
 from pydantic import BaseModel
 
-from .Genre import Genre
-from .Image import Image
-from .Screenshot import Screenshot
-from .Studio import Studio
-from .UserRate import UserRate
-from .UserRate import RateScore
-from .UserRate import RateStatus
-from .Video import Video
-
-
-"""
-    Many fields are optional, due to API behaviour
-    Returning short info and/or full info
-"""
+from .genre import Genre
+from .image import Image
+from .screenshot import Screenshot
+from .studio import Studio
+from .user_rate import UserRate
+from .user_rate_score import UserRateScore
+from .user_rate_status import UserRateStatus
+from .video import Video
 
 
 class Anime(BaseModel):
+    """Represents an anime entity."""
     id: int
     name: str
     russian: str
@@ -42,16 +39,16 @@ class Anime(BaseModel):
     duration: Optional[int]
     description: Optional[str]
     description_html: Optional[str]
-    description_source: Optional[str]  # TODO: Change type to correct one
-    franchise: Optional[str]  # TODO: Change type to correct one
+    description_source: Optional[str]
+    franchise: Optional[str]
     favoured: Optional[bool]
     anons: Optional[bool]
     ongoing: Optional[bool]
     thread_id: Optional[int]
     topic_id: Optional[int]
     myanimelist_id: Optional[int]
-    rates_scores_stats: Optional[List[RateScore]]
-    rates_statuses_stats: Optional[List[RateStatus]]
+    rates_scores_stats: Optional[List[UserRateScore]]
+    rates_statuses_stats: Optional[List[UserRateStatus]]
     updated_at: Optional[datetime]
     next_episode_at: Optional[datetime]
     fansubbers: Optional[List[str]]

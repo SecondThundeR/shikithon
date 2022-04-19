@@ -1,16 +1,19 @@
+"""Model for /api/animes/:id/topics"""
+# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Union
 from typing import Optional
 
 from pydantic import BaseModel
 
-from .Anime import Anime
-from .Forum import Forum
-from .Manga import Manga
-from .User import User
+from .anime import Anime
+from .forum import Forum
+from .manga import Manga
+from .user import User
 
 
 class Topic(BaseModel):
+    """Represents topic entity."""
     id: int
     topic_title: str
     body: str

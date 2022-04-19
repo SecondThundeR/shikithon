@@ -1,11 +1,13 @@
+"""Model for /api/v2/user_rates"""
+# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
-from typing import Union
 from typing import Optional
 
 from pydantic import BaseModel
 
 
 class UserRate(BaseModel):
+    """Represents user rate entity."""
     id: int
     user_id: Optional[int]
     target_id: Optional[int]
@@ -20,13 +22,3 @@ class UserRate(BaseModel):
     rewatches: int
     created_at: datetime
     updated_at: datetime
-
-
-class RateScore(BaseModel):
-    name: int
-    value: Union[int, float]
-
-
-class RateStatus(BaseModel):
-    name: str
-    value: int
