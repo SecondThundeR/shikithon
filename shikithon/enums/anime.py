@@ -15,6 +15,7 @@ class Order(Enum):
     STATUS = "status"
     RANDOM = "random"
 
+
 class Kind(Enum):
     """Contains variables related for getting certain kind of anime."""
     NONE = ""
@@ -28,6 +29,7 @@ class Kind(Enum):
     SPECIAL = "special"
     MUSIC = "music"
 
+
 class Status(Enum):
     """Contains variables related for getting certain status of anime."""
     NONE = ""
@@ -36,12 +38,14 @@ class Status(Enum):
     RELEASED = "released"
     EPISODE = "episode"
 
+
 class Duration(Enum):
     """Contains variables related for getting certain duration of anime."""
     NONE = ""
     SHORT = "S"
     MEDIUM = "D"
     LONG = "F"
+
 
 class Rating(Enum):
     """Contains variables related for getting certain rating of anime."""
@@ -54,10 +58,12 @@ class Rating(Enum):
     MILD_NUDITY = "r_plus"
     HENTAI = "rx"
 
+
 class Censorship(Enum):
     """Contains variables related for getting certain censorship status of anime."""
     CENSORED = "true"
     UNCENSORED = "false"
+
 
 class MyList(Enum):
     """Contains variables related for getting certain user list status of anime."""
