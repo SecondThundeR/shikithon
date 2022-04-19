@@ -7,18 +7,24 @@ from typing import List
 
 from requests import Session
 
-from .enums.Anime import *
-from .models.Achievement import Achievement
-from .models.Anime import Anime
-from .models.Ban import Ban
-from .models.CalendarEvent import CalendarEvent
-from .models.Creator import Creator
-from .models.FranchiseTree import FranchiseTree
-from .models.Link import Link
-from .models.Relation import Relation
-from .models.Screenshot import Screenshot
-from .models.Topic import Topic
-from .models.User import User
+from .enums.anime import Censorship
+from .enums.anime import Duration
+from .enums.anime import Kind
+from .enums.anime import MyList
+from .enums.anime import Order
+from .enums.anime import Rating
+from .enums.anime import Status
+from .models.achievement import Achievement
+from .models.anime import Anime
+from .models.ban import Ban
+from .models.calendar_event import CalendarEvent
+from .models.creator import Creator
+from .models.franchise_tree import FranchiseTree
+from .models.link import Link
+from .models.relation import Relation
+from .models.screenshot import Screenshot
+from .models.topic import Topic
+from .models.user import User
 
 
 class API:
