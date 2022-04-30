@@ -3,7 +3,7 @@ from enum import Enum
 
 
 class Order(Enum):
-    """Contains variables related for list ordering query."""
+    """Contains constants related for list ordering query."""
     NONE = ""
     ID = "id"
     RANKED = "ranked"
@@ -17,7 +17,7 @@ class Order(Enum):
 
 
 class Kind(Enum):
-    """Contains variables related for getting certain kind of anime."""
+    """Contains constants related for getting certain kind of anime."""
     NONE = ""
     TV = "tv"
     TV_13 = "tv_13"
@@ -31,7 +31,7 @@ class Kind(Enum):
 
 
 class Status(Enum):
-    """Contains variables related for getting certain status of anime."""
+    """Contains constants related for getting certain status of anime."""
     NONE = ""
     ANONS = "anons"
     ONGOING = "ongoing"
@@ -40,7 +40,7 @@ class Status(Enum):
 
 
 class Duration(Enum):
-    """Contains variables related for getting certain duration of anime."""
+    """Contains constants related for getting certain duration of anime."""
     NONE = ""
     SHORT = "S"
     MEDIUM = "D"
@@ -48,7 +48,7 @@ class Duration(Enum):
 
 
 class Rating(Enum):
-    """Contains variables related for getting certain rating of anime."""
+    """Contains constants related for getting certain rating of anime."""
     NONE = ""
     NO_RATING = "none"
     ALL_AGES = "g"
@@ -60,13 +60,17 @@ class Rating(Enum):
 
 
 class Censorship(Enum):
-    """Contains variables related for getting certain censorship status of anime."""
+    """Contains constants related for getting
+    certain censorship status of anime.
+    """
     CENSORED = "true"
     UNCENSORED = "false"
 
 
 class MyList(Enum):
-    """Contains variables related for getting certain user list status of anime."""
+    """Contains constants related for getting
+    certain user list status of anime.
+    """
     NONE = ""
     PLANNED = "planned"
     WATCHING = "watching"
