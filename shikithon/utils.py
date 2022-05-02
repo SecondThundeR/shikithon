@@ -28,3 +28,14 @@ class Utils:
             f"{key}={val}" for (key, val) in query_dict.items()
         )
         return f"?{query_dict_str}"
+
+    @staticmethod
+    def convert_app_name(app_name: str) -> str:
+        """
+        Api Test -> api_test
+
+        :param app_name:
+        :return: Converted app name for config cache filename
+        :rtype: str
+        """
+        return "_".join(app_name.lower().split(" "))
