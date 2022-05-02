@@ -27,9 +27,9 @@ class Endpoints:
         :param str base_url_v2: URL for Shikimori API (v.2)
         :param str oauth_url: URL for Shikimori OAuth
         """
-        self.base_url: str = base_url
-        self.base_url_v2: str = base_url_v2
-        self.oauth_url: str = oauth_url
+        self._base_url: str = base_url
+        self._base_url_v2: str = base_url_v2
+        self._oauth_url: str = oauth_url
 
     @property
     def base_url(self) -> str:
@@ -166,7 +166,7 @@ class Endpoints:
         """
         Returns endpoint for creating request about violation of site rules.
 
-        Note: In Shikimori API docs, this endpoint also named as
+        **Note:** In Shikimori API docs, this endpoint also named as
         '/api/v2/abuse_requests/**abuse**'
 
         :return: Abuse violation endpoint link
@@ -563,7 +563,7 @@ class Endpoints:
         """
         Returns endpoint for notifying Shikimori about anime episode release.
 
-        Note: To use this endpoint, you need special private token,
+        **Note:** To use this endpoint, you need special private token,
         required to access this API
 
         :return: Episode notifications endpoint link
@@ -1167,7 +1167,7 @@ class Endpoints:
         """
         Returns endpoint for cleanup user rates by type.
 
-        Note: This endpoint is using API v.1
+        **Note:** This endpoint is using API v.1
 
         :param user_rate_type: Type of an user rate
         :return: User rates cleanup endpoint link
@@ -1180,7 +1180,7 @@ class Endpoints:
         """
         Returns endpoint for resetting user rates by type.
 
-        Note: This endpoint is using API v.1
+        **Note:** This endpoint is using API v.1
 
         :param user_rate_type: Type of an user rate
         :return: User rates reset endpoint link
