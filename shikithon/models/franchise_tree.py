@@ -1,11 +1,10 @@
 """Model for /api/animes | mangas/:id/franchise"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from typing import List
 
 from pydantic import BaseModel
 
-from .tree_link import TreeLink
-from .tree_node import TreeNode
+from shikithon.models.tree_link import TreeLink
+from shikithon.models.tree_node import TreeNode
 
 
 class FranchiseTree(BaseModel):

@@ -1,11 +1,10 @@
 """Model for /api/calendar"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
 
-from .anime import Anime
+from shikithon.models.anime import Anime
 
 
 class CalendarEvent(BaseModel):

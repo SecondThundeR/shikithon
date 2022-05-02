@@ -1,12 +1,11 @@
 """Model for /api/users/:id/history"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Union
 
 from pydantic import BaseModel
 
-from anime import Anime
-from manga import Manga
+from shikithon.models.anime import Anime
+from shikithon.models.manga import Manga
 
 
 class History(BaseModel):

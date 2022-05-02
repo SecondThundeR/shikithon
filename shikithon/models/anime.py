@@ -1,5 +1,4 @@
 """Model for /api/animes"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Optional
 from typing import Union
@@ -7,14 +6,14 @@ from typing import List
 
 from pydantic import BaseModel
 
-from .genre import Genre
-from .image import Image
-from .screenshot import Screenshot
-from .studio import Studio
-from .user_rate import UserRate
-from .user_rate_score import UserRateScore
-from .user_rate_status import UserRateStatus
-from .video import Video
+from shikithon.models.genre import Genre
+from shikithon.models.image import Image
+from shikithon.models.screenshot import Screenshot
+from shikithon.models.studio import Studio
+from shikithon.models.user_rate import UserRate
+from shikithon.models.user_rate_score import UserRateScore
+from shikithon.models.user_rate_status import UserRateStatus
+from shikithon.models.video import Video
 
 
 class Anime(BaseModel):

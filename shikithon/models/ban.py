@@ -1,12 +1,11 @@
 """Model for /api/bans"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
 
-from .comment import Comment
-from .user import User
+from shikithon.models.comment import Comment
+from shikithon.models.user import User
 
 
 class Ban(BaseModel):

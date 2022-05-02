@@ -1,16 +1,15 @@
 """Submodel for user.py"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from typing import Optional
 from typing import List
 
 from pydantic import BaseModel
 from pydantic import Field
 
-from .activity import Activity
-from .rating_list import RatingList
-from .score_list import ScoreList
-from .status_list import StatusList
-from .type_list import TypeList
+from shikithon.models.activity import Activity
+from shikithon.models.rating_list import RatingList
+from shikithon.models.score_list import ScoreList
+from shikithon.models.status_list import StatusList
+from shikithon.models.type_list import TypeList
 
 
 class Stats(BaseModel):

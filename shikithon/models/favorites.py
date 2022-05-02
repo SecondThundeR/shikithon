@@ -1,11 +1,10 @@
 """Model for /api/users/:id/favorites"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from typing import Optional
 from typing import List
 
 from pydantic import BaseModel
 
-from favorite import Favorite
+from shikithon.models.favorite import Favorite
 
 
 class Favorites(BaseModel):

@@ -1,15 +1,14 @@
 """Model for /api/animes/:id/topics"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Union
 from typing import Optional
 
 from pydantic import BaseModel
 
-from .anime import Anime
-from .forum import Forum
-from .manga import Manga
-from .user import User
+from shikithon.models.anime import Anime
+from shikithon.models.forum import Forum
+from shikithon.models.manga import Manga
+from shikithon.models.user import User
 
 
 class Topic(BaseModel):
