@@ -328,9 +328,9 @@ class API:
             data["redirect_uri"] = self.redirect_uri
 
         oauth_json = self.request(
-            request_type=RequestType.POST,
-            url=self.endpoints.oauth_token,
-            data=data
+            self.endpoints.oauth_token,
+            data=data,
+            request_type=RequestType.POST
         )
 
         try:
@@ -359,11 +359,11 @@ class API:
     @limits(calls=MAX_CALLS_PER_MINUTE, period=ONE_MINUTE)
     def request(
             self,
-            request_type: RequestType,
             url: str,
             data: Union[None, Dict[str, str]] = None,
             headers: Union[None, Dict[str, str]] = None,
-            query: Union[None, Dict[str, str]] = None
+            query: Union[None, Dict[str, str]] = None,
+            request_type: RequestType = RequestType.GET
     ) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
         """
         Create request and return response JSON.
@@ -378,11 +378,11 @@ class API:
         for different request methods, this method
         uses RequestType enum
 
-        :param RequestType request_type: Type of current request
         :param str url: URL for making request
         :param Union[None, Dict[str, str]] data: Request body data
         :param Union[None, Dict[str, str]] headers: Custom headers for request
         :param Union[None, Dict[str, str]] query: Query data for request
+        :param RequestType request_type: Type of current request
         :return: Response JSON or None, if request fails
         :rtype: Union[List[Dict[str, Any]], Dict[str, Any], None]
         """
@@ -412,11 +412,11 @@ class API:
         if response.status_code == ResponseCode.RETRY_LATER.value:
             sleep(1)
             return self.request(
-                request_type,
                 url,
                 data,
                 headers,
-                query
+                query,
+                request_type
             )
 
         return response.json()
@@ -433,8 +433,7 @@ class API:
             "user_id": str(user_id)
         }
         response: List[Dict[str, Any]] = self.request(
-            request_type=RequestType.GET,
-            url=self.endpoints.achievements,
+            self.endpoints.achievements,
             query=query
         )
         return [Achievement(**achievement) for achievement in response]
@@ -535,8 +534,7 @@ class API:
             "search": search
         }
         response: List[Dict[str, Any]] = self.request(
-            RequestType.GET,
-            url=self.endpoints.animes,
+            self.endpoints.animes,
             query=query
         )
         return [Anime(**anime) for anime in response]
@@ -550,8 +548,7 @@ class API:
         :rtype: Anime
         """
         response: Dict[str, Any] = self.request(
-            RequestType.GET,
-            url=self.endpoints.anime(anime_id)
+            self.endpoints.anime(anime_id)
         )
         return Anime(**response)
 
@@ -564,8 +561,7 @@ class API:
         :rtype: List[Creator]
         """
         response: List[Dict[str, Any]] = self.request(
-            RequestType.GET,
-            url=self.endpoints.anime_roles(anime_id)
+            self.endpoints.anime_roles(anime_id)
         )
         return [Creator(**creator) for creator in response]
 
@@ -578,8 +574,7 @@ class API:
         :rtype: List[Anime]
         """
         response: List[Dict[str, Any]] = self.request(
-            RequestType.GET,
-            url=self.endpoints.similar_animes(anime_id)
+            self.endpoints.similar_animes(anime_id)
         )
         return [Anime(**anime) for anime in response]
 
@@ -592,8 +587,7 @@ class API:
         :rtype: List[Relation]
         """
         response: List[Dict[str, Any]] = self.request(
-            RequestType.GET,
-            url=self.endpoints.anime_related_content(anime_id)
+            self.endpoints.anime_related_content(anime_id)
         )
         return [Relation(**relation) for relation in response]
 
@@ -606,8 +600,7 @@ class API:
         :rtype: List[Screenshot]
         """
         response: List[Dict[str, Any]] = self.request(
-            RequestType.GET,
-            url=self.endpoints.anime_screenshots(anime_id)
+            self.endpoints.anime_screenshots(anime_id)
         )
         return [Screenshot(**screenshot) for screenshot in response]
 
@@ -620,8 +613,7 @@ class API:
         :rtype: FranchiseTree
         """
         response: Dict[str, Any] = self.request(
-            RequestType.GET,
-            url=self.endpoints.anime_franchise_tree(anime_id)
+            self.endpoints.anime_franchise_tree(anime_id)
         )
         return FranchiseTree(**response)
 
@@ -634,8 +626,7 @@ class API:
         :rtype: List[Link]
         """
         response: List[Dict[str, Any]] = self.request(
-            RequestType.GET,
-            url=self.endpoints.anime_external_links(anime_id)
+            self.endpoints.anime_external_links(anime_id)
         )
         return [Link(**link) for link in response]
 
@@ -673,8 +664,7 @@ class API:
             "episode": str(episode)
         }
         response: List[Dict[str, Any]] = self.request(
-            RequestType.GET,
-            url=self.endpoints.anime_topics(anime_id),
+            self.endpoints.anime_topics(anime_id),
             query=query
         )
         return [Topic(**topic) for topic in response]
@@ -702,8 +692,7 @@ class API:
             "limit": str(limit)
         }
         response: List[Dict[str, Any]] = self.request(
-            RequestType.GET,
-            url=self.endpoints.bans_list,
+            self.endpoints.bans_list,
             query=query
         )
         return [Ban(**ban) for ban in response]
@@ -723,8 +712,7 @@ class API:
             "censored": censored.value
         }
         res: List[Dict[str, Any]] = self.request(
-            RequestType.GET,
-            url=self.endpoints.calendar,
+            self.endpoints.calendar,
             query=query
         )
         return [CalendarEvent(**calendar_event) for calendar_event in res]
@@ -740,8 +728,7 @@ class API:
         :rtype: User
         """
         response: Dict[str, Any] = self.request(
-            RequestType.GET,
-            headers=self.authorization_header,
-            url=self.endpoints.whoami
+            self.endpoints.whoami,
+            headers=self.authorization_header
         )
         return User(**response)
