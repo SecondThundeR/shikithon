@@ -59,6 +59,8 @@ SHIKIMORI_OAUTH_URL = "https://shikimori.one/oauth"
 DEFAULT_REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"
 ONE_MINUTE = 60
 MAX_CALLS_PER_MINUTE = 90
+RATE_LIMIT_RPS_COOLDOWN = 1
+TOKEN_EXPIRE_TIME = 86400
 
 
 class API:
@@ -84,22 +86,22 @@ class API:
 
         :param Dict[str, str] config: Config file for API class
         """
-        self.endpoints: Endpoints = Endpoints(
+        self._endpoints: Endpoints = Endpoints(
             SHIKIMORI_API_URL, SHIKIMORI_API_URL_V2, SHIKIMORI_OAUTH_URL
         )
-        self.session: Session = Session()
+        self._session: Session = Session()
 
-        self.app_name: str = ""
-        self.client_id: str = ""
-        self.client_secret: str = ""
-        self.redirect_uri: str = ""
-        self.scopes: str = ""
-        self.auth_code: str = ""
-        self.access_token: str = ""
-        self.refresh_token: str = ""
-        self.token_expire: int = -1
+        self._app_name: str = ""
+        self._client_id: str = ""
+        self._client_secret: str = ""
+        self._redirect_uri: str = ""
+        self._scopes: str = ""
+        self._auth_code: str = ""
+        self._access_token: str = ""
+        self._refresh_token: str = ""
+        self._token_expire: int = -1
 
-        self.init_config(config)
+        self._init_config(config)
 
     @property
     def config(self) -> Dict[str, str]:
@@ -110,15 +112,15 @@ class API:
         :rtype: Dict[str, str]
         """
         return {
-            "app_name": self.app_name,
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
-            "redirect_uri": self.redirect_uri,
-            "scopes": self.scopes,
-            "auth_code": self.auth_code,
-            "access_token": self.access_token,
-            "refresh_token": self.refresh_token,
-            "token_expire": str(self.token_expire)
+            "app_name": self._app_name,
+            "client_id": self._client_id,
+            "client_secret": self._client_secret,
+            "redirect_uri": self._redirect_uri,
+            "scopes": self._scopes,
+            "auth_code": self._auth_code,
+            "access_token": self._access_token,
+            "refresh_token": self._refresh_token,
+            "token_expire": str(self._token_expire)
         }
 
     @config.setter
@@ -131,49 +133,53 @@ class API:
 
         :param Dict[str, str] config: Config dictionary
         """
-        self.init_config(config)
+        self._init_config(config)
 
     @property
-    def tokens(self) -> Tuple[str, str]:
+    def _tokens(self) -> Tuple[str, str]:
         """
         Returns access/refresh tokens as tuple.
 
         :return: Access and refresh tokens tuple
         :rtype: Tuple[str, str]
         """
-        return self.access_token, self.refresh_token
+        return self._access_token, self._refresh_token
 
-    @tokens.setter
-    def tokens(self, tokens_data: Tuple[str, str]):
+    @_tokens.setter
+    def _tokens(self, tokens_data: Tuple[str, str]):
         """
         Sets new access/refresh tokens from tuple.
 
         :param tokens_data: New access and refresh tokens tuple
         """
-        self.access_token = tokens_data[0]
-        self.refresh_token = tokens_data[1]
+        self._access_token = tokens_data[0]
+        self._refresh_token = tokens_data[1]
 
     @property
-    def user_agent(self) -> Dict[str, str]:
+    def _user_agent(self) -> Dict[str, str]:
         """
-        Returns user agent dictionary.
+        Returns current session User-Agent.
 
-        :return: Dictionary with proper user agent
+        :return: Session User-Agent
         :rtype: Dict[str, str]
         """
         return {
-            "User-Agent": self.session.headers["User-Agent"]
+            "User-Agent": self._session.headers["User-Agent"]
         }
 
-    @user_agent.setter
-    def user_agent(self, app_name: str):
-        """Update session headers and set user agent."""
-        self.session.headers.update(
+    @_user_agent.setter
+    def _user_agent(self, app_name: str):
+        """
+        Update session headers and set user agent.
+
+        :param str app_name: OAuth App name
+        """
+        self._session.headers.update(
             {"User-Agent": app_name}
         )
 
     @property
-    def authorization_header(self) -> Dict[str, str]:
+    def _authorization_header(self) -> Dict[str, str]:
         """
         Returns user agent and authorization token headers dictionary.
 
@@ -182,11 +188,11 @@ class API:
         :return: Dictionary with proper user agent and autorization token
         :rtype: Dict[str, str]
         """
-        header = self.user_agent
-        header["Authorization"] = f"Bearer {self.access_token}"
+        header = self._user_agent
+        header["Authorization"] = f"Bearer {self._access_token}"
         return header
 
-    def init_config(self, config: Dict[str, str]):
+    def _init_config(self, config: Dict[str, str]):
         """
         Special method for initializing an object.
 
@@ -198,15 +204,15 @@ class API:
 
         :param Dict[str, str] config: Config dictionary
         """
-        self.validate_config(config)
-        self.validate_vars()
-        self.user_agent = self.app_name
+        self._validate_config(config)
+        self._validate_vars()
+        self._user_agent = self._app_name
 
-        if not self.access_token:
-            tokens_data: Tuple[str, str] = self.get_access_token()
-            self.update_tokens(tokens_data)
+        if not self._access_token:
+            tokens_data: Tuple[str, str] = self._get_access_token()
+            self._update_tokens(tokens_data)
 
-    def validate_config(self, config: Dict[str, str]):
+    def _validate_config(self, config: Dict[str, str]):
         """
         Validates passed config dictionary and sets
         API variables.
@@ -227,16 +233,16 @@ class API:
                 config = ConfigCache.get_config(config["app_name"])
                 config_cached = True
 
-            self.app_name: str = config["app_name"]
-            self.client_id: str = config["client_id"]
-            self.client_secret: str = config["client_secret"]
-            self.redirect_uri: str = config["redirect_uri"]
-            self.scopes: str = config["scopes"]
-            self.auth_code: str = config["auth_code"]
+            self._app_name: str = config["app_name"]
+            self._client_id: str = config["client_id"]
+            self._client_secret: str = config["client_secret"]
+            self._redirect_uri: str = config["redirect_uri"]
+            self._scopes: str = config["scopes"]
+            self._auth_code: str = config["auth_code"]
             if config_cached:
-                self.access_token = config["access_token"]
-                self.refresh_token = config["refresh_token"]
-                self.token_expire = int(config["token_expire"])
+                self._access_token = config["access_token"]
+                self._refresh_token = config["refresh_token"]
+                self._token_expire = int(config["token_expire"])
         except KeyError as err:
             raise MissingConfigData(
                 "It is impossible to initialize an API object"
@@ -244,7 +250,7 @@ class API:
                 "Recheck your config and try again."
             ) from err
 
-    def validate_vars(self):
+    def _validate_vars(self):
         """
         Validates variables and throws exception
         if some vars are set to empty string.
@@ -269,39 +275,39 @@ class API:
         exception_msg: str = "To use the Shikimori API correctly, " \
                              "you need to pass the application "
 
-        if not self.app_name:
+        if not self._app_name:
             raise MissingAppName(
                 exception_msg + "name"
             )
 
-        if not self.client_id:
+        if not self._client_id:
             raise MissingClientID(
                 exception_msg + "Client ID"
             )
 
-        if not self.client_secret:
+        if not self._client_secret:
             raise MissingClientSecret(
                 exception_msg + "Client Secret"
             )
 
-        if not self.redirect_uri:
-            self.redirect_uri = DEFAULT_REDIRECT_URI
+        if not self._redirect_uri:
+            self._redirect_uri = DEFAULT_REDIRECT_URI
 
-        if not self.scopes:
+        if not self._scopes:
             raise MissingAppScopes(
                 exception_msg + "scopes"
             )
 
-        if not self.auth_code:
-            auth_link: str = self.endpoints.authorization_link(
-                self.client_id, self.redirect_uri, self.scopes
+        if not self._auth_code:
+            auth_link: str = self._endpoints.authorization_link(
+                self._client_id, self._redirect_uri, self._scopes
             )
             raise MissingAuthCode(
                 exception_msg + "authorization code. To get one, go to "
                                 f"{auth_link}"
             )
 
-    def get_access_token(self, refresh_token: bool = False) -> Tuple[str, str]:
+    def _get_access_token(self, refresh_token: bool = False) -> Tuple[str, str]:
         """
         Returns access/refresh tokens from API request.
 
@@ -315,20 +321,20 @@ class API:
         :raises: AccessTokenException
         """
         data: Dict[str, str] = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret
+            "client_id": self._client_id,
+            "client_secret": self._client_secret
         }
 
         if refresh_token:
             data["grant_type"] = "refresh_token"
-            data["refresh_token"] = self.refresh_token
+            data["refresh_token"] = self._refresh_token
         else:
             data["grant_type"] = "authorization_code"
-            data["code"] = self.auth_code
-            data["redirect_uri"] = self.redirect_uri
+            data["code"] = self._auth_code
+            data["redirect_uri"] = self._redirect_uri
 
-        oauth_json = self.request(
-            self.endpoints.oauth_token,
+        oauth_json = self._request(
+            self._endpoints.oauth_token,
             data=data,
             request_type=RequestType.POST
         )
@@ -342,7 +348,7 @@ class API:
                 f"here is the information from the response: {error_info}"
             ) from err
 
-    def update_tokens(self, tokens_data: Tuple[str, str]):
+    def _update_tokens(self, tokens_data: Tuple[str, str]):
         """
         Set new tokens and update token expire time.
 
@@ -351,13 +357,17 @@ class API:
 
         :param Tuple[str, str] tokens_data: Tuple with access and refresh tokens
         """
-        self.tokens = tokens_data
-        self.token_expire = int(time()) + 86400
+        self._tokens = tokens_data
+        self._cache_config()
+
+    def _cache_config(self):
+        """Updates token expire time and caches new config."""
+        self._token_expire = int(time()) + TOKEN_EXPIRE_TIME
         ConfigCache.save_config(self.config)
 
     @sleep_and_retry
     @limits(calls=MAX_CALLS_PER_MINUTE, period=ONE_MINUTE)
-    def request(
+    def _request(
             self,
             url: str,
             data: Union[None, Dict[str, str]] = None,
@@ -389,29 +399,29 @@ class API:
         response: Union[Response, None] = None
 
         if request_type == RequestType.GET:
-            response = self.session.get(
+            response = self._session.get(
                 url, headers=headers, params=query, data=data
             )
         if request_type == RequestType.POST:
-            response = self.session.post(
+            response = self._session.post(
                 url, headers=headers, params=query, data=data
             )
         if request_type == RequestType.PUT:
-            response = self.session.put(
+            response = self._session.put(
                 url, headers=headers, params=query, data=data
             )
         if request_type == RequestType.PATCH:
-            response = self.session.patch(
+            response = self._session.patch(
                 url, headers=headers, params=query, data=data
             )
         if request_type == RequestType.DELETE:
-            response = self.session.delete(
+            response = self._session.delete(
                 url, headers=headers, params=query, data=data
             )
 
         if response.status_code == ResponseCode.RETRY_LATER.value:
-            sleep(1)
-            return self.request(
+            sleep(RATE_LIMIT_RPS_COOLDOWN)
+            return self._request(
                 url,
                 data,
                 headers,
@@ -421,9 +431,31 @@ class API:
 
         return response.json()
 
-    def get_achievements(self, user_id: int) -> List[Achievement]:
+    def refresh_tokens(self):
         """
-        Get achievements of user by ID.
+        Manages tokens refreshing and caching.
+
+        This method gets new access/refresh tokens and
+        updates them in current instance, as well as
+        caching new config.
+        """
+        tokens_data: Tuple[str, str] = self._get_access_token(
+            refresh_token=True
+        )
+        self._update_tokens(tokens_data)
+
+    def token_expired(self):
+        """
+        Checks if current access token is expired.
+
+        :return: Result of token expiration check
+        :rtype: bool
+        """
+        return int(time()) > self._token_expire
+
+    def achievements(self, user_id: int) -> List[Achievement]:
+        """
+        Returns achievements of user by ID.
 
         :param user_id: User ID for getting achievements
         :return: List of achievements
@@ -432,13 +464,13 @@ class API:
         query: Dict[str, str] = {
             "user_id": str(user_id)
         }
-        response: List[Dict[str, Any]] = self.request(
-            self.endpoints.achievements,
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.achievements,
             query=query
         )
         return [Achievement(**achievement) for achievement in response]
 
-    def get_animes(
+    def animes(
             self,
             page: int = 1,
             limit: int = 1,
@@ -533,13 +565,13 @@ class API:
             ),
             "search": search
         }
-        response: List[Dict[str, Any]] = self.request(
-            self.endpoints.animes,
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.animes,
             query=query
         )
         return [Anime(**anime) for anime in response]
 
-    def get_anime(self, anime_id: int) -> Anime:
+    def anime(self, anime_id: int) -> Anime:
         """
         Returns info about certain anime.
 
@@ -547,12 +579,12 @@ class API:
         :return: Anime info
         :rtype: Anime
         """
-        response: Dict[str, Any] = self.request(
-            self.endpoints.anime(anime_id)
+        response: Dict[str, Any] = self._request(
+            self._endpoints.anime(anime_id)
         )
         return Anime(**response)
 
-    def get_anime_creators(self, anime_id: int) -> List[Creator]:
+    def anime_creators(self, anime_id: int) -> List[Creator]:
         """
         Returns creators info of certain anime.
 
@@ -560,12 +592,12 @@ class API:
         :return: List of anime creators
         :rtype: List[Creator]
         """
-        response: List[Dict[str, Any]] = self.request(
-            self.endpoints.anime_roles(anime_id)
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_roles(anime_id)
         )
         return [Creator(**creator) for creator in response]
 
-    def get_similar_animes(self, anime_id: int) -> List[Anime]:
+    def similar_animes(self, anime_id: int) -> List[Anime]:
         """
         Returns list of similar animes for certain anime.
 
@@ -573,12 +605,12 @@ class API:
         :return: List of similar animes
         :rtype: List[Anime]
         """
-        response: List[Dict[str, Any]] = self.request(
-            self.endpoints.similar_animes(anime_id)
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.similar_animes(anime_id)
         )
         return [Anime(**anime) for anime in response]
 
-    def get_anime_related_content(self, anime_id: int) -> List[Relation]:
+    def anime_related_content(self, anime_id: int) -> List[Relation]:
         """
         Returns list of related content of certain anime.
 
@@ -586,12 +618,12 @@ class API:
         :return: List of relations
         :rtype: List[Relation]
         """
-        response: List[Dict[str, Any]] = self.request(
-            self.endpoints.anime_related_content(anime_id)
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_related_content(anime_id)
         )
         return [Relation(**relation) for relation in response]
 
-    def get_anime_screenshots(self, anime_id: int) -> List[Screenshot]:
+    def anime_screenshots(self, anime_id: int) -> List[Screenshot]:
         """
         Returns list of screenshot links of certain anime.
 
@@ -599,12 +631,12 @@ class API:
         :return: List of screenshot links
         :rtype: List[Screenshot]
         """
-        response: List[Dict[str, Any]] = self.request(
-            self.endpoints.anime_screenshots(anime_id)
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_screenshots(anime_id)
         )
         return [Screenshot(**screenshot) for screenshot in response]
 
-    def get_anime_franchise_tree(self, anime_id: int) -> FranchiseTree:
+    def anime_franchise_tree(self, anime_id: int) -> FranchiseTree:
         """
         Returns franchise tree of certain anime.
 
@@ -612,12 +644,12 @@ class API:
         :return: Franchise tree of certain anime
         :rtype: FranchiseTree
         """
-        response: Dict[str, Any] = self.request(
-            self.endpoints.anime_franchise_tree(anime_id)
+        response: Dict[str, Any] = self._request(
+            self._endpoints.anime_franchise_tree(anime_id)
         )
         return FranchiseTree(**response)
 
-    def get_anime_external_links(self, anime_id: int) -> List[Link]:
+    def anime_external_links(self, anime_id: int) -> List[Link]:
         """
         Returns list of external links of certain anime.
 
@@ -625,12 +657,12 @@ class API:
         :return: List of external links
         :rtype: List[Link]
         """
-        response: List[Dict[str, Any]] = self.request(
-            self.endpoints.anime_external_links(anime_id)
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_external_links(anime_id)
         )
         return [Link(**link) for link in response]
 
-    def get_anime_topics(
+    def anime_topics(
             self,
             anime_id: int,
             page: int = 1,
@@ -663,13 +695,13 @@ class API:
             "kind": kind.value,
             "episode": str(episode)
         }
-        response: List[Dict[str, Any]] = self.request(
-            self.endpoints.anime_topics(anime_id),
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_topics(anime_id),
             query=query
         )
         return [Topic(**topic) for topic in response]
 
-    def get_bans(self, page: int = 1, limit: int = 1) -> List[Ban]:
+    def bans(self, page: int = 1, limit: int = 1) -> List[Ban]:
         """
         Returns list of recent bans on Shikimori.
 
@@ -691,13 +723,13 @@ class API:
             "page": str(page),
             "limit": str(limit)
         }
-        response: List[Dict[str, Any]] = self.request(
-            self.endpoints.bans_list,
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.bans_list,
             query=query
         )
         return [Ban(**ban) for ban in response]
 
-    def get_calendar(
+    def calendar(
             self,
             censored: Censorship = Censorship.CENSORED
     ) -> List[CalendarEvent]:
@@ -711,14 +743,14 @@ class API:
         query: Dict[str, str] = {
             "censored": censored.value
         }
-        res: List[Dict[str, Any]] = self.request(
-            self.endpoints.calendar,
+        res: List[Dict[str, Any]] = self._request(
+            self._endpoints.calendar,
             query=query
         )
         return [CalendarEvent(**calendar_event) for calendar_event in res]
 
     @protected_method
-    def get_current_user(self) -> User:
+    def current_user(self) -> User:
         """
         Returns brief info about current user.
 
@@ -727,8 +759,8 @@ class API:
         :return: User object
         :rtype: User
         """
-        response: Dict[str, Any] = self.request(
-            self.endpoints.whoami,
-            headers=self.authorization_header
+        response: Dict[str, Any] = self._request(
+            self._endpoints.whoami,
+            headers=self._authorization_header
         )
         return User(**response)
