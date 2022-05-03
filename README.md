@@ -70,13 +70,13 @@ with open("config.json", "r", encoding="utf-8") as config_file:
 shikimori: API = API(config)
 
 # Получение данных текущего пользователя через /users/whoami
-user: User = shikimori.get_current_user()
+user: User = shikimori.current_user()
 print(f"Current user is {user.nickname}")
 
 # Получение достижений пользователя через /achievements
 # и вывод первого достижения
-user_achievements: List[Achievement] = shikimori.get_achievements(
-  user.id
+user_achievements: List[Achievement] = shikimori.achievements(
+    user.id
 )
 print(user_achievements[0])
 
