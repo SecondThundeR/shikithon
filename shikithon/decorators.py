@@ -1,8 +1,5 @@
 """Custom decorators for API class."""
-
-
 from __future__ import annotations
-from time import time
 from typing import Any
 from typing import Dict
 from typing import Tuple
@@ -23,10 +20,7 @@ def protected_method(decorated):
     triggers the token update function.
     """
     def wrapper(api: API, *args: Tuple[Any, ...], **kwargs: Dict[str, Any]):
-        if int(time()) > api.token_expire:
-            tokens_data: Tuple[str, str] = api.get_access_token(
-                refresh_token=True
-            )
-            api.update_tokens(tokens_data)
+        if api.token_expired():
+            api.refresh_tokens()
         return decorated(api, *args, **kwargs)
     return wrapper
