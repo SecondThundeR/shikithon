@@ -153,6 +153,39 @@ class API:
         self.access_token = tokens_data[0]
         self.refresh_token = tokens_data[1]
 
+    @property
+    def user_agent(self) -> Dict[str, str]:
+        """
+        Returns user agent dictionary.
+
+        :return: Dictionary with proper user agent
+        :rtype: Dict[str, str]
+        """
+        return {
+            "User-Agent": self.session.headers["User-Agent"]
+        }
+
+    @user_agent.setter
+    def user_agent(self, app_name: str):
+        """Update session headers and set user agent."""
+        self.session.headers.update(
+            {"User-Agent": app_name}
+        )
+
+    @property
+    def authorization_header(self) -> Dict[str, str]:
+        """
+        Returns user agent and authorization token headers dictionary.
+
+        Needed for accessing Shikimori protected resources
+
+        :return: Dictionary with proper user agent and autorization token
+        :rtype: Dict[str, str]
+        """
+        header = self.user_agent
+        header["Authorization"] = f"Bearer {self.access_token}"
+        return header
+
     def init_config(self, config: Dict[str, str]):
         """
         Special method for initializing an object.
@@ -167,7 +200,7 @@ class API:
         """
         self.validate_config(config)
         self.validate_vars()
-        self.set_user_agent()
+        self.user_agent = self.app_name
 
         if not self.access_token:
             tokens_data: Tuple[str, str] = self.get_access_token()
@@ -321,36 +354,6 @@ class API:
         self.tokens = tokens_data
         self.token_expire = int(time()) + 86400
         ConfigCache.save_config(self.config)
-
-    def get_user_agent(self) -> Dict[str, str]:
-        """
-        Returns user agent dictionary.
-
-        :return: Dictionary with proper user agent
-        :rtype: Dict[str, str]
-        """
-        return {
-            "User-Agent": self.app_name
-        }
-
-    def set_user_agent(self):
-        """Update session headers and set user agent."""
-        self.session.headers.update(
-            self.get_user_agent()
-        )
-
-    def get_authorization_header(self) -> Dict[str, str]:
-        """
-        Returns user agent and authorization token headers dictionary.
-
-        Needed for accessing Shikimori protected resources
-
-        :return: Dictionary with proper user agent and autorization token
-        :rtype: Dict[str, str]
-        """
-        header = self.get_user_agent()
-        header["Authorization"] = f"Bearer {self.access_token}"
-        return header
 
     @sleep_and_retry
     @limits(calls=MAX_CALLS_PER_MINUTE, period=ONE_MINUTE)
@@ -731,14 +734,14 @@ class API:
         """
         Returns brief info about current user.
 
-        Current user evaluates depending on authorization code.
+        Current user evaluated depending on authorization code.
 
         :return: User object
         :rtype: User
         """
         response: Dict[str, Any] = self.request(
             RequestType.GET,
-            headers=self.get_authorization_header(),
+            headers=self.authorization_header,
             url=self.endpoints.whoami
         )
         return User(**response)
