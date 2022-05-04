@@ -58,14 +58,14 @@ class Utils:
 
     @staticmethod
     def generate_query_dict(
-            **params_data: Union[int, Enum, List[int]]
+            **params_data: Union[str, int, Enum, List[int]]
     ) -> Dict[str, str]:
         """
         Returns valid query dict for API requests.
 
         This methods checks for data type and converts to valid one.
 
-        :param Union[int, Enum, List[int]] params_data:
+        :param Union[str, int, Enum, List[int]] params_data:
             API methods parameters data
         :return: Valid query dictionary
         :rtype: Dict[str, str]
