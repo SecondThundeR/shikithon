@@ -4,7 +4,6 @@ from enum import Enum
 
 class Order(Enum):
     """Contains constants related for list ordering query."""
-    NONE = ""
     ID = "id"
     RANKED = "ranked"
     KIND = "kind"
@@ -18,7 +17,6 @@ class Order(Enum):
 
 class Kind(Enum):
     """Contains constants related for getting certain kind of anime."""
-    NONE = ""
     TV = "tv"
     TV_13 = "tv_13"
     TV_24 = "tv_24"
@@ -32,7 +30,6 @@ class Kind(Enum):
 
 class Status(Enum):
     """Contains constants related for getting certain status of anime."""
-    NONE = ""
     ANONS = "anons"
     ONGOING = "ongoing"
     RELEASED = "released"
@@ -41,7 +38,6 @@ class Status(Enum):
 
 class Duration(Enum):
     """Contains constants related for getting certain duration of anime."""
-    NONE = ""
     SHORT = "S"
     MEDIUM = "D"
     LONG = "F"
@@ -49,7 +45,6 @@ class Duration(Enum):
 
 class Rating(Enum):
     """Contains constants related for getting certain rating of anime."""
-    NONE = ""
     NO_RATING = "none"
     ALL_AGES = "g"
     CHILDREN = "pg"
@@ -71,7 +66,6 @@ class MyList(Enum):
     """Contains constants related for getting
     certain user list status of anime.
     """
-    NONE = ""
     PLANNED = "planned"
     WATCHING = "watching"
     REWATCHING = "rewatching"
