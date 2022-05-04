@@ -4,6 +4,8 @@ This module contains Endpoints class, which
 contains all endpoints for API and can form
 customized endpoints via input parameters.
 """
+from typing import Union
+
 from shikithon.enums.favorite import LinkedType
 from shikithon.enums.person import Kind
 from shikithon.utils import Utils
@@ -1012,111 +1014,111 @@ class Endpoints:
         """
         return f"{self.users}/sign_out"
 
-    def user(self, user_id: int) -> str:
+    def user(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User endpoint link
         :rtype: str
         """
         return f"{self.users}/{user_id}"
 
-    def user_info(self, user_id: int) -> str:
+    def user_info(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's brief info.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's brief info endpoint link
         :rtype: str
         """
         return f"{self.user(user_id)}/info"
 
-    def user_friends(self, user_id: int) -> str:
+    def user_friends(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's friends list.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's friends list endpoint link
         :rtype: str
         """
         return f"{self.user(user_id)}/friends"
 
-    def user_clubs(self, user_id: int) -> str:
+    def user_clubs(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's clubs list.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's clubs list endpoint link
         :rtype: str
         """
         return f"{self.user(user_id)}/clubs"
 
-    def user_anime_rates(self, user_id: int) -> str:
+    def user_anime_rates(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's anime rates list.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's anime rates list endpoint link
         :rtype: str
         """
         return f"{self.user(user_id)}/anime_rates"
 
-    def user_manga_rates(self, user_id: int) -> str:
+    def user_manga_rates(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's manga rates list.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's manga rates list endpoint link
         :rtype: str
         """
         return f"{self.user(user_id)}/manga_rates"
 
-    def user_favorites(self, user_id: int) -> str:
+    def user_favorites(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's favorites list.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's favorites list endpoint link
         :rtype: str
         """
         return f"{self.user(user_id)}/favorites"
 
-    def user_messages(self, user_id: int) -> str:
+    def user_messages(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's messages list.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's messages list endpoint link
         :rtype: str
         """
         return f"{self.user(user_id)}/messages"
 
-    def user_unread_messages(self, user_id: int) -> str:
+    def user_unread_messages(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's unread messages counts.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's unread messages counts endpoint link
         :rtype: str
         """
         return f"{self.user(user_id)}/unread_messages"
 
-    def user_history(self, user_id: int) -> str:
+    def user_history(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's history list.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's history list endpoint link
         :rtype: str
         """
         return f"{self.user(user_id)}/history"
 
-    def user_bans(self, user_id: int) -> str:
+    def user_bans(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's bans list.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's bans list endpoint link
         :rtype: str
         """
