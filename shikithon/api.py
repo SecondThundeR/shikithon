@@ -53,6 +53,8 @@ from shikithon.exceptions import MissingAppScopes
 from shikithon.exceptions import MissingAuthCode
 from shikithon.exceptions import AccessTokenException
 
+from shikithon.utils import Utils
+
 SHIKIMORI_API_URL = "https://shikimori.one/api"
 SHIKIMORI_API_URL_V2 = "https://shikimori.one/api/v2"
 SHIKIMORI_OAUTH_URL = "https://shikimori.one/oauth"
@@ -362,7 +364,7 @@ class API:
 
     def _cache_config(self):
         """Updates token expire time and caches new config."""
-        self._token_expire = int(time()) + TOKEN_EXPIRE_TIME
+        self._token_expire = Utils.get_new_expire_time(TOKEN_EXPIRE_TIME)
         ConfigCache.save_config(self.config)
 
     @sleep_and_retry
@@ -461,12 +463,11 @@ class API:
         :return: List of achievements
         :rtype: List[Achievement]
         """
-        query: Dict[str, str] = {
-            "user_id": str(user_id)
-        }
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.achievements,
-            query=query
+            query=Utils.generate_query_dict(
+                user_id=user_id
+            )
         )
         return [Achievement(**achievement) for achievement in response]
 
@@ -536,38 +537,27 @@ class API:
         if exclude_ids is None:
             exclude_ids = []
 
-        query: Dict[str, str] = {
-            "page": str(page),
-            "limit": str(limit),
-            "order": order.value,
-            "kind": kind.value,
-            "status": status.value,
-            "season": season,
-            "score": str(score),
-            "duration": duration.value,
-            "rating": rating.value,
-            "genre": ",".join(
-                [str(genre_id) for genre_id in genre]
-            ),
-            "studio": ",".join(
-                [str(studio_id) for studio_id in studio]
-            ),
-            "franchise": ",".join(
-                [str(franchise_id) for franchise_id in franchise]
-            ),
-            "censored": censored.value,
-            "mylist": my_list.value,
-            "ids": ",".join(
-                [str(anime_id) for anime_id in ids]
-            ),
-            "exclude_ids": ",".join(
-                [str(anime_id) for anime_id in exclude_ids]
-            ),
-            "search": search
-        }
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.animes,
-            query=query
+            query=Utils.generate_query_dict(
+                page=page,
+                limit=limit,
+                order=order,
+                kind=kind,
+                status=status,
+                season=season,
+                score=score,
+                duration=duration,
+                rating=rating,
+                genre=genre,
+                studio=studio,
+                franchise=franchise,
+                censored=censored,
+                my_list=my_list,
+                ids=ids,
+                exclude_ids=exclude_ids,
+                search=search
+            )
         )
         return [Anime(**anime) for anime in response]
 
@@ -689,15 +679,14 @@ class API:
         if limit < 1 or limit > 30:
             limit = 1
 
-        query: Dict[str, str] = {
-            "page": str(page),
-            "limit": str(limit),
-            "kind": kind.value,
-            "episode": str(episode)
-        }
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_topics(anime_id),
-            query=query
+            query=Utils.generate_query_dict(
+                page=page,
+                limit=limit,
+                kind=kind,
+                episode=episode
+            )
         )
         return [Topic(**topic) for topic in response]
 
@@ -719,13 +708,12 @@ class API:
         if limit < 1 or limit > 30:
             limit = 1
 
-        query: Dict[str, str] = {
-            "page": str(page),
-            "limit": str(limit)
-        }
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.bans_list,
-            query=query
+            query=Utils.generate_query_dict(
+                page=page,
+                limit=limit
+            )
         )
         return [Ban(**ban) for ban in response]
 
@@ -740,14 +728,13 @@ class API:
         :return: List of calendar events
         :rtype: List[CalendarEvent]
         """
-        query: Dict[str, str] = {
-            "censored": censored.value
-        }
-        res: List[Dict[str, Any]] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.calendar,
-            query=query
+            query=Utils.generate_query_dict(
+                censored=censored
+            )
         )
-        return [CalendarEvent(**calendar_event) for calendar_event in res]
+        return [CalendarEvent(**calendar_event) for calendar_event in response]
 
     @protected_method
     def current_user(self) -> User:
