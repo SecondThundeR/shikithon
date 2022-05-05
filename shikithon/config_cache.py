@@ -6,10 +6,12 @@ to restore on next object initializaion
 """
 
 
+from os import remove
 from os.path import exists
 from json import dumps
 from json import loads
 from typing import Dict
+from typing import Union
 
 from shikithon.utils import Utils
 
@@ -37,34 +39,57 @@ class ConfigCache:
     not refreshing them
     """
     @staticmethod
-    def config_exists(app_name: str) -> bool:
+    def config_name(app_name: str) -> str:
         """
-        Checks if cache config is exists.
+        Returns name of config file for selected app name.
 
-        :param str app_name: Current app name
-        :return: True if file exists, False otherwise
-        :rtype: bool
+        :param app_name: Selected OAuth app name
+        :return: Config filename
+        :rtype: str
         """
-        config_file_name: str = ".shikithon_" + Utils.convert_app_name(
+        return ".shikithon_" + Utils.convert_app_name(
             app_name
         )
-        return exists(config_file_name)
 
     @staticmethod
-    def get_config(app_name: str) -> Dict[str, str]:
+    def config_valid(app_name: str, auth_code: str) -> bool:
+        """
+        Check if current config is valid.
+
+        This method checks for config existance and
+        validity by checking authorization code.
+
+        :param str app_name: OAuth App name
+        :param str auth_code: OAuth code
+        :return: Result of check
+        :rtype: bool
+        """
+        config: Union[Dict[str, str], None] = ConfigCache.get_config(
+            app_name
+        )
+        if config is None:
+            return False
+        if not config["auth_code"] == auth_code:
+            ConfigCache.delete_config(app_name)
+            return False
+        return True
+
+    @staticmethod
+    def get_config(app_name: str) -> Union[Dict[str, str], None]:
         """
         Returns current config from cache file.
 
         :param str app_name: App name for config load
         :return: Config dictionary
-        :rtype: Dict[str, str]
+        :rtype: Union[Dict[str, str], None]
         """
-        config_file_name: str = ".shikithon_" + Utils.convert_app_name(
-            app_name
-        )
-        with open(config_file_name, "r", encoding="utf-8") as config_file:
-            config: Dict[str, str] = loads(config_file.read())
-        return config
+        if exists(ConfigCache.config_name(app_name)):
+            with open(ConfigCache.config_name(
+                    app_name
+            ), "r", encoding="utf-8") as config_file:
+                config: Dict[str, str] = loads(config_file.read())
+            return config
+        return None
 
     @staticmethod
     def save_config(config: Dict[str, str]) -> bool:
@@ -76,12 +101,27 @@ class ConfigCache:
         :rtype: bool
         """
         try:
-            config_file_name: str = ".shikithon_" + Utils.convert_app_name(
-                config["app_name"]
-            )
-            with open(config_file_name, "w", encoding="utf-8") as config_file:
+            with open(ConfigCache.config_name(
+                    config["app_name"]
+            ), "w", encoding="utf-8") as config_file:
                 config_file.write(dumps(config))
             return True
         except IOError as err:
             print(f"Couldn't save config to file: {err}")
+            return False
+
+    @staticmethod
+    def delete_config(app_name: str) -> bool:
+        """
+        Deletes current config file.
+
+        :param app_name: OAuth app name
+        :return: True if delete succeeded, False otherwise
+        :rtype: bool
+        """
+        try:
+            remove(ConfigCache.config_name(app_name))
+            return True
+        except OSError as err:
+            print(f"Couldn't remove config: {err}")
             return False
