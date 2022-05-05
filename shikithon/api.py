@@ -398,8 +398,8 @@ class API:
         :param Union[None, Dict[str, str]] headers: Custom headers for request
         :param Union[None, Dict[str, str]] query: Query data for request
         :param RequestType request_type: Type of current request
-        :return: Response JSON or None, if request fails
-        :rtype: Union[List[Dict[str, Any]], Dict[str, Any], None]
+        :return: Response JSON or text, otherwise None, if request fails
+        :rtype: Union[List[Dict[str, Any]], Dict[str, Any], str, None]
         """
         response: Union[Response, None] = None
 
