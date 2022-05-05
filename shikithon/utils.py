@@ -60,14 +60,14 @@ class Utils:
 
     @staticmethod
     def generate_query_dict(
-            **params_data: Union[str, int, Enum, List[int], None]
+            **params_data: Union[str, bool, int, Enum, List[int], None]
     ) -> Dict[str, str]:
         """
         Returns valid query dict for API requests.
 
         This methods checks for data type and converts to valid one.
 
-        :param Union[str, int, Enum, List[int], None] params_data:
+        :param Union[str, bool, int, Enum, List[int], None] params_data:
             API methods parameters data
         :return: Valid query dictionary
         :rtype: Dict[str, str]
@@ -76,7 +76,12 @@ class Utils:
         for key, data in params_data.items():
             if data is None:
                 continue
-            if isinstance(data, int):
+            if isinstance(data, bool):
+                if data is True:
+                    new_query[key]= str(int(data))
+                else:
+                    continue
+            elif isinstance(data, int):
                 new_query[key] = str(data)
             elif isinstance(data, Enum):
                 new_query[key] = data.value
