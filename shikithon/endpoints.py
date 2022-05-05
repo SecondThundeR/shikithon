@@ -1124,11 +1124,11 @@ class Endpoints:
         """
         return f"{self.user(user_id)}/bans"
 
-    def user_ignore(self, user_id: int) -> str:
+    def user_ignore(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint for ignoring/unignoring user.
 
-        :param int user_id: User ID for endpoint
+        :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: Ignore/unignore user endpoint link
         :rtype: str
         """
