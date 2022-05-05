@@ -479,69 +479,50 @@ class API:
 
     def animes(
             self,
-            page: int = 1,
-            limit: int = 1,
-            order: Order = Order.NONE,
-            kind: Kind = Kind.NONE,
-            status: Status = Status.NONE,
-            season: str = "",
-            score: int = 1,
-            duration: Duration = Duration.NONE,
-            rating: Rating = Rating.NONE,
+            page: Union[int, None] = None,
+            limit: Union[int, None] = None,
+            order: Union[Order, None] = None,
+            kind: Union[Kind, None] = None,
+            status: Union[Status, None] = None,
+            season: Union[str, None] = None,
+            score: Union[int, None] = None,
+            duration: Union[Duration, None] = None,
+            rating: Union[Rating, None] = None,
             genre: Union[None, List[int]] = None,
             studio: Union[None, List[int]] = None,
             franchise: Union[None, List[int]] = None,
-            censored: Censorship = Censorship.CENSORED,
-            my_list: MyList = MyList.NONE,
+            censored: Union[Censorship, None] = None,
+            my_list: Union[MyList, None] = None,
             ids: Union[None, List[int]] = None,
             exclude_ids: Union[None, List[int]] = None,
-            search: str = ""
+            search: Union[str, None] = None
     ) -> List[Anime]:
         """
         Returns animes list.
 
-        If some data are not provided, using default values
-
-        :param int page: Number of page
-        :param int limit: Number of results limit
-        :param Order order: Type of order in list
-        :param Kind kind: Type of anime topic
-        :param Status status: Type of anime status
-        :param str season: Name of anime season
-        :param int score: Minimal anime score
-        :param Duration duration: Duration size of anime
-        :param Rating rating: Type of anime rating
+        :param Union[int, None] page: Number of page
+        :param Union[int, None] limit: Number of results limit
+        :param Union[Order, None] order: Type of order in list
+        :param Union[Kind, None] kind: Type of anime topic
+        :param Union[Status, None] status: Type of anime status
+        :param Union[str, None] season: Name of anime season
+        :param Union[int, None] score: Minimal anime score
+        :param Union[Duration, None] duration: Duration size of anime
+        :param Union[Rating, None] rating: Type of anime rating
         :param Union[List[int], None] genre: Genres ID
         :param Union[List[int], None] studio: Studios ID
         :param Union[List[int], None] franchise: Franchises ID
-        :param Censorship censored: Type of anime censorship
-        :param MyList my_list: Status of anime in current user list
+        :param Union[Censorship, None] censored: Type of anime censorship
+        :param Union[MyList, None] my_list: Status of anime in current user list
         :param Union[List[int], None] ids: Animes ID to include
         :param Union[List[int], None] exclude_ids: Animes ID to exclude
-        :param str search: Search phrase to filter animes by name.
-
+        :param Union[str, None] search: Search phrase to filter animes by name.
         :returns: Animes list
         :rtype: List[Anime]
         """
-        if page < 1 or page > 10000:
-            page = 1
-
-        if limit < 1 or limit > 50:
-            limit = 1
-
-        if score < 1 or score > 9:
-            score = 1
-
-        if genre is None:
-            genre = []
-        if studio is None:
-            studio = []
-        if franchise is None:
-            franchise = []
-        if ids is None:
-            ids = []
-        if exclude_ids is None:
-            exclude_ids = []
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 50)
+        score = Utils.validate_query_number(score, 9)
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.animes,
@@ -661,10 +642,10 @@ class API:
     def anime_topics(
             self,
             anime_id: int,
-            page: int = 1,
-            limit: int = 1,
-            kind: Status = Status.EPISODE,
-            episode: int = 1
+            page: Union[int, None] = None,
+            limit: Union[int, None] = None,
+            kind: Union[Status, None] = None,
+            episode: Union[int, None] = None
     ) -> List[Topic]:
         """
         Returns list of topics of certain anime.
@@ -672,18 +653,15 @@ class API:
         If some data are not provided, using default values.
 
         :param int anime_id: Anime ID to get topics
-        :param int page: Number of page
-        :param int limit: Number of results limit
-        :param Status kind: Status of anime
-        :param int episode: Number of anime episode
+        :param Union[int, None] page: Number of page
+        :param Union[int, None] limit: Number of results limit
+        :param Union[Status, None] kind: Status of anime
+        :param Union[int, None] episode: Number of anime episode
         :return: List of topics
         :rtype: List[Topic]
         """
-        if page < 1 or page > 100000:
-            page = 1
-
-        if limit < 1 or limit > 30:
-            limit = 1
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 30)
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_topics(anime_id),
@@ -696,23 +674,24 @@ class API:
         )
         return [Topic(**topic) for topic in response]
 
-    def bans(self, page: int = 1, limit: int = 1) -> List[Ban]:
+    def bans(
+            self,
+            page: Union[int, None] = None,
+            limit: Union[int, None] = None
+    ) -> List[Ban]:
         """
         Returns list of recent bans on Shikimori.
 
         Current API method returns `limit + 1` elements,
         if API has next page.
 
-        :param int page: Number of page
-        :param int limit: Number of results
+        :param Union[int, None] page: Number of page
+        :param Union[int, None] limit: Number of results
         :return: List of recent bans
         :rtype: List[Ban]
         """
-        if page < 1 or page > 100000:
-            page = 1
-
-        if limit < 1 or limit > 30:
-            limit = 1
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 30)
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.bans_list,
@@ -725,12 +704,12 @@ class API:
 
     def calendar(
             self,
-            censored: Censorship = Censorship.CENSORED
+            censored: Union[Censorship, None] = None
     ) -> List[CalendarEvent]:
         """
         Returns current calendar events.
 
-        :param Censorship censored: Status of censorship for events
+        :param Union[Censorship, None] censored: Status of censorship for events
         :return: List of calendar events
         :rtype: List[CalendarEvent]
         """
@@ -749,7 +728,7 @@ class API:
 
         Current user evaluated depending on authorization code.
 
-        :return: User object
+        :return: Current user brief info
         :rtype: User
         """
         response: Dict[str, Any] = self._request(
