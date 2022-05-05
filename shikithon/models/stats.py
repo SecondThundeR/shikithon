@@ -1,6 +1,8 @@
 """Submodel for user.py"""
 from typing import Optional
 from typing import List
+from typing import Dict
+from typing import Union
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -24,4 +26,4 @@ class Stats(BaseModel):
     genres: Optional[List[str]]
     studios: Optional[List[str]]
     publishers: Optional[List[str]]
-    activity: Optional[List[Activity]]
+    activity: Optional[Union[List[Activity], Dict]]
