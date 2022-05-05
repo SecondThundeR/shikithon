@@ -14,6 +14,7 @@ from typing import Tuple
 
 from requests import Session
 from requests import Response
+from requests import JSONDecodeError
 from ratelimit import limits
 from ratelimit import sleep_and_retry
 
@@ -231,7 +232,9 @@ class API:
         """
         try:
             config_cached = False
-            if ConfigCache.config_exists(config["app_name"]):
+            if ConfigCache.config_valid(
+                    config["app_name"], config["auth_code"]
+            ):
                 config = ConfigCache.get_config(config["app_name"])
                 config_cached = True
 
@@ -376,7 +379,7 @@ class API:
             headers: Union[None, Dict[str, str]] = None,
             query: Union[None, Dict[str, str]] = None,
             request_type: RequestType = RequestType.GET
-    ) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
+    ) -> Union[List[Dict[str, Any]], Dict[str, Any], str, None]:
         """
         Create request and return response JSON.
 
@@ -431,7 +434,10 @@ class API:
                 request_type
             )
 
-        return response.json()
+        try:
+            return response.json()
+        except JSONDecodeError:
+            return response.text
 
     def refresh_tokens(self):
         """
