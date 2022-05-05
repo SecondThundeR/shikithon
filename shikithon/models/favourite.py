@@ -1,11 +1,11 @@
-"""Submodel for favorites.py"""
+"""Submodel for favourites.py"""
 from typing import Optional
 
 from pydantic import BaseModel
 
 
-class Favorite(BaseModel):
-    """Represents favorite entity."""
+class Favourite(BaseModel):
+    """Represents favourite entity."""
     id: int
     name: str
     russian: str

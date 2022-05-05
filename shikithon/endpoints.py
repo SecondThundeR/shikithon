@@ -1074,15 +1074,15 @@ class Endpoints:
         """
         return f"{self.user(user_id)}/manga_rates"
 
-    def user_favorites(self, user_id: Union[int, str]) -> str:
+    def user_favourites(self, user_id: Union[int, str]) -> str:
         """
-        Returns endpoint of the user's favorites list.
+        Returns endpoint of the user's favourites list.
 
         :param Union[int, str] user_id: User ID/Nickname for endpoint
         :return: User's favorites list endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/favorites"
+        return f"{self.user(user_id)}/favourites"
 
     def user_messages(self, user_id: Union[int, str]) -> str:
         """
