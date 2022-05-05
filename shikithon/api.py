@@ -690,9 +690,6 @@ class API:
         """
         Returns list of recent bans on Shikimori.
 
-        Current API method returns `limit + 1` elements,
-        if API has next page.
-
         :param Union[int, None] page: Number of page
         :param Union[int, None] limit: Number of results
         :return: List of recent bans
@@ -878,9 +875,6 @@ class API:
         """
         Returns user's anime list.
 
-        Current API method returns `limit + 1` elements,
-        if API has next page.
-
         :param Union[int, str] user_id: User ID/Nickname to get anime list
         :param Union[bool, None] is_nickname:
             Specify if passed user_id is nickname
@@ -916,9 +910,6 @@ class API:
     ) -> List[UserList]:
         """
         Returns user's manga list.
-
-        Current API method returns `limit + 1` elements,
-        if API has next page.
 
         :param Union[int, str] user_id: User ID/Nickname to get manga list
         :param Union[bool, None] is_nickname:
@@ -965,27 +956,26 @@ class API:
         )
         return Favourites(**response)
 
+    @protected_method
     def current_user_messages(
             self,
             user_id: Union[int, str],
             is_nickname: Union[bool, None] = None,
             page: Union[int, None] = None,
             limit: Union[int, None] = None,
-            message_type: Union[MessageType, None] = None
+            message_type: MessageType = MessageType.NEWS
     ) -> List[Message]:
         """
-        Returns user's messages by type.
+        Returns current user's messages by type.
 
-        Current API method returns `limit + 1` elements,
-        if API has next page.
-
-        :param Union[int, str] user_id: User ID/Nickname to get messages
+        :param Union[int, str] user_id:
+            Current user ID/Nickname to get messages
         :param Union[bool, None] is_nickname:
             Specify if passed user_id is nickname
         :param Union[int, None] page: Number of page
         :param Union[int, None] limit: Number of page limits
-        :param Union[MessageType, None] message_type: Type of message
-        :return: User's messages
+        :param MessageType message_type: Type of message
+        :return: Current user's messages
         :rtype: List[Message]
         """
         page = Utils.validate_query_number(page, 100000)
@@ -993,6 +983,7 @@ class API:
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_messages(user_id),
+            headers=self._authorization_header,
             query=Utils.generate_query_dict(
                 is_nickname=is_nickname,
                 page=page,
@@ -1002,22 +993,25 @@ class API:
         )
         return [Message(**message) for message in response]
 
+    @protected_method
     def current_user_unread_messages(
             self,
             user_id: Union[int, str],
             is_nickname: Union[bool, None] = None
     ) -> UnreadMessages:
         """
-        Returns user's unread messages counter.
+        Returns current user's unread messages counter.
 
-        :param Union[int, str] user_id: User ID/Nickname to get unread messages
+        :param Union[int, str] user_id:
+            Current user ID/Nickname to get unread messages
         :param Union[bool, None] is_nickname:
             Specify if passed user_id is nickname
-        :return: User's unread messages counters
+        :return: Current user's unread messages counters
         :rtype: UnreadMessages
         """
         response: Dict[str, Any] = self._request(
             self._endpoints.user_unread_messages(user_id),
+            headers=self._authorization_header,
             query=Utils.generate_query_dict(
                 is_nickname=is_nickname
             )
