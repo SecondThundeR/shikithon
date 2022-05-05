@@ -83,7 +83,8 @@ print(user_achievements[0])
 # >> Current user is SecondThundeR
 # >> id=719972946
 # >> neko_id='animelist'
-# >> level=1 progress=77
+# >> level=1
+# >> progress=77
 # >> user_id=723052
 # >> created_at=datetime.datetime(...)
 # >> updated_at=datetime.datetime(...)
