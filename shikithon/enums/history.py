@@ -4,5 +4,5 @@ from enum import Enum
 
 class TargetType(Enum):
     """Contains constants related for history target type."""
-    ANIME = "Anime"
-    MANGA = "Manga"
+    ANIME = 'Anime'
+    MANGA = 'Manga'

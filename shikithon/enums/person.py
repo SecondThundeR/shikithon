@@ -9,9 +9,9 @@ from enum import Enum
 
 class Kind(Enum):
     """Contains constants related for favorite kind."""
-    NONE = ""
-    COMMON = "common"
-    SEYU = "seyu"
-    MANGAKA = "mangaka"
-    PRODUCER = "producer"
-    PERSON = "person"
+    NONE = ''
+    COMMON = 'common'
+    SEYU = 'seyu'
+    MANGAKA = 'mangaka'
+    PRODUCER = 'producer'
+    PERSON = 'person'
