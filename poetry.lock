@@ -1,6 +1,6 @@
 [[package]]
 name = "astroid"
-version = "2.11.4"
+version = "2.11.5"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
@@ -314,12 +314,12 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.10"
-content-hash = "3350d1f0bac3968e66351c22b8179145a3eb3bf81023e32399628e7223ea1800"
+content-hash = "c06f4fa88b66783ced77a22014e0d0b3162d926917e47fc3516f5e6879b5cafa"
 
 [metadata.files]
 astroid = [
-    {file = "astroid-2.11.4-py3-none-any.whl", hash = "sha256:da0632b7c046d8361dfe1b1abb2e085a38624961fabe2997565a9c06c1be9d9a"},
-    {file = "astroid-2.11.4.tar.gz", hash = "sha256:561dc6015eecce7e696ff7e3b40434bc56831afeff783f0ea853e19c4f635c06"},
+    {file = "astroid-2.11.5-py3-none-any.whl", hash = "sha256:14ffbb4f6aa2cf474a0834014005487f7ecd8924996083ab411e7fa0b508ce0b"},
+    {file = "astroid-2.11.5.tar.gz", hash = "sha256:f4e4ec5294c4b07ac38bab9ca5ddd3914d4bf46f9006eb5c0ae755755061044e"},
 ]
 certifi = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
