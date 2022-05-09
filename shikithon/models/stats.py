@@ -1,11 +1,7 @@
 """Submodel for user.py"""
-from typing import Optional
-from typing import List
-from typing import Dict
-from typing import Union
+from typing import Dict, List, Optional, Union
 
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from shikithon.models.activity import Activity
 from shikithon.models.rating_list import RatingList

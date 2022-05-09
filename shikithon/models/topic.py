@@ -1,7 +1,6 @@
 """Model for /api/animes/:id/topics"""
 from datetime import datetime
-from typing import Union
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel
 

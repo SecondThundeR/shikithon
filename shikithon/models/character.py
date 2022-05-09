@@ -1,7 +1,6 @@
 """Submodel for creator.py"""
 from datetime import datetime
-from typing import Optional
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
