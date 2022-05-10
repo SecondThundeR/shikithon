@@ -20,9 +20,9 @@ from shikithon.enums.message import MessageType
 from shikithon.enums.request import RequestType
 from shikithon.enums.response import ResponseCode
 from shikithon.exceptions import (AccessTokenException, MissingAppName,
-                                  MissingAppScopes, MissingAuthCode,
-                                  MissingClientID, MissingClientSecret,
-                                  MissingConfigData)
+                                  MissingAuthCode, MissingClientID,
+                                  MissingClientSecret, MissingConfigData,
+                                  MissingScopes)
 from shikithon.models.achievement import Achievement
 from shikithon.models.anime import Anime
 from shikithon.models.ban import Ban
@@ -266,7 +266,7 @@ class API:
         :raises MissingAppName: If app name is set to empty string
         :raises MissingClientID: If client ID is set to empty string
         :raises MissingClientSecret: If client secret is set to empty string
-        :raises MissingAppScopes: If app scopes is set to empty string
+        :raises MissingScopes: If scopes is set to empty string
         :raises MissingAuthCode: If auth code is set to empty string
         """
         exception_msg: str = 'To use the Shikimori API correctly, ' \
@@ -285,7 +285,7 @@ class API:
             self._redirect_uri = DEFAULT_REDIRECT_URI
 
         if not self._scopes:
-            raise MissingAppScopes(exception_msg + 'scopes')
+            raise MissingScopes(exception_msg + 'scopes')
 
         if not self._auth_code:
             auth_link: str = self._endpoints.authorization_link(
