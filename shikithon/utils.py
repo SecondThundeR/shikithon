@@ -23,7 +23,7 @@ class Utils:
     @staticmethod
     def prepare_query_dict(query_dict: Dict[str, str]) -> str:
         """
-        Convert query dict to query string for link.
+        Convert query dict to query string for endpoint link.
 
         :param query_dict: Query dictionary
         :type query_dict: Dict[str, str]
