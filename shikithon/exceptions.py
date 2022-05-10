@@ -17,7 +17,7 @@ class MissingClientSecret(Exception):
     pass
 
 
-class MissingAppScopes(Exception):
+class MissingScopes(Exception):
     pass
 
 
