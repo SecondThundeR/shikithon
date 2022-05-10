@@ -542,7 +542,7 @@ class API:
         :param search: Search phrase to filter animes by name
         :type search: Union[str, None]
 
-        :returns: Animes list
+        :return: Animes list
         :rtype: List[Anime]
         """
         page = Utils.validate_query_number(page, 100000)
