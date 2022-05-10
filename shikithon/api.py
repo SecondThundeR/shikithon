@@ -718,11 +718,11 @@ class API:
         :return: Status of mark
         :rtype: bool
         """
-        data = {'ids': ','.join(comment_ids)}
-        response_code = self._request(self._endpoints.appears,
-                                      headers=self._authorization_header,
-                                      data=data,
-                                      request_type=RequestType.POST)
+        data: Dict[str, str] = {'ids': ','.join(comment_ids)}
+        response_code: int = self._request(self._endpoints.appears,
+                                           headers=self._authorization_header,
+                                           data=data,
+                                           request_type=RequestType.POST)
         return response_code == ResponseCode.SUCCESS.value
 
     def bans(self,
