@@ -18,6 +18,7 @@ class Endpoints:
     This class allows to form customized endpoint depending
     on input parameters.
     """
+
     def __init__(self, base_url: str, base_url_v2: str, oauth_url: str):
         """
         Initializing URLs for Shikimori's API/OAuth.
@@ -25,9 +26,14 @@ class Endpoints:
         This constructor also has base_url_v2, which is
         modified base_url that routes to new API methods
 
-        :param str base_url: URL for Shikimori API
-        :param str base_url_v2: URL for Shikimori API (v.2)
-        :param str oauth_url: URL for Shikimori OAuth
+        :param base_url: URL for Shikimori API
+        :type base_url: str
+
+        :param base_url_v2: URL for Shikimori API (v.2)
+        :type base_url_v2: str
+
+        :param oauth_url: URL for Shikimori OAuth
+        :type oauth_url: str
         """
         self._base_url: str = base_url
         self._base_url_v2: str = base_url_v2
@@ -48,7 +54,8 @@ class Endpoints:
         """
         Setter for base_url
 
-        :param str base_url: Link for Shikimori API
+        :param base_url: Link for Shikimori API
+        :type base_url: str
         """
         self._base_url = base_url
 
@@ -67,7 +74,8 @@ class Endpoints:
         """
         Setter for base_url_v2
 
-        :param str base_url_v2: Link for Shikimori API (v.2)
+        :param base_url_v2: Link for Shikimori API (v.2)
+        :type base_url_v2: str
         """
         self._base_url_v2 = base_url_v2
 
@@ -86,7 +94,8 @@ class Endpoints:
         """
         Setter for oauth_url
 
-        :param str oauth_url: Link for Shikimori OAuth
+        :param oauth_url: Link for Shikimori OAuth
+        :type oauth_url: str
         """
         self._oauth_url = oauth_url
 
@@ -98,7 +107,7 @@ class Endpoints:
         :return: Link for Shikimori OAuth token endpoint
         :rtype: str
         """
-        return f"{self.oauth_url}/token"
+        return f'{self.oauth_url}/token'
 
     @property
     def oauth_authorize(self) -> str:
@@ -108,14 +117,10 @@ class Endpoints:
         :return: Link for Shikimori OAuth authorization endpoint
         :rtype: str
         """
-        return f"{self.oauth_url}/authorize"
+        return f'{self.oauth_url}/authorize'
 
-    def authorization_link(
-            self,
-            client_id: str,
-            redirect_uri: str,
-            scopes: str
-    ) -> str:
+    def authorization_link(self, client_id: str, redirect_uri: str,
+                           scopes: str) -> str:
         """
         Returns link for getting authorization code.
 
@@ -123,48 +128,58 @@ class Endpoints:
         there is no automatic authorization method.
         So, the user needs to pass the authorization code manually
 
-        :param str client_id: Client ID of an OAuth App
-        :param str redirect_uri: Redirect URI of an OAuth App
-        :param str scopes: Scopes of an OAuth App
+        :param client_id: Client ID of an OAuth App
+        :type client_id: str
+
+        :param redirect_uri: Redirect URI of an OAuth App
+        :type redirect_uri: str
+
+        :param scopes: Scopes of an OAuth App
+        :type scopes: str
+
         :return: Link for getting authorization code
         :rtype: str
         """
-        query = {
-            "client_id": client_id,
-            "redirect_uri": redirect_uri,
-            "response_type": "code",
-            "scope": scopes
-        }
-
-        query_str = Utils.prepare_query_dict(query)
-        return f"{self.oauth_authorize}{query_str}"
+        query_str = Utils.prepare_query_dict({
+            'client_id': client_id,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'scope': scopes
+        })
+        return f'{self.oauth_authorize}{query_str}'
 
     @property
-    def abuse_requests(self):
-        return f"{self.base_url_v2}/abuse_requests"
+    def abuse_requests(self) -> str:
+        """
+        Returns endpoint for abuse requests methods.
+
+        :return: Abuse request main endpoint link
+        :rtype: str
+        """
+        return f'{self.base_url_v2}/abuse_requests'
 
     @property
-    def abuse_offtopic(self):
+    def abuse_offtopic(self) -> str:
         """
         Returns endpoint for marking comment as offtopic.
 
         :return: Abuse offtopic endpoint link
         :rtype: str
         """
-        return f"{self.abuse_requests}/offtopic"
+        return f'{self.abuse_requests}/offtopic'
 
     @property
-    def abuse_review(self):
+    def abuse_review(self) -> str:
         """
         Returns endpoint for convering comment to review.
 
         :return: Abuse review endpoint link
         :rtype: str
         """
-        return f"{self.abuse_requests}/review"
+        return f'{self.abuse_requests}/review'
 
     @property
-    def abuse_violation(self):
+    def abuse_violation(self) -> str:
         """
         Returns endpoint for creating request about violation of site rules.
 
@@ -174,17 +189,17 @@ class Endpoints:
         :return: Abuse violation endpoint link
         :rtype: str
         """
-        return f"{self.abuse_requests}/abuse"
+        return f'{self.abuse_requests}/abuse'
 
     @property
-    def abuse_spoiler(self):
+    def abuse_spoiler(self) -> str:
         """
         Returns endpoint for creating request about spoiler in content.
 
         :return: Abuse spoiler endpoint link
         :rtype: str
         """
-        return f"{self.abuse_requests}/spoiler"
+        return f'{self.abuse_requests}/spoiler'
 
     @property
     def achievements(self) -> str:
@@ -194,7 +209,7 @@ class Endpoints:
         :return: Achievements endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/achievements"
+        return f'{self.base_url}/achievements'
 
     @property
     def animes(self) -> str:
@@ -204,87 +219,103 @@ class Endpoints:
         :return: Animes list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/animes"
+        return f'{self.base_url}/animes'
 
     def anime(self, anime_id: int) -> str:
         """
         Returns endpoint of a specific anime.
 
-        :param int anime_id: Anime ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
         :return: Anime endpoint link
         :rtype: str
         """
-        return f"{self.animes}/{anime_id}"
+        return f'{self.animes}/{anime_id}'
 
     def anime_roles(self, anime_id: int) -> str:
         """
         Returns endpoint of a list of roles of a specific anime.
 
-        :param int anime_id: Anime ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
         :return: Anime roles endpoint link
         :rtype: str
         """
-        return f"{self.anime(anime_id)}/roles"
+        return f'{self.anime(anime_id)}/roles'
 
     def similar_animes(self, anime_id: int) -> str:
         """
         Returns endpoint of a list of similar anime of a certain anime.
 
-        :param int anime_id: Anime ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
         :return: Similar animes endpoint link
         :rtype: str
         """
-        return f"{self.anime(anime_id)}/similar"
+        return f'{self.anime(anime_id)}/similar'
 
     def anime_related_content(self, anime_id: int) -> str:
         """
         Returns endpoint of a list of similar anime of a certain anime.
 
-        :param int anime_id: Anime ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
         :return: Anime related content endpoint link
         :rtype: str
         """
-        return f"{self.anime(anime_id)}/related"
+        return f'{self.anime(anime_id)}/related'
 
     def anime_screenshots(self, anime_id: int) -> str:
         """
         Returns endpoint of screenshots of a specific anime.
 
-        :param int anime_id: Anime ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
         :return: Anime screenshots endpoint link
         :rtype: str
         """
-        return f"{self.anime(anime_id)}/screenshots"
+        return f'{self.anime(anime_id)}/screenshots'
 
     def anime_franchise_tree(self, anime_id: int) -> str:
         """
         Returns endpoint of franchise tree of a certain anime.
 
-        :param int anime_id: Anime ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
         :return: Anime franchise tree endpoint link
         :rtype: str
         """
-        return f"{self.anime(anime_id)}/franchise"
+        return f'{self.anime(anime_id)}/franchise'
 
     def anime_external_links(self, anime_id: int) -> str:
         """
         Returns endpoint of a list of external links of a certain anime.
 
-        :param int anime_id: Anime ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
         :return: Anime external links endpoint link
         :rtype: str
         """
-        return f"{self.anime(anime_id)}/external_links"
+        return f'{self.anime(anime_id)}/external_links'
 
     def anime_topics(self, anime_id: int) -> str:
         """
         Returns endpoint of a list of topics of a certain anime.
 
-        :param int anime_id: Anime ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
         :return: Anime topics endpoint link
         :rtype: str
         """
-        return f"{self.anime(anime_id)}/topics"
+        return f'{self.anime(anime_id)}/topics'
 
     def anime_videos(self, anime_id: int) -> str:
         """
@@ -293,22 +324,28 @@ class Endpoints:
         This endpoint also used for creating videos
         for anime entity.
 
-        :param int anime_id: Anime ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
         :return: Anime's videos list endpoint link
         :rtype: str
         """
-        return f"{self.anime(anime_id)}/videos"
+        return f'{self.anime(anime_id)}/videos'
 
     def anime_video(self, anime_id: int, video_id: int) -> str:
         """
         Returns endpoint for destroying anime's video.
 
-        :param int anime_id: Anime ID for endpoint
-        :param int video_id: Anime's video ID for endpoint
+        :param anime_id: Anime ID for endpoint
+        :type anime_id: int
+
+        :param video_id: Anime's video ID for endpoint
+        :type video_id: int
+
         :return: Anime's video destroy endpoint link
         :rtype: str
         """
-        return f"{self.anime_videos(anime_id)}/{video_id}"
+        return f'{self.anime_videos(anime_id)}/{video_id}'
 
     @property
     def appears(self) -> str:
@@ -318,7 +355,7 @@ class Endpoints:
         :return: Appears endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/appears"
+        return f'{self.base_url}/appears'
 
     @property
     def bans_list(self) -> str:
@@ -328,7 +365,7 @@ class Endpoints:
         :return: Bans list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/bans"
+        return f'{self.base_url}/bans'
 
     @property
     def calendar(self) -> str:
@@ -338,17 +375,19 @@ class Endpoints:
         :return: Calendar endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/calendar"
+        return f'{self.base_url}/calendar'
 
     def character(self, character_id: int) -> str:
         """
         Returns endpoint for a certain character.
 
-        :param int character_id: Character ID for endpoint
+        :param character_id: Character ID for endpoint
+        :type character_id: int
+
         :return: Character endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/character/{character_id}"
+        return f'{self.base_url}/character/{character_id}'
 
     @property
     def character_search(self) -> str:
@@ -358,7 +397,7 @@ class Endpoints:
         :return: Characters search endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/character/search"
+        return f'{self.base_url}/character/search'
 
     @property
     def clubs(self) -> str:
@@ -368,97 +407,115 @@ class Endpoints:
         :return: Clubs list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/clubs"
+        return f'{self.base_url}/clubs'
 
     def club(self, club_id: int) -> str:
         """
         Returns endpoint of a certain club.
 
-        :param int club_id: Club ID for endpoint
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
         :return: Club endpoint link
         :rtype: str
         """
-        return f"{self.clubs}/{club_id}"
+        return f'{self.clubs}/{club_id}'
 
     def club_animes(self, club_id: int) -> str:
         """
         Returns endpoint of a list of animes of a certain club.
 
-        :param int club_id: Club ID for endpoint
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
         :return: Club animes endpoint link
         :rtype: str
         """
-        return f"{self.club(club_id)}/animes"
+        return f'{self.club(club_id)}/animes'
 
     def club_mangas(self, club_id: int) -> str:
         """
         Returns endpoint of a list of mangas of a certain club.
 
-        :param int club_id: Club ID for endpoint
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
         :return: Club mangas endpoint link
         :rtype: str
         """
-        return f"{self.club(club_id)}/mangas"
+        return f'{self.club(club_id)}/mangas'
 
     def club_ranobe(self, club_id: int) -> str:
         """
         Returns endpoint of a list of ranobe of a certain club.
 
-        :param int club_id: Club ID for endpoint
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
         :return: Club ranobe endpoint link
         :rtype: str
         """
-        return f"{self.club(club_id)}/ranobe"
+        return f'{self.club(club_id)}/ranobe'
 
     def club_characters(self, club_id: int) -> str:
         """
         Returns endpoint of a list of characters of a certain club.
 
-        :param int club_id: Club ID for endpoint
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
         :return: Club characters endpoint link
         :rtype: str
         """
-        return f"{self.club(club_id)}/characters"
+        return f'{self.club(club_id)}/characters'
 
     def club_members(self, club_id: int) -> str:
         """
         Returns endpoint of a list of members of a certain club.
 
-        :param int club_id: Club ID for endpoint
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
         :return: Club members endpoint link
         :rtype: str
         """
-        return f"{self.club(club_id)}/members"
+        return f'{self.club(club_id)}/members'
 
     def club_images(self, club_id: int) -> str:
         """
         Returns endpoint of a list of images of a certain club.
 
-        :param int club_id: Club ID for endpoint
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
         :return: Club images endpoint link
         :rtype: str
         """
-        return f"{self.club(club_id)}/images"
+        return f'{self.club(club_id)}/images'
 
     def club_join(self, club_id: int) -> str:
         """
         Returns endpoint for joining the certain club.
 
-        :param int club_id: Club ID for endpoint
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
         :return: Club join endpoint link
         :rtype: str
         """
-        return f"{self.club(club_id)}/join"
+        return f'{self.club(club_id)}/join'
 
     def club_leave(self, club_id: int) -> str:
         """
         Returns endpoint for leaving the certain club.
 
-        :param int club_id: Club ID for endpoint
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
         :return: Club leave endpoint link
         :rtype: str
         """
-        return f"{self.club(club_id)}/leave"
+        return f'{self.club(club_id)}/leave'
 
     @property
     def comments(self) -> str:
@@ -468,17 +525,19 @@ class Endpoints:
         :return: Comments list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/comments"
+        return f'{self.base_url}/comments'
 
     def comment(self, comment_id: int) -> str:
         """
         Returns endpoint of a certain comment.
 
-        :param int comment_id: Comment ID for endpoint
+        :param comment_id: Comment ID for endpoint
+        :type comment_id: int
+
         :return: Comment endpoint link
         :rtype: str
         """
-        return f"{self.comments}/{comment_id}"
+        return f'{self.comments}/{comment_id}'
 
     @property
     def constants(self) -> str:
@@ -488,7 +547,7 @@ class Endpoints:
         :return: API constants endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/constants"
+        return f'{self.base_url}/constants'
 
     @property
     def anime_constants(self) -> str:
@@ -498,7 +557,7 @@ class Endpoints:
         :return: Anime constants endpoint link
         :rtype: str
         """
-        return f"{self.constants}/anime"
+        return f'{self.constants}/anime'
 
     @property
     def manga_constants(self) -> str:
@@ -508,7 +567,7 @@ class Endpoints:
         :return: Manga constants endpoint link
         :rtype: str
         """
-        return f"{self.constants}/manga"
+        return f'{self.constants}/manga'
 
     @property
     def user_rate_constants(self) -> str:
@@ -518,7 +577,7 @@ class Endpoints:
         :return: User rate constants endpoint link
         :rtype: str
         """
-        return f"{self.constants}/user_rate"
+        return f'{self.constants}/user_rate'
 
     @property
     def club_constants(self) -> str:
@@ -528,7 +587,7 @@ class Endpoints:
         :return: Club constants endpoint link
         :rtype: str
         """
-        return f"{self.constants}/club"
+        return f'{self.constants}/club'
 
     @property
     def smileys_constants(self) -> str:
@@ -538,7 +597,7 @@ class Endpoints:
         :return: Smileys constants endpoint link
         :rtype: str
         """
-        return f"{self.constants}/smileys"
+        return f'{self.constants}/smileys'
 
     @property
     def dialogs(self) -> str:
@@ -548,20 +607,22 @@ class Endpoints:
         :return: Dialogs list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/dialogs"
+        return f'{self.base_url}/dialogs'
 
     def dialog(self, dialog_id: int) -> str:
         """
         Returns endpoint of a certain comment.
 
-        :param int dialog_id: Dialog ID for endpoint
+        :param dialog_id: Dialog ID for endpoint
+        :type dialog_id: int
+
         :return: Dialog endpoint link
         :rtype: str
         """
-        return f"{self.dialogs}/{dialog_id}"
+        return f'{self.dialogs}/{dialog_id}'
 
     @property
-    def episode_notifications(self):
+    def episode_notifications(self) -> str:
         """
         Returns endpoint for notifying Shikimori about anime episode release.
 
@@ -571,37 +632,43 @@ class Endpoints:
         :return: Episode notifications endpoint link
         :rtype: str
         """
-        return f"{self.base_url_v2}/episode_notifications"
+        return f'{self.base_url_v2}/episode_notifications'
 
-    def favorites(
-            self,
-            linked_type: LinkedType,
-            linked_id: int,
-            kind: Kind = Kind.NONE
-    ) -> str:
+    def favorites(self,
+                  linked_type: LinkedType,
+                  linked_id: int,
+                  kind: Kind = Kind.NONE) -> str:
         """
         Returns endpoint for adding/deleting some type
         of object to/from favorites
 
-        :param LinkedType linked_type: Type of object
-        :param int linked_id: ID of object
-        :param Kind kind: Kind of object
+        :param linked_type: Type of object
+        :type linked_type: LinkedType
+
+        :param linked_id: ID of object
+        :type linked_id: int
+
+        :param kind: Kind of object
             (Required when linked_type is LinkedType.Person)
+        :type kind: Kind
+
         :return: Favorite addition/deletion endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/favorites/"\
-               f"{linked_type.value}/{linked_id}/{kind.value}"
+        return f'{self.base_url}/favorites/'\
+               f'{linked_type.value}/{linked_id}/{kind.value}'
 
     def favorites_reorder(self, favorite_id: int) -> str:
         """
         Returns endpoint for assigning new position of a favorite.
 
-        :param int favorite_id: Favorite ID for endpoint
+        :param favorite_id: Favorite ID for endpoint
+        :type favorite_id: int
+
         :return: Favorite reorder endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/favorites/{favorite_id}/reorder"
+        return f'{self.base_url}/favorites/{favorite_id}/reorder'
 
     @property
     def forums(self) -> str:
@@ -611,17 +678,19 @@ class Endpoints:
         :return: Forums list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/forums"
+        return f'{self.base_url}/forums'
 
     def friend(self, friend_id: int) -> str:
         """
         Returns endpoint for adding/deleting friend
 
-        :param int friend_id: Friend ID for endpoint
+        :param friend_id: Friend ID for endpoint
+        :type friend_id: int
+
         :return: Friend addition/deletion endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/friends/{friend_id}"
+        return f'{self.base_url}/friends/{friend_id}'
 
     @property
     def genres(self) -> str:
@@ -631,7 +700,7 @@ class Endpoints:
         :return: Genres list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/genres"
+        return f'{self.base_url}/genres'
 
     @property
     def mangas(self) -> str:
@@ -641,87 +710,103 @@ class Endpoints:
         :return: Mangas list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/mangas"
+        return f'{self.base_url}/mangas'
 
     def manga(self, manga_id: int) -> str:
         """
         Returns endpoint of a specific manga.
 
-        :param int manga_id: Manga ID for endpoint
+        :param manga_id: Manga ID for endpoint
+        :type manga_id: int
+
         :return: Manga endpoint link
         :rtype: str
         """
-        return f"{self.mangas}/{manga_id}"
+        return f'{self.mangas}/{manga_id}'
 
     def manga_roles(self, manga_id: int) -> str:
         """
         Returns endpoint of a list of roles of a specific manga.
 
-        :param int manga_id: Manga ID for endpoint
+        :param manga_id: Manga ID for endpoint
+        :type manga_id: int
+
         :return: Manga roles endpoint link
         :rtype: str
         """
-        return f"{self.manga(manga_id)}/roles"
+        return f'{self.manga(manga_id)}/roles'
 
     def similar_mangas(self, manga_id: int) -> str:
         """
         Returns endpoint of a list of similar manga of a certain manga.
 
-        :param int manga_id: Manga ID for endpoint
+        :param manga_id: Manga ID for endpoint
+        :type manga_id: int
+
         :return: Similar mangas endpoint link
         :rtype: str
         """
-        return f"{self.manga(manga_id)}/similar"
+        return f'{self.manga(manga_id)}/similar'
 
     def manga_related_content(self, manga_id: int) -> str:
         """
         Returns endpoint of a list of similar manga of a certain manga.
 
-        :param int manga_id: Manga ID for endpoint
+        :param manga_id: Manga ID for endpoint
+        :type manga_id: int
+
         :return: Manga related content endpoint link
         :rtype: str
         """
-        return f"{self.manga(manga_id)}/related"
+        return f'{self.manga(manga_id)}/related'
 
     def manga_screenshots(self, manga_id: int) -> str:
         """
         Returns endpoint of screenshots of a specific manga.
 
-        :param int manga_id: Manga ID for endpoint
+        :param manga_id: Manga ID for endpoint
+        :type manga_id: int
+
         :return: Manga screenshots endpoint link
         :rtype: str
         """
-        return f"{self.manga(manga_id)}/screenshots"
+        return f'{self.manga(manga_id)}/screenshots'
 
     def manga_franchise_tree(self, manga_id: int) -> str:
         """
         Returns endpoint of franchise tree of a certain manga.
 
-        :param int manga_id: Manga ID for endpoint
+        :param manga_id: Manga ID for endpoint
+        :type manga_id: int
+
         :return: Manga franchise tree endpoint link
         :rtype: str
         """
-        return f"{self.manga(manga_id)}/franchise"
+        return f'{self.manga(manga_id)}/franchise'
 
     def manga_external_links(self, manga_id: int) -> str:
         """
         Returns endpoint of a list of external links of a certain manga.
 
-        :param int manga_id: Manga ID for endpoint
+        :param manga_id: Manga ID for endpoint
+        :type manga_id: int
+
         :return: Manga external links endpoint link
         :rtype: str
         """
-        return f"{self.manga(manga_id)}/external_links"
+        return f'{self.manga(manga_id)}/external_links'
 
     def manga_topics(self, manga_id: int) -> str:
         """
         Returns endpoint of a list of topics of a certain manga.
 
-        :param int manga_id: Manga ID for endpoint
+        :param manga_id: Manga ID for endpoint
+        :type manga_id: int
+
         :return: Manga topics endpoint link
         :rtype: str
         """
-        return f"{self.manga(manga_id)}/topics"
+        return f'{self.manga(manga_id)}/topics'
 
     @property
     def messages(self) -> str:
@@ -731,17 +816,19 @@ class Endpoints:
         :return: Messages list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/messages"
+        return f'{self.base_url}/messages'
 
     def message(self, message_id: int) -> str:
         """
         Returns endpoint of a specific message.
 
-        :param int message_id: Message ID for endpoint
+        :param message_id: Message ID for endpoint
+        :type message_id: int
+
         :return: Message endpoint link
         :rtype: str
         """
-        return f"{self.messages}/{message_id}"
+        return f'{self.messages}/{message_id}'
 
     @property
     def messages_mark_read(self) -> str:
@@ -751,7 +838,7 @@ class Endpoints:
         :return: Marking messages endpoint link
         :rtype: str
         """
-        return f"{self.messages}/mark_read"
+        return f'{self.messages}/mark_read'
 
     @property
     def messages_read_all(self) -> str:
@@ -761,7 +848,7 @@ class Endpoints:
         :return: Reading messages endpoint link
         :rtype: str
         """
-        return f"{self.messages}/read_all"
+        return f'{self.messages}/read_all'
 
     @property
     def messages_delete_all(self) -> str:
@@ -771,17 +858,19 @@ class Endpoints:
         :return: Deleting messages endpoint link
         :rtype: str
         """
-        return f"{self.messages}/delete_all"
+        return f'{self.messages}/delete_all'
 
     def people(self, person_id: int) -> str:
         """
         Returns endpoint for a certain person.
 
-        :param int person_id: Person ID for endpoint
+        :param person_id: Person ID for endpoint
+        :type person_id: int
+
         :return: Person endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/people/{person_id}"
+        return f'{self.base_url}/people/{person_id}'
 
     @property
     def people_search(self) -> str:
@@ -791,7 +880,7 @@ class Endpoints:
         :return: People search endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/people/search"
+        return f'{self.base_url}/people/search'
 
     @property
     def publishers(self) -> str:
@@ -801,7 +890,7 @@ class Endpoints:
         :return: Publishers list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/publishers"
+        return f'{self.base_url}/publishers'
 
     @property
     def ranobes(self) -> str:
@@ -811,77 +900,91 @@ class Endpoints:
         :return: Ranobes list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/ranobes"
+        return f'{self.base_url}/ranobes'
 
     def ranobe(self, ranobe_id: int) -> str:
         """
         Returns endpoint of a specific ranobe.
 
-        :param int ranobe_id: Ranobe ID for endpoint
+        :param ranobe_id: Ranobe ID for endpoint
+        :type ranobe_id: int
+
         :return: Ranobe endpoint link
         :rtype: str
         """
-        return f"{self.ranobes}/{ranobe_id}"
+        return f'{self.ranobes}/{ranobe_id}'
 
     def ranobe_roles(self, ranobe_id: int) -> str:
         """
         Returns endpoint of a list of roles of a specific ranobe.
 
-        :param int ranobe_id: Ranobe ID for endpoint
+        :param ranobe_id: Ranobe ID for endpoint
+        :type ranobe_id: int
+
         :return: Ranobe roles endpoint link
         :rtype: str
         """
-        return f"{self.ranobe(ranobe_id)}/roles"
+        return f'{self.ranobe(ranobe_id)}/roles'
 
     def similar_ranobes(self, ranobe_id: int) -> str:
         """
         Returns endpoint of a list of similar ranobe of a certain ranobe.
 
-        :param int ranobe_id: Ranobe ID for endpoint
+        :param ranobe_id: Ranobe ID for endpoint
+        :type ranobe_id: int
+
         :return: Similar ranobes endpoint link
         :rtype: str
         """
-        return f"{self.ranobe(ranobe_id)}/similar"
+        return f'{self.ranobe(ranobe_id)}/similar'
 
     def ranobe_related_content(self, ranobe_id: int) -> str:
         """
         Returns endpoint of a list of similar ranobe of a certain ranobe.
 
-        :param int ranobe_id: Ranobe ID for endpoint
+        :param ranobe_id: Ranobe ID for endpoint
+        :type ranobe_id: int
+
         :return: Ranobe related content endpoint link
         :rtype: str
         """
-        return f"{self.ranobe(ranobe_id)}/related"
+        return f'{self.ranobe(ranobe_id)}/related'
 
     def ranobe_franchise_tree(self, ranobe_id: int) -> str:
         """
         Returns endpoint of franchise tree of a certain ranobe.
 
-        :param int ranobe_id: Ranobe ID for endpoint
+        :param ranobe_id: Ranobe ID for endpoint
+        :type ranobe_id: int
+
         :return: Ranobe franchise tree endpoint link
         :rtype: str
         """
-        return f"{self.ranobe(ranobe_id)}/franchise"
+        return f'{self.ranobe(ranobe_id)}/franchise'
 
     def ranobe_external_links(self, ranobe_id: int) -> str:
         """
         Returns endpoint of a list of external links of a certain ranobe.
 
-        :param int ranobe_id: Ranobe ID for endpoint
+        :param ranobe_id: Ranobe ID for endpoint
+        :type ranobe_id: int
+
         :return: Ranobe external links endpoint link
         :rtype: str
         """
-        return f"{self.ranobe(ranobe_id)}/external_links"
+        return f'{self.ranobe(ranobe_id)}/external_links'
 
     def ranobe_topics(self, ranobe_id: int) -> str:
         """
         Returns endpoint of a list of topics of a certain ranobe.
 
-        :param int ranobe_id: Ranobe ID for endpoint
+        :param ranobe_id: Ranobe ID for endpoint
+        :type ranobe_id: int
+
         :return: Ranobe topics endpoint link
         :rtype: str
         """
-        return f"{self.ranobe(ranobe_id)}/topics"
+        return f'{self.ranobe(ranobe_id)}/topics'
 
     @property
     def stats(self) -> str:
@@ -892,7 +995,7 @@ class Endpoints:
         :return: Active users list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/stats/active_users"
+        return f'{self.base_url}/stats/active_users'
 
     @property
     def studios(self) -> str:
@@ -902,7 +1005,7 @@ class Endpoints:
         :return: Studios list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/studios"
+        return f'{self.base_url}/studios'
 
     @property
     def styles(self) -> str:
@@ -912,17 +1015,18 @@ class Endpoints:
         :return: Style create/preview endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/styles"
+        return f'{self.base_url}/styles'
 
     def style(self, style_id: int) -> str:
         """
         Returns endpoint of the style.
 
-        :param int style_id: Style ID for endpoint
+        :param style_id: Style ID for endpoint
+        :type style_id: int
         :return: Style endpoint link
         :rtype: str
         """
-        return f"{self.styles}/{style_id}"
+        return f'{self.styles}/{style_id}'
 
     @property
     def topics(self) -> str:
@@ -932,17 +1036,19 @@ class Endpoints:
         :return: Topics list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/topics"
+        return f'{self.base_url}/topics'
 
     def topic(self, topic_id: int) -> str:
         """
         Returns endpoint of the topic.
 
-        :param int topic_id: Topic ID for endpoint
+        :param topic_id: Topic ID for endpoint
+        :type topic_id: int
+
         :return: Topic endpoint link
         :rtype: str
         """
-        return f"{self.topics}/{topic_id}"
+        return f'{self.topics}/{topic_id}'
 
     @property
     def topics_updates(self) -> str:
@@ -952,7 +1058,7 @@ class Endpoints:
         :return: Topics updates list endpoint link
         :rtype: str
         """
-        return f"{self.topics}/updates"
+        return f'{self.topics}/updates'
 
     @property
     def hot_topics(self) -> str:
@@ -962,17 +1068,19 @@ class Endpoints:
         :return: Hot topics list endpoint link
         :rtype: str
         """
-        return f"{self.topics}/hot"
+        return f'{self.topics}/hot'
 
     def topic_ignore(self, topic_id: int) -> str:
         """
         Returns endpoint for ignoring/unignoring topic.
 
-        :param int topic_id: Topic ID for endpoint
+        :param topic_id: Topic ID for endpoint
+        :type topic_id: int
+
         :return: Ignore/unignore topic endpoint link
         :rtype: str
         """
-        return f"{self.base_url_v2}/topics/{topic_id}/ignore"
+        return f'{self.base_url_v2}/topics/{topic_id}/ignore'
 
     @property
     def user_images(self) -> str:
@@ -982,7 +1090,7 @@ class Endpoints:
         :return: User image create endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/user_images"
+        return f'{self.base_url}/user_images'
 
     @property
     def users(self) -> str:
@@ -992,7 +1100,7 @@ class Endpoints:
         :return: Users list endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/users"
+        return f'{self.base_url}/users'
 
     @property
     def whoami(self) -> str:
@@ -1002,7 +1110,7 @@ class Endpoints:
         :return: Current user's brief info endpoint link
         :rtype: str
         """
-        return f"{self.users}/whoami"
+        return f'{self.users}/whoami'
 
     @property
     def sign_out(self) -> str:
@@ -1012,127 +1120,151 @@ class Endpoints:
         :return: User's sign out endpoint link
         :rtype: str
         """
-        return f"{self.users}/sign_out"
+        return f'{self.users}/sign_out'
 
     def user(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User endpoint link
         :rtype: str
         """
-        return f"{self.users}/{user_id}"
+        return f'{self.users}/{user_id}'
 
     def user_info(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's brief info.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's brief info endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/info"
+        return f'{self.user(user_id)}/info'
 
     def user_friends(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's friends list.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's friends list endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/friends"
+        return f'{self.user(user_id)}/friends'
 
     def user_clubs(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's clubs list.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's clubs list endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/clubs"
+        return f'{self.user(user_id)}/clubs'
 
     def user_anime_rates(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's anime rates list.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's anime rates list endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/anime_rates"
+        return f'{self.user(user_id)}/anime_rates'
 
     def user_manga_rates(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's manga rates list.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's manga rates list endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/manga_rates"
+        return f'{self.user(user_id)}/manga_rates'
 
     def user_favourites(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's favourites list.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's favorites list endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/favourites"
+        return f'{self.user(user_id)}/favourites'
 
     def user_messages(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's messages list.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's messages list endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/messages"
+        return f'{self.user(user_id)}/messages'
 
     def user_unread_messages(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's unread messages counts.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's unread messages counts endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/unread_messages"
+        return f'{self.user(user_id)}/unread_messages'
 
     def user_history(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's history list.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's history list endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/history"
+        return f'{self.user(user_id)}/history'
 
     def user_bans(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint of the user's bans list.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: User's bans list endpoint link
         :rtype: str
         """
-        return f"{self.user(user_id)}/bans"
+        return f'{self.user(user_id)}/bans'
 
     def user_ignore(self, user_id: Union[int, str]) -> str:
         """
         Returns endpoint for ignoring/unignoring user.
 
-        :param Union[int, str] user_id: User ID/Nickname for endpoint
+        :param user_id: User ID/Nickname for endpoint
+        :type user_id: Union[int, str]
+
         :return: Ignore/unignore user endpoint link
         :rtype: str
         """
-        return f"{self.base_url_v2}/users/{user_id}/ignore"
+        return f'{self.base_url_v2}/users/{user_id}/ignore'
 
     @property
     def user_rates(self) -> str:
@@ -1142,50 +1274,56 @@ class Endpoints:
         :return: User rates list endpoint link
         :rtype: str
         """
-        return f"{self.base_url_v2}/user_rates"
+        return f'{self.base_url_v2}/user_rates'
 
     def user_rate(self, user_rate_id: int) -> str:
         """
         Returns endpoint of the user rate.
 
-        :param int user_rate_id: User rate ID for endpoint
+        :param user_rate_id: User rate ID for endpoint
+        :type user_rate_id: int
+
         :return: User rate endpoint link
         :rtype: str
         """
-        return f"{self.user_rates}/{user_rate_id}"
+        return f'{self.user_rates}/{user_rate_id}'
 
     def user_rate_increment(self, user_rate_id: int) -> str:
         """
         Returns endpoint for incrementing episodes/chapters by 1
 
-        :param int user_rate_id: User rate ID for endpoint
+        :param user_rate_id: User rate ID for increment endpoint
+        :type user_rate_id: int
+
         :return: User rate increment endpoint link
         :rtype: str
         """
-        return f"{self.user_rate(user_rate_id)}/increment"
+        return f'{self.user_rate(user_rate_id)}/increment'
 
-    # TODO: Get all user_rates types
-    def user_rates_cleanup(self, user_rate_type) -> str:
+    def user_rates_cleanup(self, user_rate_type: str) -> str:
         """
         Returns endpoint for cleanup user rates by type.
 
         **Note:** This endpoint is using API v.1
 
         :param user_rate_type: Type of an user rate
+        :type user_rate_type: str
+
         :return: User rates cleanup endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/user_rates/{user_rate_type}/cleanup"
+        return f'{self.base_url}/user_rates/{user_rate_type}/cleanup'
 
-    # TODO: Get all user_rates types
-    def user_rates_reset(self, user_rate_type) -> str:
+    def user_rates_reset(self, user_rate_type: str) -> str:
         """
         Returns endpoint for resetting user rates by type.
 
         **Note:** This endpoint is using API v.1
 
         :param user_rate_type: Type of an user rate
+        :type user_rate_type: str
+
         :return: User rates reset endpoint link
         :rtype: str
         """
-        return f"{self.base_url}/user_rates/{user_rate_type}/reset"
+        return f'{self.base_url}/user_rates/{user_rate_type}/reset'
