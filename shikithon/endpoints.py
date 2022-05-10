@@ -387,7 +387,7 @@ class Endpoints:
         :return: Character endpoint link
         :rtype: str
         """
-        return f'{self.base_url}/character/{character_id}'
+        return f'{self.base_url}/characters/{character_id}'
 
     @property
     def character_search(self) -> str:
@@ -397,7 +397,7 @@ class Endpoints:
         :return: Characters search endpoint link
         :rtype: str
         """
-        return f'{self.base_url}/character/search'
+        return f'{self.base_url}/characters/search'
 
     @property
     def clubs(self) -> str:
