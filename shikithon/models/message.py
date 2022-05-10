@@ -19,5 +19,5 @@ class Message(BaseModel):
     linked_id: int
     linked_type: Optional[str]
     linked: Optional[LinkedTopic]
-    from_user: Optional[User] = Field(alias="from")
-    to_user: Optional[User] = Field(alias="to")
+    from_user: Optional[User] = Field(alias='from')
+    to_user: Optional[User] = Field(alias='to')
