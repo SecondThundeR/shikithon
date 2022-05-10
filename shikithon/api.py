@@ -27,6 +27,7 @@ from shikithon.models.achievement import Achievement
 from shikithon.models.anime import Anime
 from shikithon.models.ban import Ban
 from shikithon.models.calendar_event import CalendarEvent
+from shikithon.models.character import Character
 from shikithon.models.club import Club
 from shikithon.models.creator import Creator
 from shikithon.models.favourites import Favourites
@@ -764,6 +765,36 @@ class API:
             self._endpoints.calendar,
             query=Utils.generate_query_dict(censored=censored))
         return [CalendarEvent(**calendar_event) for calendar_event in response]
+
+    def character(self, character_id: int) -> Character:
+        """
+        Returns character info by ID.
+
+        :param character_id: ID of character to get info
+        :type character_id: int
+
+        :return: Character info
+        :rtype: Character
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.character(character_id))
+        return Character(**response)
+
+    def character_search(self,
+                         search: Union[str, None] = None) -> List[Character]:
+        """
+        Returns list of found characters.
+
+        :param search: Search query for characters
+        :type search: Union[str, None]
+
+        :return: List of found characters
+        :rtype: List[Character]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.character_search,
+            query=Utils.generate_query_dict(search=search))
+        return [Character(**character) for character in response]
 
     def users(self,
               page: Union[int, None] = None,
