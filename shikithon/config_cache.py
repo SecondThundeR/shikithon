@@ -5,13 +5,10 @@ This module handles saving API config to cache file
 to restore on next object initializaion
 """
 
-
+from json import dumps, loads
 from os import remove
 from os.path import exists
-from json import dumps
-from json import loads
-from typing import Dict
-from typing import Union
+from typing import Dict, Union
 
 from shikithon.utils import Utils
 
@@ -38,18 +35,19 @@ class ConfigCache:
     when there was a second attempt to get new access tokens,
     not refreshing them
     """
+
     @staticmethod
     def config_name(app_name: str) -> str:
         """
         Returns name of config file for selected app name.
 
         :param app_name: Selected OAuth app name
+        :type app_name: str
+
         :return: Config filename
         :rtype: str
         """
-        return ".shikithon_" + Utils.convert_app_name(
-            app_name
-        )
+        return '.shikithon_' + Utils.convert_app_name(app_name)
 
     @staticmethod
     def config_valid(app_name: str, auth_code: str) -> bool:
@@ -59,17 +57,19 @@ class ConfigCache:
         This method checks for config existance and
         validity by checking authorization code.
 
-        :param str app_name: OAuth App name
-        :param str auth_code: OAuth code
+        :param app_name: OAuth App name
+        :type app_name: str
+
+        :param auth_code: OAuth code
+        :type auth_code: str
+
         :return: Result of check
         :rtype: bool
         """
-        config: Union[Dict[str, str], None] = ConfigCache.get_config(
-            app_name
-        )
+        config: Union[Dict[str, str], None] = ConfigCache.get_config(app_name)
         if config is None:
             return False
-        if not config["auth_code"] == auth_code:
+        if not config['auth_code'] == auth_code:
             ConfigCache.delete_config(app_name)
             return False
         return True
@@ -79,14 +79,15 @@ class ConfigCache:
         """
         Returns current config from cache file.
 
-        :param str app_name: App name for config load
+        :param app_name: App name for config load
+        :type app_name: str
+
         :return: Config dictionary
         :rtype: Union[Dict[str, str], None]
         """
         if exists(ConfigCache.config_name(app_name)):
-            with open(ConfigCache.config_name(
-                    app_name
-            ), "r", encoding="utf-8") as config_file:
+            with open(ConfigCache.config_name(app_name), 'r',
+                      encoding='utf-8') as config_file:
                 config: Dict[str, str] = loads(config_file.read())
             return config
         return None
@@ -96,14 +97,16 @@ class ConfigCache:
         """
         Creates new cache file and saves current config.
 
-        :param Dict[str, str] config: Current config dictionary
+        :param config: Current config dictionary
+        :type config: Dict[str, str]
+
         :return: True if save succeeded, False otherwise
         :rtype: bool
         """
         try:
-            with open(ConfigCache.config_name(
-                    config["app_name"]
-            ), "w", encoding="utf-8") as config_file:
+            with open(ConfigCache.config_name(config['app_name']),
+                      'w',
+                      encoding='utf-8') as config_file:
                 config_file.write(dumps(config))
             return True
         except IOError as err:
@@ -116,6 +119,8 @@ class ConfigCache:
         Deletes current config file.
 
         :param app_name: OAuth app name
+        :type app_name: str
+
         :return: True if delete succeeded, False otherwise
         :rtype: bool
         """
