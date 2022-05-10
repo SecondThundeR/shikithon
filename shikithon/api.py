@@ -362,7 +362,7 @@ class API:
         headers: Union[None, Dict[str, str]] = None,
         query: Union[None, Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET
-    ) -> Union[List[Dict[str, Any]], Dict[str, Any], str, None]:
+    ) -> Union[List[Dict[str, Any]], Dict[str, Any], int, str]:
         """
         Create request and return response JSON.
 
@@ -391,8 +391,8 @@ class API:
         :param request_type: Type of current request
         :type request_type: RequestType
 
-        :return: Response JSON or text, otherwise None, if request fails
-        :rtype: Union[List[Dict[str, Any]], Dict[str, Any], str, None]
+        :return: Response JSON, text or status code
+        :rtype: Union[List[Dict[str, Any]], Dict[str, Any], str]
         """
         response: Union[Response, None] = None
 
@@ -427,6 +427,8 @@ class API:
             return self._request(url, data, headers, query, request_type)
 
         try:
+            if request_type != RequestType.GET:
+                return response.status_code
             return response.json()
         except JSONDecodeError:
             return response.text
@@ -704,6 +706,24 @@ class API:
                                             kind=kind,
                                             episode=episode))
         return [Topic(**topic) for topic in response]
+
+    @protected_method
+    def appears(self, comment_ids: List[str]) -> bool:
+        """
+        Marks comments or topics as read.
+
+        :param comment_ids: IDs of comments or topics to mark
+        :type comment_ids: List[str]
+
+        :return: Status of mark
+        :rtype: bool
+        """
+        data = {'ids': ','.join(comment_ids)}
+        response_code = self._request(self._endpoints.appears,
+                                      headers=self._authorization_header,
+                                      data=data,
+                                      request_type=RequestType.POST)
+        return response_code == ResponseCode.SUCCESS.value
 
     def bans(self,
              page: Union[int, None] = None,
