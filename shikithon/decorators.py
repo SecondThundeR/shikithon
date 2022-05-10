@@ -1,8 +1,6 @@
 """Custom decorators for API class."""
 from __future__ import annotations
-from typing import Any
-from typing import Dict
-from typing import Tuple
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -19,8 +17,19 @@ def protected_method(decorated):
     When the access token is no longer valid,
     triggers the token update function.
     """
-    def wrapper(api: API, *args: Tuple[Any, ...], **kwargs: Dict[str, Any]):
+
+    def wrapper(api: API):
+        """
+        Decorator's wrapper function.
+
+        Check for token expire time.
+        If needed, triggers token refresh function.
+
+        :param api: API instance
+        :type api: API
+        """
         if api.token_expired():
             api.refresh_tokens()
-        return decorated(api, *args, **kwargs)
+        return decorated(api)
+
     return wrapper
