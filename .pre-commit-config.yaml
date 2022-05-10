@@ -1,4 +1,15 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: trailing-whitespace
+      - id: check-docstring-first
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: debug-statements
+      - id: check-merge-conflict
+      - id: double-quote-string-fixer
+      - id: end-of-file-fixer
   - repo: local
     hooks:
       - id: yapf
@@ -19,17 +30,6 @@ repos:
         entry: pylint
         args: ["-rn", "-sn", "--rcfile=.pylintrc", "--load-plugins=pylint.extensions.docparams"]
         types: [python]
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
-    hooks:
-      - id: trailing-whitespace
-      - id: check-docstring-first
-      - id: check-added-large-files
-      - id: check-yaml
-      - id: debug-statements
-      - id: check-merge-conflict
-      - id: double-quote-string-fixer
-      - id: end-of-file-fixer
   - repo: meta
     hooks:
       - id: check-hooks-apply
