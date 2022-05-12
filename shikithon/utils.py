@@ -137,7 +137,6 @@ class Utils:
                 new_data_dict[data_dict_name][key] = ','.join(data)
             else:
                 new_data_dict[data_dict_name][key] = data
-        print(f'[Data dict debug]: {new_data_dict=}')
         return new_data_dict
 
     @staticmethod
