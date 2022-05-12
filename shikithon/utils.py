@@ -108,7 +108,7 @@ class Utils:
 
         This methods checks for data type and converts to valid one.
 
-        :param dict_data: API methods parameters data
+        :param dict_data: API methods body data
         :type dict_data: Union[str, bool, int, Enum, List[int], None]
 
         :return: Valid data dictionary
