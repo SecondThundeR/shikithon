@@ -364,7 +364,7 @@ class API:
         headers: Union[None, Dict[str, str]] = None,
         query: Union[None, Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET
-    ) -> Union[List[Dict[str, Any]], Dict[str, Any], int, str]:
+    ) -> Union[List[Dict[str, Any]], Dict[str, Any], int, str, None]:
         """
         Create request and return response JSON.
 
@@ -394,7 +394,7 @@ class API:
         :type request_type: RequestType
 
         :return: Response JSON, text or status code
-        :rtype: Union[List[Dict[str, Any]], Dict[str, Any], str]
+        :rtype: Union[List[Dict[str, Any]], Dict[str, Any], str, None]
         """
         response: Union[Response, None] = None
 
@@ -423,6 +423,9 @@ class API:
                                             headers=headers,
                                             params=query,
                                             data=data)
+
+        if response is None:
+            return None
 
         if response.status_code == ResponseCode.RETRY_LATER.value:
             sleep(RATE_LIMIT_RPS_COOLDOWN)
