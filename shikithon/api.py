@@ -15,7 +15,8 @@ from shikithon.decorators import protected_method
 from shikithon.endpoints import Endpoints
 from shikithon.enums.anime import (Censorship, Duration, Kind, MyList, Order,
                                    Rating, Status)
-from shikithon.enums.club import CommentPolicy, ImageUploadPolicy, TopicPolicy
+from shikithon.enums.club import (CommentPolicy, ImageUploadPolicy, JoinPolicy,
+                                  PagePolicy, TopicPolicy)
 from shikithon.enums.history import TargetType
 from shikithon.enums.message import MessageType
 from shikithon.enums.request import RequestType
@@ -364,9 +365,9 @@ class API:
     def _request(
         self,
         url: str,
-        data: Union[None, Dict[str, str]] = None,
-        headers: Union[None, Dict[str, str]] = None,
-        query: Union[None, Dict[str, str]] = None,
+        data: Union[Dict[str, str], None] = None,
+        headers: Union[Dict[str, str], None] = None,
+        query: Union[Dict[str, str], None] = None,
         request_type: RequestType = RequestType.GET
     ) -> Union[List[Dict[str, Any]], Dict[str, Any], int, str, None]:
         """
@@ -386,13 +387,13 @@ class API:
         :type url: str
 
         :param data: Request body data
-        :type data: Union[None, Dict[str, str]]
+        :type data: Union[Dict[str, str], None]
 
         :param headers: Custom headers for request
-        :type headers: Union[None, Dict[str, str]]
+        :type headers: Union[Dict[str, str], None]
 
         :param query: Query data for request
-        :type query: Union[None, Dict[str, str]]
+        :type query: Union[Dict[str, str], None]
 
         :param request_type: Type of current request
         :type request_type: RequestType
@@ -485,13 +486,13 @@ class API:
                score: Union[int, None] = None,
                duration: Union[Duration, None] = None,
                rating: Union[Rating, None] = None,
-               genre: Union[None, List[int]] = None,
-               studio: Union[None, List[int]] = None,
-               franchise: Union[None, List[int]] = None,
+               genre: Union[List[int], None] = None,
+               studio: Union[List[int], None] = None,
+               franchise: Union[List[int], None] = None,
                censored: Union[Censorship, None] = None,
                my_list: Union[MyList, None] = None,
-               ids: Union[None, List[int]] = None,
-               exclude_ids: Union[None, List[int]] = None,
+               ids: Union[List[int], None] = None,
+               exclude_ids: Union[List[int], None] = None,
                search: Union[str, None] = None) -> List[Anime]:
         """
         Returns animes list.
@@ -848,11 +849,22 @@ class API:
         self,
         club_id: int,
         name: Union[str, None] = None,
+        join_policy: Union[JoinPolicy, None] = None,
         description: Union[str, None] = None,
         display_images: Union[bool, None] = None,
         comment_policy: Union[CommentPolicy, None] = None,
         topic_policy: Union[TopicPolicy, None] = None,
-        image_upload_policy: Union[ImageUploadPolicy, None] = None
+        page_policy: Union[PagePolicy, None] = None,
+        image_upload_policy: Union[ImageUploadPolicy, None] = None,
+        is_censored: Union[bool, None] = None,
+        anime_ids: Union[List[int], None] = None,
+        manga_ids: Union[List[int], None] = None,
+        ranobe_ids: Union[List[int], None] = None,
+        character_ids: Union[List[int], None] = None,
+        club_ids: Union[List[int], None] = None,
+        admin_ids: Union[List[int], None] = None,
+        collection_ids: Union[List[int], None] = None,
+        banned_user_ids: Union[List[int], None] = None
     ) -> Tuple[bool, Union[Club, str]]:
         """
         Update info/settings about/of club.
@@ -866,8 +878,14 @@ class API:
         :param description: New description of club
         :type description: Union[str, None]
 
-        :param display_images: New display_images status of club
+        :param display_images: New display images status of club
         :type display_images: Union[bool, None]
+
+        :param is_censored: New censored status of club
+        :type is_censored: Union[bool, None]
+
+        :param join_policy: New join policy of club
+        :type join_policy: Union[JoinPolicy, None]
 
         :param comment_policy: New comment policy of club
         :type comment_policy: Union[CommentPolicy, None]
@@ -875,8 +893,35 @@ class API:
         :param topic_policy: New topic policy of club
         :type topic_policy: Union[TopicPolicy, None]
 
+        :param page_policy: New page policy of club
+        :type page_policy: Union[PagePolicy, None]
+
         :param image_upload_policy: New image upload policy of club
         :type image_upload_policy: Union[ImageUploadPolicy, None]
+
+        :param anime_ids: New anime ids of club
+        :type anime_ids: Union[List[int], None]
+
+        :param manga_ids: New manga ids of club
+        :type manga_ids: Union[List[int], None]
+
+        :param ranobe_ids: New ranobe ids of club
+        :type ranobe_ids: Union[List[int], None]
+
+        :param character_ids: New character ids of club
+        :type character_ids: Union[List[int], None]
+
+        :param club_ids: New club ids of club
+        :type club_ids: Union[List[int], None]
+
+        :param admin_ids: New admin ids of club
+        :type admin_ids: Union[List[int], None]
+
+        :param collection_ids: New collection ids of club
+        :type collection_ids: Union[List[int], None]
+
+        :param banned_user_ids: New banned user ids of club
+        :type banned_user_ids: Union[List[int], None]
 
         :return: Tuple of update status and response.
             On successful update, returns True and Club model,
@@ -889,11 +934,22 @@ class API:
             data=Utils.generate_data_dict(
                 dict_name='club',
                 name=name,
+                join_policy=join_policy,
                 description=description,
                 display_images=display_images,
                 comment_policy=comment_policy,
                 topic_policy=topic_policy,
-                image_upload_policy=image_upload_policy),
+                page_policy=page_policy,
+                image_upload_policy=image_upload_policy,
+                is_censored=is_censored,
+                anime_ids=anime_ids,
+                manga_ids=manga_ids,
+                ranobe_ids=ranobe_ids,
+                character_ids=character_ids,
+                club_ids=club_ids,
+                admin_ids=admin_ids,
+                collection_ids=collection_ids,
+                banned_user_ids=banned_user_ids),
             request_type=RequestType.PATCH)
         if 'errors' in response:
             return False, response['errors']
