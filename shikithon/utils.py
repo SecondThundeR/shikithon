@@ -124,8 +124,8 @@ class Utils:
         for key, data in dict_data.items():
             if data is None:
                 continue
-            # if isinstance(data, bool):
-            #     new_data_dict[data_dict_name][key] = data
+            if isinstance(data, bool):
+                new_data_dict[data_dict_name][key] = data
             elif isinstance(data, int):
                 new_data_dict[data_dict_name][key] = str(data)
             elif isinstance(data, Enum):
