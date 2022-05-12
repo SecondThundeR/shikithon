@@ -22,7 +22,7 @@ class Ranobe(BaseModel):
     status: str
     volumes: int
     chapters: int
-    aired_on: str
+    aired_on: Optional[str]
     released_on: Optional[str]
     english: Optional[List[str]]
     japanese: Optional[List[str]]

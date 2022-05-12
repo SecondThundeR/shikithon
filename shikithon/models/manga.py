@@ -18,7 +18,7 @@ class Manga(BaseModel):
     status: str
     volumes: int
     chapters: int
-    aired_on: str
+    aired_on: Optional[str]
     released_on: Optional[str]
     roles: Optional[List[str]]
     role: Optional[str]

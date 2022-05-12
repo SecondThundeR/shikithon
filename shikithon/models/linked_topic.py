@@ -22,5 +22,5 @@ class LinkedTopic(BaseModel):
     status: str
     episodes: int
     episodes_aired: int
-    aired_on: str
+    aired_on: Optional[str]
     released_on: Optional[str]
