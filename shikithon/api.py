@@ -323,9 +323,10 @@ class API:
             data['code'] = self._auth_code
             data['redirect_uri'] = self._redirect_uri
 
-        oauth_json = self._request(self._endpoints.oauth_token,
-                                   data=data,
-                                   request_type=RequestType.POST)
+        oauth_json: Dict[str,
+                         Any] = self._request(self._endpoints.oauth_token,
+                                              data=data,
+                                              request_type=RequestType.POST)
 
         try:
             return oauth_json['access_token'], oauth_json['refresh_token']
