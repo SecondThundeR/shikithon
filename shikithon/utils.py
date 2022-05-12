@@ -7,7 +7,7 @@ to work with the library
 """
 from enum import Enum
 from time import time
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 LOWER_LIMIT_NUMBER = 1
 
@@ -98,6 +98,47 @@ class Utils:
             else:
                 new_query[key] = data
         return new_query
+
+    @staticmethod
+    def generate_data_dict(
+        **dict_data: Union[str, bool, int, Enum, List[int], None]
+    ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:
+        """
+        Returns valid data dict for API requests.
+
+        This methods checks for data type and converts to valid one.
+
+        :param dict_data: API methods parameters data
+        :type dict_data: Union[str, bool, int, Enum, List[int], None]
+
+        :return: Valid data dictionary
+        :rtype: Union[Dict[str, str], Dict[str, Dict[str, str]]]
+        """
+        if 'dict_name' not in dict_data:
+            return {}
+
+        data_dict_name: str = dict_data['dict_name']
+        dict_data.pop('dict_name')
+
+        new_data_dict: Dict[str, Dict[str, Any]] = {data_dict_name: {}}
+        for key, data in dict_data.items():
+            if data is None:
+                continue
+            # if isinstance(data, bool):
+            #     new_data_dict[data_dict_name][key] = data
+            elif isinstance(data, int):
+                new_data_dict[data_dict_name][key] = str(data)
+            elif isinstance(data, Enum):
+                new_data_dict[data_dict_name][key] = data.value
+            elif isinstance(data, list):
+                data = [
+                    str(value) if value.isdigit() else value for value in data
+                ]
+                new_data_dict[data_dict_name][key] = ','.join(data)
+            else:
+                new_data_dict[data_dict_name][key] = data
+        print(f'[Data dict debug]: {new_data_dict=}')
+        return new_data_dict
 
     @staticmethod
     def validate_query_number(query_number: Union[int, None],
