@@ -8,7 +8,7 @@ to restore on next object initializaion
 from json import dumps, loads
 from os import remove
 from os.path import exists
-from typing import Dict, Union
+from typing import Dict
 
 from shikithon.utils import Utils
 
@@ -66,8 +66,8 @@ class ConfigCache:
         :return: Result of check
         :rtype: bool
         """
-        config: Union[Dict[str, str], None] = ConfigCache.get_config(app_name)
-        if config is None:
+        config: Dict[str, str] = ConfigCache.get_config(app_name)
+        if not config:
             return False
         if not config['auth_code'] == auth_code:
             ConfigCache.delete_config(app_name)
@@ -75,7 +75,7 @@ class ConfigCache:
         return True
 
     @staticmethod
-    def get_config(app_name: str) -> Union[Dict[str, str], None]:
+    def get_config(app_name: str) -> Dict[str, str]:
         """
         Returns current config from cache file.
 
@@ -90,7 +90,7 @@ class ConfigCache:
                       encoding='utf-8') as config_file:
                 config: Dict[str, str] = loads(config_file.read())
             return config
-        return None
+        return {}
 
     @staticmethod
     def save_config(config: Dict[str, str]) -> bool:
