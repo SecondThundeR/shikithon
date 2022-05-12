@@ -15,6 +15,7 @@ from shikithon.decorators import protected_method
 from shikithon.endpoints import Endpoints
 from shikithon.enums.anime import (Censorship, Duration, Kind, MyList, Order,
                                    Rating, Status)
+from shikithon.enums.club import CommentPolicy, ImageUploadPolicy, TopicPolicy
 from shikithon.enums.history import TargetType
 from shikithon.enums.message import MessageType
 from shikithon.enums.request import RequestType
@@ -29,12 +30,15 @@ from shikithon.models.ban import Ban
 from shikithon.models.calendar_event import CalendarEvent
 from shikithon.models.character import Character
 from shikithon.models.club import Club
+from shikithon.models.club_image import ClubImage
 from shikithon.models.creator import Creator
 from shikithon.models.favourites import Favourites
 from shikithon.models.franchise_tree import FranchiseTree
 from shikithon.models.history import History
 from shikithon.models.link import Link
+from shikithon.models.manga import Manga
 from shikithon.models.message import Message
+from shikithon.models.ranobe import Ranobe
 from shikithon.models.relation import Relation
 from shikithon.models.screenshot import Screenshot
 from shikithon.models.topic import Topic
@@ -399,30 +403,27 @@ class API:
         response: Union[Response, None] = None
 
         if request_type == RequestType.GET:
-            response = self._session.get(url,
-                                         headers=headers,
-                                         params=query,
-                                         data=data)
+            response = self._session.get(url, headers=headers, params=query)
         if request_type == RequestType.POST:
             response = self._session.post(url,
                                           headers=headers,
                                           params=query,
-                                          data=data)
+                                          json=data)
         if request_type == RequestType.PUT:
             response = self._session.put(url,
                                          headers=headers,
                                          params=query,
-                                         data=data)
+                                         json=data)
         if request_type == RequestType.PATCH:
             response = self._session.patch(url,
                                            headers=headers,
                                            params=query,
-                                           data=data)
+                                           json=data)
         if request_type == RequestType.DELETE:
             response = self._session.delete(url,
                                             headers=headers,
                                             params=query,
-                                            data=data)
+                                            json=data)
 
         if response is None:
             return None
@@ -799,6 +800,226 @@ class API:
             self._endpoints.character_search,
             query=Utils.generate_query_dict(search=search))
         return [Character(**character) for character in response]
+
+    def clubs(self,
+              page: Union[int, None] = None,
+              limit: Union[int, None] = None,
+              search: Union[str, None] = None) -> List[Club]:
+        """
+        Returns clubs list.
+
+        :param page: Number of page
+        :type page: Union[int, None]
+
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
+
+        :param search: Search phrase to filter clubs by name
+        :type search: Union[str, None]
+
+        :return: Clubs list
+        :rtype: List[Club]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 30)
+
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.clubs,
+            query=Utils.generate_query_dict(page=page,
+                                            limit=limit,
+                                            search=search))
+        return [Club(**club) for club in response]
+
+    def club(self, club_id: int) -> Club:
+        """
+        Returns info about club.
+
+        :param club_id: Club ID to get info
+        :type club_id: int
+
+        :return: Info about club
+        :rtype: Club
+        """
+        response: Dict[str, Any] = self._request(self._endpoints.club(club_id))
+        return Club(**response)
+
+    @protected_method
+    def club_update(
+        self,
+        club_id: int,
+        name: Union[str, None] = None,
+        description: Union[str, None] = None,
+        display_images: Union[bool, None] = None,
+        comment_policy: Union[CommentPolicy, None] = None,
+        topic_policy: Union[TopicPolicy, None] = None,
+        image_upload_policy: Union[ImageUploadPolicy, None] = None
+    ) -> Tuple[bool, Union[Club, str]]:
+        """
+        Update info/settings about/of club.
+
+        :param club_id: Club ID to modify/update
+        :type club_id: int
+
+        :param name: New name of club
+        :type name: Union[str, None]
+
+        :param description: New description of club
+        :type description: Union[str, None]
+
+        :param display_images: New display_images status of club
+        :type display_images: Union[bool, None]
+
+        :param comment_policy: New comment policy of club
+        :type comment_policy: Union[CommentPolicy, None]
+
+        :param topic_policy: New topic policy of club
+        :type topic_policy: Union[TopicPolicy, None]
+
+        :param image_upload_policy: New image upload policy of club
+        :type image_upload_policy: Union[ImageUploadPolicy, None]
+
+        :return: Tuple of update status and response.
+            On successful update, returns True and Club model,
+            otherwise, False and error message
+        :rtype: Tuple[bool, Union[Club, str]]
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.club(club_id),
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(
+                dict_name='club',
+                name=name,
+                description=description,
+                display_images=display_images,
+                comment_policy=comment_policy,
+                topic_policy=topic_policy,
+                image_upload_policy=image_upload_policy),
+            request_type=RequestType.PATCH)
+        if 'errors' in response:
+            return False, response['errors']
+        return True, Club(**response)
+
+    def club_animes(self, club_id: int) -> List[Anime]:
+        """
+        Returns anime list of club.
+
+        :param club_id: Club ID to get anime list
+        :type club_id: int
+
+        :return: Club anime list
+        :rtype: List[Anime]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_animes(club_id))
+        return [Anime(**anime) for anime in response]
+
+    def club_mangas(self, club_id: int) -> List[Manga]:
+        """
+        Returns manga list of club.
+
+        :param club_id: Club ID to get manga list
+        :type club_id: int
+
+        :return: Club manga list
+        :rtype: List[Manga]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_mangas(club_id))
+        return [Manga(**manga) for manga in response]
+
+    def club_ranobe(self, club_id: int) -> List[Ranobe]:
+        """
+        Returns ranobe list of club.
+
+        :param club_id: Club ID to get ranobe list
+        :type club_id: int
+
+        :return: Club ranobe list
+        :rtype: List[Ranobe]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_ranobe(club_id))
+        return [Ranobe(**ranobe) for ranobe in response]
+
+    def club_characters(self, club_id: int) -> List[Character]:
+        """
+        Returns character list of club.
+
+        :param club_id: Club ID to get character list
+        :type club_id: int
+
+        :return: Club character list
+        :rtype: List[Character]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_characters(club_id))
+        return [Character(**character) for character in response]
+
+    def club_members(self, club_id: int) -> List[User]:
+        """
+        Returns member list of club.
+
+        :param club_id: Club ID to get member list
+        :type club_id: int
+
+        :return: Club member list
+        :rtype: List[User]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_members(club_id))
+        return [User(**user) for user in response]
+
+    def club_images(self, club_id: int) -> List[ClubImage]:
+        """
+        Returns images of club.
+
+        :param club_id: Club ID to get images
+        :type club_id: int
+
+        :return: Club's images
+        :rtype: List[ClubImage]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_images(club_id))
+        return [ClubImage(**club_image) for club_image in response]
+
+    @protected_method
+    def club_join(self, club_id: int):
+        """
+        Joins club by ID.
+
+        :param club_id: Club ID to join
+        :type club_id: int
+
+        :return: Status of join
+        :rtype: bool
+        """
+        response: Union[Dict[str, Any],
+                        int] = self._request(self._endpoints.club_join(club_id),
+                                             headers=self._authorization_header,
+                                             request_type=RequestType.POST)
+        if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
+            return True
+        return False
+
+    @protected_method
+    def club_leave(self, club_id: int) -> bool:
+        """
+        Leaves club by ID.
+
+        :param club_id: Club ID to leave
+        :type club_id: int
+
+        :return: Status of leave
+        :rtype: bool
+        """
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.club_leave(club_id),
+            headers=self._authorization_header,
+            request_type=RequestType.POST)
+        if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
+            return True
+        return False
 
     def users(self,
               page: Union[int, None] = None,
