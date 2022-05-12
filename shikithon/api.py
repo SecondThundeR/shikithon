@@ -432,10 +432,10 @@ class API:
             return self._request(url, data, headers, query, request_type)
 
         try:
-            if request_type != RequestType.GET:
-                return response.status_code
             return response.json()
         except JSONDecodeError:
+            if not response.text:
+                return response.status_code
             return response.text
 
     def refresh_tokens(self):
