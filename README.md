@@ -38,15 +38,13 @@
 
 ## Пример использования
 
+С использованием полного конфига:
 ```py
 from json import loads
 # Необязательно
-from typing import Dict
-# Необязательно
-from typing import List
+from typing import Dict, List
 
 from shikithon.api import API
-
 # Необязательно
 from shikithon.models.achievement import Achievement
 # Необязательно
@@ -75,9 +73,7 @@ print(f"Current user is {user.nickname}")
 
 # Получение достижений пользователя через /achievements
 # и вывод первого достижения
-user_achievements: List[Achievement] = shikimori.achievements(
-    user.id
-)
+user_achievements: List[Achievement] = shikimori.achievements(user.id)
 print(user_achievements[0])
 
 # >> Current user is SecondThundeR
@@ -86,6 +82,49 @@ print(user_achievements[0])
 # >> level=1
 # >> progress=77
 # >> user_id=723052
+# >> created_at=datetime.datetime(...)
+# >> updated_at=datetime.datetime(...)
+
+# На самом деле достижение выводится как одна строка с данными.
+# Для удобства она показана здесь раздельно
+```
+
+С использованием имени приложения:
+```py
+# Необязательно
+from typing import List
+
+from shikithon.api import API
+# Необязательно
+from shikithon.models.achievement import Achievement
+
+# Можно установить имя приложения в коде
+app_name: str = "..."
+
+# Или же прочитать его из внешнего файла
+with open("config.txt", "r", encoding="utf-8") as config_file:
+    app_name_2: str = config_file.readline().strip()
+
+# Инициализация объекта API
+shikimori: API = API(app_name)
+
+# Попытка получения данных текущего пользователя через /users/whoami
+# При попытке доступа к защищенному методу, возвращает всегда None
+user = shikimori.current_user()
+print(user)
+
+# Получение достижений пользователя через /achievements
+# и вывод первого достижения
+# Можно получать достижения любого пользователя через ID
+user_achievements: List[Achievement] = shikimori.achievements(1)
+print(user_achievements[0])
+
+# >> None
+# >> id=811883697
+# >> neko_id='aa_megami_sama'
+# >> level=0
+# >> progress=31
+# >> user_id=1
 # >> created_at=datetime.datetime(...)
 # >> updated_at=datetime.datetime(...)
 
