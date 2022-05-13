@@ -493,7 +493,7 @@ class API:
                my_list: Union[MyList, None] = None,
                ids: Union[List[int], None] = None,
                exclude_ids: Union[List[int], None] = None,
-               search: Union[str, None] = None) -> List[Anime]:
+               search: Union[str, None] = None) -> Union[List[Anime], None]:
         """
         Returns animes list.
 
@@ -549,13 +549,13 @@ class API:
         :type search: Union[str, None]
 
         :return: Animes list
-        :rtype: List[Anime]
+        :rtype: Union[List[Anime], None]
         """
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 50)
         score = Utils.validate_query_number(score, 9)
 
-        response: List[Dict[str, Any]] = self._request(
+        response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.animes,
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
@@ -574,7 +574,7 @@ class API:
                                             ids=ids,
                                             exclude_ids=exclude_ids,
                                             search=search))
-        return [Anime(**anime) for anime in response]
+        return [Anime(**anime) for anime in response] if response else response
 
     def anime(self, anime_id: int) -> Anime:
         """
@@ -674,12 +674,13 @@ class API:
             self._endpoints.anime_external_links(anime_id))
         return [Link(**link) for link in response]
 
-    def anime_topics(self,
-                     anime_id: int,
-                     page: Union[int, None] = None,
-                     limit: Union[int, None] = None,
-                     kind: Union[Status, None] = None,
-                     episode: Union[int, None] = None) -> List[Topic]:
+    def anime_topics(
+            self,
+            anime_id: int,
+            page: Union[int, None] = None,
+            limit: Union[int, None] = None,
+            kind: Union[Status, None] = None,
+            episode: Union[int, None] = None) -> Union[List[Topic], None]:
         """
         Returns list of topics of certain anime.
 
@@ -701,18 +702,18 @@ class API:
         :type episode: Union[int, None]
 
         :return: List of topics
-        :rtype: List[Topic]
+        :rtype: Union[List[Topic], None]
         """
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 30)
 
-        response: List[Dict[str, Any]] = self._request(
+        response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.anime_topics(anime_id),
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
                                             kind=kind,
                                             episode=episode))
-        return [Topic(**topic) for topic in response]
+        return [Topic(**topic) for topic in response] if response else response
 
     @protected_method
     def appears(self, comment_ids: List[str]) -> bool:
@@ -734,7 +735,7 @@ class API:
 
     def bans(self,
              page: Union[int, None] = None,
-             limit: Union[int, None] = None) -> List[Ban]:
+             limit: Union[int, None] = None) -> Union[List[Ban], None]:
         """
         Returns list of recent bans on Shikimori.
 
@@ -745,15 +746,15 @@ class API:
         :type limit: Union[int, None]
 
         :return: List of recent bans
-        :rtype: List[Ban]
+        :rtype: Union[List[Ban], None]
         """
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 30)
 
-        response: List[Dict[str, Any]] = self._request(
+        response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.bans_list,
             query=Utils.generate_query_dict(page=page, limit=limit))
-        return [Ban(**ban) for ban in response]
+        return [Ban(**ban) for ban in response] if response else response
 
     def calendar(
             self,
@@ -805,7 +806,7 @@ class API:
     def clubs(self,
               page: Union[int, None] = None,
               limit: Union[int, None] = None,
-              search: Union[str, None] = None) -> List[Club]:
+              search: Union[str, None] = None) -> Union[List[Club], None]:
         """
         Returns clubs list.
 
@@ -819,17 +820,17 @@ class API:
         :type search: Union[str, None]
 
         :return: Clubs list
-        :rtype: List[Club]
+        :rtype: Union[List[Club], None]
         """
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 30)
 
-        response: List[Dict[str, Any]] = self._request(
+        response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.clubs,
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
                                             search=search))
-        return [Club(**club) for club in response]
+        return [Club(**club) for club in response] if response else response
 
     def club(self, club_id: int) -> Club:
         """
@@ -1079,7 +1080,7 @@ class API:
 
     def users(self,
               page: Union[int, None] = None,
-              limit: Union[int, None] = None) -> List[User]:
+              limit: Union[int, None] = None) -> Union[List[User], None]:
         """
         Returns list of users.
 
@@ -1095,10 +1096,10 @@ class API:
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 100)
 
-        response: List[Dict[str, Any]] = self._request(
+        response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.users,
             query=Utils.generate_query_dict(page=page, limit=limit))
-        return [User(**user) for user in response]
+        return [User(**user) for user in response] if response else response
 
     def user(self,
              user_id: Union[str, int],
@@ -1202,13 +1203,14 @@ class API:
         return [Club(**club) for club in response]
 
     def user_anime_rates(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Union[bool, None] = None,
-            page: Union[int, None] = None,
-            limit: Union[int, None] = None,
-            status: Union[MyList, None] = None,
-            censored: Union[Censorship, None] = None) -> List[UserList]:
+        self,
+        user_id: Union[int, str],
+        is_nickname: Union[bool, None] = None,
+        page: Union[int, None] = None,
+        limit: Union[int, None] = None,
+        status: Union[MyList, None] = None,
+        censored: Union[Censorship,
+                        None] = None) -> Union[List[UserList], None]:
         """
         Returns user's anime list.
 
@@ -1231,27 +1233,29 @@ class API:
         :type censored: Union[Censorship, None]
 
         :return: User's anime list
-        :rtype: List[UserList]
+        :rtype: Union[List[UserList], None]
         """
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 5000)
 
-        response: List[Dict[str, Any]] = self._request(
+        response: Union[List[Dict[str, Any], None]] = self._request(
             self._endpoints.user_anime_rates(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
                                             limit=limit,
                                             status=status,
                                             censored=censored))
-        return [UserList(**user_list) for user_list in response]
+        return [UserList(**user_list) for user_list in response
+               ] if response else response
 
     def user_manga_rates(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Union[bool, None] = None,
-            page: Union[int, None] = None,
-            limit: Union[int, None] = None,
-            censored: Union[Censorship, None] = None) -> List[UserList]:
+        self,
+        user_id: Union[int, str],
+        is_nickname: Union[bool, None] = None,
+        page: Union[int, None] = None,
+        limit: Union[int, None] = None,
+        censored: Union[Censorship,
+                        None] = None) -> Union[List[UserList], None]:
         """
         Returns user's manga list.
 
@@ -1271,18 +1275,19 @@ class API:
         :type censored: Union[Censorship, None]
 
         :return: User's manga list
-        :rtype: List[UserList]
+        :rtype: Union[List[UserList], None]
         """
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 5000)
 
-        response: List[Dict[str, Any]] = self._request(
+        response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.user_manga_rates(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
                                             limit=limit,
                                             censored=censored))
-        return [UserList(**user_list) for user_list in response]
+        return [UserList(**user_list) for user_list in response
+               ] if response else response
 
     def user_favourites(self,
                         user_id: Union[int, str],
@@ -1306,12 +1311,13 @@ class API:
 
     @protected_method
     def current_user_messages(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Union[bool, None] = None,
-            page: Union[int, None] = None,
-            limit: Union[int, None] = None,
-            message_type: MessageType = MessageType.NEWS) -> List[Message]:
+        self,
+        user_id: Union[int, str],
+        is_nickname: Union[bool, None] = None,
+        page: Union[int, None] = None,
+        limit: Union[int, None] = None,
+        message_type: MessageType = MessageType.NEWS
+    ) -> Union[List[Message], None]:
         """
         Returns current user's messages by type.
 
@@ -1331,19 +1337,20 @@ class API:
         :type message_type: MessageType
 
         :return: Current user's messages
-        :rtype: List[Message]
+        :rtype: Union[List[Message], None]
         """
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 100)
 
-        response: List[Dict[str, Any]] = self._request(
+        response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.user_messages(user_id),
             headers=self._authorization_header,
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
                                             limit=limit,
                                             type=message_type))
-        return [Message(**message) for message in response]
+        return [Message(**message) for message in response
+               ] if response else response
 
     @protected_method
     def current_user_unread_messages(
@@ -1369,13 +1376,14 @@ class API:
         return UnreadMessages(**response)
 
     def user_history(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Union[bool, None] = None,
-            page: Union[int, None] = None,
-            limit: Union[int, None] = None,
-            target_id: Union[int, None] = None,
-            target_type: Union[TargetType, None] = None) -> List[History]:
+        self,
+        user_id: Union[int, str],
+        is_nickname: Union[bool, None] = None,
+        page: Union[int, None] = None,
+        limit: Union[int, None] = None,
+        target_id: Union[int, None] = None,
+        target_type: Union[TargetType,
+                           None] = None) -> Union[List[History], None]:
         """
         Returns history of user.
 
@@ -1398,19 +1406,20 @@ class API:
         :type target_type: Union[TargetType, None]
 
         :return: User's history
-        :rtype: List[History]
+        :rtype: Union[List[History], None]
         """
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 100)
 
-        response: List[Dict[str, Any]] = self._request(
+        response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.user_history(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
                                             limit=limit,
                                             target_id=target_id,
                                             target_type=target_type))
-        return [History(**history) for history in response]
+        return [History(**history) for history in response
+               ] if response else response
 
     def user_bans(self,
                   user_id: Union[int, str],
