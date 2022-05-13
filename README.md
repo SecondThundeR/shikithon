@@ -166,7 +166,7 @@ print(user_achievements[0])
 
 Хотите внести вклад или оставить репорт о баге? Великолепно!
 
-Для таких случаев, стоит почитать [CONTRIBUTING.md](https://github.com/SecondThundeR/shikithon/blob/feature/major-rewrite/CONTRIBUTING.md)
+Для таких случаев, стоит почитать [CONTRIBUTING.md](https://github.com/SecondThundeR/shikithon/blob/main/CONTRIBUTING.md)
 
 ## Зависимости проекта
 
