@@ -44,7 +44,7 @@ from json import loads
 # Необязательно
 from typing import Dict, List
 
-from shikithon.api import API
+from shikithon import API
 # Необязательно
 from shikithon.models.achievement import Achievement
 # Необязательно
@@ -94,7 +94,7 @@ print(user_achievements[0])
 # Необязательно
 from typing import List
 
-from shikithon.api import API
+from shikithon import API
 # Необязательно
 from shikithon.models.achievement import Achievement
 
