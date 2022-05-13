@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "shikithon"
-version = "0.1.0-beta.10"
+version = "0.1.0-beta.11"
 description = "Yet another Python wrapper for Shikimori API"
 authors = [
     "SecondThundeR <awayfromgalaxy@gmail.com>"
@@ -35,7 +35,7 @@ pydantic = "^1.9.0"
 ratelimit = "^2.2.1"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.13.8"
+pylint = "^2.13.9"
 pre-commit = "^2.19.0"
 yapf = "^0.32.0"
 isort = "^5.10.1"
