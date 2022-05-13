@@ -448,7 +448,7 @@ class API:
         """Updates token expire time and caches new config."""
         self._token_expire = Utils.get_new_expire_time(TOKEN_EXPIRE_TIME)
         ConfigCache.save_config(self.config)
-        logger.debug('New expiration time has been set'
+        logger.debug('New expiration time has been set '
                      'and cached configuration has been updated')
 
     @sleep_and_retry
@@ -1167,7 +1167,7 @@ class API:
         if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
             logger.info('Successfully joined the club')
             return True
-        logger.info('There was an error when joining the club'
+        logger.info('There was an error when joining the club '
                     'or are you already a member of it')
         logger.debug(f'There was an error when joining the club: {response=}')
         return False
@@ -1190,7 +1190,7 @@ class API:
         if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
             logger.info('Successfully left the club')
             return True
-        logger.info('There was an error when leaving the club'
+        logger.info('There was an error when leaving the club '
                     'or you are already not a member of it')
         logger.debug(f'There was an error when leaving the club: {response=}')
         return False
@@ -1304,7 +1304,7 @@ class API:
 
         if 'errors' in response:
             logger.info('An error occurred when creating a comment')
-            logger.debug('Information about an error'
+            logger.debug('Information about an error '
                          f'when creating a comment: {response=}')
             return False, response['errors']
         logger.info('New comment successfully created')
@@ -1334,7 +1334,7 @@ class API:
             request_type=RequestType.PATCH)
         if 'errors' in response:
             logger.info('An error occurred when updating a comment')
-            logger.debug('Information about an error'
+            logger.debug('Information about an error '
                          f'when updating a comment: {response=}')
             return False, response['errors']
         logger.info(f'Comment #{comment_id} successfully updated')

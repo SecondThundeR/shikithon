@@ -65,7 +65,7 @@ class Utils:
         :return: New token expire time
         :rtype: int
         """
-        logger.debug(f'Getting new expiration time with a lifetime'
+        logger.debug(f'Getting new expiration time with a lifetime '
                      f'of {time_expire_constant} seconds')
         return int(time()) + time_expire_constant
 
@@ -175,7 +175,7 @@ class Utils:
         :return: Validated value
         :rtype: Union[int, None]
         """
-        logger.debug(f'Validating query number ({query_number})'
+        logger.debug(f'Validating query number ({query_number}) '
                      f'with upper limit ({upper_limit})')
         if query_number is None:
             logger.debug('Query number is None')
