@@ -1,11 +1,9 @@
 """Submodel for stats.py"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
-from typing import List
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
-from .status import Status
+from shikithon.models.status import Status
 
 
 class StatusList(BaseModel):

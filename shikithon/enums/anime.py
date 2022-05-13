@@ -3,74 +3,72 @@ from enum import Enum
 
 
 class Order(Enum):
-    """Contains variables related for list ordering query."""
-    NONE = ""
-    ID = "id"
-    RANKED = "ranked"
-    KIND = "kind"
-    POPULARITY = "popularity"
-    NAME = "name"
-    AIRED_ON = "aired_on"
-    EPISODES = "episodes"
-    STATUS = "status"
-    RANDOM = "random"
+    """Contains constants related for list ordering query."""
+    ID = 'id'
+    RANKED = 'ranked'
+    KIND = 'kind'
+    POPULARITY = 'popularity'
+    NAME = 'name'
+    AIRED_ON = 'aired_on'
+    EPISODES = 'episodes'
+    STATUS = 'status'
+    RANDOM = 'random'
 
 
 class Kind(Enum):
-    """Contains variables related for getting certain kind of anime."""
-    NONE = ""
-    TV = "tv"
-    TV_13 = "tv_13"
-    TV_24 = "tv_24"
-    TV_48 = "tv_48"
-    MOVIE = "movie"
-    OVA = "ova"
-    ONA = "ona"
-    SPECIAL = "special"
-    MUSIC = "music"
+    """Contains constants related for getting certain kind of anime."""
+    TV = 'tv'
+    TV_13 = 'tv_13'
+    TV_24 = 'tv_24'
+    TV_48 = 'tv_48'
+    MOVIE = 'movie'
+    OVA = 'ova'
+    ONA = 'ona'
+    SPECIAL = 'special'
+    MUSIC = 'music'
 
 
 class Status(Enum):
-    """Contains variables related for getting certain status of anime."""
-    NONE = ""
-    ANONS = "anons"
-    ONGOING = "ongoing"
-    RELEASED = "released"
-    EPISODE = "episode"
+    """Contains constants related for getting certain status of anime."""
+    ANONS = 'anons'
+    ONGOING = 'ongoing'
+    RELEASED = 'released'
+    EPISODE = 'episode'
 
 
 class Duration(Enum):
-    """Contains variables related for getting certain duration of anime."""
-    NONE = ""
-    SHORT = "S"
-    MEDIUM = "D"
-    LONG = "F"
+    """Contains constants related for getting certain duration of anime."""
+    SHORT = 'S'
+    MEDIUM = 'D'
+    LONG = 'F'
 
 
 class Rating(Enum):
-    """Contains variables related for getting certain rating of anime."""
-    NONE = ""
-    NO_RATING = "none"
-    ALL_AGES = "g"
-    CHILDREN = "pg"
-    TEENS = "pg_13"
-    VIOLENCE = "r"
-    MILD_NUDITY = "r_plus"
-    HENTAI = "rx"
+    """Contains constants related for getting certain rating of anime."""
+    NO_RATING = 'none'
+    ALL_AGES = 'g'
+    CHILDREN = 'pg'
+    TEENS = 'pg_13'
+    VIOLENCE = 'r'
+    MILD_NUDITY = 'r_plus'
+    HENTAI = 'rx'
 
 
 class Censorship(Enum):
-    """Contains variables related for getting certain censorship status of anime."""
-    CENSORED = "true"
-    UNCENSORED = "false"
+    """Contains constants related for getting
+    certain censorship status of anime.
+    """
+    CENSORED = 'true'
+    UNCENSORED = 'false'
 
 
 class MyList(Enum):
-    """Contains variables related for getting certain user list status of anime."""
-    NONE = ""
-    PLANNED = "planned"
-    WATCHING = "watching"
-    REWATCHING = "rewatching"
-    COMPLETED = "completed"
-    ON_HOLD = "on_hold"
-    DROPPED = "dropped"
+    """Contains constants related for getting
+    certain user list status of anime.
+    """
+    PLANNED = 'planned'
+    WATCHING = 'watching'
+    REWATCHING = 'rewatching'
+    COMPLETED = 'completed'
+    ON_HOLD = 'on_hold'
+    DROPPED = 'dropped'

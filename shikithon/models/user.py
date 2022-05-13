@@ -1,13 +1,11 @@
 """Model for /api/users"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
-from typing import Optional
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
-from .stats import Stats
-from .user_image import UserImage
+from shikithon.models.stats import Stats
+from shikithon.models.user_image import UserImage
 
 
 class User(BaseModel):

@@ -1,13 +1,46 @@
-[dependencies]
-pydantic = "1.9.0"
-requests = "2.27.1"
+[tool.poetry]
+name = "shikithon"
+version = "0.1.0-beta.12"
+description = "Yet another Python wrapper for Shikimori API"
+authors = [
+    "SecondThundeR <awayfromgalaxy@gmail.com>"
+]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/SecondThundeR/shikithon"
+repository = "https://github.com/SecondThundeR/shikithon"
+documentation = "https://github.com/SecondThundeR/shikithon/README.md"
+packages = [
+    { include = "shikithon", from = "." }
+]
+keywords = [
+    "Python", "Shikimori", "API"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 
-[dev-dependencies]
-yapf = "0.32.0"
+[tool.poetry.build]
+generate-setup-file = false
+
+[tool.yapf]
+based_on_style = "google"
+
+[tool.poetry.dependencies]
+python = "^3.8.10"
+requests = "^2.27.1"
+pydantic = "^1.9.0"
+ratelimit = "^2.2.1"
+loguru = "^0.6.0"
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.13.9"
+pre-commit = "^2.19.0"
+yapf = "^0.32.0"
+isort = "^5.10.1"
 
 [build-system]
-requires = [
-    "setuptools >= 42.0.0",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

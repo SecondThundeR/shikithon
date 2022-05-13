@@ -162,7 +162,6 @@ cython_debug/
 # Icon must end with two \r
 Icon
 
-
 # Thumbnails
 ._*
 
@@ -181,3 +180,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Other rules
+.idea
+.shikithon_*

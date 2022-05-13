@@ -1,5 +1,4 @@
 """Model for /api/constants"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from typing import List
 
 from pydantic import BaseModel
@@ -22,7 +21,7 @@ class UserRateConstants(BaseModel):
     status: List[str]
 
 
-class ClubsConstants(BaseModel):
+class ClubConstants(BaseModel):
     """Represents clubs constants."""
     join_policy: List[str]
     comment_policy: List[str]

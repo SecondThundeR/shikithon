@@ -1,13 +1,11 @@
 """Model for /api/messages"""
-# pylint: disable=E0611, R0903, E0402 (no-name-in-module, too-few-public-methods, relative-beyond-top-level)
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, Field
 
-from .linked_topic import LinkedTopic
-from .user import User
+from shikithon.models.linked_topic import LinkedTopic
+from shikithon.models.user import User
 
 
 class Message(BaseModel):
@@ -22,4 +20,4 @@ class Message(BaseModel):
     linked_type: Optional[str]
     linked: Optional[LinkedTopic]
     from_user: Optional[User] = Field(alias='from')
-    to_user: Optional[User] = Field(alias="to")
+    to_user: Optional[User] = Field(alias='to')
