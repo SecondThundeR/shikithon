@@ -1,543 +1,1786 @@
-import json
-from typing import Union
-from typing import Tuple
-from typing import Any
-from typing import Dict
-from typing import List
+""" Shikithon API Module.
 
-from requests import Session
+This is main module with a class
+for interacting with the Shikimori API.
+"""
+import sys
+from json import dumps
+from time import sleep, time
+from typing import Any, Dict, List, Tuple, Union
 
-from .enums.Anime import *
-from .models.Achievement import Achievement
-from .models.Anime import Anime
-from .models.Ban import Ban
-from .models.CalendarEvent import CalendarEvent
-from .models.Creator import Creator
-from .models.FranchiseTree import FranchiseTree
-from .models.Link import Link
-from .models.Relation import Relation
-from .models.Screenshot import Screenshot
-from .models.Topic import Topic
-from .models.User import User
+from loguru import logger
+from ratelimit import limits, sleep_and_retry
+from requests import JSONDecodeError, Response, Session
+
+from shikithon.config_cache import ConfigCache
+from shikithon.decorators import protected_method
+from shikithon.endpoints import Endpoints
+from shikithon.enums.anime import (Censorship, Duration, Kind, MyList, Order,
+                                   Rating, Status)
+from shikithon.enums.club import (CommentPolicy, ImageUploadPolicy, JoinPolicy,
+                                  PagePolicy, TopicPolicy)
+from shikithon.enums.comment import CommentableType
+from shikithon.enums.history import TargetType
+from shikithon.enums.message import MessageType
+from shikithon.enums.request import RequestType
+from shikithon.enums.response import ResponseCode
+from shikithon.exceptions import (AccessTokenException, MissingAppName,
+                                  MissingAuthCode, MissingClientID,
+                                  MissingClientSecret, MissingConfigData,
+                                  MissingScopes)
+from shikithon.models.achievement import Achievement
+from shikithon.models.anime import Anime
+from shikithon.models.ban import Ban
+from shikithon.models.calendar_event import CalendarEvent
+from shikithon.models.character import Character
+from shikithon.models.club import Club
+from shikithon.models.club_image import ClubImage
+from shikithon.models.comment import Comment
+from shikithon.models.constants import (AnimeConstants, ClubConstants,
+                                        MangaConstants, SmileyConstants,
+                                        UserRateConstants)
+from shikithon.models.creator import Creator
+from shikithon.models.favourites import Favourites
+from shikithon.models.franchise_tree import FranchiseTree
+from shikithon.models.history import History
+from shikithon.models.link import Link
+from shikithon.models.manga import Manga
+from shikithon.models.message import Message
+from shikithon.models.ranobe import Ranobe
+from shikithon.models.relation import Relation
+from shikithon.models.screenshot import Screenshot
+from shikithon.models.topic import Topic
+from shikithon.models.unread_messages import UnreadMessages
+from shikithon.models.user import User
+from shikithon.models.user_list import UserList
+from shikithon.utils import Utils
+
+SHIKIMORI_API_URL = 'https://shikimori.one/api'
+SHIKIMORI_API_URL_V2 = 'https://shikimori.one/api/v2'
+SHIKIMORI_OAUTH_URL = 'https://shikimori.one/oauth'
+DEFAULT_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+ONE_MINUTE = 60
+MAX_CALLS_PER_MINUTE = 90
+RATE_LIMIT_RPS_COOLDOWN = 1
+TOKEN_EXPIRE_TIME = 86400
 
 
 class API:
-    def __init__(self, api_config: Dict[str, str]):
-        self.endpoints: APIEndpoints = APIEndpoints()
-        self.session: Session = Session()
-        self.init_api_vars(api_config)
-        self.api_vars_validation()
+    """
+    Main class for interacting with the API.
+    Has most of the methods that simplify the configuration and validation
+    of the object and convenient methods for getting data from the API
 
-    def get(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
-        response = self.session.get(url, headers=headers, params=query, data=data)
-        if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.get(url, headers, query, data)
-        return response.json()
+    **Note:** Due to problems with some methods,
+    when the session header contains a User-Agent and authorization,
+    __init__ sets only the User-Agent,
+    and all protected methods independently
+    provide a header with a token
+    """
 
-    def post(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
-        response = self.session.post(url, headers=headers, params=query, data=data)
-        if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.post(url, headers, query, data)
-        return response.json()
+    def __init__(self, config: Union[str, Dict[str, str]]):
+        """
+        Initialization and updating of variables
+        required to interact with the Shikimori API
 
-    def put(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
-        response = self.session.put(url, headers=headers, params=query, data=data)
-        if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.put(url, headers, query, data)
-        return response.json()
+        This magic method calls config and variables validator,
+        as well as updating session object header
+        and getting access/refresh tokens
 
-    def patch(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
-        response = self.session.patch(url, headers=headers, params=query, data=data)
-        if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.patch(url, headers, query, data)
-        return response.json()
+        :param config: Config file for API class or app name
+        :type config: Union[str, Dict[str, str]]
+        """
+        logger.configure(handlers=[
+            {
+                'sink': sys.stderr,
+                'level': 'INFO'
+            },
+            {
+                'sink': 'shikithon_{time}.log',
+                'level': 'DEBUG',
+                'rotation': '1 MB',
+                'compression': 'zip'
+            },
+        ])
 
-    def delete(self, url: str, headers: Dict[str, str] = {}, query: Dict[str, str] = {}, data: Dict[str, str] = {}):
-        response = self.session.delete(url, headers=headers, params=query, data=data)
-        if response.status_code == 401:
-            self.update_tokens(self.get_tokens_from_api(refresh_tokens=True))
-            return self.delete(url, headers, query, data)
-        return response.json()
+        logger.info('Initializing API object')
 
-    def get_api_config_dict(self) -> Dict[str, str]:
-        """Return config dictionary with current values."""
+        self._endpoints: Endpoints = Endpoints(SHIKIMORI_API_URL,
+                                               SHIKIMORI_API_URL_V2,
+                                               SHIKIMORI_OAUTH_URL)
+        self._session: Session = Session()
+
+        self._restricted_mode = False
+        self._app_name: str = ''
+        self._client_id: str = ''
+        self._client_secret: str = ''
+        self._redirect_uri: str = ''
+        self._scopes: str = ''
+        self._auth_code: str = ''
+        self._access_token: str = ''
+        self._refresh_token: str = ''
+        self._token_expire: int = -1
+
+        self._init_config(config)
+        logger.info('Successfully initialized API object')
+
+    @property
+    def restricted_mode(self) -> bool:
+        """
+        Returns current restrict mode of API object.
+
+        If true, API object can access only public methods
+
+        :return: Current restrict mode
+        :rtype: bool
+        """
+        return self._restricted_mode
+
+    @restricted_mode.setter
+    def restricted_mode(self, restricted_mode: bool):
+        """
+        Sets new restrict mode of API object.
+
+        :param restricted_mode: New restrict mode
+        :type restricted_mode: bool
+        """
+        self._restricted_mode = restricted_mode
+
+    @property
+    def scopes_list(self) -> List[str]:
+        """
+        Returns list of scopes.
+
+        :return: List of scopes
+        :rtype: List[str]
+        """
+        return self._scopes.split('+')
+
+    @property
+    def config(self) -> Dict[str, str]:
+        """
+        Returns current API variables as config dictionary.
+
+        :return: Current API variables as config dictionary
+        :rtype: Dict[str, str]
+        """
+        logger.debug('Exporting current API config')
         return {
-            "app_name": self.app_name,
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
-            "redirect_uri": self.redirect_uri,
-            "scopes": self.scopes,
-            "auth_code": self.auth_code,
-            "access_token": self.access_token,
-            "refresh_token": self.refresh_token
+            'app_name': self._app_name,
+            'client_id': self._client_id,
+            'client_secret': self._client_secret,
+            'redirect_uri': self._redirect_uri,
+            'scopes': self._scopes,
+            'auth_code': self._auth_code,
+            'access_token': self._access_token,
+            'refresh_token': self._refresh_token,
+            'token_expire': str(self._token_expire)
         }
 
-    def set_api_config_dict(self, api_config: Dict[str, str]):
-        self.init_api_vars(api_config)
-        self.api_vars_validation()
+    @config.setter
+    def config(self, config: Dict[str, str]):
+        """
+        Sets new API variables from config dictionary.
 
-    def export_api_config(self, file_name: str = "new_config.json"):
-        current_config: Dict[str, str] = self.get_api_config_dict()
-        with open(file_name, "w", encoding="utf-8") as config_file:
-            json.dump(current_config, config_file, indent=4, separators=(", ", ": "))
+        This method calls init_config
+        to reconfigure the object
 
-    def init_api_vars(self, api_config):
+        :param config: Config dictionary
+        :type config: Dict[str, str]
+        """
+        logger.info('Setting new API config')
+        self._init_config(config)
+
+    @property
+    def _tokens(self) -> Tuple[str, str]:
+        """
+        Returns access/refresh tokens as tuple.
+
+        :return: Access and refresh tokens tuple
+        :rtype: Tuple[str, str]
+        """
+        return self._access_token, self._refresh_token
+
+    @_tokens.setter
+    def _tokens(self, tokens_data: Tuple[str, str]):
+        """
+        Sets new access/refresh tokens from tuple.
+
+        :param tokens_data: New access and refresh tokens tuple
+        :type tokens_data: Tuple[str, str]
+        """
+        self._access_token = tokens_data[0]
+        self._refresh_token = tokens_data[1]
+
+    @property
+    def _user_agent(self) -> Dict[str, str]:
+        """
+        Returns current session User-Agent.
+
+        :return: Session User-Agent
+        :rtype: Dict[str, str]
+        """
+        return {'User-Agent': self._session.headers['User-Agent']}
+
+    @_user_agent.setter
+    def _user_agent(self, app_name: str):
+        """
+        Update session headers and set user agent.
+
+        :param app_name: OAuth App name
+        :type app_name: str
+        """
+        self._session.headers.update({'User-Agent': app_name})
+
+    @property
+    def _authorization_header(self) -> Dict[str, str]:
+        """
+        Returns user agent and authorization token headers dictionary.
+
+        Needed for accessing Shikimori protected resources
+
+        :return: Dictionary with proper user agent and autorization token
+        :rtype: Dict[str, str]
+        """
+        header = self._user_agent
+        header['Authorization'] = f'Bearer {self._access_token}'
+        return header
+
+    def _init_config(self, config: Union[str, Dict[str, str]]):
+        """
+        Special method for initializing an object.
+
+        This method calls several methods:
+
+        - Validation of config and variables
+        - Customizing the session header user agent
+        - Getting access/refresh tokens if they are missing
+
+        Otherwise, if only app name is provided, setting it
+
+        :param config: Config dictionary or app name
+        :type config: Union[str, Dict[str, str]]
+        """
+        logger.debug('Initializing API config')
+        self._validate_config(config)
+        self._validate_vars()
+        logger.debug('Setting User-Agent with current app_name')
+        self._user_agent = self._app_name
+
+        if isinstance(config, dict) and not self._access_token:
+            logger.debug('No tokens found')
+            tokens_data: Tuple[str, str] = self._get_access_token()
+            self._update_tokens(tokens_data)
+
+    @logger.catch(onerror=lambda _: sys.exit(1))
+    def _validate_config(self, config: Union[str, Dict[str, str]]):
+        """
+        Validates passed config dictionary and sets
+        API variables.
+
+        If config is string, sets only app name and change value
+        of restrict mode of API object.
+
+        Also, if config is dictionary and method detects
+        a cached configuration file, it replaces passed configuration
+        dictionary with the cached one.
+
+        Raises MissingConfigData if some variables
+        are missing in config dictionary
+
+        :param config: Config dictionary or app name for validation
+        :type config: Union[str, Dict[str, str]]
+
+        :raises MissingConfigData: If any field is missing
+            (Not raises if there is a cache config)
+        """
+        logger.debug('Validating API config')
+        if isinstance(config, str):
+            logger.debug('Detected app_name only. Switching to restricted mode')
+            self._app_name = config
+            self.restricted_mode = True
+            return
+
         try:
-            self.app_name: str = api_config["app_name"]
-            self.client_id: str = api_config["client_id"]
-            self.client_secret: str = api_config["client_secret"]
-            self.redirect_uri: str = api_config["redirect_uri"]
-            self.scopes: str = api_config["scopes"]
-            self.auth_code: str = api_config["auth_code"]
-            self.access_token: str = api_config["access_token"]
-            self.refresh_token: str = api_config["refresh_token"]
-        except KeyError:
-            self.raise_config_mismatch(api_config)
+            logger.debug('Checking for cached config')
+            cached_config, config_cached = ConfigCache.cache_config_validation(
+                config['app_name'], config['auth_code'])
 
-    def api_vars_validation(self):
-        if not self.app_name:
-            raise MissingConfigData("To use the Shikimori API correctly, you need to pass the application name")
+            if config_cached:
+                logger.debug('Replacing passed config with cached one')
+                config = cached_config
 
-        self.session.headers.update({"User-Agent": self.app_name})
+                logger.debug('Extracting access tokens from config')
+                self._access_token = cached_config['access_token']
+                self._refresh_token = cached_config['refresh_token']
+                self._token_expire = int(cached_config['token_expire'])
 
-        if not self.client_id or not self.client_secret:
-            raise MissingConfigData("Missing Client ID and/or Client Secret")
+            logger.debug('Extracting app related variables from config')
+            self._app_name = config['app_name']
+            self._client_id = config['client_id']
+            self._client_secret = config['client_secret']
+            self._redirect_uri = config['redirect_uri']
+            self._scopes = config['scopes']
+            self._auth_code = config['auth_code']
+        except KeyError as err:
+            raise MissingConfigData(
+                'It is impossible to initialize an API object'
+                'without missing variables. '
+                'Recheck your config and try again.') from err
 
-        if not self.auth_code:
-            oauth_url_data: Union[str, List[str]] = self.endpoints.get_filled_oauth_url(self.client_id, self.redirect_uri, self.scopes)
-            exception_msg: str = self.parse_oauth_url_data(oauth_url_data)
-            raise MissingConfigData(exception_msg)
+    @logger.catch(onerror=lambda _: sys.exit(1))
+    def _validate_vars(self):
+        """
+        Validates variables and throws exception
+        if some vars are set to empty string.
 
-        if not self.access_token or not self.refresh_token:
-            self.update_tokens(self.get_tokens_from_api())
+        **Note:** Why throwing exception without catching it?
 
-        self.session.headers.update({"Authorization": f"Bearer {self.access_token}"})
+        This decision was made in order to prevent
+        future problems with the API due to incorrect variables.
+        Raising exception at the beginning of initialization
+        immediately indicates errors with the configuration dictionary
+        and future unnecessary checks related to this variables
 
-    def raise_config_mismatch(self, api_config):
-        configs_keys: Tuple[List[str], List[str]] = list(api_config.keys()), list(APIHelpers.get_blank_config().keys())
-        missing_keys_str: str = ", ".join(APIHelpers.get_missing_keys_list(configs_keys))
-        raise MissingConfigData(f"It is impossible to initialize an object without missing variables. Here is the list of missing: {missing_keys_str}")
+        Also some notes about this method:
 
-    def update_tokens(self, tokens_tuple: Tuple[str, str]):
-        self.access_token, self.refresh_token = tokens_tuple
-        self.export_api_config()
+        - If redirect URI set to empty string, set to default URI.
+        - If authorization code set to empty string,
+        returns URL for getting auth code.
+        - If restricted mode is True, returns after app name check.
 
-    def get_tokens_from_api(self, refresh_tokens: bool = False) -> Tuple[str, str]:
-        token_url = self.endpoints.get_token_url()
-        data = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret
+        :raises MissingAppName: If app name is set to empty string
+        :raises MissingClientID: If client ID is set to empty string
+        :raises MissingClientSecret: If client secret is set to empty string
+        :raises MissingScopes: If scopes is set to empty string
+        :raises MissingAuthCode: If auth code is set to empty string
+        """
+        exception_msg: str = 'To use the Shikimori API correctly, ' \
+                             'you need to pass the application '
+
+        if not self._app_name:
+            raise MissingAppName(exception_msg + 'name')
+
+        if self.restricted_mode:
+            return
+
+        if not self._client_id:
+            raise MissingClientID(exception_msg + 'Client ID')
+
+        if not self._client_secret:
+            raise MissingClientSecret(exception_msg + 'Client Secret')
+
+        if not self._redirect_uri:
+            self._redirect_uri = DEFAULT_REDIRECT_URI
+
+        if not self._scopes:
+            raise MissingScopes(exception_msg + 'scopes')
+
+        if not self._auth_code:
+            auth_link: str = self._endpoints.authorization_link(
+                self._client_id, self._redirect_uri, self._scopes)
+            raise MissingAuthCode(exception_msg +
+                                  'authorization code. To get one, go to '
+                                  f'{auth_link}')
+
+    @logger.catch(onerror=lambda _: sys.exit(1))
+    def _get_access_token(self, refresh_token: bool = False) -> Tuple[str, str]:
+        """
+        Returns access/refresh tokens from API request.
+
+        If refresh_token flag is set to True,
+        returns refreshed access/refresh tokens.
+
+        :param refresh_token: Flag for token refresh
+        :type refresh_token: bool
+
+        :return: New access/refresh tokens tuple
+        :rtype: Tuple[str, str]
+
+        :raises AccessTokenException: If token request failed
+        """
+        data: Dict[str, str] = {
+            'client_id': self._client_id,
+            'client_secret': self._client_secret
         }
 
-        if refresh_tokens:
-            data["grant_type"] = "refresh_token"
-            data["refresh_token"] = self.refresh_token
+        if refresh_token:
+            logger.info('Refreshing current tokens')
+            data['grant_type'] = 'refresh_token'
+            data['refresh_token'] = self._refresh_token
         else:
-            data["grant_type"] = "authorization_code"
-            data["code"] = self.auth_code
-            data["redirect_uri"] = self.redirect_uri
+            logger.info('Getting new tokens')
+            data['grant_type'] = 'authorization_code'
+            data['code'] = self._auth_code
+            data['redirect_uri'] = self._redirect_uri
 
-        oauth_json = self.post(url=token_url, data=data)
+        oauth_json: Dict[str,
+                         Any] = self._request(self._endpoints.oauth_token,
+                                              data=data,
+                                              request_type=RequestType.POST)
 
         try:
-            return oauth_json["access_token"], oauth_json["refresh_token"]
-        except KeyError:
-            error_info = json.dumps(oauth_json)
-            raise MissingConfigData(f"An error occurred while receiving tokens, here is the information from the response: {error_info}")
+            logger.info('Returning new access and refresh tokens')
+            return oauth_json['access_token'], oauth_json['refresh_token']
+        except KeyError as err:
+            logger.critical('Failed returning new tokens')
+            error_info = dumps(oauth_json)
+            raise AccessTokenException(
+                'An error occurred while receiving tokens, '
+                f'here is the information from the response: {error_info}'
+            ) from err
 
-    def parse_oauth_url_data(self, oauth_url_data):
-        if isinstance(oauth_url_data, list):
-            missing_variables_str = ", ".join(oauth_url_data)
-            return "The authorization code and some related information necessary to obtain it are missing: " \
-                f'"{missing_variables_str}".' \
-                f"\nGo to {self.endpoints.get_oauth_url()} for more information to get the authorization code"
-        return "The authorization code is missing. " \
-            f"It's okay, just paste this link \"{oauth_url_data}\" and then save the authorization code in your configuration"
-
-    def get_achievements(self, user_id: int) -> List[Achievement]:
-        query: Dict[str, str] = {
-            "user_id": str(user_id)
-        }
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_achievements_url(), query=query)
-
-        return [Achievement(**data) for data in res]
-
-    def get_list_of_animes(self, page: int = 1, limit: int = 1, order: Order = Order.NONE, kind: Kind = Kind.NONE, status: Status = Status.NONE, season: str = "", score: int = 1, duration: Duration = Duration.NONE, rating: Rating = Rating.NONE, genre: List[int] = [], studio: List[int] = [], franchise: List[int] = [], censored: Censorship = Censorship.CENSORED, my_list: MyList = MyList.NONE, ids: List[int] = [], exclude_ids: List[int] = [], search: str = "") -> List[Anime]:
+    def _update_tokens(self, tokens_data: Tuple[str, str]):
         """
-            Returns list of animes.
+        Set new tokens and update token expire time.
 
-            If some data not provided, using fallback values
+        **Note:** This method also updates cache config file for
+        future use
 
-            Parameters:
-                page (int): number of page
-                limit (int): number of limit results
-                order (Order): type of order in list
-                kind (Status): type of anime topic
-                status (Status): type of anime status
-                season (str): name of anime season
-                score (int): minimal anime score
-                duration (Duration): duration size of anime
-                rating (Rating): type of anime rating
-                genre (List[int]): IDs of genres
-                studio (List[int]): IDs of studios
-                franchise (str): IDs of franchises
-                censored (Censorship): type of anime censorship
-                my_list (MyList): status of anime in current user list
-                ids (List[int]): IDs of animes to include
-                excluded_ids (List[int]): IDs of animes to exclude
-                search (str): search phrase to filter animes by name.
-
-
-            Returns:
-                List[Anime]: list of animes
+        :param tokens_data: Tuple with access and refresh tokens
+        :type tokens_data: Tuple[str, str]
         """
-        if page < 1 or page > 10000:
-            page = 1
+        logger.debug('Updating current tokens')
+        self._tokens = tokens_data
+        self._cache_config()
 
-        if limit < 1 or limit > 50:
-            limit = 1
+    def _cache_config(self):
+        """Updates token expire time and caches new config."""
+        self._token_expire = Utils.get_new_expire_time(TOKEN_EXPIRE_TIME)
+        ConfigCache.save_config(self.config)
+        logger.debug('New expiration time has been set '
+                     'and cached configuration has been updated')
 
-        if score < 1 or score > 9:
-            score = 1
-
-        query: Dict[str, str] = {
-            "page": str(page),
-            "limit": str(limit),
-            "order": order.value,
-            "kind": kind.value,
-            "status": status.value,
-            "season": season,
-            "score": str(score),
-            "duration": duration.value,
-            "rating": rating.value,
-            "genre": ",".join([str(id) for id in genre]),
-            "studio": ",".join([str(id) for id in studio]),
-            "franchise": ",".join([str(id) for id in franchise]),
-            "censored": censored.value,
-            "mylist": my_list.value,
-            "ids": ",".join([str(id) for id in ids]),
-            "exclude_ids": ",".join([str(id) for id in exclude_ids]),
-            "search": search
-        }
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_animes_url(), query=query)
-        return [Anime(**anime) for anime in res]
-
-    def get_anime(self, anime_id: int) -> Anime:
+    @sleep_and_retry
+    @limits(calls=MAX_CALLS_PER_MINUTE, period=ONE_MINUTE)
+    def _request(
+        self,
+        url: str,
+        data: Union[Dict[str, str], None] = None,
+        headers: Union[Dict[str, str], None] = None,
+        query: Union[Dict[str, str], None] = None,
+        request_type: RequestType = RequestType.GET
+    ) -> Union[List[Dict[str, Any]], Dict[str, Any], int, str, None]:
         """
-            Returns info about anime
+        Create request and return response JSON.
 
-            Parameters:
-                anime_id (int): ID of anime
+        This method uses ratelimit library for rate limiting
+        requests (Shikimori API limit: 90rpm)
 
-            Returns:
-                Anime: info about anime
+        For 5rps limit, there is a check for 429 status code.
+        When triggered, halt request for 0.5 second and retry
+
+        **Note:** To address duplication of methods
+        for different request methods, this method
+        uses RequestType enum
+
+        :param url: URL for making request
+        :type url: str
+
+        :param data: Request body data
+        :type data: Union[Dict[str, str], None]
+
+        :param headers: Custom headers for request
+        :type headers: Union[Dict[str, str], None]
+
+        :param query: Query data for request
+        :type query: Union[Dict[str, str], None]
+
+        :param request_type: Type of current request
+        :type request_type: RequestType
+
+        :return: Response JSON, text or status code
+        :rtype: Union[List[Dict[str, Any]], Dict[str, Any], str, None]
         """
-        res: Dict[str, Any] = self.get(url=self.endpoints.get_anime_url(anime_id))
-        return Anime(**res)
+        response: Union[Response, None] = None
 
-    def get_anime_creators(self, anime_id: int) -> List[Creator]:
+        logger.info(f'Making {request_type.value} request to {url}')
+        logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
+
+        if request_type == RequestType.GET:
+            response = self._session.get(url, headers=headers, params=query)
+        if request_type == RequestType.POST:
+            response = self._session.post(url,
+                                          headers=headers,
+                                          params=query,
+                                          json=data)
+        if request_type == RequestType.PUT:
+            response = self._session.put(url,
+                                         headers=headers,
+                                         params=query,
+                                         json=data)
+        if request_type == RequestType.PATCH:
+            response = self._session.patch(url,
+                                           headers=headers,
+                                           params=query,
+                                           json=data)
+        if request_type == RequestType.DELETE:
+            response = self._session.delete(url,
+                                            headers=headers,
+                                            params=query,
+                                            json=data)
+
+        if response is None:
+            logger.debug('Response is empty. Returning None')
+            return response
+
+        if response.status_code == ResponseCode.RETRY_LATER.value:
+            logger.warning('Hit RPS cooldown. Waiting on request repeat')
+            sleep(RATE_LIMIT_RPS_COOLDOWN)
+            return self._request(url, data, headers, query, request_type)
+
+        try:
+            logger.debug('Extracting JSON from response')
+            return response.json()
+        except JSONDecodeError:
+            logger.error('Failed JSON extracting. Returning text/status_code')
+            return response.status_code if not response.text else response.text
+
+    def refresh_tokens(self):
         """
-            Returns list of anime creators
+        Manages tokens refreshing and caching.
 
-            Parameters:
-                anime_id (int): ID of anime
-
-            Returns:
-                List[Creator]: list of anime creators
+        This method gets new access/refresh tokens and
+        updates them in current instance, as well as
+        caching new config.
         """
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_anime_roles_url(anime_id))
-        return [Creator(**creator) for creator in res]
+        tokens_data: Tuple[str,
+                           str] = self._get_access_token(refresh_token=True)
+        self._update_tokens(tokens_data)
 
-    def get_list_of_similar_animes(self, anime_id: int) -> List[Anime]:
+    def token_expired(self):
         """
-            Returns list of similar animes
+        Checks if current access token is expired.
 
-            Parameters:
-                anime_id (int): ID of anime
-
-            Returns:
-                List[Anime]: list of similar animes
+        :return: Result of token expiration check
+        :rtype: bool
         """
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_similar_animes_url(anime_id))
-        return [Anime(**anime) for anime in res]
+        return int(time()) > self._token_expire
 
-    def get_anime_related_content(self, anime_id: int) -> List[Relation]:
+    def achievements(self, user_id: int) -> List[Achievement]:
         """
-            Returns list of anime related content
+        Returns achievements of user by ID.
 
-            Parameters:
-                anime_id (int): ID of anime
+        :param user_id: User ID for getting achievements
+        :type user_id: int
 
-            Returns:
-                List[Relation]: list of anime related content
+        :return: List of achievements
+        :rtype: List[Achievement]
         """
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_anime_related_content_url(anime_id))
-        return [Relation(**relation) for relation in res]
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.achievements,
+            query=Utils.generate_query_dict(user_id=user_id))
+        return [Achievement(**achievement) for achievement in response]
 
-    def get_anime_screenshots(self, anime_id: int) -> List[Screenshot]:
+    def animes(self,
+               page: Union[int, None] = None,
+               limit: Union[int, None] = None,
+               order: Union[Order, None] = None,
+               kind: Union[Kind, None] = None,
+               status: Union[Status, None] = None,
+               season: Union[str, None] = None,
+               score: Union[int, None] = None,
+               duration: Union[Duration, None] = None,
+               rating: Union[Rating, None] = None,
+               genre: Union[List[int], None] = None,
+               studio: Union[List[int], None] = None,
+               franchise: Union[List[int], None] = None,
+               censored: Union[Censorship, None] = None,
+               my_list: Union[MyList, None] = None,
+               ids: Union[List[int], None] = None,
+               exclude_ids: Union[List[int], None] = None,
+               search: Union[str, None] = None) -> Union[List[Anime], None]:
         """
-            Returns list of anime screenshots links
+        Returns animes list.
 
-            Parameters:
-                anime_id (int): ID of anime
+        :param page: Number of page
+        :type page: Union[int, None]
 
-            Returns:
-                List[Screenshot]: list of anime screenshots links
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
+
+        :param order: Type of order in list
+        :type order: Union[Order, None]
+
+        :param kind: Type of anime topic
+        :type kind: Union[Kind, None]
+
+        :param status: Type of anime status
+        :type status: Union[Status, None]
+
+        :param season: Name of anime season
+        :type season: Union[str, None]
+
+        :param score: Minimal anime score
+        :type score: Union[int, None]
+
+        :param duration: Duration size of anime
+        :type duration: Union[Duration, None]
+
+        :param rating: Type of anime rating
+        :type rating: Union[Rating, None]
+
+        :param genre: Genres ID
+        :type genre: Union[List[int], None]
+
+        :param studio: Studios ID
+        :type studio: Union[List[int], None]
+
+        :param franchise: Franchises ID
+        :type franchise: Union[List[int], None]
+
+        :param censored: Type of anime censorship
+        :type censored: Union[Censorship, None]
+
+        :param my_list: Status of anime in current user list
+        :type my_list: Union[MyList, None]
+
+        :param ids: Animes ID to include
+        :type ids: Union[List[int], None]
+
+        :param exclude_ids: Animes ID to exclude
+        :type exclude_ids: Union[List[int], None]
+
+        :param search: Search phrase to filter animes by name
+        :type search: Union[str, None]
+
+        :return: Animes list
+        :rtype: Union[List[Anime], None]
         """
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_anime_screenshots_url(anime_id))
-        return [Screenshot(**screenshot) for screenshot in res]
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 50)
+        score = Utils.validate_query_number(score, 9)
 
-    def get_anime_franchise_tree(self, anime_id: int) -> FranchiseTree:
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.animes,
+            query=Utils.generate_query_dict(page=page,
+                                            limit=limit,
+                                            order=order,
+                                            kind=kind,
+                                            status=status,
+                                            season=season,
+                                            score=score,
+                                            duration=duration,
+                                            rating=rating,
+                                            genre=genre,
+                                            studio=studio,
+                                            franchise=franchise,
+                                            censored=censored,
+                                            my_list=my_list,
+                                            ids=ids,
+                                            exclude_ids=exclude_ids,
+                                            search=search))
+        if response:
+            return [Anime(**anime) for anime in response]
+        return response
+
+    def anime(self, anime_id: int) -> Anime:
         """
-            Returns anime franchise tree
+        Returns info about certain anime.
 
-            Parameters:
-                anime_id (int): ID of anime
+        :param anime_id: Anime ID to get info
+        :type anime_id: int
 
-            Returns:
-                FranchiseTree: franchise tree of anime
+        :return: Anime info
+        :rtype: Anime
         """
-        res: Dict[str, Any] = self.get(url=self.endpoints.get_anime_franchise_tree_url(anime_id))
-        return FranchiseTree(**res)
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.anime(anime_id))
+        return Anime(**response)
 
-    def get_anime_external_links(self, anime_id: int) -> List[Link]:
+    def anime_creators(self, anime_id: int) -> List[Creator]:
         """
-            Returns list of anime external links
+        Returns creators info of certain anime.
 
-            Parameters:
-                anime_id (int): ID of anime
+        :param anime_id: Anime ID to get creators
+        :type anime_id: int
 
-            Returns:
-                List[Link]: list of anime links
+        :return: List of anime creators
+        :rtype: List[Creator]
         """
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_anime_external_links_url(anime_id))
-        return [Link(**link) for link in res]
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_roles(anime_id))
+        return [Creator(**creator) for creator in response]
 
-    def get_anime_topics(self, anime_id: int, page: int = 1, limit: int = 1, kind: Status = Status.EPISODE, episode: Union[int, str] = "") -> List[Topic]:
+    def similar_animes(self, anime_id: int) -> List[Anime]:
         """
-            Returns list of anime topics.
+        Returns list of similar animes for certain anime.
 
-            If some data not provided, using fallback values
+        :param anime_id: Anime ID to get similar animes
+        :type anime_id: int
 
-            Parameters:
-                anime_id (int): ID of anime
-                page (int): number of page
-                limit (int): number of limit results
-                kind (Status): type of topic
-                episode (int): number of anime episode
-
-            Returns:
-                List[Topic]: list of anime topics
+        :return: List of similar animes
+        :rtype: List[Anime]
         """
-        if page < 1 or page > 100000:
-            page = 1
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.similar_animes(anime_id))
+        return [Anime(**anime) for anime in response]
 
-        if limit < 1 or limit > 30:
-            limit = 1
-
-        query: Dict[str, str] = {
-            "page": str(page),
-            "limit": str(limit),
-            "kind": kind.value,
-            "episode": str(episode)
-        }
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_anime_topics_url(anime_id), query=query)
-        return [Topic(**topic) for topic in res]
-
-    def get_bans_list(self, page: int = 1, limit: int = 1) -> list[Ban]:
+    def anime_related_content(self, anime_id: int) -> List[Relation]:
         """
-            Returns list of recent bans on Shikimori.
+        Returns list of related content of certain anime.
 
-            Current API method returns `limit + 1` elements, if API has next page.
+        :param anime_id: Anime ID to get related content
+        :type anime_id: int
 
-            Parameters:
-                page (int): Number of page (Defaults to 1)
-                limit (int): Number of results (Default to 1)
-
-            Returns:
-                list[Ban]: list of recent bans
+        :return: List of relations
+        :rtype: List[Relation]
         """
-        if page < 1 or page > 100000:
-            page = 1
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_related_content(anime_id))
+        return [Relation(**relation) for relation in response]
 
-        if limit < 1 or limit > 30:
-            limit = 1
-
-        query: Dict[str, str] = {
-            "page": str(page),
-            "limit": str(limit)
-        }
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_bans_list_url(), query=query)
-        return [Ban(**ban) for ban in res]
-
-    def get_current_calendar(self, censored: Censorship = Censorship.CENSORED) -> list[CalendarEvent]:
+    def anime_screenshots(self, anime_id: int) -> List[Screenshot]:
         """
-            Returns current calendar events.
+        Returns list of screenshot links of certain anime.
 
-            Parameters:
-                censored (Censorship): Status of censorship (Defaults to Censorship.CENSORED)
+        :param anime_id: Anime ID to get screenshot links
+        :type anime_id: int
 
-            Returns:
-                list[CalendarEvent]: list of calendar events
+        :return: List of screenshot links
+        :rtype: List[Screenshot]
         """
-        query: Dict[str, str] = {
-            "censored": censored.value
-        }
-        res: List[Dict[str, Any]] = self.get(url=self.endpoints.get_calendar_url(), query=query)
-        return [CalendarEvent(**calendar_event) for calendar_event in res]
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_screenshots(anime_id))
+        return [Screenshot(**screenshot) for screenshot in response]
 
-    def get_current_user(self) -> User:
-        res: Dict[str, Any] = self.get(url=self.endpoints.get_whoami_url())
-        return User(**res)
+    def anime_franchise_tree(self, anime_id: int) -> FranchiseTree:
+        """
+        Returns franchise tree of certain anime.
 
-class APIHelpers:
-    @staticmethod
-    def get_missing_keys_list(configs_tuple: Tuple[List[str], List[str]]) -> List[str]:
-        return [key for key in configs_tuple[1] if key not in configs_tuple[0]]
+        :param anime_id: Anime ID to get franchise tree
+        :type anime_id: int
 
-    @staticmethod
-    def get_blank_config():
-        return {
-            "app_name": "",
-            "client_id": "",
-            "client_secret": "",
-            "redirect_uri": "",
-            "scopes": "",
-            "auth_code": "",
-            "access_token": "",
-            "refresh_token": ""
-        }
+        :return: Franchise tree of certain anime
+        :rtype: FranchiseTree
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.anime_franchise_tree(anime_id))
+        return FranchiseTree(**response)
 
+    def anime_external_links(self, anime_id: int) -> List[Link]:
+        """
+        Returns list of external links of certain anime.
 
-class APIEndpoints:
-    def __init__(self):
-        self.base_url: str = "https://shikimori.one/api"
-        self.base_url_v2: str = self.base_url + "/v2"
-        self.oauth_url: str = "https://shikimori.one/oauth"
+        :param anime_id: Anime ID to get external links
+        :type anime_id: int
 
-    # Shikimori OAuth Endpoints
-    def get_oauth_url(self) -> str:
-        return self.oauth_url
+        :return: List of external links
+        :rtype: List[Link]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_external_links(anime_id))
+        return [Link(**link) for link in response]
 
-    def get_filled_oauth_url(self, client_id: str, redirect_uri: str, scopes: str) -> Union[str, List[str]]:
-        missing_variables = []
+    def anime_topics(
+            self,
+            anime_id: int,
+            page: Union[int, None] = None,
+            limit: Union[int, None] = None,
+            kind: Union[Status, None] = None,
+            episode: Union[int, None] = None) -> Union[List[Topic], None]:
+        """
+        Returns list of topics of certain anime.
 
-        if not redirect_uri:
-            missing_variables.append("redirect_uri")
-        if not scopes:
-            missing_variables.append("scopes")
+        If some data are not provided, using default values.
 
-        if missing_variables:
-            return missing_variables
+        :param anime_id: Anime ID to get topics
+        :type anime_id: int
 
-        query = {
-            "client_id": client_id,
-            "redirect_uri": redirect_uri,
-            "response_type": "code",
-            "scope": scopes
-        }
+        :param page: Number of page
+        :type page: Union[int, None]
 
-        query_str = "&".join(f"{key}={val}" for (key, val) in query.items())
-        auth_link = f"{self.oauth_url}/authorize?{query_str}"
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
 
-        return auth_link
+        :param kind: Status of anime
+        :type kind: Union[Status, None]
 
-    def get_token_url(self) -> str:
-        return f"{self.oauth_url}/token"
+        :param episode: Number of anime episode
+        :type episode: Union[int, None]
 
-    # Shikimori API v1.0 Endpoints
-    # Achievements
+        :return: List of topics
+        :rtype: Union[List[Topic], None]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 30)
 
-    def get_achievements_url(self) -> str:
-        return f"{self.base_url}/achievements"
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.anime_topics(anime_id),
+            query=Utils.generate_query_dict(page=page,
+                                            limit=limit,
+                                            kind=kind,
+                                            episode=episode))
+        if response:
+            return [Topic(**topic) for topic in response]
+        return response
 
-    # Animes
-    def get_animes_url(self) -> str:
-        return f"{self.base_url}/animes"
+    @protected_method()
+    def appears(self, comment_ids: List[str]) -> bool:
+        """
+        Marks comments or topics as read.
 
-    def get_anime_url(self, anime_id: int) -> str:
-        return f"{self.base_url}/animes/{anime_id}"
+        :param comment_ids: IDs of comments or topics to mark
+        :type comment_ids: List[str]
 
-    def get_anime_roles_url(self, anime_id: int) -> str:
-        return f"{self.base_url}/animes/{anime_id}/roles"
+        :return: Status of mark
+        :rtype: bool
+        """
+        logger.debug('Combining comment IDs into a single line')
+        data: Dict[str, str] = {'ids': ','.join(comment_ids)}
+        response_code: int = self._request(self._endpoints.appears,
+                                           headers=self._authorization_header,
+                                           data=data,
+                                           request_type=RequestType.POST)
+        return response_code == ResponseCode.SUCCESS.value
 
-    def get_similar_animes_url(self, anime_id: int) -> str:
-        return f"{self.base_url}/animes/{anime_id}/similar"
+    def bans(self,
+             page: Union[int, None] = None,
+             limit: Union[int, None] = None) -> Union[List[Ban], None]:
+        """
+        Returns list of recent bans on Shikimori.
 
-    def get_anime_related_content_url(self, anime_id: int) -> str:
-        return f"{self.base_url}/animes/{anime_id}/related"
+        :param page: Number of page
+        :type page: Union[int, None]
 
-    def get_anime_screenshots_url(self, anime_id: int) -> str:
-        return f"{self.base_url}/animes/{anime_id}/screenshots"
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
 
-    def get_anime_franchise_tree_url(self, anime_id: int) -> str:
-        return f"{self.base_url}/animes/{anime_id}/franchise"
+        :return: List of recent bans
+        :rtype: Union[List[Ban], None]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 30)
 
-    def get_anime_external_links_url(self, anime_id: int) -> str:
-        return f"{self.base_url}/animes/{anime_id}/external_links"
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.bans_list,
+            query=Utils.generate_query_dict(page=page, limit=limit))
+        if response:
+            return [Ban(**ban) for ban in response]
+        return response
 
-    def get_anime_topics_url(self, anime_id: int) -> str:
-        return f"{self.base_url}/animes/{anime_id}/topics"
+    def calendar(
+            self,
+            censored: Union[Censorship, None] = None) -> List[CalendarEvent]:
+        """
+        Returns current calendar events.
 
-    # Bans
-    def get_bans_list_url(self) -> str:
-        return f"{self.base_url}/bans"
+        :param censored: Status of censorship for events
+        :type censored: Union[Censorship, None]
 
-    # Calendar
-    def get_calendar_url(self) -> str:
-        return f"{self.base_url}/calendar"
+        :return: List of calendar events
+        :rtype: List[CalendarEvent]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.calendar,
+            query=Utils.generate_query_dict(censored=censored))
+        return [CalendarEvent(**calendar_event) for calendar_event in response]
 
-    # Users
-    def get_whoami_url(self) -> str:
-        return f"{self.base_url}/users/whoami"
+    def character(self, character_id: int) -> Character:
+        """
+        Returns character info by ID.
 
-    # Shikimori API v2.0 Endpoints
-    # Topic ignore
+        :param character_id: ID of character to get info
+        :type character_id: int
 
-    def get_topic_ignore_url(self, topic_id: int) -> str:
-        return f"{self.base_url_v2}/topics/{topic_id}/ignore"
+        :return: Character info
+        :rtype: Character
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.character(character_id))
+        return Character(**response)
 
-    # User ignore
-    def get_user_ignore_url(self, user_id: int) -> str:
-        return f"{self.base_url_v2}/users/{user_id}/ignore"
+    def character_search(self,
+                         search: Union[str, None] = None) -> List[Character]:
+        """
+        Returns list of found characters.
 
-    # Abuse requests
-    def get_offtopic_request_url(self) -> str:
-        return f"{self.base_url_v2}/abuse_requests/offtopic"
+        :param search: Search query for characters
+        :type search: Union[str, None]
 
-    def get_review_request_url(self) -> str:
-        return f"{self.base_url_v2}/abuse_requests/review"
+        :return: List of found characters
+        :rtype: List[Character]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.character_search,
+            query=Utils.generate_query_dict(search=search))
+        return [Character(**character) for character in response]
 
-    def get_abuse_request_url(self) -> str:
-        return f"{self.base_url_v2}/abuse_requests/abuse"
+    def clubs(self,
+              page: Union[int, None] = None,
+              limit: Union[int, None] = None,
+              search: Union[str, None] = None) -> Union[List[Club], None]:
+        """
+        Returns clubs list.
 
-    def get_spoiler_request_url(self) -> str:
-        return f"{self.base_url_v2}/abuse_requests/spoiler"
+        :param page: Number of page
+        :type page: Union[int, None]
 
-    # Episode notifications
-    def get_episode_notifications_url(self) -> str:
-        return f"{self.base_url_v2}/episode_notifications"
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
 
-    # User rates
-    def get_user_rate_id_url(self, user_rate_id: int) -> str:
-        return f"{self.base_url_v2}/user_rates/{user_rate_id}"
+        :param search: Search phrase to filter clubs by name
+        :type search: Union[str, None]
 
-    def get_user_rate_list_url(self) -> str:
-        return f"{self.base_url_v2}/user_rates"
+        :return: Clubs list
+        :rtype: Union[List[Club], None]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 30)
 
-    def get_user_rate_id_increment_url(self, user_rate_id: int) -> str:
-        return f"{self.base_url_v2}/user_rates/{user_rate_id}/increment"
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.clubs,
+            query=Utils.generate_query_dict(page=page,
+                                            limit=limit,
+                                            search=search))
+        if response:
+            return [Club(**club) for club in response]
+        return response
 
+    def club(self, club_id: int) -> Club:
+        """
+        Returns info about club.
 
-class ShikithonException(Exception):
-    """Base class for Shikithon Exceptions."""
-    pass
+        :param club_id: Club ID to get info
+        :type club_id: int
 
+        :return: Info about club
+        :rtype: Club
+        """
+        response: Dict[str, Any] = self._request(self._endpoints.club(club_id))
+        return Club(**response)
 
-class MissingConfigData(ShikithonException):
-    """Exception for missing data required to work with the API."""
-    pass
+    @protected_method(scope='clubs')
+    def club_update(
+        self,
+        club_id: int,
+        name: Union[str, None] = None,
+        join_policy: Union[JoinPolicy, None] = None,
+        description: Union[str, None] = None,
+        display_images: Union[bool, None] = None,
+        comment_policy: Union[CommentPolicy, None] = None,
+        topic_policy: Union[TopicPolicy, None] = None,
+        page_policy: Union[PagePolicy, None] = None,
+        image_upload_policy: Union[ImageUploadPolicy, None] = None,
+        is_censored: Union[bool, None] = None,
+        anime_ids: Union[List[int], None] = None,
+        manga_ids: Union[List[int], None] = None,
+        ranobe_ids: Union[List[int], None] = None,
+        character_ids: Union[List[int], None] = None,
+        club_ids: Union[List[int], None] = None,
+        admin_ids: Union[List[int], None] = None,
+        collection_ids: Union[List[int], None] = None,
+        banned_user_ids: Union[List[int], None] = None
+    ) -> Tuple[bool, Union[Club, str]]:
+        """
+        Update info/settings about/of club.
+
+        :param club_id: Club ID to modify/update
+        :type club_id: int
+
+        :param name: New name of club
+        :type name: Union[str, None]
+
+        :param description: New description of club
+        :type description: Union[str, None]
+
+        :param display_images: New display images status of club
+        :type display_images: Union[bool, None]
+
+        :param is_censored: New censored status of club
+        :type is_censored: Union[bool, None]
+
+        :param join_policy: New join policy of club
+        :type join_policy: Union[JoinPolicy, None]
+
+        :param comment_policy: New comment policy of club
+        :type comment_policy: Union[CommentPolicy, None]
+
+        :param topic_policy: New topic policy of club
+        :type topic_policy: Union[TopicPolicy, None]
+
+        :param page_policy: New page policy of club
+        :type page_policy: Union[PagePolicy, None]
+
+        :param image_upload_policy: New image upload policy of club
+        :type image_upload_policy: Union[ImageUploadPolicy, None]
+
+        :param anime_ids: New anime ids of club
+        :type anime_ids: Union[List[int], None]
+
+        :param manga_ids: New manga ids of club
+        :type manga_ids: Union[List[int], None]
+
+        :param ranobe_ids: New ranobe ids of club
+        :type ranobe_ids: Union[List[int], None]
+
+        :param character_ids: New character ids of club
+        :type character_ids: Union[List[int], None]
+
+        :param club_ids: New club ids of club
+        :type club_ids: Union[List[int], None]
+
+        :param admin_ids: New admin ids of club
+        :type admin_ids: Union[List[int], None]
+
+        :param collection_ids: New collection ids of club
+        :type collection_ids: Union[List[int], None]
+
+        :param banned_user_ids: New banned user ids of club
+        :type banned_user_ids: Union[List[int], None]
+
+        :return: Tuple of update status and response.
+            On successful update, returns True and Club model,
+            otherwise, False and error message
+        :rtype: Tuple[bool, Union[Club, str]]
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.club(club_id),
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(
+                dict_name='club',
+                name=name,
+                join_policy=join_policy,
+                description=description,
+                display_images=display_images,
+                comment_policy=comment_policy,
+                topic_policy=topic_policy,
+                page_policy=page_policy,
+                image_upload_policy=image_upload_policy,
+                is_censored=is_censored,
+                anime_ids=anime_ids,
+                manga_ids=manga_ids,
+                ranobe_ids=ranobe_ids,
+                character_ids=character_ids,
+                club_ids=club_ids,
+                admin_ids=admin_ids,
+                collection_ids=collection_ids,
+                banned_user_ids=banned_user_ids),
+            request_type=RequestType.PATCH)
+        if 'errors' in response:
+            logger.info('There was an error when updating the club')
+            logger.debug(
+                f'There was an error when updating the club: {response=}')
+            return False, response['errors']
+        logger.info('Successfully updated the club')
+        return True, Club(**response)
+
+    def club_animes(self, club_id: int) -> List[Anime]:
+        """
+        Returns anime list of club.
+
+        :param club_id: Club ID to get anime list
+        :type club_id: int
+
+        :return: Club anime list
+        :rtype: List[Anime]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_animes(club_id))
+        return [Anime(**anime) for anime in response]
+
+    def club_mangas(self, club_id: int) -> List[Manga]:
+        """
+        Returns manga list of club.
+
+        :param club_id: Club ID to get manga list
+        :type club_id: int
+
+        :return: Club manga list
+        :rtype: List[Manga]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_mangas(club_id))
+        return [Manga(**manga) for manga in response]
+
+    def club_ranobe(self, club_id: int) -> List[Ranobe]:
+        """
+        Returns ranobe list of club.
+
+        :param club_id: Club ID to get ranobe list
+        :type club_id: int
+
+        :return: Club ranobe list
+        :rtype: List[Ranobe]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_ranobe(club_id))
+        return [Ranobe(**ranobe) for ranobe in response]
+
+    def club_characters(self, club_id: int) -> List[Character]:
+        """
+        Returns character list of club.
+
+        :param club_id: Club ID to get character list
+        :type club_id: int
+
+        :return: Club character list
+        :rtype: List[Character]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_characters(club_id))
+        return [Character(**character) for character in response]
+
+    def club_members(self, club_id: int) -> List[User]:
+        """
+        Returns member list of club.
+
+        :param club_id: Club ID to get member list
+        :type club_id: int
+
+        :return: Club member list
+        :rtype: List[User]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_members(club_id))
+        return [User(**user) for user in response]
+
+    def club_images(self, club_id: int) -> List[ClubImage]:
+        """
+        Returns images of club.
+
+        :param club_id: Club ID to get images
+        :type club_id: int
+
+        :return: Club's images
+        :rtype: List[ClubImage]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.club_images(club_id))
+        return [ClubImage(**club_image) for club_image in response]
+
+    @protected_method(scope='clubs')
+    def club_join(self, club_id: int):
+        """
+        Joins club by ID.
+
+        :param club_id: Club ID to join
+        :type club_id: int
+
+        :return: Status of join
+        :rtype: bool
+        """
+        response: Union[Dict[str, Any],
+                        int] = self._request(self._endpoints.club_join(club_id),
+                                             headers=self._authorization_header,
+                                             request_type=RequestType.POST)
+        if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
+            logger.info('Successfully joined the club')
+            return True
+        logger.info('There was an error when joining the club '
+                    'or are you already a member of it')
+        logger.debug(f'There was an error when joining the club: {response=}')
+        return False
+
+    @protected_method(scope='clubs')
+    def club_leave(self, club_id: int) -> bool:
+        """
+        Leaves club by ID.
+
+        :param club_id: Club ID to leave
+        :type club_id: int
+
+        :return: Status of leave
+        :rtype: bool
+        """
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.club_leave(club_id),
+            headers=self._authorization_header,
+            request_type=RequestType.POST)
+        if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
+            logger.info('Successfully left the club')
+            return True
+        logger.info('There was an error when leaving the club '
+                    'or you are already not a member of it')
+        logger.debug(f'There was an error when leaving the club: {response=}')
+        return False
+
+    def comments(self,
+                 commentable_id: int,
+                 commentable_type: CommentableType,
+                 page: Union[int, None] = None,
+                 limit: Union[int, None] = None,
+                 desc: Union[int, None] = None) -> Union[List[Comment], None]:
+        """
+        Returns list of comments.
+
+        :param commentable_id: ID of entity to get comment
+        :type commentable_id: int
+
+        :param commentable_type: Type of entity to get comment
+        :type commentable_type: CommentableType
+
+        :param page: Number of page
+        :type page: Union[int, None]
+
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
+
+        :param desc: Status of description in request. Can be 1 or 0
+        :type desc: Union[int, None] = None
+
+        :return: List of comments
+        :rtype: Union[List[Comment], None]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 30)
+
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.comments,
+            query=Utils.generate_query_dict(page=page,
+                                            limit=limit,
+                                            commentable_id=commentable_id,
+                                            commentable_type=commentable_type,
+                                            desc=desc))
+        if response:
+            return [Comment(**comment) for comment in response]
+        return response
+
+    def comment(self, comment_id: int) -> Comment:
+        """
+        Returns comment info.
+
+        :param comment_id: ID of comment
+        :type comment_id: int
+
+        :return: Comment info
+        :rtype: Comment
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.comment(comment_id))
+        return Comment(**response)
+
+    @protected_method(scope='comments')
+    def create_comment(
+        self,
+        body: str,
+        commentable_id: int,
+        commentable_type: CommentableType,
+        is_offtopic: Union[bool, None] = None,
+        broadcast: Union[bool,
+                         None] = None) -> Tuple[bool, Union[Comment, str]]:
+        """
+        Creates comment.
+
+        When commentable_type set to Anime, Manga, Character or Person,
+        comment is attached to commentable main topic.
+
+        :param body: Body of comment
+        :type body: str
+
+        :param commentable_id: ID of entity to comment on
+        :type commentable_id: int
+
+        :param commentable_type: Type of entity to comment on
+        :type commentable_type: CommentableType
+
+        :param is_offtopic: Status of offtopic
+        :type is_offtopic: Union[bool, None]
+
+        :param broadcast: Broadcast comment in club’s topic status
+        :type broadcast: Union[bool, None]
+
+        :return: Tuple of update status and response.
+            On successful update, returns True and Comment model,
+            otherwise, False and error message
+        :rtype: Tuple[bool, Union[Comment, str]]
+        """
+        data_dict: Dict[str, Any] = Utils.generate_data_dict(
+            dict_name='comment',
+            body=body,
+            commentable_id=commentable_id,
+            commentable_type=commentable_type,
+            is_offtopic=is_offtopic)
+
+        if broadcast:
+            logger.debug('Adding a broadcast value to a data_dict')
+            data_dict['broadcast'] = broadcast
+
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.comments,
+                                            headers=self._authorization_header,
+                                            data=data_dict,
+                                            request_type=RequestType.POST)
+
+        if 'errors' in response:
+            logger.info('An error occurred when creating a comment')
+            logger.debug('Information about an error '
+                         f'when creating a comment: {response=}')
+            return False, response['errors']
+        logger.info('New comment successfully created')
+        return True, Comment(**response)
+
+    @protected_method(scope='comments')
+    def update_comment(self, comment_id: int,
+                       body: str) -> Tuple[bool, Union[Comment, str]]:
+        """
+        Updates comment.
+
+        :param comment_id: ID of comment to update
+        :type comment_id: int
+
+        :param body: New body of comment
+        :type body: str
+
+        :return: Tuple of update status and response.
+            On successful update, returns True and Comment model,
+            otherwise, False and error message
+        :rtype: Tuple[bool, Union[Comment, str]]
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.comment(comment_id),
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='comment', body=body),
+            request_type=RequestType.PATCH)
+        if 'errors' in response:
+            logger.info('An error occurred when updating a comment')
+            logger.debug('Information about an error '
+                         f'when updating a comment: {response=}')
+            return False, response['errors']
+        logger.info(f'Comment #{comment_id} successfully updated')
+        return True, Comment(**response)
+
+    @protected_method(scope='comments')
+    def delete_comment(self, comment_id: int) -> bool:
+        """
+        Deletes comment.
+
+        :param comment_id: ID of comment to delete
+        :type comment_id: int
+
+        :return: Status of comment deletion
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.comment(comment_id),
+                                            headers=self._authorization_header,
+                                            request_type=RequestType.DELETE)
+        if 'notice' in response:
+            logger.info(f'Comment #{comment_id} successfully deleted')
+            return True
+        logger.info('An error occurred when deleting a comment')
+        logger.debug(
+            f'Information about an error when deleting a comment: {response=}')
+        return False
+
+    def anime_constants(self) -> AnimeConstants:
+        """
+        Returns anime constants values.
+
+        :return: Anime constants values
+        :rtype: AnimeConstants
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.anime_constants)
+        return AnimeConstants(**response)
+
+    def manga_constants(self) -> MangaConstants:
+        """
+        Returns manga constants values.
+
+        :return: Manga constants values
+        :rtype: MangaConstants
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.manga_constants)
+        return MangaConstants(**response)
+
+    def user_rate_constants(self) -> UserRateConstants:
+        """
+        Returns user rate constants values.
+
+        :return: User rate constants values
+        :rtype: UserRateConstants
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.user_rate_constants)
+        return UserRateConstants(**response)
+
+    def club_constants(self) -> ClubConstants:
+        """
+        Returns club constants values.
+
+        :return: Club constants values
+        :rtype: ClubConstants
+        """
+        response: Dict[str, Any] = self._request(self._endpoints.club_constants)
+        return ClubConstants(**response)
+
+    def smileys_constants(self) -> List[SmileyConstants]:
+        """
+        Returns list of smileys constants values.
+
+        :return: List of smileys constants values
+        :rtype: List[SmileyConstants]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.smileys_constants)
+        return [SmileyConstants(**smiley) for smiley in response]
+
+    def users(self,
+              page: Union[int, None] = None,
+              limit: Union[int, None] = None) -> Union[List[User], None]:
+        """
+        Returns list of users.
+
+        :param page: Number of page
+        :type page: Union[int, None]
+
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
+
+        :return: List of users
+        :rtype: List[User]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 100)
+
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.users,
+            query=Utils.generate_query_dict(page=page, limit=limit))
+        if response:
+            return [User(**user) for user in response]
+        return response
+
+    def user(self,
+             user_id: Union[str, int],
+             is_nickname: Union[bool, None] = None) -> User:
+        """
+        Returns info about user.
+
+        :param user_id: User ID/Nickname to get info
+        :type user_id: Union[str, int]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :return: Info about user
+        :rtype: User
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.user(user_id),
+            query=Utils.generate_query_dict(is_nickname=is_nickname))
+        return User(**response)
+
+    def user_info(self,
+                  user_id: Union[str, int],
+                  is_nickname: Union[bool, None] = None) -> User:
+        """
+        Returns user's brief info.
+
+        :param user_id: User ID/Nickname to get brief info
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :return: User's brief info
+        :rtype: User
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.user_info(user_id),
+            query=Utils.generate_query_dict(is_nickname=is_nickname))
+        return User(**response)
+
+    @protected_method()
+    def current_user(self) -> User:
+        """
+        Returns brief info about current user.
+
+        Current user evaluated depending on authorization code.
+
+        :return: Current user brief info
+        :rtype: User
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.whoami,
+                                            headers=self._authorization_header)
+        return User(**response)
+
+    @protected_method()
+    def sign_out(self):
+        """Sends sign out request to API."""
+        self._request(self._endpoints.sign_out,
+                      headers=self._authorization_header)
+
+    def user_friends(self,
+                     user_id: Union[str, int],
+                     is_nickname: Union[bool, None] = None) -> List[User]:
+        """
+        Returns user's friends.
+
+        :param user_id: User ID/Nickname to get friends
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :return: List of user's friends
+        :rtype: List[User]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.user_friends(user_id),
+            query=Utils.generate_query_dict(is_nickname=is_nickname))
+        return [User(**friend) for friend in response]
+
+    def user_clubs(self,
+                   user_id: Union[int, str],
+                   is_nickname: Union[bool, None] = None) -> List[Club]:
+        """
+        Returns user's clubs.
+
+        :param user_id: User ID/Nickname to get clubs
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :return: List of user's clubs
+        :rtype: List[Club]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.user_clubs(user_id),
+            query=Utils.generate_query_dict(is_nickname=is_nickname))
+        return [Club(**club) for club in response]
+
+    def user_anime_rates(
+        self,
+        user_id: Union[int, str],
+        is_nickname: Union[bool, None] = None,
+        page: Union[int, None] = None,
+        limit: Union[int, None] = None,
+        status: Union[MyList, None] = None,
+        censored: Union[Censorship,
+                        None] = None) -> Union[List[UserList], None]:
+        """
+        Returns user's anime list.
+
+        :param user_id: User ID/Nickname to get anime list
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :param page: Number of page
+        :type page: Union[int, None]
+
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
+
+        :param status: Status of status of anime in list
+        :type status: Union[MyList, None]
+
+        :param censored: Type of anime censorship
+        :type censored: Union[Censorship, None]
+
+        :return: User's anime list
+        :rtype: Union[List[UserList], None]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 5000)
+
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.user_anime_rates(user_id),
+            query=Utils.generate_query_dict(is_nickname=is_nickname,
+                                            page=page,
+                                            limit=limit,
+                                            status=status,
+                                            censored=censored))
+        if response:
+            return [UserList(**user_list) for user_list in response]
+        return response
+
+    def user_manga_rates(
+        self,
+        user_id: Union[int, str],
+        is_nickname: Union[bool, None] = None,
+        page: Union[int, None] = None,
+        limit: Union[int, None] = None,
+        censored: Union[Censorship,
+                        None] = None) -> Union[List[UserList], None]:
+        """
+        Returns user's manga list.
+
+        :param user_id: User ID/Nickname to get manga list
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :param page: Number of page
+        :type page: Union[int, None]
+
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
+
+        :param censored: Type of manga censorship
+        :type censored: Union[Censorship, None]
+
+        :return: User's manga list
+        :rtype: Union[List[UserList], None]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 5000)
+
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.user_manga_rates(user_id),
+            query=Utils.generate_query_dict(is_nickname=is_nickname,
+                                            page=page,
+                                            limit=limit,
+                                            censored=censored))
+        if response:
+            return [UserList(**user_list) for user_list in response]
+        return response
+
+    def user_favourites(self,
+                        user_id: Union[int, str],
+                        is_nickname: Union[bool, None] = None) -> Favourites:
+        """
+        Returns user's favourites.
+
+        :param user_id: User ID/Nickname to get favourites
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :return: User's favourites
+        :rtype: Favourites
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.user_favourites(user_id),
+            query=Utils.generate_query_dict(is_nickname=is_nickname))
+        return Favourites(**response)
+
+    @protected_method(scope='messages')
+    def current_user_messages(
+        self,
+        user_id: Union[int, str],
+        is_nickname: Union[bool, None] = None,
+        page: Union[int, None] = None,
+        limit: Union[int, None] = None,
+        message_type: MessageType = MessageType.NEWS
+    ) -> Union[List[Message], None]:
+        """
+        Returns current user's messages by type.
+
+        :param user_id: Current user ID/Nickname to get messages
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :param page: Number of page
+        :type page: Union[int, None]
+
+        :param limit: Number of page limits
+        :type limit: Union[int, None]
+
+        :param message_type: Type of message
+        :type message_type: MessageType
+
+        :return: Current user's messages
+        :rtype: Union[List[Message], None]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 100)
+
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.user_messages(user_id),
+            headers=self._authorization_header,
+            query=Utils.generate_query_dict(is_nickname=is_nickname,
+                                            page=page,
+                                            limit=limit,
+                                            type=message_type))
+        if response:
+            return [Message(**message) for message in response]
+        return response
+
+    @protected_method(scope='messages')
+    def current_user_unread_messages(
+            self,
+            user_id: Union[int, str],
+            is_nickname: Union[bool, None] = None) -> UnreadMessages:
+        """
+        Returns current user's unread messages counter.
+
+        :param user_id: Current user ID/Nickname to get unread messages
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :return: Current user's unread messages counters
+        :rtype: UnreadMessages
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.user_unread_messages(user_id),
+            headers=self._authorization_header,
+            query=Utils.generate_query_dict(is_nickname=is_nickname))
+        return UnreadMessages(**response)
+
+    def user_history(
+        self,
+        user_id: Union[int, str],
+        is_nickname: Union[bool, None] = None,
+        page: Union[int, None] = None,
+        limit: Union[int, None] = None,
+        target_id: Union[int, None] = None,
+        target_type: Union[TargetType,
+                           None] = None) -> Union[List[History], None]:
+        """
+        Returns history of user.
+
+        :param user_id: User ID/Nickname to get history
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :param page: Number of page
+        :type page: Union[int, None]
+
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
+
+        :param target_id: ID of anime/manga in history
+        :type target_id: Union[int, None]
+
+        :param target_type: Type of target (Anime/Manga)
+        :type target_type: Union[TargetType, None]
+
+        :return: User's history
+        :rtype: Union[List[History], None]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 100)
+
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.user_history(user_id),
+            query=Utils.generate_query_dict(is_nickname=is_nickname,
+                                            page=page,
+                                            limit=limit,
+                                            target_id=target_id,
+                                            target_type=target_type))
+        if response:
+            return [History(**history) for history in response]
+        return response
+
+    def user_bans(self,
+                  user_id: Union[int, str],
+                  is_nickname: Union[bool, None] = None) -> List[Ban]:
+        """
+        Returns list of bans of user.
+
+        :param user_id: User ID/Nickname to get list of bans
+        :type user_id: Union[int, str]
+
+        :param is_nickname: Specify if passed user_id is nickname
+        :type is_nickname: Union[bool, None]
+
+        :return: User's bans
+        :rtype: List[Ban]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.user_bans(user_id),
+            query=Utils.generate_query_dict(is_nickname=is_nickname))
+        return [Ban(**ban) for ban in response]
