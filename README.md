@@ -5,6 +5,8 @@
     <p>Очередной враппер для Shikimori API, написанный на Python</p>
 </div>
 
+[![Publish Shikithon package to PyPI](https://github.com/SecondThundeR/shikithon/actions/workflows/pypi-publish.yml/badge.svg)](https://github.com/SecondThundeR/shikithon/actions/workflows/pypi-publish.yml)
+
 > Данная библиотека находится на ранней стадии разработки.
 >
 > **Большинство** функционала отстуствует на данный момент и, скорее всего,
