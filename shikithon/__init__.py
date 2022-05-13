@@ -1,2 +1,2 @@
 """Contains package version."""
-__version__ = '0.1.0-beta.6'
+__version__ = '0.1.0-beta.7'
