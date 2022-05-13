@@ -34,6 +34,9 @@ from shikithon.models.character import Character
 from shikithon.models.club import Club
 from shikithon.models.club_image import ClubImage
 from shikithon.models.comment import Comment
+from shikithon.models.constants import (AnimeConstants, ClubConstants,
+                                        MangaConstants, SmileyConstants,
+                                        UserRateConstants)
 from shikithon.models.creator import Creator
 from shikithon.models.favourites import Favourites
 from shikithon.models.franchise_tree import FranchiseTree
@@ -1232,6 +1235,60 @@ class API:
         if 'notice' in response:
             return True
         return False
+
+    def anime_constants(self) -> AnimeConstants:
+        """
+        Returns anime constants values.
+
+        :return: Anime constants values
+        :rtype: AnimeConstants
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.anime_constants)
+        return AnimeConstants(**response)
+
+    def manga_constants(self) -> MangaConstants:
+        """
+        Returns manga constants values.
+
+        :return: Manga constants values
+        :rtype: MangaConstants
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.manga_constants)
+        return MangaConstants(**response)
+
+    def user_rate_constants(self) -> UserRateConstants:
+        """
+        Returns user rate constants values.
+
+        :return: User rate constants values
+        :rtype: UserRateConstants
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.user_rate_constants)
+        return UserRateConstants(**response)
+
+    def club_constants(self) -> ClubConstants:
+        """
+        Returns club constants values.
+
+        :return: Club constants values
+        :rtype: ClubConstants
+        """
+        response: Dict[str, Any] = self._request(self._endpoints.club_constants)
+        return ClubConstants(**response)
+
+    def smileys_constants(self) -> List[SmileyConstants]:
+        """
+        Returns list of smileys constants values.
+
+        :return: List of smileys constants values
+        :rtype: List[SmileyConstants]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.smileys_constants)
+        return [SmileyConstants(**smiley) for smiley in response]
 
     def users(self,
               page: Union[int, None] = None,
