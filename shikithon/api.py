@@ -17,6 +17,7 @@ from shikithon.enums.anime import (Censorship, Duration, Kind, MyList, Order,
                                    Rating, Status)
 from shikithon.enums.club import (CommentPolicy, ImageUploadPolicy, JoinPolicy,
                                   PagePolicy, TopicPolicy)
+from shikithon.enums.comment import CommentableType
 from shikithon.enums.history import TargetType
 from shikithon.enums.message import MessageType
 from shikithon.enums.request import RequestType
@@ -32,6 +33,7 @@ from shikithon.models.calendar_event import CalendarEvent
 from shikithon.models.character import Character
 from shikithon.models.club import Club
 from shikithon.models.club_image import ClubImage
+from shikithon.models.comment import Comment
 from shikithon.models.creator import Creator
 from shikithon.models.favourites import Favourites
 from shikithon.models.franchise_tree import FranchiseTree
@@ -1075,6 +1077,159 @@ class API:
             headers=self._authorization_header,
             request_type=RequestType.POST)
         if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
+            return True
+        return False
+
+    def comments(self,
+                 commentable_id: int,
+                 commentable_type: CommentableType,
+                 page: Union[int, None] = None,
+                 limit: Union[int, None] = None,
+                 desc: Union[int, None] = None) -> List[Comment]:
+        """
+        Returns list of comments.
+
+        :param commentable_id: ID of entity to get comment
+        :type commentable_id: int
+
+        :param commentable_type: Type of entity to get comment
+        :type commentable_type: CommentableType
+
+        :param page: Number of page
+        :type page: Union[int, None]
+
+        :param limit: Number of results limit
+        :type limit: Union[int, None]
+
+        :param desc: Status of description in request. Can be 1 or 0
+        :type desc: Union[int, None] = None
+
+        :return: List of comments
+        :rtype: List[Comment]
+        """
+        page = Utils.validate_query_number(page, 100000)
+        limit = Utils.validate_query_number(limit, 30)
+
+        response: Union[List[Dict[str, Any]], None] = self._request(
+            self._endpoints.comments,
+            query=Utils.generate_query_dict(page=page,
+                                            limit=limit,
+                                            commentable_id=commentable_id,
+                                            commentable_type=commentable_type,
+                                            desc=desc))
+        return [Comment(**comment) for comment in response
+               ] if response else response
+
+    def comment(self, comment_id: int) -> Comment:
+        """
+        Returns comment info.
+
+        :param comment_id: ID of comment
+        :type comment_id: int
+
+        :return: Comment info
+        :rtype: Comment
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.comment(comment_id))
+        return Comment(**response)
+
+    @protected_method
+    def create_comment(
+        self,
+        body: str,
+        commentable_id: int,
+        commentable_type: CommentableType,
+        is_offtopic: Union[bool, None] = None,
+        broadcast: Union[bool,
+                         None] = None) -> Tuple[bool, Union[Comment, str]]:
+        """
+        Creates comment.
+
+        When commentable_type set to Anime, Manga, Character or Person,
+        comment is attached to commentable main topic.
+
+        :param body: Body of comment
+        :type body: str
+
+        :param commentable_id: ID of entity to comment on
+        :type commentable_id: int
+
+        :param commentable_type: Type of entity to comment on
+        :type commentable_type: CommentableType
+
+        :param is_offtopic: Status of offtopic
+        :type is_offtopic: Union[bool, None]
+
+        :param broadcast: Broadcast comment in club’s topic status
+        :type broadcast: Union[bool, None]
+
+        :return: Tuple of update status and response.
+            On successful update, returns True and Comment model,
+            otherwise, False and error message
+        :rtype: Tuple[bool, Union[Comment, str]]
+        """
+        data_dict: Dict[str, Any] = Utils.generate_data_dict(
+            dict_name='comment',
+            body=body,
+            commentable_id=commentable_id,
+            commentable_type=commentable_type,
+            is_offtopic=is_offtopic)
+
+        if broadcast:
+            data_dict['broadcast'] = broadcast
+
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.comments,
+                                            headers=self._authorization_header,
+                                            data=data_dict,
+                                            request_type=RequestType.POST)
+
+        if 'errors' in response:
+            return False, response['errors']
+        return True, Comment(**response)
+
+    @protected_method
+    def update_comment(self, comment_id: int,
+                       body: str) -> Tuple[bool, Union[Comment, str]]:
+        """
+        Updates comment.
+
+        :param comment_id: ID of comment to update
+        :type comment_id: int
+
+        :param body: New body of comment
+        :type body: str
+
+        :return: Tuple of update status and response.
+            On successful update, returns True and Comment model,
+            otherwise, False and error message
+        :rtype: Tuple[bool, Union[Comment, str]]
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.comment(comment_id),
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='comment', body=body),
+            request_type=RequestType.PATCH)
+        if 'errors' in response:
+            return False, response['errors']
+        return True, Comment(**response)
+
+    @protected_method
+    def delete_comment(self, comment_id: int) -> bool:
+        """
+        Deletes comment.
+
+        :param comment_id: ID of comment to delete
+        :type comment_id: int
+
+        :return: Status of comment deletion
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.comment(comment_id),
+                                            headers=self._authorization_header,
+                                            request_type=RequestType.DELETE)
+        if 'notice' in response:
             return True
         return False
 
