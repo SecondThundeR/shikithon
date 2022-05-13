@@ -1,13 +1,13 @@
 """Custom decorators for API class."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from shikithon.api import API
 
 
-def protected_method(decorated):
+def protected_method(scope=None):
     """
     Decorator for protected API methods.
 
@@ -16,23 +16,35 @@ def protected_method(decorated):
 
     When the access token is no longer valid,
     triggers the token update function.
+
+    Also, this decorator take a scope parameter
+    for checking, if current app is allowed to access
+    protected method.
     """
 
-    def wrapper(api: API, *args: List[Any], **kwargs: Dict[str, Any]):
-        """
-        Decorator's wrapper function.
+    def decorator(function):
 
-        Check for token expire time.
-        If needed, triggers token refresh function.
+        def wrapper(api: API, *args, **kwargs):
+            """
+            Decorator's wrapper function.
 
-        :return: None if API object is in restricted mode
-        :rtype: None
-        """
-        if api.restricted_mode:
-            return None
+            Check for token expire time.
+            If needed, triggers token refresh function.
 
-        if api.token_expired():
-            api.refresh_tokens()
-        return decorated(api, *args, **kwargs)
+            :return: None if API object is in restricted mode
+                or if required scope is missing
+            :rtype: None
+            """
+            if api.restricted_mode:
+                return None
 
-    return wrapper
+            if scope and scope not in api.scopes_list:
+                return None
+
+            if api.token_expired():
+                api.refresh_tokens()
+            return function(api, *args, **kwargs)
+
+        return wrapper
+
+    return decorator

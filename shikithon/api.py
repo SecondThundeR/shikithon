@@ -129,6 +129,16 @@ class API:
         self._restricted_mode = restricted_mode
 
     @property
+    def scopes_list(self) -> List[str]:
+        """
+        Returns list of scopes.
+
+        :return: List of scopes
+        :rtype: List[str]
+        """
+        return self._scopes.split('+')
+
+    @property
     def config(self) -> Dict[str, str]:
         """
         Returns current API variables as config dictionary.
@@ -757,7 +767,7 @@ class API:
                                             episode=episode))
         return [Topic(**topic) for topic in response] if response else response
 
-    @protected_method
+    @protected_method()
     def appears(self, comment_ids: List[str]) -> bool:
         """
         Marks comments or topics as read.
@@ -887,7 +897,7 @@ class API:
         response: Dict[str, Any] = self._request(self._endpoints.club(club_id))
         return Club(**response)
 
-    @protected_method
+    @protected_method(scope='clubs')
     def club_update(
         self,
         club_id: int,
@@ -1082,7 +1092,7 @@ class API:
             self._endpoints.club_images(club_id))
         return [ClubImage(**club_image) for club_image in response]
 
-    @protected_method
+    @protected_method(scope='clubs')
     def club_join(self, club_id: int):
         """
         Joins club by ID.
@@ -1101,7 +1111,7 @@ class API:
             return True
         return False
 
-    @protected_method
+    @protected_method(scope='clubs')
     def club_leave(self, club_id: int) -> bool:
         """
         Leaves club by ID.
@@ -1174,7 +1184,7 @@ class API:
                        Any] = self._request(self._endpoints.comment(comment_id))
         return Comment(**response)
 
-    @protected_method
+    @protected_method(scope='comments')
     def create_comment(
         self,
         body: str,
@@ -1229,7 +1239,7 @@ class API:
             return False, response['errors']
         return True, Comment(**response)
 
-    @protected_method
+    @protected_method(scope='comments')
     def update_comment(self, comment_id: int,
                        body: str) -> Tuple[bool, Union[Comment, str]]:
         """
@@ -1255,7 +1265,7 @@ class API:
             return False, response['errors']
         return True, Comment(**response)
 
-    @protected_method
+    @protected_method(scope='comments')
     def delete_comment(self, comment_id: int) -> bool:
         """
         Deletes comment.
@@ -1390,7 +1400,7 @@ class API:
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return User(**response)
 
-    @protected_method
+    @protected_method()
     def current_user(self) -> User:
         """
         Returns brief info about current user.
@@ -1405,7 +1415,7 @@ class API:
                                             headers=self._authorization_header)
         return User(**response)
 
-    @protected_method
+    @protected_method()
     def sign_out(self):
         """Sends sign out request to API."""
         self._request(self._endpoints.sign_out,
@@ -1558,7 +1568,7 @@ class API:
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return Favourites(**response)
 
-    @protected_method
+    @protected_method(scope='messages')
     def current_user_messages(
         self,
         user_id: Union[int, str],
@@ -1601,7 +1611,7 @@ class API:
         return [Message(**message) for message in response
                ] if response else response
 
-    @protected_method
+    @protected_method(scope='messages')
     def current_user_unread_messages(
             self,
             user_id: Union[int, str],
