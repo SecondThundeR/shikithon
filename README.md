@@ -170,7 +170,7 @@ print(user_achievements[0])
 
 ## Зависимости проекта
 
-Данный проект использует три библиотеки:
+Данный проект использует четыре библиотеки:
 
 - [requests](https://github.com/psf/requests) для запросов к API
 [(Лицензия)](https://github.com/psf/requests/blob/main/LICENSE)
@@ -178,8 +178,10 @@ print(user_achievements[0])
 [(Лицензия)](https://github.com/samuelcolvin/pydantic/blob/master/LICENSE)
 - [ratelimit](https://github.com/tomasbasham/ratelimit) для огранчений количества запросов в минуту
 [(Лицензия)](https://github.com/tomasbasham/ratelimit/blob/master/LICENSE.txt)
+- [loguru](https://github.com/Delgan/loguru) для удобного логгирования
+[(Лицензия)](https://github.com/Delgan/loguru/blob/master/LICENSE)
 
-В качестве зависимостей для разработки, проект использует четыре библиотеки:
+В качестве зависимостей для разработки, проект использует тоже четыре библиотеки:
 - [pylint](https://github.com/PyCQA/pylint) для статической проверки кода
 [(Лицензия)](https://github.com/PyCQA/pylint/blob/main/LICENSE)
 - [yapf](https://github.com/google/yapf) для форматирования кода

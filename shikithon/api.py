@@ -3,10 +3,12 @@
 This is main module with a class
 for interacting with the Shikimori API.
 """
+import sys
 from json import dumps
 from time import sleep, time
 from typing import Any, Dict, List, Tuple, Union
 
+from loguru import logger
 from ratelimit import limits, sleep_and_retry
 from requests import JSONDecodeError, Response, Session
 
@@ -88,6 +90,21 @@ class API:
         :param config: Config file for API class or app name
         :type config: Union[str, Dict[str, str]]
         """
+        logger.configure(handlers=[
+            {
+                'sink': sys.stderr,
+                'level': 'INFO'
+            },
+            {
+                'sink': 'shikithon_{time}.log',
+                'level': 'DEBUG',
+                'rotation': '1 MB',
+                'compression': 'zip'
+            },
+        ])
+
+        logger.info('Initializing API object')
+
         self._endpoints: Endpoints = Endpoints(SHIKIMORI_API_URL,
                                                SHIKIMORI_API_URL_V2,
                                                SHIKIMORI_OAUTH_URL)
@@ -105,6 +122,7 @@ class API:
         self._token_expire: int = -1
 
         self._init_config(config)
+        logger.info('Successfully initialized API object')
 
     @property
     def restricted_mode(self) -> bool:
@@ -146,6 +164,7 @@ class API:
         :return: Current API variables as config dictionary
         :rtype: Dict[str, str]
         """
+        logger.debug('Exporting current API config')
         return {
             'app_name': self._app_name,
             'client_id': self._client_id,
@@ -169,6 +188,7 @@ class API:
         :param config: Config dictionary
         :type config: Dict[str, str]
         """
+        logger.info('Setting new API config')
         self._init_config(config)
 
     @property
@@ -241,14 +261,18 @@ class API:
         :param config: Config dictionary or app name
         :type config: Union[str, Dict[str, str]]
         """
+        logger.debug('Initializing API config')
         self._validate_config(config)
         self._validate_vars()
+        logger.debug('Setting User-Agent with current app_name')
         self._user_agent = self._app_name
 
         if isinstance(config, dict) and not self._access_token:
+            logger.debug('No tokens found')
             tokens_data: Tuple[str, str] = self._get_access_token()
             self._update_tokens(tokens_data)
 
+    @logger.catch(onerror=lambda _: sys.exit(1))
     def _validate_config(self, config: Union[str, Dict[str, str]]):
         """
         Validates passed config dictionary and sets
@@ -270,34 +294,41 @@ class API:
         :raises MissingConfigData: If any field is missing
             (Not raises if there is a cache config)
         """
+        logger.debug('Validating API config')
         if isinstance(config, str):
+            logger.debug('Detected app_name only. Switching to restricted mode')
             self._app_name = config
             self.restricted_mode = True
             return
 
         try:
-            config_cached = False
-            if ConfigCache.config_valid(config['app_name'],
-                                        config['auth_code']):
-                config = ConfigCache.get_config(config['app_name'])
-                config_cached = True
+            logger.debug('Checking for cached config')
+            cached_config, config_cached = ConfigCache.cache_config_validation(
+                config['app_name'], config['auth_code'])
 
+            if config_cached:
+                logger.debug('Replacing passed config with cached one')
+                config = cached_config
+
+                logger.debug('Extracting access tokens from config')
+                self._access_token = cached_config['access_token']
+                self._refresh_token = cached_config['refresh_token']
+                self._token_expire = int(cached_config['token_expire'])
+
+            logger.debug('Extracting app related variables from config')
             self._app_name = config['app_name']
             self._client_id = config['client_id']
             self._client_secret = config['client_secret']
             self._redirect_uri = config['redirect_uri']
             self._scopes = config['scopes']
             self._auth_code = config['auth_code']
-            if config_cached:
-                self._access_token = config['access_token']
-                self._refresh_token = config['refresh_token']
-                self._token_expire = int(config['token_expire'])
         except KeyError as err:
             raise MissingConfigData(
                 'It is impossible to initialize an API object'
                 'without missing variables. '
                 'Recheck your config and try again.') from err
 
+    @logger.catch(onerror=lambda _: sys.exit(1))
     def _validate_vars(self):
         """
         Validates variables and throws exception
@@ -352,6 +383,7 @@ class API:
                                   'authorization code. To get one, go to '
                                   f'{auth_link}')
 
+    @logger.catch(onerror=lambda _: sys.exit(1))
     def _get_access_token(self, refresh_token: bool = False) -> Tuple[str, str]:
         """
         Returns access/refresh tokens from API request.
@@ -373,9 +405,11 @@ class API:
         }
 
         if refresh_token:
+            logger.info('Refreshing current tokens')
             data['grant_type'] = 'refresh_token'
             data['refresh_token'] = self._refresh_token
         else:
+            logger.info('Getting new tokens')
             data['grant_type'] = 'authorization_code'
             data['code'] = self._auth_code
             data['redirect_uri'] = self._redirect_uri
@@ -386,8 +420,10 @@ class API:
                                               request_type=RequestType.POST)
 
         try:
+            logger.info('Returning new access and refresh tokens')
             return oauth_json['access_token'], oauth_json['refresh_token']
         except KeyError as err:
+            logger.critical('Failed returning new tokens')
             error_info = dumps(oauth_json)
             raise AccessTokenException(
                 'An error occurred while receiving tokens, '
@@ -404,6 +440,7 @@ class API:
         :param tokens_data: Tuple with access and refresh tokens
         :type tokens_data: Tuple[str, str]
         """
+        logger.debug('Updating current tokens')
         self._tokens = tokens_data
         self._cache_config()
 
@@ -411,6 +448,8 @@ class API:
         """Updates token expire time and caches new config."""
         self._token_expire = Utils.get_new_expire_time(TOKEN_EXPIRE_TIME)
         ConfigCache.save_config(self.config)
+        logger.debug('New expiration time has been set'
+                     'and cached configuration has been updated')
 
     @sleep_and_retry
     @limits(calls=MAX_CALLS_PER_MINUTE, period=ONE_MINUTE)
@@ -455,6 +494,9 @@ class API:
         """
         response: Union[Response, None] = None
 
+        logger.info(f'Making {request_type.value} request to {url}')
+        logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
+
         if request_type == RequestType.GET:
             response = self._session.get(url, headers=headers, params=query)
         if request_type == RequestType.POST:
@@ -479,18 +521,20 @@ class API:
                                             json=data)
 
         if response is None:
-            return None
+            logger.debug('Response is empty. Returning None')
+            return response
 
         if response.status_code == ResponseCode.RETRY_LATER.value:
+            logger.warning('Hit RPS cooldown. Waiting on request repeat')
             sleep(RATE_LIMIT_RPS_COOLDOWN)
             return self._request(url, data, headers, query, request_type)
 
         try:
+            logger.debug('Extracting JSON from response')
             return response.json()
         except JSONDecodeError:
-            if not response.text:
-                return response.status_code
-            return response.text
+            logger.error('Failed JSON extracting. Returning text/status_code')
+            return response.status_code if not response.text else response.text
 
     def refresh_tokens(self):
         """
@@ -626,7 +670,9 @@ class API:
                                             ids=ids,
                                             exclude_ids=exclude_ids,
                                             search=search))
-        return [Anime(**anime) for anime in response] if response else response
+        if response:
+            return [Anime(**anime) for anime in response]
+        return response
 
     def anime(self, anime_id: int) -> Anime:
         """
@@ -765,7 +811,9 @@ class API:
                                             limit=limit,
                                             kind=kind,
                                             episode=episode))
-        return [Topic(**topic) for topic in response] if response else response
+        if response:
+            return [Topic(**topic) for topic in response]
+        return response
 
     @protected_method()
     def appears(self, comment_ids: List[str]) -> bool:
@@ -778,6 +826,7 @@ class API:
         :return: Status of mark
         :rtype: bool
         """
+        logger.debug('Combining comment IDs into a single line')
         data: Dict[str, str] = {'ids': ','.join(comment_ids)}
         response_code: int = self._request(self._endpoints.appears,
                                            headers=self._authorization_header,
@@ -806,7 +855,9 @@ class API:
         response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.bans_list,
             query=Utils.generate_query_dict(page=page, limit=limit))
-        return [Ban(**ban) for ban in response] if response else response
+        if response:
+            return [Ban(**ban) for ban in response]
+        return response
 
     def calendar(
             self,
@@ -882,7 +933,9 @@ class API:
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
                                             search=search))
-        return [Club(**club) for club in response] if response else response
+        if response:
+            return [Club(**club) for club in response]
+        return response
 
     def club(self, club_id: int) -> Club:
         """
@@ -1005,7 +1058,11 @@ class API:
                 banned_user_ids=banned_user_ids),
             request_type=RequestType.PATCH)
         if 'errors' in response:
+            logger.info('There was an error when updating the club')
+            logger.debug(
+                f'There was an error when updating the club: {response=}')
             return False, response['errors']
+        logger.info('Successfully updated the club')
         return True, Club(**response)
 
     def club_animes(self, club_id: int) -> List[Anime]:
@@ -1108,7 +1165,11 @@ class API:
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
         if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
+            logger.info('Successfully joined the club')
             return True
+        logger.info('There was an error when joining the club'
+                    'or are you already a member of it')
+        logger.debug(f'There was an error when joining the club: {response=}')
         return False
 
     @protected_method(scope='clubs')
@@ -1127,7 +1188,11 @@ class API:
             headers=self._authorization_header,
             request_type=RequestType.POST)
         if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
+            logger.info('Successfully left the club')
             return True
+        logger.info('There was an error when leaving the club'
+                    'or you are already not a member of it')
+        logger.debug(f'There was an error when leaving the club: {response=}')
         return False
 
     def comments(self,
@@ -1135,7 +1200,7 @@ class API:
                  commentable_type: CommentableType,
                  page: Union[int, None] = None,
                  limit: Union[int, None] = None,
-                 desc: Union[int, None] = None) -> List[Comment]:
+                 desc: Union[int, None] = None) -> Union[List[Comment], None]:
         """
         Returns list of comments.
 
@@ -1155,7 +1220,7 @@ class API:
         :type desc: Union[int, None] = None
 
         :return: List of comments
-        :rtype: List[Comment]
+        :rtype: Union[List[Comment], None]
         """
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 30)
@@ -1167,8 +1232,9 @@ class API:
                                             commentable_id=commentable_id,
                                             commentable_type=commentable_type,
                                             desc=desc))
-        return [Comment(**comment) for comment in response
-               ] if response else response
+        if response:
+            return [Comment(**comment) for comment in response]
+        return response
 
     def comment(self, comment_id: int) -> Comment:
         """
@@ -1227,6 +1293,7 @@ class API:
             is_offtopic=is_offtopic)
 
         if broadcast:
+            logger.debug('Adding a broadcast value to a data_dict')
             data_dict['broadcast'] = broadcast
 
         response: Dict[str,
@@ -1236,7 +1303,11 @@ class API:
                                             request_type=RequestType.POST)
 
         if 'errors' in response:
+            logger.info('An error occurred when creating a comment')
+            logger.debug('Information about an error'
+                         f'when creating a comment: {response=}')
             return False, response['errors']
+        logger.info('New comment successfully created')
         return True, Comment(**response)
 
     @protected_method(scope='comments')
@@ -1262,7 +1333,11 @@ class API:
             data=Utils.generate_data_dict(dict_name='comment', body=body),
             request_type=RequestType.PATCH)
         if 'errors' in response:
+            logger.info('An error occurred when updating a comment')
+            logger.debug('Information about an error'
+                         f'when updating a comment: {response=}')
             return False, response['errors']
+        logger.info(f'Comment #{comment_id} successfully updated')
         return True, Comment(**response)
 
     @protected_method(scope='comments')
@@ -1280,7 +1355,11 @@ class API:
                                             headers=self._authorization_header,
                                             request_type=RequestType.DELETE)
         if 'notice' in response:
+            logger.info(f'Comment #{comment_id} successfully deleted')
             return True
+        logger.info('An error occurred when deleting a comment')
+        logger.debug(
+            f'Information about an error when deleting a comment: {response=}')
         return False
 
     def anime_constants(self) -> AnimeConstants:
@@ -1358,7 +1437,9 @@ class API:
         response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.users,
             query=Utils.generate_query_dict(page=page, limit=limit))
-        return [User(**user) for user in response] if response else response
+        if response:
+            return [User(**user) for user in response]
+        return response
 
     def user(self,
              user_id: Union[str, int],
@@ -1497,15 +1578,16 @@ class API:
         page = Utils.validate_query_number(page, 100000)
         limit = Utils.validate_query_number(limit, 5000)
 
-        response: Union[List[Dict[str, Any], None]] = self._request(
+        response: Union[List[Dict[str, Any]], None] = self._request(
             self._endpoints.user_anime_rates(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
                                             limit=limit,
                                             status=status,
                                             censored=censored))
-        return [UserList(**user_list) for user_list in response
-               ] if response else response
+        if response:
+            return [UserList(**user_list) for user_list in response]
+        return response
 
     def user_manga_rates(
         self,
@@ -1545,8 +1627,9 @@ class API:
                                             page=page,
                                             limit=limit,
                                             censored=censored))
-        return [UserList(**user_list) for user_list in response
-               ] if response else response
+        if response:
+            return [UserList(**user_list) for user_list in response]
+        return response
 
     def user_favourites(self,
                         user_id: Union[int, str],
@@ -1608,8 +1691,9 @@ class API:
                                             page=page,
                                             limit=limit,
                                             type=message_type))
-        return [Message(**message) for message in response
-               ] if response else response
+        if response:
+            return [Message(**message) for message in response]
+        return response
 
     @protected_method(scope='messages')
     def current_user_unread_messages(
@@ -1677,8 +1761,9 @@ class API:
                                             limit=limit,
                                             target_id=target_id,
                                             target_type=target_type))
-        return [History(**history) for history in response
-               ] if response else response
+        if response:
+            return [History(**history) for history in response]
+        return response
 
     def user_bans(self,
                   user_id: Union[int, str],

@@ -8,7 +8,9 @@ to restore on next object initializaion
 from json import dumps, loads
 from os import remove
 from os.path import exists
-from typing import Dict
+from typing import Any, Dict, Tuple, Union
+
+from loguru import logger
 
 from shikithon.utils import Utils
 
@@ -47,50 +49,63 @@ class ConfigCache:
         :return: Config filename
         :rtype: str
         """
+        logger.debug('Generating config cache filename')
         return '.shikithon_' + Utils.convert_app_name(app_name)
 
     @staticmethod
-    def config_valid(app_name: str, auth_code: str) -> bool:
+    def cache_config_validation(
+            config_app_name: str,
+            config_auth_code: str) -> Tuple[Dict[str, Any], bool]:
         """
-        Check if current config is valid.
+        Gets cached config and validates it.
 
-        This method checks for config existance and
-        validity by checking authorization code.
+        :param config_app_name: Current app name
+        :type config_app_name: str
 
-        :param app_name: OAuth App name
-        :type app_name: str
+        :param config_auth_code: Current authorization code
+        :type config_auth_code: str
 
-        :param auth_code: OAuth code
-        :type auth_code: str
-
-        :return: Result of check
-        :rtype: bool
+        :return: Tuple with config and validation status.
+            On successful validation, returns cached config and True,
+            otherwise, empty dictionary and False
+        :rtype: Tuple[Dict[str, Any], bool]
         """
-        config: Dict[str, str] = ConfigCache.get_config(app_name)
-        if not config:
-            return False
-        if not config['auth_code'] == auth_code:
-            ConfigCache.delete_config(app_name)
-            return False
-        return True
+        cache_config = ConfigCache.get_config(config_app_name)
+        if cache_config is None:
+            logger.debug('There are no cached config')
+            return {}, False
+
+        logger.debug('Found cached config. Checking...')
+
+        if config_auth_code and cache_config['auth_code'] != config_auth_code:
+            logger.debug('Mismatch of provided and cached auth codes. '
+                         'Deleting old cached config')
+            ConfigCache.delete_config(config_app_name)
+            return {}, False
+        logger.debug('Cached config is valid')
+        return cache_config, True
 
     @staticmethod
-    def get_config(app_name: str) -> Dict[str, str]:
+    def get_config(app_name: str) -> Union[Dict[str, str], None]:
         """
         Returns current config from cache file.
 
         :param app_name: App name for config load
         :type app_name: str
 
-        :return: Config dictionary
+        :return: Config dictionary or None
         :rtype: Union[Dict[str, str], None]
         """
-        if exists(ConfigCache.config_name(app_name)):
-            with open(ConfigCache.config_name(app_name), 'r',
-                      encoding='utf-8') as config_file:
+        config_name = ConfigCache.config_name(app_name)
+        logger.debug(f'Getting "{config_name}" config')
+
+        if exists(config_name):
+            with open(config_name, 'r', encoding='utf-8') as config_file:
                 config: Dict[str, str] = loads(config_file.read())
             return config
-        return {}
+
+        logger.warning('Cache file doesn\'t exist. Returning None')
+        return None
 
     @staticmethod
     def save_config(config: Dict[str, str]) -> bool:
@@ -103,14 +118,15 @@ class ConfigCache:
         :return: True if save succeeded, False otherwise
         :rtype: bool
         """
+        config_name = ConfigCache.config_name(config['app_name'])
+        logger.debug(f'Saving config to "{config_name}"')
+
         try:
-            with open(ConfigCache.config_name(config['app_name']),
-                      'w',
-                      encoding='utf-8') as config_file:
+            with open(config_name, 'w', encoding='utf-8') as config_file:
                 config_file.write(dumps(config))
             return True
         except IOError as err:
-            print(f"Couldn't save config to file: {err}")
+            logger.warning(f'Couldn\'t save config to file: {err}')
             return False
 
     @staticmethod
@@ -124,9 +140,12 @@ class ConfigCache:
         :return: True if delete succeeded, False otherwise
         :rtype: bool
         """
+        config_name = ConfigCache.config_name(app_name)
+        logger.debug(f'Deleting config "{config_name}"')
+
         try:
-            remove(ConfigCache.config_name(app_name))
+            remove(config_name)
             return True
         except OSError as err:
-            print(f"Couldn't remove config: {err}")
+            logger.warning(f"Couldn't delete config: {err}")
             return False

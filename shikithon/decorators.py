@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from loguru import logger
+
 if TYPE_CHECKING:
     from shikithon.api import API
 
@@ -35,14 +37,23 @@ def protected_method(scope=None):
                 or if required scope is missing
             :rtype: None
             """
+            logger.debug('Checking the possibility of using a protected'
+                         f'"{function.__name__}" method')
             if api.restricted_mode:
+                logger.debug('It is not possible to use the protected method'
+                             'due to the restricted mode')
                 return None
 
             if scope and scope not in api.scopes_list:
+                logger.debug(f'Protected method cannot be used due to the'
+                             f'absence of "{scope}" scope')
                 return None
 
             if api.token_expired():
+                logger.debug('Token has expired. Refreshing...')
                 api.refresh_tokens()
+            logger.debug('All checks for use of the protected'
+                         'method have been passed')
             return function(api, *args, **kwargs)
 
         return wrapper

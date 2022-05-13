@@ -9,6 +9,8 @@ from enum import Enum
 from time import time
 from typing import Any, Dict, List, Union
 
+from loguru import logger
+
 LOWER_LIMIT_NUMBER = 1
 
 
@@ -31,8 +33,10 @@ class Utils:
         :return: Query string
         :rtype: str
         """
+        logger.debug(f'Converting {query_dict=} to string')
         query_dict_str = '&'.join(
             f'{key}={val}' for (key, val) in query_dict.items())
+        logger.debug(f'Formed {query_dict_str=}')
         return f'?{query_dict_str}'
 
     @staticmethod
@@ -47,6 +51,7 @@ class Utils:
         :return: Converted app name for filename
         :rtype: str
         """
+        logger.debug(f'Converting "{app_name}" for cached config')
         return '_'.join(app_name.lower().split(' '))
 
     @staticmethod
@@ -60,6 +65,8 @@ class Utils:
         :return: New token expire time
         :rtype: int
         """
+        logger.debug(f'Getting new expiration time with a lifetime'
+                     f'of {time_expire_constant} seconds')
         return int(time()) + time_expire_constant
 
     @staticmethod
@@ -77,27 +84,30 @@ class Utils:
         :return: Valid query dictionary
         :rtype: Dict[str, str]
         """
-        new_query: Dict[str, str] = {}
+        logger.debug(
+            f'Generating query dictionary for request. Passed {params_data=}')
+        query_dict: Dict[str, str] = {}
         for key, data in params_data.items():
             if data is None:
                 continue
             if isinstance(data, bool):
                 if data is True:
-                    new_query[key] = str(int(data))
+                    query_dict[key] = str(int(data))
                 else:
                     continue
             elif isinstance(data, int):
-                new_query[key] = str(data)
+                query_dict[key] = str(data)
             elif isinstance(data, Enum):
-                new_query[key] = data.value
+                query_dict[key] = data.value
             elif isinstance(data, list):
                 data = [
                     str(value) if value.isdigit() else value for value in data
                 ]
-                new_query[key] = ','.join(data)
+                query_dict[key] = ','.join(data)
             else:
-                new_query[key] = data
-        return new_query
+                query_dict[key] = data
+        logger.debug(f'Generated query dictionary: {query_dict=}')
+        return query_dict
 
     @staticmethod
     def generate_data_dict(
@@ -114,12 +124,19 @@ class Utils:
         :return: Valid data dictionary
         :rtype: Union[Dict[str, str], Dict[str, Dict[str, str]]]
         """
+        logger.debug(
+            f'Generating data dictionary for request. Passed {dict_data=}')
         if 'dict_name' not in dict_data:
+            logger.debug(
+                'There is no dict_name in dict_data. Returning empty dictionary'
+            )
             return {}
 
+        logger.debug('Extracting root dictionary name')
         data_dict_name: str = dict_data['dict_name']
         dict_data.pop('dict_name')
 
+        logger.debug(f'Setting root dictionary "{data_dict_name}"')
         new_data_dict: Dict[str, Dict[str, Any]] = {data_dict_name: {}}
         for key, data in dict_data.items():
             if data is None:
@@ -137,6 +154,7 @@ class Utils:
                 new_data_dict[data_dict_name][key] = ','.join(data)
             else:
                 new_data_dict[data_dict_name][key] = data
+        logger.debug(f'Generated data dictionary: {new_data_dict=}')
         return new_data_dict
 
     @staticmethod
@@ -157,8 +175,14 @@ class Utils:
         :return: Validated value
         :rtype: Union[int, None]
         """
+        logger.debug(f'Validating query number ({query_number})'
+                     f'with upper limit ({upper_limit})')
         if query_number is None:
+            logger.debug('Query number is None')
             return query_number
         if query_number < LOWER_LIMIT_NUMBER or query_number > upper_limit:
+            logger.debug(f'Query number ({query_number}) is not in range. '
+                         f'Returning {LOWER_LIMIT_NUMBER=}')
             return LOWER_LIMIT_NUMBER
+        logger.debug(f'Returning validated query number ({query_number})')
         return query_number
