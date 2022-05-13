@@ -76,7 +76,7 @@ class API:
     provide a header with a token
     """
 
-    def __init__(self, config: Dict[str, str]):
+    def __init__(self, config: Union[str, Dict[str, str]]):
         """
         Initialization and updating of variables
         required to interact with the Shikimori API
@@ -85,14 +85,15 @@ class API:
         as well as updating session object header
         and getting access/refresh tokens
 
-        :param config: Config file for API class
-        :type config: Dict[str, str]
+        :param config: Config file for API class or app name
+        :type config: Union[str, Dict[str, str]]
         """
         self._endpoints: Endpoints = Endpoints(SHIKIMORI_API_URL,
                                                SHIKIMORI_API_URL_V2,
                                                SHIKIMORI_OAUTH_URL)
         self._session: Session = Session()
 
+        self._restricted_mode = False
         self._app_name: str = ''
         self._client_id: str = ''
         self._client_secret: str = ''
@@ -104,6 +105,28 @@ class API:
         self._token_expire: int = -1
 
         self._init_config(config)
+
+    @property
+    def restricted_mode(self) -> bool:
+        """
+        Returns current restrict mode of API object.
+
+        If true, API object can't access only public methods
+
+        :return: Current restrict mode
+        :rtype: bool
+        """
+        return self._restricted_mode
+
+    @restricted_mode.setter
+    def restricted_mode(self, restricted_mode: bool):
+        """
+        Sets new restrict mode of API object.
+
+        :param restricted_mode: New restrict mode
+        :type restricted_mode: bool
+        """
+        self._restricted_mode = restricted_mode
 
     @property
     def config(self) -> Dict[str, str]:
@@ -193,7 +216,7 @@ class API:
         header['Authorization'] = f'Bearer {self._access_token}'
         return header
 
-    def _init_config(self, config: Dict[str, str]):
+    def _init_config(self, config: Union[str, Dict[str, str]]):
         """
         Special method for initializing an object.
 
@@ -203,35 +226,45 @@ class API:
         - Customizing the session header user agent
         - Getting access/refresh tokens if they are missing
 
-        :param config: Config dictionary
-        :type config: Dict[str, str]
+        Otherwise, if only app name is provided, setting it
+
+        :param config: Config dictionary or app name
+        :type config: Union[str, Dict[str, str]]
         """
         self._validate_config(config)
         self._validate_vars()
         self._user_agent = self._app_name
 
-        if not self._access_token:
+        if isinstance(config, dict) and not self._access_token:
             tokens_data: Tuple[str, str] = self._get_access_token()
             self._update_tokens(tokens_data)
 
-    def _validate_config(self, config: Dict[str, str]):
+    def _validate_config(self, config: Union[str, Dict[str, str]]):
         """
         Validates passed config dictionary and sets
         API variables.
 
-        If method detects a cached configuration file,
-        replaces passed configuration dictionary
-        with the cached one.
+        If config is string, sets only app name and change value
+        of restrict mode of API object.
+
+        Also, if config is dictionary and method detects
+        a cached configuration file, it replaces passed configuration
+        dictionary with the cached one.
 
         Raises MissingConfigData if some variables
         are missing in config dictionary
 
-        :param config: Config dictionary for validation
-        :type config: Dict[str, str]
+        :param config: Config dictionary or app name for validation
+        :type config: Union[str, Dict[str, str]]
 
         :raises MissingConfigData: If any field is missing
             (Not raises if there is a cache config)
         """
+        if isinstance(config, str):
+            self._app_name = config
+            self.restricted_mode = True
+            return
+
         try:
             config_cached = False
             if ConfigCache.config_valid(config['app_name'],
@@ -239,12 +272,12 @@ class API:
                 config = ConfigCache.get_config(config['app_name'])
                 config_cached = True
 
-            self._app_name: str = config['app_name']
-            self._client_id: str = config['client_id']
-            self._client_secret: str = config['client_secret']
-            self._redirect_uri: str = config['redirect_uri']
-            self._scopes: str = config['scopes']
-            self._auth_code: str = config['auth_code']
+            self._app_name = config['app_name']
+            self._client_id = config['client_id']
+            self._client_secret = config['client_secret']
+            self._redirect_uri = config['redirect_uri']
+            self._scopes = config['scopes']
+            self._auth_code = config['auth_code']
             if config_cached:
                 self._access_token = config['access_token']
                 self._refresh_token = config['refresh_token']
@@ -273,6 +306,7 @@ class API:
         - If redirect URI set to empty string, set to default URI.
         - If authorization code set to empty string,
         returns URL for getting auth code.
+        - If restricted mode is True, returns after app name check.
 
         :raises MissingAppName: If app name is set to empty string
         :raises MissingClientID: If client ID is set to empty string
@@ -285,6 +319,9 @@ class API:
 
         if not self._app_name:
             raise MissingAppName(exception_msg + 'name')
+
+        if self.restricted_mode:
+            return
 
         if not self._client_id:
             raise MissingClientID(exception_msg + 'Client ID')

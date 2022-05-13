@@ -24,7 +24,13 @@ def protected_method(decorated):
 
         Check for token expire time.
         If needed, triggers token refresh function.
+
+        :return: None if API object is in restricted mode
+        :rtype: None
         """
+        if api.restricted_mode:
+            return None
+
         if api.token_expired():
             api.refresh_tokens()
         return decorated(api, *args, **kwargs)
