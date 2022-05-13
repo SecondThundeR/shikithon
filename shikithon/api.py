@@ -111,7 +111,7 @@ class API:
         """
         Returns current restrict mode of API object.
 
-        If true, API object can't access only public methods
+        If true, API object can access only public methods
 
         :return: Current restrict mode
         :rtype: bool
