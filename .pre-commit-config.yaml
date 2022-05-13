@@ -13,19 +13,19 @@ repos:
   - repo: local
     hooks:
       - id: yapf
-        name: yapf
+        name: Formatting files with yapf
         language: python
         entry: yapf
         args: [-i, -vv]
         types: [python]
       - id: isort
-        name: isort
+        name: Sorting imports using isort
         language: python
         entry: isort
         exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future)/bad.py
         types: [python]
       - id: pylint
-        name: pylint
+        name: Checking docs with pylint
         language: python
         entry: pylint
         args: ["-rn", "-sn", "--rcfile=.pylintrc", "--load-plugins=pylint.extensions.docparams"]
