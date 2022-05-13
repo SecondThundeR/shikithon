@@ -21,7 +21,7 @@ class UserRateConstants(BaseModel):
     status: List[str]
 
 
-class ClubsConstants(BaseModel):
+class ClubConstants(BaseModel):
     """Represents clubs constants."""
     join_policy: List[str]
     comment_policy: List[str]
