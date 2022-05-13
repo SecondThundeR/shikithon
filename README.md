@@ -153,6 +153,11 @@ print(user_achievements[0])
 > На первой инициализации, библиотека создаст кэш конфигурации в скрытом файле для дальнейших запросов.
 > Если токены станут недоступны, библиотека автоматически обновит токены и кэшированный файл конфигурации
 
+Также возможно использование библиотеки в "ограниченном режиме",
+используя только имя приложения для доступа к публичным методам API.
+
+В таком случае, вы должны только передать строку с `app_name` для дальнейшей работы, как в примере выше.
+
 ## Список изменений
 
 Все изменения перечислены на [странице релизов](https://github.com/SecondThundeR/shikithon/releases)
@@ -173,6 +178,16 @@ print(user_achievements[0])
 [(Лицензия)](https://github.com/samuelcolvin/pydantic/blob/master/LICENSE)
 - [ratelimit](https://github.com/tomasbasham/ratelimit) для огранчений количества запросов в минуту
 [(Лицензия)](https://github.com/tomasbasham/ratelimit/blob/master/LICENSE.txt)
+
+В качестве зависимостей для разработки, проект использует четыре библиотеки:
+- [pylint](https://github.com/PyCQA/pylint) для статической проверки кода
+[(Лицензия)](https://github.com/PyCQA/pylint/blob/main/LICENSE)
+- [yapf](https://github.com/google/yapf) для форматирования кода
+[(Лицензия)](https://github.com/google/yapf/blob/main/LICENSE)
+- [isort](https://github.com/PyCQA/isort) для сортировки импортов
+[(Лицензия)](https://github.com/PyCQA/isort/blob/main/LICENSE)
+- [pre-commit](https://github.com/pre-commit/pre-commit) для автоматизации всего вот этого выше :)
+- [(Лицензия)](https://github.com/pre-commit/pre-commit/blob/main/LICENSE)
 
 ## Лицензия проекта
 
