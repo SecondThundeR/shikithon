@@ -93,11 +93,13 @@ class API:
         logger.configure(handlers=[
             {
                 'sink': sys.stderr,
-                'level': 'INFO'
+                'level': 'INFO',
+                'format': '{time} | {level} | {message}'
             },
             {
                 'sink': 'shikithon_{time}.log',
                 'level': 'DEBUG',
+                'format': '{time} | {level} | {file}.{function}: {message}',
                 'rotation': '1 MB',
                 'compression': 'zip'
             },
