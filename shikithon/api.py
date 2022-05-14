@@ -567,6 +567,7 @@ class API:
         :return: List of achievements
         :rtype: List[Achievement]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.achievements,
             query=Utils.generate_query_dict(user_id=user_id))
@@ -647,8 +648,12 @@ class API:
         :return: Animes list
         :rtype: Union[List[Anime], None]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 50)
+        logger.debug('Checking score parameter')
         score = Utils.validate_query_number(score, 9)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -672,6 +677,8 @@ class API:
                                             search=search))
         if response:
             return [Anime(**anime) for anime in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     def anime(self, anime_id: int) -> Anime:
@@ -684,6 +691,7 @@ class API:
         :return: Anime info
         :rtype: Anime
         """
+        logger.debug('Executing API method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.anime(anime_id))
         return Anime(**response)
@@ -698,6 +706,7 @@ class API:
         :return: List of anime creators
         :rtype: List[Creator]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_roles(anime_id))
         return [Creator(**creator) for creator in response]
@@ -712,6 +721,7 @@ class API:
         :return: List of similar animes
         :rtype: List[Anime]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.similar_animes(anime_id))
         return [Anime(**anime) for anime in response]
@@ -726,6 +736,7 @@ class API:
         :return: List of relations
         :rtype: List[Relation]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_related_content(anime_id))
         return [Relation(**relation) for relation in response]
@@ -740,6 +751,7 @@ class API:
         :return: List of screenshot links
         :rtype: List[Screenshot]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_screenshots(anime_id))
         return [Screenshot(**screenshot) for screenshot in response]
@@ -754,6 +766,7 @@ class API:
         :return: Franchise tree of certain anime
         :rtype: FranchiseTree
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
             self._endpoints.anime_franchise_tree(anime_id))
         return FranchiseTree(**response)
@@ -768,6 +781,7 @@ class API:
         :return: List of external links
         :rtype: List[Link]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_external_links(anime_id))
         return [Link(**link) for link in response]
@@ -802,7 +816,10 @@ class API:
         :return: List of topics
         :rtype: Union[List[Topic], None]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -813,6 +830,8 @@ class API:
                                             episode=episode))
         if response:
             return [Topic(**topic) for topic in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     @protected_method()
@@ -826,6 +845,7 @@ class API:
         :return: Status of mark
         :rtype: bool
         """
+        logger.debug('Executing API method')
         logger.debug('Combining comment IDs into a single line')
         data: Dict[str, str] = {'ids': ','.join(comment_ids)}
         response_code: int = self._request(self._endpoints.appears,
@@ -849,7 +869,10 @@ class API:
         :return: List of recent bans
         :rtype: Union[List[Ban], None]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -857,6 +880,8 @@ class API:
             query=Utils.generate_query_dict(page=page, limit=limit))
         if response:
             return [Ban(**ban) for ban in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     def calendar(
@@ -871,6 +896,7 @@ class API:
         :return: List of calendar events
         :rtype: List[CalendarEvent]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.calendar,
             query=Utils.generate_query_dict(censored=censored))
@@ -886,6 +912,7 @@ class API:
         :return: Character info
         :rtype: Character
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
             self._endpoints.character(character_id))
         return Character(**response)
@@ -901,6 +928,7 @@ class API:
         :return: List of found characters
         :rtype: List[Character]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.character_search,
             query=Utils.generate_query_dict(search=search))
@@ -925,7 +953,10 @@ class API:
         :return: Clubs list
         :rtype: Union[List[Club], None]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -935,6 +966,8 @@ class API:
                                             search=search))
         if response:
             return [Club(**club) for club in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     def club(self, club_id: int) -> Club:
@@ -947,6 +980,7 @@ class API:
         :return: Info about club
         :rtype: Club
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(self._endpoints.club(club_id))
         return Club(**response)
 
@@ -1034,6 +1068,7 @@ class API:
             otherwise, False and error message
         :rtype: Tuple[bool, Union[Club, str]]
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
             self._endpoints.club(club_id),
             headers=self._authorization_header,
@@ -1075,6 +1110,7 @@ class API:
         :return: Club anime list
         :rtype: List[Anime]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_animes(club_id))
         return [Anime(**anime) for anime in response]
@@ -1089,6 +1125,7 @@ class API:
         :return: Club manga list
         :rtype: List[Manga]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_mangas(club_id))
         return [Manga(**manga) for manga in response]
@@ -1103,6 +1140,7 @@ class API:
         :return: Club ranobe list
         :rtype: List[Ranobe]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_ranobe(club_id))
         return [Ranobe(**ranobe) for ranobe in response]
@@ -1117,6 +1155,7 @@ class API:
         :return: Club character list
         :rtype: List[Character]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_characters(club_id))
         return [Character(**character) for character in response]
@@ -1131,6 +1170,7 @@ class API:
         :return: Club member list
         :rtype: List[User]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_members(club_id))
         return [User(**user) for user in response]
@@ -1145,6 +1185,7 @@ class API:
         :return: Club's images
         :rtype: List[ClubImage]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_images(club_id))
         return [ClubImage(**club_image) for club_image in response]
@@ -1160,6 +1201,7 @@ class API:
         :return: Status of join
         :rtype: bool
         """
+        logger.debug('Executing API method')
         response: Union[Dict[str, Any],
                         int] = self._request(self._endpoints.club_join(club_id),
                                              headers=self._authorization_header,
@@ -1183,6 +1225,7 @@ class API:
         :return: Status of leave
         :rtype: bool
         """
+        logger.debug('Executing API method')
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.club_leave(club_id),
             headers=self._authorization_header,
@@ -1222,7 +1265,10 @@ class API:
         :return: List of comments
         :rtype: Union[List[Comment], None]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -1234,6 +1280,8 @@ class API:
                                             desc=desc))
         if response:
             return [Comment(**comment) for comment in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     def comment(self, comment_id: int) -> Comment:
@@ -1246,6 +1294,7 @@ class API:
         :return: Comment info
         :rtype: Comment
         """
+        logger.debug('Executing API method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.comment(comment_id))
         return Comment(**response)
@@ -1285,6 +1334,7 @@ class API:
             otherwise, False and error message
         :rtype: Tuple[bool, Union[Comment, str]]
         """
+        logger.debug('Executing API method')
         data_dict: Dict[str, Any] = Utils.generate_data_dict(
             dict_name='comment',
             body=body,
@@ -1327,6 +1377,7 @@ class API:
             otherwise, False and error message
         :rtype: Tuple[bool, Union[Comment, str]]
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
             self._endpoints.comment(comment_id),
             headers=self._authorization_header,
@@ -1350,6 +1401,7 @@ class API:
 
         :return: Status of comment deletion
         """
+        logger.debug('Executing API method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.comment(comment_id),
                                             headers=self._authorization_header,
@@ -1369,6 +1421,7 @@ class API:
         :return: Anime constants values
         :rtype: AnimeConstants
         """
+        logger.debug('Executing API method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.anime_constants)
         return AnimeConstants(**response)
@@ -1380,6 +1433,7 @@ class API:
         :return: Manga constants values
         :rtype: MangaConstants
         """
+        logger.debug('Executing API method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.manga_constants)
         return MangaConstants(**response)
@@ -1391,6 +1445,7 @@ class API:
         :return: User rate constants values
         :rtype: UserRateConstants
         """
+        logger.debug('Executing API method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.user_rate_constants)
         return UserRateConstants(**response)
@@ -1402,6 +1457,7 @@ class API:
         :return: Club constants values
         :rtype: ClubConstants
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(self._endpoints.club_constants)
         return ClubConstants(**response)
 
@@ -1412,6 +1468,7 @@ class API:
         :return: List of smileys constants values
         :rtype: List[SmileyConstants]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.smileys_constants)
         return [SmileyConstants(**smiley) for smiley in response]
@@ -1431,7 +1488,10 @@ class API:
         :return: List of users
         :rtype: List[User]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 100)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -1439,6 +1499,8 @@ class API:
             query=Utils.generate_query_dict(page=page, limit=limit))
         if response:
             return [User(**user) for user in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     def user(self,
@@ -1456,6 +1518,7 @@ class API:
         :return: Info about user
         :rtype: User
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -1476,6 +1539,7 @@ class API:
         :return: User's brief info
         :rtype: User
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_info(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -1491,6 +1555,7 @@ class API:
         :return: Current user brief info
         :rtype: User
         """
+        logger.debug('Executing API method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.whoami,
                                             headers=self._authorization_header)
@@ -1499,6 +1564,7 @@ class API:
     @protected_method()
     def sign_out(self):
         """Sends sign out request to API."""
+        logger.debug('Executing API method')
         self._request(self._endpoints.sign_out,
                       headers=self._authorization_header)
 
@@ -1517,6 +1583,7 @@ class API:
         :return: List of user's friends
         :rtype: List[User]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_friends(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -1537,6 +1604,7 @@ class API:
         :return: List of user's clubs
         :rtype: List[Club]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_clubs(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -1575,7 +1643,10 @@ class API:
         :return: User's anime list
         :rtype: Union[List[UserList], None]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 5000)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -1587,6 +1658,8 @@ class API:
                                             censored=censored))
         if response:
             return [UserList(**user_list) for user_list in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     def user_manga_rates(
@@ -1618,7 +1691,10 @@ class API:
         :return: User's manga list
         :rtype: Union[List[UserList], None]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 5000)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -1629,6 +1705,8 @@ class API:
                                             censored=censored))
         if response:
             return [UserList(**user_list) for user_list in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     def user_favourites(self,
@@ -1646,6 +1724,7 @@ class API:
         :return: User's favourites
         :rtype: Favourites
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_favourites(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -1681,7 +1760,10 @@ class API:
         :return: Current user's messages
         :rtype: Union[List[Message], None]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 100)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -1693,6 +1775,8 @@ class API:
                                             type=message_type))
         if response:
             return [Message(**message) for message in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     @protected_method(scope='messages')
@@ -1712,6 +1796,7 @@ class API:
         :return: Current user's unread messages counters
         :rtype: UnreadMessages
         """
+        logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_unread_messages(user_id),
             headers=self._authorization_header,
@@ -1751,7 +1836,10 @@ class API:
         :return: User's history
         :rtype: Union[List[History], None]
         """
+        logger.debug('Executing API method')
+        logger.debug('Checking page parameter')
         page = Utils.validate_query_number(page, 100000)
+        logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 100)
 
         response: Union[List[Dict[str, Any]], None] = self._request(
@@ -1763,6 +1851,8 @@ class API:
                                             target_type=target_type))
         if response:
             return [History(**history) for history in response]
+        logger.info('An error occurred when executing API method')
+        logger.debug(f'Information about an error: {response=}')
         return response
 
     def user_bans(self,
@@ -1780,6 +1870,7 @@ class API:
         :return: User's bans
         :rtype: List[Ban]
         """
+        logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_bans(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
