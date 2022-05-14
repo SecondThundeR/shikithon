@@ -494,7 +494,7 @@ class API:
         """
         response: Union[Response, None] = None
 
-        logger.info(f'Making {request_type.value} request to {url}')
+        logger.info(f'{request_type.value} {url}')
         logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
 
         if request_type == RequestType.GET:

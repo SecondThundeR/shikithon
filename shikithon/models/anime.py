@@ -21,7 +21,7 @@ class Anime(BaseModel):
     russian: str
     image: Image
     url: str
-    kind: str
+    kind: Optional[str]
     score: float
     status: str
     episodes: int
