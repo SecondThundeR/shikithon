@@ -555,7 +555,7 @@ class API:
         :return: Result of token expiration check
         :rtype: bool
         """
-        logger.debug('Checking if current time is greater'
+        logger.debug('Checking if current time is greater '
                      'than current token expire time')
         return int(time()) > self._token_expire
 
