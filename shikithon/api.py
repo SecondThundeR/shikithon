@@ -982,26 +982,26 @@ class API:
 
     @protected_method(scope='clubs')
     def club_update(
-        self,
-        club_id: int,
-        name: Union[str, None] = None,
-        join_policy: Union[JoinPolicy, None] = None,
-        description: Union[str, None] = None,
-        display_images: Union[bool, None] = None,
-        comment_policy: Union[CommentPolicy, None] = None,
-        topic_policy: Union[TopicPolicy, None] = None,
-        page_policy: Union[PagePolicy, None] = None,
-        image_upload_policy: Union[ImageUploadPolicy, None] = None,
-        is_censored: Union[bool, None] = None,
-        anime_ids: Union[List[int], None] = None,
-        manga_ids: Union[List[int], None] = None,
-        ranobe_ids: Union[List[int], None] = None,
-        character_ids: Union[List[int], None] = None,
-        club_ids: Union[List[int], None] = None,
-        admin_ids: Union[List[int], None] = None,
-        collection_ids: Union[List[int], None] = None,
-        banned_user_ids: Union[List[int], None] = None
-    ) -> Tuple[bool, Union[Club, str]]:
+            self,
+            club_id: int,
+            name: Union[str, None] = None,
+            join_policy: Union[JoinPolicy, None] = None,
+            description: Union[str, None] = None,
+            display_images: Union[bool, None] = None,
+            comment_policy: Union[CommentPolicy, None] = None,
+            topic_policy: Union[TopicPolicy, None] = None,
+            page_policy: Union[PagePolicy, None] = None,
+            image_upload_policy: Union[ImageUploadPolicy, None] = None,
+            is_censored: Union[bool, None] = None,
+            anime_ids: Union[List[int], None] = None,
+            manga_ids: Union[List[int], None] = None,
+            ranobe_ids: Union[List[int], None] = None,
+            character_ids: Union[List[int], None] = None,
+            club_ids: Union[List[int], None] = None,
+            admin_ids: Union[List[int], None] = None,
+            collection_ids: Union[List[int], None] = None,
+            banned_user_ids: Union[List[int],
+                                   None] = None) -> Union[Club, None]:
         """
         Update info/settings about/of club.
 
@@ -1059,10 +1059,8 @@ class API:
         :param banned_user_ids: New banned user ids of club
         :type banned_user_ids: Union[List[int], None]
 
-        :return: Tuple of update status and response.
-            On successful update, returns True and Club model,
-            otherwise, False and error message
-        :rtype: Tuple[bool, Union[Club, str]]
+        :return: Updated club info or None if an error occurred
+        :rtype: Union[Club, None]
         """
         logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
@@ -1090,9 +1088,7 @@ class API:
             request_type=RequestType.PATCH)
         logger.debug(
             f'Detailed information about updating the club: {response=}')
-        if 'errors' in response:
-            return False, response['errors']
-        return True, Club(**response)
+        return Club(**response) if 'errors' not in response else None
 
     def club_animes(self, club_id: int) -> List[Anime]:
         """
@@ -1202,9 +1198,7 @@ class API:
                                              request_type=RequestType.POST)
         logger.debug(
             f'Detailed information about joining the club: {response=}')
-        if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
-            return True
-        return False
+        return response == ResponseCode.SUCCESS.value
 
     @protected_method(scope='clubs')
     def club_leave(self, club_id: int) -> bool:
@@ -1224,9 +1218,7 @@ class API:
             request_type=RequestType.POST)
         logger.debug(
             f'Detailed information about leaving the club: {response=}')
-        if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
-            return True
-        return False
+        return response == ResponseCode.SUCCESS.value
 
     def comments(self,
                  commentable_id: int,
@@ -1289,13 +1281,12 @@ class API:
 
     @protected_method(scope='comments')
     def create_comment(
-        self,
-        body: str,
-        commentable_id: int,
-        commentable_type: CommentableType,
-        is_offtopic: Union[bool, None] = None,
-        broadcast: Union[bool,
-                         None] = None) -> Tuple[bool, Union[Comment, str]]:
+            self,
+            body: str,
+            commentable_id: int,
+            commentable_type: CommentableType,
+            is_offtopic: Union[bool, None] = None,
+            broadcast: Union[bool, None] = None) -> Union[Comment, None]:
         """
         Creates comment.
 
@@ -1317,10 +1308,8 @@ class API:
         :param broadcast: Broadcast comment in club’s topic status
         :type broadcast: Union[bool, None]
 
-        :return: Tuple of update status and response.
-            On successful update, returns True and Comment model,
-            otherwise, False and error message
-        :rtype: Tuple[bool, Union[Comment, str]]
+        :return: Updated comment info or None if an error occurred
+        :rtype: Union[Comment, None]
         """
         logger.debug('Executing API method')
         data_dict: Dict[str, Any] = Utils.generate_data_dict(
@@ -1341,13 +1330,11 @@ class API:
                                             request_type=RequestType.POST)
         logger.debug(
             f'Detailed information about creating the comment: {response=}')
-        if 'errors' in response:
-            return False, response['errors']
-        return True, Comment(**response)
+        return Comment(**response) if 'errors' not in response else None
 
     @protected_method(scope='comments')
     def update_comment(self, comment_id: int,
-                       body: str) -> Tuple[bool, Union[Comment, str]]:
+                       body: str) -> Union[Comment, None]:
         """
         Updates comment.
 
@@ -1357,10 +1344,8 @@ class API:
         :param body: New body of comment
         :type body: str
 
-        :return: Tuple of update status and response.
-            On successful update, returns True and Comment model,
-            otherwise, False and error message
-        :rtype: Tuple[bool, Union[Comment, str]]
+        :return: Updated comment info or None if an error occurred
+        :rtype: Union[Comment, None]
         """
         logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
@@ -1370,9 +1355,7 @@ class API:
             request_type=RequestType.PATCH)
         logger.debug(
             f'Detailed information about updating the comment: {response=}')
-        if 'errors' in response:
-            return False, response['errors']
-        return True, Comment(**response)
+        return Comment(**response) if 'errors' not in response else None
 
     @protected_method(scope='comments')
     def delete_comment(self, comment_id: int) -> bool:
