@@ -25,7 +25,7 @@ repos:
         exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future)/bad.py
         types: [python]
       - id: pylint
-        name: Checking docs with pylint
+        name: Checking code with pylint
         language: python
         entry: pylint
         args: ["-rn", "-sn", "--rcfile=.pylintrc", "--load-plugins=pylint.extensions.docparams"]
