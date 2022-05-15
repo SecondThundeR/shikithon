@@ -274,7 +274,7 @@ class API:
         logger.debug('Initializing API config')
         self._validate_config(config)
         self._validate_vars()
-        logger.debug('Setting User-Agent with current app_name')
+        logger.debug('Setting User-Agent with current app name')
         self._user_agent = self._app_name
 
         if isinstance(config, dict) and not self._access_token:
@@ -670,7 +670,7 @@ class API:
         headers: Optional[Dict[str, str]] = None
 
         if not self.restricted_mode:
-            logger.debug('Using /api/animes" as protected method')
+            logger.debug('Using "/api/animes" as protected method')
             headers = self._authorization_header
 
         response: List[Dict[str, Any]] = self._request(
@@ -1744,7 +1744,7 @@ class API:
         headers: Optional[Dict[str, str]] = None
 
         if not self.restricted_mode:
-            logger.debug('Using /api/mangas" as protected method')
+            logger.debug('Using "/api/mangas" as protected method')
             headers = self._authorization_header
 
         response: List[Dict[str, Any]] = self._request(

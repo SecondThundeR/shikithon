@@ -51,7 +51,7 @@ class Utils:
         :return: Converted app name for filename
         :rtype: str
         """
-        logger.debug(f'Converting "{app_name}" for cached config')
+        logger.debug(f'Converting {app_name=} for cached config')
         return '_'.join(app_name.lower().split(' '))
 
     @staticmethod
@@ -183,25 +183,25 @@ class Utils:
         :return: Validated number
         :rtype: Optional[int]
         """
-        logger.debug(f'Validating query number ({query_number}) '
-                     f'with upper limit ({upper_limit})')
+        logger.debug(f'Validating query number ("{query_number}") '
+                     f'with upper limit ("{upper_limit}")')
         if query_number is None:
-            logger.debug('Query number is None')
+            logger.debug('Query number is "None"')
             return query_number
 
         if query_number < LOWER_LIMIT_NUMBER:
-            logger.debug(f'Query number ({query_number}) is lower '
-                         f'than lower limit ({LOWER_LIMIT_NUMBER}). '
+            logger.debug(f'Query number ("{query_number}") is lower '
+                         f'than lower limit ("{LOWER_LIMIT_NUMBER}"). '
                          f'Returning {LOWER_LIMIT_NUMBER=}')
             return LOWER_LIMIT_NUMBER
 
         if query_number > upper_limit:
-            logger.debug(f'Query number ({query_number}) is higher '
-                         f'than upper limit ({upper_limit}). '
+            logger.debug(f'Query number ("{query_number}") is higher '
+                         f'than upper limit ("{upper_limit}"). '
                          f'Returning {upper_limit=}')
             return upper_limit
 
-        logger.debug(f'Returning passed query number ({query_number})')
+        logger.debug(f'Returning passed query number ("{query_number}")')
         return query_number
 
     @staticmethod
@@ -233,7 +233,7 @@ class Utils:
         """
         validated_numbers: Dict[str, Optional[int]] = {}
         for name, data in query_numbers.items():
-            logger.debug(f'Checking {name} parameter')
+            logger.debug(f'Checking "{name}" parameter')
             validated_numbers[name] = (Utils.validate_query_number(
                 data[0], data[1]))
         return validated_numbers
