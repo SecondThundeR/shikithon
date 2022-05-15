@@ -1542,7 +1542,7 @@ class API:
     @protected_method()
     def reorder_favorite(self,
                          favorite_id: int,
-                         new_index: Optional[int] = None):
+                         new_index: Optional[int] = None) -> bool:
         """
         Reorders a favorite to the new index.
 
@@ -1551,6 +1551,9 @@ class API:
 
         :param new_index: Index of a new position of favorite
         :type new_index: Optional[int]
+
+        :return: Status of reorder
+        :rtype: bool
         """
         logger.debug('Executing API method')
         response: Union[Dict[str, Any], int] = self._request(
