@@ -1157,12 +1157,16 @@ class API:
         :type new_index: Optional[int]
         """
         logger.debug('Executing API method')
-        response = self._request(
+        response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.favorites_reorder(favorite_id),
             headers=self._authorization_header,
             query=Utils.generate_query_dict(new_index=new_index),
             request_type=RequestType.POST)
-        print(response)
+        logger.debug(
+            f'Detailed information about reordering a favorite {response=}')
+        if isinstance(response, int):
+            return response == ResponseCode.SUCCESS.value
+        return False
 
     def club_animes(self, club_id: int) -> List[Anime]:
         """
