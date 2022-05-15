@@ -670,6 +670,7 @@ class API:
         headers: Optional[Dict[str, str]] = None
 
         if not self.restricted_mode:
+            logger.debug('Using /api/animes" as protected method')
             headers = self._authorization_header
 
         response: List[Dict[str, Any]] = self._request(
@@ -1743,6 +1744,7 @@ class API:
         headers: Optional[Dict[str, str]] = None
 
         if not self.restricted_mode:
+            logger.debug('Using /api/mangas" as protected method')
             headers = self._authorization_header
 
         response: List[Dict[str, Any]] = self._request(
