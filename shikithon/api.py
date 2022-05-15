@@ -6,7 +6,7 @@ for interacting with the Shikimori API.
 import sys
 from json import dumps
 from time import sleep, time
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from loguru import logger
 from ratelimit import limits, sleep_and_retry
@@ -20,8 +20,10 @@ from shikithon.enums.anime import (Censorship, Duration, Kind, MyList, Order,
 from shikithon.enums.club import (CommentPolicy, ImageUploadPolicy, JoinPolicy,
                                   PagePolicy, TopicPolicy)
 from shikithon.enums.comment import CommentableType
+from shikithon.enums.favorite import LinkedType
 from shikithon.enums.history import TargetType
 from shikithon.enums.message import MessageType
+from shikithon.enums.person import PersonKind
 from shikithon.enums.request import RequestType
 from shikithon.enums.response import ResponseCode
 from shikithon.exceptions import (AccessTokenException, MissingAppName,
@@ -458,11 +460,11 @@ class API:
     def _request(
         self,
         url: str,
-        data: Union[Dict[str, str], None] = None,
-        headers: Union[Dict[str, str], None] = None,
-        query: Union[Dict[str, str], None] = None,
+        data: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET
-    ) -> Union[List[Dict[str, Any]], Dict[str, Any], int, str, None]:
+    ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]:
         """
         Create request and return response JSON.
 
@@ -480,19 +482,19 @@ class API:
         :type url: str
 
         :param data: Request body data
-        :type data: Union[Dict[str, str], None]
+        :type data: Optional[Dict[str, str]]
 
         :param headers: Custom headers for request
-        :type headers: Union[Dict[str, str], None]
+        :type headers: Optional[Dict[str, str]]
 
         :param query: Query data for request
-        :type query: Union[Dict[str, str], None]
+        :type query: Optional[Dict[str, str]]
 
         :param request_type: Type of current request
         :type request_type: RequestType
 
         :return: Response JSON, text or status code
-        :rtype: Union[List[Dict[str, Any]], Dict[str, Any], str, None]
+        :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]
         """
 
         logger.info(f'{request_type.value} {url}')
@@ -578,79 +580,79 @@ class API:
         return [Achievement(**achievement) for achievement in response]
 
     def animes(self,
-               page: Union[int, None] = None,
-               limit: Union[int, None] = None,
-               order: Union[Order, None] = None,
-               kind: Union[Kind, None] = None,
-               status: Union[Status, None] = None,
-               season: Union[str, None] = None,
-               score: Union[int, None] = None,
-               duration: Union[Duration, None] = None,
-               rating: Union[Rating, None] = None,
-               genre: Union[List[int], None] = None,
-               studio: Union[List[int], None] = None,
-               franchise: Union[List[int], None] = None,
-               censored: Union[Censorship, None] = None,
-               my_list: Union[MyList, None] = None,
-               ids: Union[List[int], None] = None,
-               exclude_ids: Union[List[int], None] = None,
-               search: Union[str, None] = None) -> Union[List[Anime], None]:
+               page: Optional[int] = None,
+               limit: Optional[int] = None,
+               order: Optional[Order] = None,
+               kind: Optional[Kind] = None,
+               status: Optional[Status] = None,
+               season: Optional[str] = None,
+               score: Optional[int] = None,
+               duration: Optional[Duration] = None,
+               rating: Optional[Rating] = None,
+               genre: Optional[List[int]] = None,
+               studio: Optional[List[int]] = None,
+               franchise: Optional[List[int]] = None,
+               censored: Optional[Censorship] = None,
+               my_list: Optional[MyList] = None,
+               ids: Optional[List[int]] = None,
+               exclude_ids: Optional[List[int]] = None,
+               search: Optional[str] = None) -> Optional[List[Anime]]:
         """
         Returns animes list.
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of results limit
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
         :param order: Type of order in list
-        :type order: Union[Order, None]
+        :type order: Optional[Order]
 
         :param kind: Type of anime topic
-        :type kind: Union[Kind, None]
+        :type kind: Optional[Kind]
 
         :param status: Type of anime status
-        :type status: Union[Status, None]
+        :type status: Optional[Status
 
         :param season: Name of anime season
-        :type season: Union[str, None]
+        :type season: Optional[str
 
         :param score: Minimal anime score
-        :type score: Union[int, None]
+        :type score: Optional[int]
 
         :param duration: Duration size of anime
-        :type duration: Union[Duration, None]
+        :type duration: Optional[Duration]
 
         :param rating: Type of anime rating
-        :type rating: Union[Rating, None]
+        :type rating: Optional[Rating]
 
         :param genre: Genres ID
-        :type genre: Union[List[int], None]
+        :type genre: Optional[List[int]]
 
         :param studio: Studios ID
-        :type studio: Union[List[int], None]
+        :type studio: Optional[List[int]]
 
         :param franchise: Franchises ID
-        :type franchise: Union[List[int], None]
+        :type franchise: Optional[List[int]]
 
         :param censored: Type of anime censorship
-        :type censored: Union[Censorship, None]
+        :type censored: Optional[Censorship]
 
         :param my_list: Status of anime in current user list
-        :type my_list: Union[MyList, None]
+        :type my_list: Optional[MyList]
 
         :param ids: Animes ID to include
-        :type ids: Union[List[int], None]
+        :type ids: Optional[List[int]]
 
         :param exclude_ids: Animes ID to exclude
-        :type exclude_ids: Union[List[int], None]
+        :type exclude_ids: Optional[List[int]]
 
         :param search: Search phrase to filter animes by name
-        :type search: Union[str, None]
+        :type search: Optional[str
 
         :return: Animes list or None, if page is empty
-        :rtype: Union[List[Anime], None]
+        :rtype: Optional[List[Anime]]
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -788,13 +790,12 @@ class API:
             self._endpoints.anime_external_links(anime_id))
         return [Link(**link) for link in response]
 
-    def anime_topics(
-            self,
-            anime_id: int,
-            page: Union[int, None] = None,
-            limit: Union[int, None] = None,
-            kind: Union[Status, None] = None,
-            episode: Union[int, None] = None) -> Union[List[Topic], None]:
+    def anime_topics(self,
+                     anime_id: int,
+                     page: Optional[int] = None,
+                     limit: Optional[int] = None,
+                     kind: Optional[Status] = None,
+                     episode: Optional[int] = None) -> Optional[List[Topic]]:
         """
         Returns list of topics of certain anime.
 
@@ -804,19 +805,19 @@ class API:
         :type anime_id: int
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of results limit
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
-        :param kind: Status of anime
-        :type kind: Union[Status, None]
+        :param kind: Kind of anime (Uses status enum values)
+        :type kind: Optional[Status]
 
         :param episode: Number of anime episode
-        :type episode: Union[int, None]
+        :type episode: Optional[int]
 
         :return: List of topics or None, if page is empty
-        :rtype: Union[List[Topic], None]
+        :rtype: Optional[List[Topic
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -855,19 +856,19 @@ class API:
         return response_code == ResponseCode.SUCCESS.value
 
     def bans(self,
-             page: Union[int, None] = None,
-             limit: Union[int, None] = None) -> Union[List[Ban], None]:
+             page: Optional[int] = None,
+             limit: Optional[int] = None) -> Optional[List[Ban]]:
         """
         Returns list of recent bans on Shikimori.
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of results limit
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
         :return: List of recent bans or None, if page is empty
-        :rtype: Union[List[Ban], None]
+        :rtype: Optional[List[Ban
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -882,14 +883,13 @@ class API:
             return [Ban(**ban) for ban in response]
         return None
 
-    def calendar(
-            self,
-            censored: Union[Censorship, None] = None) -> List[CalendarEvent]:
+    def calendar(self,
+                 censored: Optional[Censorship] = None) -> List[CalendarEvent]:
         """
         Returns current calendar events.
 
         :param censored: Status of censorship for events
-        :type censored: Union[Censorship, None]
+        :type censored: Optional[Censorship]
 
         :return: List of calendar events
         :rtype: List[CalendarEvent]
@@ -915,13 +915,12 @@ class API:
             self._endpoints.character(character_id))
         return Character(**response)
 
-    def character_search(self,
-                         search: Union[str, None] = None) -> List[Character]:
+    def character_search(self, search: Optional[str] = None) -> List[Character]:
         """
         Returns list of found characters.
 
         :param search: Search query for characters
-        :type search: Union[str, None]
+        :type search: Optional[str
 
         :return: List of found characters
         :rtype: List[Character]
@@ -933,23 +932,23 @@ class API:
         return [Character(**character) for character in response]
 
     def clubs(self,
-              page: Union[int, None] = None,
-              limit: Union[int, None] = None,
-              search: Union[str, None] = None) -> Union[List[Club], None]:
+              page: Optional[int] = None,
+              limit: Optional[int] = None,
+              search: Optional[str] = None) -> Optional[List[Club]]:
         """
         Returns clubs list.
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of results limit
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
         :param search: Search phrase to filter clubs by name
-        :type search: Union[str, None]
+        :type search: Optional[str
 
         :return: Clubs list or None, if page is empty
-        :rtype: Union[List[Club], None]
+        :rtype: Optional[List[Club]]
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -984,24 +983,23 @@ class API:
     def club_update(
             self,
             club_id: int,
-            name: Union[str, None] = None,
-            join_policy: Union[JoinPolicy, None] = None,
-            description: Union[str, None] = None,
-            display_images: Union[bool, None] = None,
-            comment_policy: Union[CommentPolicy, None] = None,
-            topic_policy: Union[TopicPolicy, None] = None,
-            page_policy: Union[PagePolicy, None] = None,
-            image_upload_policy: Union[ImageUploadPolicy, None] = None,
-            is_censored: Union[bool, None] = None,
-            anime_ids: Union[List[int], None] = None,
-            manga_ids: Union[List[int], None] = None,
-            ranobe_ids: Union[List[int], None] = None,
-            character_ids: Union[List[int], None] = None,
-            club_ids: Union[List[int], None] = None,
-            admin_ids: Union[List[int], None] = None,
-            collection_ids: Union[List[int], None] = None,
-            banned_user_ids: Union[List[int],
-                                   None] = None) -> Union[Club, None]:
+            name: Optional[str] = None,
+            join_policy: Optional[JoinPolicy] = None,
+            description: Optional[str] = None,
+            display_images: Optional[bool] = None,
+            comment_policy: Optional[CommentPolicy] = None,
+            topic_policy: Optional[TopicPolicy] = None,
+            page_policy: Optional[PagePolicy] = None,
+            image_upload_policy: Optional[ImageUploadPolicy] = None,
+            is_censored: Optional[bool] = None,
+            anime_ids: Optional[List[int]] = None,
+            manga_ids: Optional[List[int]] = None,
+            ranobe_ids: Optional[List[int]] = None,
+            character_ids: Optional[List[int]] = None,
+            club_ids: Optional[List[int]] = None,
+            admin_ids: Optional[List[int]] = None,
+            collection_ids: Optional[List[int]] = None,
+            banned_user_ids: Optional[List[int]] = None) -> Optional[Club]:
         """
         Update info/settings about/of club.
 
@@ -1009,58 +1007,58 @@ class API:
         :type club_id: int
 
         :param name: New name of club
-        :type name: Union[str, None]
+        :type name: Optional[str
 
         :param description: New description of club
-        :type description: Union[str, None]
+        :type description: Optional[str
 
         :param display_images: New display images status of club
-        :type display_images: Union[bool, None]
+        :type display_images: Optional[bool]
 
         :param is_censored: New censored status of club
-        :type is_censored: Union[bool, None]
+        :type is_censored: Optional[bool]
 
         :param join_policy: New join policy of club
-        :type join_policy: Union[JoinPolicy, None]
+        :type join_policy: Optional[JoinPolicy]
 
         :param comment_policy: New comment policy of club
-        :type comment_policy: Union[CommentPolicy, None]
+        :type comment_policy: Optional[CommentPolicy]
 
         :param topic_policy: New topic policy of club
-        :type topic_policy: Union[TopicPolicy, None]
+        :type topic_policy: Optional[TopicPolicy]
 
         :param page_policy: New page policy of club
-        :type page_policy: Union[PagePolicy, None]
+        :type page_policy: Optional[PagePolicy]
 
         :param image_upload_policy: New image upload policy of club
-        :type image_upload_policy: Union[ImageUploadPolicy, None]
+        :type image_upload_policy: Optional[ImageUploadPolicy]
 
         :param anime_ids: New anime ids of club
-        :type anime_ids: Union[List[int], None]
+        :type anime_ids: Optional[List[int]]
 
         :param manga_ids: New manga ids of club
-        :type manga_ids: Union[List[int], None]
+        :type manga_ids: Optional[List[int]]
 
         :param ranobe_ids: New ranobe ids of club
-        :type ranobe_ids: Union[List[int], None]
+        :type ranobe_ids: Optional[List[int]]
 
         :param character_ids: New character ids of club
-        :type character_ids: Union[List[int], None]
+        :type character_ids: Optional[List[int]]
 
         :param club_ids: New club ids of club
-        :type club_ids: Union[List[int], None]
+        :type club_ids: Optional[List[int]]
 
         :param admin_ids: New admin ids of club
-        :type admin_ids: Union[List[int], None]
+        :type admin_ids: Optional[List[int]]
 
         :param collection_ids: New collection ids of club
-        :type collection_ids: Union[List[int], None]
+        :type collection_ids: Optional[List[int]]
 
         :param banned_user_ids: New banned user ids of club
-        :type banned_user_ids: Union[List[int], None]
+        :type banned_user_ids: Optional[List[int]]
 
         :return: Updated club info or None if an error occurred
-        :rtype: Union[Club, None]
+        :rtype: Optional[Club]
         """
         logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
@@ -1089,6 +1087,81 @@ class API:
         logger.debug(
             f'Detailed information about updating the club {response=}')
         return Club(**response) if 'errors' not in response else None
+
+    @protected_method()
+    def create_favorite(self,
+                        linked_type: LinkedType,
+                        linked_id: int,
+                        kind: PersonKind = PersonKind.NONE) -> bool:
+        """
+        Creates a favorite.
+
+        :param linked_type: Type of object for making favorite
+        :type linked_type: LinkedType
+
+        :param linked_id: ID of linked type
+        :type linked_id: int
+
+        :param kind: Kind of linked type
+            (Required when linked_type is LinkedType.Person)
+        :type kind: PersonKind
+
+        :return: Status of favorite create
+        :rtype: bool
+        """
+        logger.debug('Executing API method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.favorites_create(
+                           linked_type, linked_id, kind),
+                                            headers=self._authorization_header,
+                                            request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about creating a favorite {response=}')
+        return 'success' in response
+
+    @protected_method()
+    def destroy_favorite(self, linked_type: LinkedType, linked_id: int) -> bool:
+        """
+        Destroys a favorite.
+
+        :param linked_type: Type of object for destroying from favorite
+        :type linked_type: LinkedType
+
+        :param linked_id: ID of linked type
+        :type linked_id: int
+
+        :return: Status of favorite destroy
+        :rtype: bool
+        """
+        logger.debug('Executing API method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.favorites_destroy(
+                           linked_type, linked_id),
+                                            headers=self._authorization_header,
+                                            request_type=RequestType.DELETE)
+        logger.debug(
+            f'Detailed information about destroying a favorite {response=}')
+        return 'success' in response
+
+    @protected_method()
+    def reorder_favorite(self,
+                         favorite_id: int,
+                         new_index: Optional[int] = None):
+        """
+        Reorders a favorite to the new index.
+
+        :param favorite_id: ID of a favorite to reorder
+        :type favorite_id: int
+        :param new_index: Index of a new position of favorite
+        :param new_index: Optional[int]
+        """
+        logger.debug('Executing API method')
+        response = self._request(
+            self._endpoints.favorites_reorder(favorite_id),
+            headers=self._authorization_header,
+            query=Utils.generate_query_dict(new_index=new_index),
+            request_type=RequestType.POST)
+        print(response)
 
     def club_animes(self, club_id: int) -> List[Anime]:
         """
@@ -1221,9 +1294,9 @@ class API:
     def comments(self,
                  commentable_id: int,
                  commentable_type: CommentableType,
-                 page: Union[int, None] = None,
-                 limit: Union[int, None] = None,
-                 desc: Union[int, None] = None) -> Union[List[Comment], None]:
+                 page: Optional[int] = None,
+                 limit: Optional[int] = None,
+                 desc: Optional[int] = None) -> Optional[List[Comment]]:
         """
         Returns list of comments.
 
@@ -1234,16 +1307,16 @@ class API:
         :type commentable_type: CommentableType
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of results limit
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
         :param desc: Status of description in request. Can be 1 or 0
-        :type desc: Union[int, None] = None
+        :type desc: Optional[int]
 
         :return: List of comments or None, if page is empty
-        :rtype: Union[List[Comment], None]
+        :rtype: Optional[List[Comment]]
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -1278,13 +1351,12 @@ class API:
         return Comment(**response)
 
     @protected_method(scope='comments')
-    def create_comment(
-            self,
-            body: str,
-            commentable_id: int,
-            commentable_type: CommentableType,
-            is_offtopic: Union[bool, None] = None,
-            broadcast: Union[bool, None] = None) -> Union[Comment, None]:
+    def create_comment(self,
+                       body: str,
+                       commentable_id: int,
+                       commentable_type: CommentableType,
+                       is_offtopic: Optional[bool] = None,
+                       broadcast: Optional[bool] = None) -> Optional[Comment]:
         """
         Creates comment.
 
@@ -1301,13 +1373,13 @@ class API:
         :type commentable_type: CommentableType
 
         :param is_offtopic: Status of offtopic
-        :type is_offtopic: Union[bool, None]
+        :type is_offtopic: Optional[bool]
 
         :param broadcast: Broadcast comment in club’s topic status
-        :type broadcast: Union[bool, None]
+        :type broadcast: Optional[bool]
 
         :return: Updated comment info or None if an error occurred
-        :rtype: Union[Comment, None]
+        :rtype: Optional[Comment]
         """
         logger.debug('Executing API method')
         data_dict: Dict[str, Any] = Utils.generate_data_dict(
@@ -1331,8 +1403,7 @@ class API:
         return Comment(**response) if 'errors' not in response else None
 
     @protected_method(scope='comments')
-    def update_comment(self, comment_id: int,
-                       body: str) -> Union[Comment, None]:
+    def update_comment(self, comment_id: int, body: str) -> Optional[Comment]:
         """
         Updates comment.
 
@@ -1343,7 +1414,7 @@ class API:
         :type body: str
 
         :return: Updated comment info or None if an error occurred
-        :rtype: Union[Comment, None]
+        :rtype: Optional[Comment]
         """
         logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
@@ -1435,12 +1506,12 @@ class API:
         return [SmileyConstants(**smiley) for smiley in response]
 
     @protected_method(scope='messages')
-    def dialogs(self) -> Union[List[Dialog], None]:
+    def dialogs(self) -> Optional[List[Dialog]]:
         """
         Returns list of current user's dialogs.
 
         :return: List of dialogs or None, if there are no dialogs
-        :rtype: Union[List[Dialog], None]
+        :rtype: Optional[List[Dialog]]
         """
         logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
@@ -1450,7 +1521,7 @@ class API:
         return None
 
     @protected_method(scope='messages')
-    def dialog(self, user_id: Union[int, str]) -> Union[List[Message], None]:
+    def dialog(self, user_id: Union[int, str]) -> Optional[List[Message]]:
         """
         Returns list of current user's messages with certain user.
 
@@ -1458,7 +1529,7 @@ class API:
         :type user_id: Union[int, str]
 
         :return: List of messages or None, if there are no messages
-        :rtype: Union[List[Message], None]
+        :rtype: Optional[List[Message]]
         """
         logger.debug('Executing API method')
         response: List[Dict[str, Any]] = self._request(
@@ -1488,19 +1559,19 @@ class API:
         return 'notice' in response
 
     def users(self,
-              page: Union[int, None] = None,
-              limit: Union[int, None] = None) -> Union[List[User], None]:
+              page: Optional[int] = None,
+              limit: Optional[int] = None) -> Optional[List[User]]:
         """
         Returns list of users.
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of results limit
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
         :return: List of users
-        :rtype: List[User]
+        :rtype: Optional[List[User]]
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -1517,7 +1588,7 @@ class API:
 
     def user(self,
              user_id: Union[str, int],
-             is_nickname: Union[bool, None] = None) -> User:
+             is_nickname: Optional[bool] = None) -> User:
         """
         Returns info about user.
 
@@ -1525,7 +1596,7 @@ class API:
         :type user_id: Union[str, int]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :return: Info about user
         :rtype: User
@@ -1538,7 +1609,7 @@ class API:
 
     def user_info(self,
                   user_id: Union[str, int],
-                  is_nickname: Union[bool, None] = None) -> User:
+                  is_nickname: Optional[bool] = None) -> User:
         """
         Returns user's brief info.
 
@@ -1546,7 +1617,7 @@ class API:
         :type user_id: Union[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :return: User's brief info
         :rtype: User
@@ -1582,7 +1653,7 @@ class API:
 
     def user_friends(self,
                      user_id: Union[str, int],
-                     is_nickname: Union[bool, None] = None) -> List[User]:
+                     is_nickname: Optional[bool] = None) -> List[User]:
         """
         Returns user's friends.
 
@@ -1590,7 +1661,7 @@ class API:
         :type user_id: Union[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :return: List of user's friends
         :rtype: List[User]
@@ -1603,7 +1674,7 @@ class API:
 
     def user_clubs(self,
                    user_id: Union[int, str],
-                   is_nickname: Union[bool, None] = None) -> List[Club]:
+                   is_nickname: Optional[bool] = None) -> List[Club]:
         """
         Returns user's clubs.
 
@@ -1611,7 +1682,7 @@ class API:
         :type user_id: Union[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :return: List of user's clubs
         :rtype: List[Club]
@@ -1623,37 +1694,36 @@ class API:
         return [Club(**club) for club in response]
 
     def user_anime_rates(
-        self,
-        user_id: Union[int, str],
-        is_nickname: Union[bool, None] = None,
-        page: Union[int, None] = None,
-        limit: Union[int, None] = None,
-        status: Union[MyList, None] = None,
-        censored: Union[Censorship,
-                        None] = None) -> Union[List[UserList], None]:
+            self,
+            user_id: Union[int, str],
+            is_nickname: Optional[bool] = None,
+            page: Optional[int] = None,
+            limit: Optional[int] = None,
+            status: Optional[MyList] = None,
+            censored: Optional[Censorship] = None) -> Optional[List[UserList]]:
         """
         Returns user's anime list.
 
         :param user_id: User ID/Nickname to get anime list
-        :type user_id: Union[int, str]
+        :type user_id: Optional[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of results limit
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
         :param status: Status of status of anime in list
-        :type status: Union[MyList, None]
+        :type status: Optional[MyList]
 
         :param censored: Type of anime censorship
-        :type censored: Union[Censorship, None]
+        :type censored: Optional[Censorship]
 
         :return: User's anime list or None, if page is empty
-        :rtype: Union[List[UserList], None]
+        :rtype: Optional[List[UserList]]
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -1673,13 +1743,12 @@ class API:
         return None
 
     def user_manga_rates(
-        self,
-        user_id: Union[int, str],
-        is_nickname: Union[bool, None] = None,
-        page: Union[int, None] = None,
-        limit: Union[int, None] = None,
-        censored: Union[Censorship,
-                        None] = None) -> Union[List[UserList], None]:
+            self,
+            user_id: Union[int, str],
+            is_nickname: Optional[bool] = None,
+            page: Optional[int] = None,
+            limit: Optional[int] = None,
+            censored: Optional[Censorship] = None) -> Optional[List[UserList]]:
         """
         Returns user's manga list.
 
@@ -1687,19 +1756,19 @@ class API:
         :type user_id: Union[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of results limit
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
         :param censored: Type of manga censorship
-        :type censored: Union[Censorship, None]
+        :type censored: Optional[Censorship]
 
         :return: User's manga list or None, if page is empty
-        :rtype: Union[List[UserList], None]
+        :rtype: Optional[List[UserList]]
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -1719,7 +1788,7 @@ class API:
 
     def user_favourites(self,
                         user_id: Union[int, str],
-                        is_nickname: Union[bool, None] = None) -> Favourites:
+                        is_nickname: Optional[bool] = None) -> Favourites:
         """
         Returns user's favourites.
 
@@ -1727,7 +1796,7 @@ class API:
         :type user_id: Union[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :return: User's favourites
         :rtype: Favourites
@@ -1742,11 +1811,11 @@ class API:
     def current_user_messages(
         self,
         user_id: Union[int, str],
-        is_nickname: Union[bool, None] = None,
-        page: Union[int, None] = None,
-        limit: Union[int, None] = None,
+        is_nickname: Optional[bool] = None,
+        page: Optional[int] = None,
+        limit: Optional[int] = None,
         message_type: MessageType = MessageType.NEWS
-    ) -> Union[List[Message], None]:
+    ) -> Optional[List[Message]]:
         """
         Returns current user's messages by type.
 
@@ -1754,19 +1823,19 @@ class API:
         :type user_id: Union[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of page limits
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
         :param message_type: Type of message
         :type message_type: MessageType
 
         :return: Current user's messages or None, if page is empty
-        :rtype: Union[List[Message], None]
+        :rtype: Optional[List[Message]]
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -1789,7 +1858,7 @@ class API:
     def current_user_unread_messages(
             self,
             user_id: Union[int, str],
-            is_nickname: Union[bool, None] = None) -> UnreadMessages:
+            is_nickname: Optional[bool] = None) -> UnreadMessages:
         """
         Returns current user's unread messages counter.
 
@@ -1797,7 +1866,7 @@ class API:
         :type user_id: Union[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :return: Current user's unread messages counters
         :rtype: UnreadMessages
@@ -1810,14 +1879,14 @@ class API:
         return UnreadMessages(**response)
 
     def user_history(
-        self,
-        user_id: Union[int, str],
-        is_nickname: Union[bool, None] = None,
-        page: Union[int, None] = None,
-        limit: Union[int, None] = None,
-        target_id: Union[int, None] = None,
-        target_type: Union[TargetType,
-                           None] = None) -> Union[List[History], None]:
+            self,
+            user_id: Union[int, str],
+            is_nickname: Optional[bool] = None,
+            page: Optional[int] = None,
+            limit: Optional[int] = None,
+            target_id: Optional[int] = None,
+            target_type: Optional[TargetType] = None
+    ) -> Optional[List[History]]:
         """
         Returns history of user.
 
@@ -1825,22 +1894,22 @@ class API:
         :type user_id: Union[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :param page: Number of page
-        :type page: Union[int, None]
+        :type page: Optional[int]
 
         :param limit: Number of results limit
-        :type limit: Union[int, None]
+        :type limit: Optional[int]
 
         :param target_id: ID of anime/manga in history
-        :type target_id: Union[int, None]
+        :type target_id: Optional[int]
 
         :param target_type: Type of target (Anime/Manga)
-        :type target_type: Union[TargetType, None]
+        :type target_type: Optional[TargetType]
 
         :return: User's history or None, if page is empty
-        :rtype: Union[List[History], None]
+        :rtype: Optional[List[History]]
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
@@ -1861,7 +1930,7 @@ class API:
 
     def user_bans(self,
                   user_id: Union[int, str],
-                  is_nickname: Union[bool, None] = None) -> List[Ban]:
+                  is_nickname: Optional[bool] = None) -> List[Ban]:
         """
         Returns list of bans of user.
 
@@ -1869,7 +1938,7 @@ class API:
         :type user_id: Union[int, str]
 
         :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Union[bool, None]
+        :type is_nickname: Optional[bool]
 
         :return: User's bans
         :rtype: List[Ban]
