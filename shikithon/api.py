@@ -659,7 +659,7 @@ class API:
         logger.debug('Checking score parameter')
         score = Utils.validate_query_number(score, 9)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.animes,
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
@@ -823,7 +823,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_topics(anime_id),
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
@@ -874,7 +874,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.bans_list,
             query=Utils.generate_query_dict(page=page, limit=limit))
         if response:
@@ -956,7 +956,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.clubs,
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
@@ -1266,7 +1266,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.comments,
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
@@ -1487,7 +1487,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 100)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.users,
             query=Utils.generate_query_dict(page=page, limit=limit))
         if response:
@@ -1640,7 +1640,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 5000)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_anime_rates(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
@@ -1686,7 +1686,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 5000)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_manga_rates(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
@@ -1753,7 +1753,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 100)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_messages(user_id),
             headers=self._authorization_header,
             query=Utils.generate_query_dict(is_nickname=is_nickname,
@@ -1827,7 +1827,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 100)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_history(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
