@@ -1152,8 +1152,9 @@ class API:
 
         :param favorite_id: ID of a favorite to reorder
         :type favorite_id: int
+
         :param new_index: Index of a new position of favorite
-        :param new_index: Optional[int]
+        :type new_index: Optional[int]
         """
         logger.debug('Executing API method')
         response = self._request(
