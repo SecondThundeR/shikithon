@@ -100,9 +100,12 @@ class Utils:
             elif isinstance(data, Enum):
                 query_dict[key] = data.value
             elif isinstance(data, list):
-                data = [
-                    str(value) if value.isdigit() else value for value in data
-                ]
+                formatted_data: List[str] = []
+                for item in data:
+                    if item.isdigit():
+                        formatted_data.append(str(item))
+                    if isinstance(item, Enum):
+                        formatted_data.append(item.value)
                 query_dict[key] = ','.join(data)
             else:
                 query_dict[key] = data
@@ -148,9 +151,12 @@ class Utils:
             elif isinstance(data, Enum):
                 new_data_dict[data_dict_name][key] = data.value
             elif isinstance(data, list):
-                data = [
-                    str(value) if value.isdigit() else value for value in data
-                ]
+                formatted_data: List[str] = []
+                for item in data:
+                    if item.isdigit():
+                        formatted_data.append(str(item))
+                    if isinstance(item, Enum):
+                        formatted_data.append(item.value)
                 new_data_dict[data_dict_name][key] = ','.join(data)
             else:
                 new_data_dict[data_dict_name][key] = data
