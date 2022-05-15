@@ -578,7 +578,7 @@ class API:
         :return: List of achievements
         :rtype: List[Achievement]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/achievements/ method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.achievements,
             query=Utils.generate_query_dict(user_id=user_id))
@@ -849,19 +849,21 @@ class API:
         """
         Marks comments or topics as read.
 
+        This method uses generate_query_dict for data dict,
+        because there is no need for nested dictionary
+
         :param comment_ids: IDs of comments or topics to mark
         :type comment_ids: List[str]
 
         :return: Status of mark
         :rtype: bool
         """
-        logger.debug('Executing API method')
-        logger.debug('Combining comment IDs into a single line')
-        data: Dict[str, str] = {'ids': ','.join(comment_ids)}
-        response_code: int = self._request(self._endpoints.appears,
-                                           headers=self._authorization_header,
-                                           data=data,
-                                           request_type=RequestType.POST)
+        logger.debug('Executing "/api/appears" method')
+        response_code: int = self._request(
+            self._endpoints.appears,
+            headers=self._authorization_header,
+            data=Utils.generate_query_dict(ids=comment_ids),
+            request_type=RequestType.POST)
         return response_code == ResponseCode.SUCCESS.value
 
     def bans(self,
@@ -879,7 +881,7 @@ class API:
         :return: List of recent bans or None, if page is empty
         :rtype: Optional[List[Ban
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/bans" method')
         logger.debug('Checking page parameter')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -906,7 +908,7 @@ class API:
         :return: List of calendar events
         :rtype: List[CalendarEvent]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "api/calendar" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.calendar,
             query=Utils.generate_query_dict(censored=censored))
@@ -922,7 +924,7 @@ class API:
         :return: Character info
         :rtype: Character
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/characters/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.character(character_id))
         return Character(**response)
@@ -937,7 +939,7 @@ class API:
         :return: List of found characters
         :rtype: List[Character]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/characters/search" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.character_search,
             query=Utils.generate_query_dict(search=search))
@@ -962,7 +964,7 @@ class API:
         :return: Clubs list or None, if page is empty
         :rtype: Optional[List[Club]]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 30],
@@ -987,7 +989,7 @@ class API:
         :return: Info about club
         :rtype: Club
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id" method')
         response: Dict[str, Any] = self._request(self._endpoints.club(club_id))
         return Club(**response)
 
@@ -1072,7 +1074,7 @@ class API:
         :return: Updated club info or None if an error occurred
         :rtype: Optional[Club]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.club(club_id),
             headers=self._authorization_header,
@@ -1110,7 +1112,7 @@ class API:
         :return: Club anime list
         :rtype: List[Anime]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id/animes" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_animes(club_id))
         return [Anime(**anime) for anime in response]
@@ -1125,7 +1127,7 @@ class API:
         :return: Club manga list
         :rtype: List[Manga]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id/mangas" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_mangas(club_id))
         return [Manga(**manga) for manga in response]
@@ -1140,7 +1142,7 @@ class API:
         :return: Club ranobe list
         :rtype: List[Ranobe]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id/ranobe" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_ranobe(club_id))
         return [Ranobe(**ranobe) for ranobe in response]
@@ -1155,7 +1157,7 @@ class API:
         :return: Club character list
         :rtype: List[Character]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id/characters" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_characters(club_id))
         return [Character(**character) for character in response]
@@ -1170,7 +1172,7 @@ class API:
         :return: Club member list
         :rtype: List[User]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id/members" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_members(club_id))
         return [User(**user) for user in response]
@@ -1185,7 +1187,7 @@ class API:
         :return: Club's images
         :rtype: List[ClubImage]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id/images" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_images(club_id))
         return [ClubImage(**club_image) for club_image in response]
@@ -1201,7 +1203,7 @@ class API:
         :return: Status of join
         :rtype: bool
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id/join" method')
         response: Union[Dict[str, Any],
                         int] = self._request(self._endpoints.club_join(club_id),
                                              headers=self._authorization_header,
@@ -1220,7 +1222,7 @@ class API:
         :return: Status of leave
         :rtype: bool
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/clubs/:id/leave" method')
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.club_leave(club_id),
             headers=self._authorization_header,
@@ -1255,7 +1257,7 @@ class API:
         :return: List of comments or None, if page is empty
         :rtype: Optional[List[Comment]]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/comments" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 30],
@@ -1282,7 +1284,7 @@ class API:
         :return: Comment info
         :rtype: Comment
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/comments/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.comment(comment_id))
         return Comment(**response)
@@ -1318,7 +1320,7 @@ class API:
         :return: Updated comment info or None if an error occurred
         :rtype: Optional[Comment]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/comments" method')
         data_dict: Dict[str, Any] = Utils.generate_data_dict(
             dict_name='comment',
             body=body,
@@ -1353,7 +1355,7 @@ class API:
         :return: Updated comment info or None if an error occurred
         :rtype: Optional[Comment]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/comments/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.comment(comment_id),
             headers=self._authorization_header,
@@ -1374,7 +1376,7 @@ class API:
         :return: Status of comment deletion
         :rtype: bool
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/comments/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.comment(comment_id),
                                             headers=self._authorization_header,
@@ -1390,7 +1392,7 @@ class API:
         :return: Anime constants values
         :rtype: AnimeConstants
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/constants/anime" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.anime_constants)
         return AnimeConstants(**response)
@@ -1402,7 +1404,7 @@ class API:
         :return: Manga constants values
         :rtype: MangaConstants
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/constants/manga" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.manga_constants)
         return MangaConstants(**response)
@@ -1414,7 +1416,7 @@ class API:
         :return: User rate constants values
         :rtype: UserRateConstants
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/constants/user_rate" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.user_rate_constants)
         return UserRateConstants(**response)
@@ -1426,7 +1428,7 @@ class API:
         :return: Club constants values
         :rtype: ClubConstants
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/constants/club" method')
         response: Dict[str, Any] = self._request(self._endpoints.club_constants)
         return ClubConstants(**response)
 
@@ -1437,7 +1439,7 @@ class API:
         :return: List of smileys constants values
         :rtype: List[SmileyConstants]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/constants/smileys" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.smileys_constants)
         return [SmileyConstants(**smiley) for smiley in response]
@@ -1450,7 +1452,7 @@ class API:
         :return: List of dialogs or None, if there are no dialogs
         :rtype: Optional[List[Dialog]]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/dialogs" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialogs, headers=self._authorization_header)
         if response:
@@ -1468,7 +1470,7 @@ class API:
         :return: List of messages or None, if there are no messages
         :rtype: Optional[List[Message]]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/dialogs/:id" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialog(user_id), headers=self._authorization_header)
         if response:
@@ -1486,7 +1488,7 @@ class API:
         :return: Status of message deletion
         :rtype: bool
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/dialogs/:id" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialog(user_id),
             headers=self._authorization_header,
@@ -1516,7 +1518,9 @@ class API:
         :return: Status of favorite create
         :rtype: bool
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing '
+                     '"/api/favorites/:linked_type/:linked_id(/:kind)" '
+                     'method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.favorites_create(
                            linked_type, linked_id, kind),
@@ -1540,7 +1544,9 @@ class API:
         :return: Status of favorite destroy
         :rtype: bool
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing '
+                     '"/api/favorites/:linked_type/:linked_id" '
+                     'method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.favorites_destroy(
                            linked_type, linked_id),
@@ -1566,7 +1572,7 @@ class API:
         :return: Status of reorder
         :rtype: bool
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/favorites/:id/reorder" method')
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.favorites_reorder(favorite_id),
             headers=self._authorization_header,
@@ -1585,7 +1591,7 @@ class API:
         :returns: List of forums
         :rtype: List[Forum]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/forums" method')
         response: List[Dict[str, Any]] = self._request(self._endpoints.forums)
         return [Forum(**forum) for forum in response]
 
@@ -1604,7 +1610,7 @@ class API:
         :return: Status of create (addition)
         :rtype: bool
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/friends/:id" method')
 
         if isinstance(friend_id, str):
             logger.debug(
@@ -1634,7 +1640,7 @@ class API:
         :return: Status of destroy (removal)
         :rtype: bool
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/friends/:id" method')
 
         if isinstance(friend_id, str):
             logger.debug(
@@ -1656,7 +1662,7 @@ class API:
         :return: List of genres
         :rtype: List[Genre]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/genres" method')
         response: List[Dict[str, Any]] = self._request(self._endpoints.genres)
         return [Genre(**genre) for genre in response]
 
@@ -1901,7 +1907,7 @@ class API:
         :return: List of users
         :rtype: Optional[List[User]]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 100],
@@ -1930,7 +1936,7 @@ class API:
         :return: Info about user
         :rtype: User
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -1951,7 +1957,7 @@ class API:
         :return: User's brief info
         :rtype: User
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users"/:id/info method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_info(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -1967,7 +1973,7 @@ class API:
         :return: Current user brief info
         :rtype: User
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/whoami" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.whoami,
                                             headers=self._authorization_header)
@@ -1976,7 +1982,7 @@ class API:
     @protected_method()
     def sign_out(self):
         """Sends sign out request to API."""
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/sign_out" method')
         self._request(self._endpoints.sign_out,
                       headers=self._authorization_header)
 
@@ -1995,7 +2001,7 @@ class API:
         :return: List of user's friends
         :rtype: List[User]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id/friends" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_friends(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -2016,7 +2022,7 @@ class API:
         :return: List of user's clubs
         :rtype: List[Club]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id/clubs" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_clubs(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -2055,7 +2061,7 @@ class API:
         :return: User's anime list or None, if page is empty
         :rtype: Optional[List[UserList]]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id/anime_rates" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 5000],
@@ -2101,7 +2107,7 @@ class API:
         :return: User's manga list or None, if page is empty
         :rtype: Optional[List[UserList]]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id/manga_rates" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 5000],
@@ -2132,7 +2138,7 @@ class API:
         :return: User's favourites
         :rtype: Favourites
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id/favourites" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_favourites(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
@@ -2168,7 +2174,7 @@ class API:
         :return: Current user's messages or None, if page is empty
         :rtype: Optional[List[Message]]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id/messages" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 100],
@@ -2202,7 +2208,7 @@ class API:
         :return: Current user's unread messages counters
         :rtype: UnreadMessages
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id/unread_messages" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_unread_messages(user_id),
             headers=self._authorization_header,
@@ -2242,7 +2248,7 @@ class API:
         :return: User's history or None, if page is empty
         :rtype: Optional[List[History]]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id/history" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 100],
@@ -2274,7 +2280,7 @@ class API:
         :return: User's bans
         :rtype: List[Ban]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/users/:id/bans" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_bans(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
