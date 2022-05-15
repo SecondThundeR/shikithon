@@ -680,9 +680,7 @@ class API:
                                             search=search))
         if response:
             return [Anime(**anime) for anime in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def anime(self, anime_id: int) -> Anime:
         """
@@ -833,9 +831,7 @@ class API:
                                             episode=episode))
         if response:
             return [Topic(**topic) for topic in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     @protected_method()
     def appears(self, comment_ids: List[str]) -> bool:
@@ -883,9 +879,7 @@ class API:
             query=Utils.generate_query_dict(page=page, limit=limit))
         if response:
             return [Ban(**ban) for ban in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def calendar(
             self,
@@ -969,9 +963,7 @@ class API:
                                             search=search))
         if response:
             return [Club(**club) for club in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def club(self, club_id: int) -> Club:
         """
@@ -1283,9 +1275,7 @@ class API:
                                             desc=desc))
         if response:
             return [Comment(**comment) for comment in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def comment(self, comment_id: int) -> Comment:
         """
@@ -1502,9 +1492,7 @@ class API:
             query=Utils.generate_query_dict(page=page, limit=limit))
         if response:
             return [User(**user) for user in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def user(self,
              user_id: Union[str, int],
@@ -1661,9 +1649,7 @@ class API:
                                             censored=censored))
         if response:
             return [UserList(**user_list) for user_list in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def user_manga_rates(
         self,
@@ -1708,9 +1694,7 @@ class API:
                                             censored=censored))
         if response:
             return [UserList(**user_list) for user_list in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def user_favourites(self,
                         user_id: Union[int, str],
@@ -1778,9 +1762,7 @@ class API:
                                             type=message_type))
         if response:
             return [Message(**message) for message in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     @protected_method(scope='messages')
     def current_user_unread_messages(
@@ -1854,9 +1836,7 @@ class API:
                                             target_type=target_type))
         if response:
             return [History(**history) for history in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def user_bans(self,
                   user_id: Union[int, str],
