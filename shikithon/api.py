@@ -44,6 +44,7 @@ from shikithon.models.constants import (AnimeConstants, ClubConstants,
 from shikithon.models.creator import Creator
 from shikithon.models.dialog import Dialog
 from shikithon.models.favourites import Favourites
+from shikithon.models.forum import Forum
 from shikithon.models.franchise_tree import FranchiseTree
 from shikithon.models.history import History
 from shikithon.models.link import Link
@@ -1167,6 +1168,17 @@ class API:
         if isinstance(response, int):
             return response == ResponseCode.SUCCESS.value
         return False
+
+    def forums(self) -> List[Forum]:
+        """
+        Returns list of forums.
+
+        :returns: List of forums
+        :rtype: List[Forum]
+        """
+        logger.debug('Executing API method')
+        response: List[Dict[str, Any]] = self._request(self._endpoints.forums)
+        return [Forum(**forum) for forum in response]
 
     def club_animes(self, club_id: int) -> List[Anime]:
         """
