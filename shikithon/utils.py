@@ -102,11 +102,11 @@ class Utils:
             elif isinstance(data, list):
                 formatted_data: List[str] = []
                 for item in data:
-                    if item.isdigit():
-                        formatted_data.append(str(item))
                     if isinstance(item, Enum):
                         formatted_data.append(item.value)
-                query_dict[key] = ','.join(data)
+                    elif item.isdigit():
+                        formatted_data.append(str(item))
+                query_dict[key] = ','.join(formatted_data)
             else:
                 query_dict[key] = data
         logger.debug(f'Generated query dictionary: {query_dict=}')
@@ -153,11 +153,11 @@ class Utils:
             elif isinstance(data, list):
                 formatted_data: List[str] = []
                 for item in data:
-                    if item.isdigit():
-                        formatted_data.append(str(item))
                     if isinstance(item, Enum):
                         formatted_data.append(item.value)
-                new_data_dict[data_dict_name][key] = ','.join(data)
+                    elif item.isdigit():
+                        formatted_data.append(str(item))
+                new_data_dict[data_dict_name][key] = ','.join(formatted_data)
             else:
                 new_data_dict[data_dict_name][key] = data
         logger.debug(f'Generated data dictionary: {new_data_dict=}')
