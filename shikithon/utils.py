@@ -71,7 +71,8 @@ class Utils:
 
     @staticmethod
     def generate_query_dict(
-        **params_data: Optional[Union[str, bool, int, Enum, List[int]]]
+        **params_data: Optional[Union[str, bool, int, Enum, List[Union[int,
+                                                                       str]]]]
     ) -> Dict[str, str]:
         """
         Returns valid query dict for API requests.
@@ -79,7 +80,8 @@ class Utils:
         This methods checks for data type and converts to valid one.
 
         :param params_data: API methods parameters data
-        :type params_data: Optional[Union[str, bool, int, Enum, List[int]]]
+        :type params_data:
+            Optional[Union[str, bool, int, Enum, List[Union[int, str]]]]
 
         :return: Valid query dictionary
         :rtype: Dict[str, str]
