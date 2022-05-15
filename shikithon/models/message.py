@@ -1,4 +1,4 @@
-"""Model for /api/messages"""
+"""Model for /api/messages and submodel for dialog.py"""
 from datetime import datetime
 from typing import Optional
 

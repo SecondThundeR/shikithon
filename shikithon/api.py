@@ -40,6 +40,7 @@ from shikithon.models.constants import (AnimeConstants, ClubConstants,
                                         MangaConstants, SmileyConstants,
                                         UserRateConstants)
 from shikithon.models.creator import Creator
+from shikithon.models.dialog import Dialog
 from shikithon.models.favourites import Favourites
 from shikithon.models.franchise_tree import FranchiseTree
 from shikithon.models.history import History
@@ -422,10 +423,9 @@ class API:
                                               request_type=RequestType.POST)
 
         try:
-            logger.info('Returning new access and refresh tokens')
+            logger.debug('Returning new access and refresh tokens')
             return oauth_json['access_token'], oauth_json['refresh_token']
         except KeyError as err:
-            logger.critical('Failed returning new tokens')
             error_info = dumps(oauth_json)
             raise AccessTokenException(
                 'An error occurred while receiving tokens, '
@@ -494,40 +494,40 @@ class API:
         :return: Response JSON, text or status code
         :rtype: Union[List[Dict[str, Any]], Dict[str, Any], str, None]
         """
-        response: Union[Response, None] = None
 
         logger.info(f'{request_type.value} {url}')
         logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
 
         if request_type == RequestType.GET:
-            response = self._session.get(url, headers=headers, params=query)
-        if request_type == RequestType.POST:
-            response = self._session.post(url,
-                                          headers=headers,
-                                          params=query,
-                                          json=data)
-        if request_type == RequestType.PUT:
-            response = self._session.put(url,
-                                         headers=headers,
-                                         params=query,
-                                         json=data)
-        if request_type == RequestType.PATCH:
-            response = self._session.patch(url,
-                                           headers=headers,
-                                           params=query,
-                                           json=data)
-        if request_type == RequestType.DELETE:
-            response = self._session.delete(url,
-                                            headers=headers,
-                                            params=query,
-                                            json=data)
-
-        if response is None:
-            logger.debug('Response is empty. Returning None')
-            return response
+            response: Response = self._session.get(url,
+                                                   headers=headers,
+                                                   params=query)
+        elif request_type == RequestType.POST:
+            response: Response = self._session.post(url,
+                                                    headers=headers,
+                                                    params=query,
+                                                    json=data)
+        elif request_type == RequestType.PUT:
+            response: Response = self._session.put(url,
+                                                   headers=headers,
+                                                   params=query,
+                                                   json=data)
+        elif request_type == RequestType.PATCH:
+            response: Response = self._session.patch(url,
+                                                     headers=headers,
+                                                     params=query,
+                                                     json=data)
+        elif request_type == RequestType.DELETE:
+            response: Response = self._session.delete(url,
+                                                      headers=headers,
+                                                      params=query,
+                                                      json=data)
+        else:
+            logger.debug('Unknown request_type. Returning None')
+            return None
 
         if response.status_code == ResponseCode.RETRY_LATER.value:
-            logger.warning('Hit RPS cooldown. Waiting on request repeat')
+            logger.info('Hit RPS cooldown. Waiting on request repeat')
             sleep(RATE_LIMIT_RPS_COOLDOWN)
             return self._request(url, data, headers, query, request_type)
 
@@ -535,7 +535,7 @@ class API:
             logger.debug('Extracting JSON from response')
             return response.json()
         except JSONDecodeError:
-            logger.error('Failed JSON extracting. Returning text/status_code')
+            logger.debug('Can\'t extract JSON. Returning status_code/text')
             return response.status_code if not response.text else response.text
 
     def refresh_tokens(self):
@@ -649,7 +649,7 @@ class API:
         :param search: Search phrase to filter animes by name
         :type search: Union[str, None]
 
-        :return: Animes list
+        :return: Animes list or None, if page is empty
         :rtype: Union[List[Anime], None]
         """
         logger.debug('Executing API method')
@@ -660,7 +660,7 @@ class API:
         logger.debug('Checking score parameter')
         score = Utils.validate_query_number(score, 9)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.animes,
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
@@ -681,9 +681,7 @@ class API:
                                             search=search))
         if response:
             return [Anime(**anime) for anime in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def anime(self, anime_id: int) -> Anime:
         """
@@ -817,7 +815,7 @@ class API:
         :param episode: Number of anime episode
         :type episode: Union[int, None]
 
-        :return: List of topics
+        :return: List of topics or None, if page is empty
         :rtype: Union[List[Topic], None]
         """
         logger.debug('Executing API method')
@@ -826,7 +824,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_topics(anime_id),
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
@@ -834,9 +832,7 @@ class API:
                                             episode=episode))
         if response:
             return [Topic(**topic) for topic in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     @protected_method()
     def appears(self, comment_ids: List[str]) -> bool:
@@ -870,7 +866,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Union[int, None]
 
-        :return: List of recent bans
+        :return: List of recent bans or None, if page is empty
         :rtype: Union[List[Ban], None]
         """
         logger.debug('Executing API method')
@@ -879,14 +875,12 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.bans_list,
             query=Utils.generate_query_dict(page=page, limit=limit))
         if response:
             return [Ban(**ban) for ban in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def calendar(
             self,
@@ -954,7 +948,7 @@ class API:
         :param search: Search phrase to filter clubs by name
         :type search: Union[str, None]
 
-        :return: Clubs list
+        :return: Clubs list or None, if page is empty
         :rtype: Union[List[Club], None]
         """
         logger.debug('Executing API method')
@@ -963,16 +957,14 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.clubs,
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
                                             search=search))
         if response:
             return [Club(**club) for club in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def club(self, club_id: int) -> Club:
         """
@@ -990,26 +982,26 @@ class API:
 
     @protected_method(scope='clubs')
     def club_update(
-        self,
-        club_id: int,
-        name: Union[str, None] = None,
-        join_policy: Union[JoinPolicy, None] = None,
-        description: Union[str, None] = None,
-        display_images: Union[bool, None] = None,
-        comment_policy: Union[CommentPolicy, None] = None,
-        topic_policy: Union[TopicPolicy, None] = None,
-        page_policy: Union[PagePolicy, None] = None,
-        image_upload_policy: Union[ImageUploadPolicy, None] = None,
-        is_censored: Union[bool, None] = None,
-        anime_ids: Union[List[int], None] = None,
-        manga_ids: Union[List[int], None] = None,
-        ranobe_ids: Union[List[int], None] = None,
-        character_ids: Union[List[int], None] = None,
-        club_ids: Union[List[int], None] = None,
-        admin_ids: Union[List[int], None] = None,
-        collection_ids: Union[List[int], None] = None,
-        banned_user_ids: Union[List[int], None] = None
-    ) -> Tuple[bool, Union[Club, str]]:
+            self,
+            club_id: int,
+            name: Union[str, None] = None,
+            join_policy: Union[JoinPolicy, None] = None,
+            description: Union[str, None] = None,
+            display_images: Union[bool, None] = None,
+            comment_policy: Union[CommentPolicy, None] = None,
+            topic_policy: Union[TopicPolicy, None] = None,
+            page_policy: Union[PagePolicy, None] = None,
+            image_upload_policy: Union[ImageUploadPolicy, None] = None,
+            is_censored: Union[bool, None] = None,
+            anime_ids: Union[List[int], None] = None,
+            manga_ids: Union[List[int], None] = None,
+            ranobe_ids: Union[List[int], None] = None,
+            character_ids: Union[List[int], None] = None,
+            club_ids: Union[List[int], None] = None,
+            admin_ids: Union[List[int], None] = None,
+            collection_ids: Union[List[int], None] = None,
+            banned_user_ids: Union[List[int],
+                                   None] = None) -> Union[Club, None]:
         """
         Update info/settings about/of club.
 
@@ -1067,10 +1059,8 @@ class API:
         :param banned_user_ids: New banned user ids of club
         :type banned_user_ids: Union[List[int], None]
 
-        :return: Tuple of update status and response.
-            On successful update, returns True and Club model,
-            otherwise, False and error message
-        :rtype: Tuple[bool, Union[Club, str]]
+        :return: Updated club info or None if an error occurred
+        :rtype: Union[Club, None]
         """
         logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
@@ -1096,13 +1086,9 @@ class API:
                 collection_ids=collection_ids,
                 banned_user_ids=banned_user_ids),
             request_type=RequestType.PATCH)
-        if 'errors' in response:
-            logger.info('There was an error when updating the club')
-            logger.debug(
-                f'There was an error when updating the club: {response=}')
-            return False, response['errors']
-        logger.info('Successfully updated the club')
-        return True, Club(**response)
+        logger.debug(
+            f'Detailed information about updating the club {response=}')
+        return Club(**response) if 'errors' not in response else None
 
     def club_animes(self, club_id: int) -> List[Anime]:
         """
@@ -1210,13 +1196,8 @@ class API:
                         int] = self._request(self._endpoints.club_join(club_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
-        if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
-            logger.info('Successfully joined the club')
-            return True
-        logger.info('There was an error when joining the club '
-                    'or are you already a member of it')
-        logger.debug(f'There was an error when joining the club: {response=}')
-        return False
+        logger.debug(f'Detailed information about joining the club {response=}')
+        return response == ResponseCode.SUCCESS.value
 
     @protected_method(scope='clubs')
     def club_leave(self, club_id: int) -> bool:
@@ -1234,13 +1215,8 @@ class API:
             self._endpoints.club_leave(club_id),
             headers=self._authorization_header,
             request_type=RequestType.POST)
-        if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
-            logger.info('Successfully left the club')
-            return True
-        logger.info('There was an error when leaving the club '
-                    'or you are already not a member of it')
-        logger.debug(f'There was an error when leaving the club: {response=}')
-        return False
+        logger.debug(f'Detailed information about leaving the club {response=}')
+        return response == ResponseCode.SUCCESS.value
 
     def comments(self,
                  commentable_id: int,
@@ -1266,7 +1242,7 @@ class API:
         :param desc: Status of description in request. Can be 1 or 0
         :type desc: Union[int, None] = None
 
-        :return: List of comments
+        :return: List of comments or None, if page is empty
         :rtype: Union[List[Comment], None]
         """
         logger.debug('Executing API method')
@@ -1275,7 +1251,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 30)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.comments,
             query=Utils.generate_query_dict(page=page,
                                             limit=limit,
@@ -1284,9 +1260,7 @@ class API:
                                             desc=desc))
         if response:
             return [Comment(**comment) for comment in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def comment(self, comment_id: int) -> Comment:
         """
@@ -1305,13 +1279,12 @@ class API:
 
     @protected_method(scope='comments')
     def create_comment(
-        self,
-        body: str,
-        commentable_id: int,
-        commentable_type: CommentableType,
-        is_offtopic: Union[bool, None] = None,
-        broadcast: Union[bool,
-                         None] = None) -> Tuple[bool, Union[Comment, str]]:
+            self,
+            body: str,
+            commentable_id: int,
+            commentable_type: CommentableType,
+            is_offtopic: Union[bool, None] = None,
+            broadcast: Union[bool, None] = None) -> Union[Comment, None]:
         """
         Creates comment.
 
@@ -1333,10 +1306,8 @@ class API:
         :param broadcast: Broadcast comment in club’s topic status
         :type broadcast: Union[bool, None]
 
-        :return: Tuple of update status and response.
-            On successful update, returns True and Comment model,
-            otherwise, False and error message
-        :rtype: Tuple[bool, Union[Comment, str]]
+        :return: Updated comment info or None if an error occurred
+        :rtype: Union[Comment, None]
         """
         logger.debug('Executing API method')
         data_dict: Dict[str, Any] = Utils.generate_data_dict(
@@ -1355,18 +1326,13 @@ class API:
                                             headers=self._authorization_header,
                                             data=data_dict,
                                             request_type=RequestType.POST)
-
-        if 'errors' in response:
-            logger.info('An error occurred when creating a comment')
-            logger.debug('Information about an error '
-                         f'when creating a comment: {response=}')
-            return False, response['errors']
-        logger.info('New comment successfully created')
-        return True, Comment(**response)
+        logger.debug(
+            f'Detailed information about creating the comment {response=}')
+        return Comment(**response) if 'errors' not in response else None
 
     @protected_method(scope='comments')
     def update_comment(self, comment_id: int,
-                       body: str) -> Tuple[bool, Union[Comment, str]]:
+                       body: str) -> Union[Comment, None]:
         """
         Updates comment.
 
@@ -1376,10 +1342,8 @@ class API:
         :param body: New body of comment
         :type body: str
 
-        :return: Tuple of update status and response.
-            On successful update, returns True and Comment model,
-            otherwise, False and error message
-        :rtype: Tuple[bool, Union[Comment, str]]
+        :return: Updated comment info or None if an error occurred
+        :rtype: Union[Comment, None]
         """
         logger.debug('Executing API method')
         response: Dict[str, Any] = self._request(
@@ -1387,13 +1351,9 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_data_dict(dict_name='comment', body=body),
             request_type=RequestType.PATCH)
-        if 'errors' in response:
-            logger.info('An error occurred when updating a comment')
-            logger.debug('Information about an error '
-                         f'when updating a comment: {response=}')
-            return False, response['errors']
-        logger.info(f'Comment #{comment_id} successfully updated')
-        return True, Comment(**response)
+        logger.debug(
+            f'Detailed information about updating the comment {response=}')
+        return Comment(**response) if 'errors' not in response else None
 
     @protected_method(scope='comments')
     def delete_comment(self, comment_id: int) -> bool:
@@ -1404,19 +1364,16 @@ class API:
         :type comment_id: int
 
         :return: Status of comment deletion
+        :rtype: bool
         """
         logger.debug('Executing API method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.comment(comment_id),
                                             headers=self._authorization_header,
                                             request_type=RequestType.DELETE)
-        if 'notice' in response:
-            logger.info(f'Comment #{comment_id} successfully deleted')
-            return True
-        logger.info('An error occurred when deleting a comment')
         logger.debug(
-            f'Information about an error when deleting a comment: {response=}')
-        return False
+            f'Detailed information about deleting the comment {response=}')
+        return 'notice' in response
 
     def anime_constants(self) -> AnimeConstants:
         """
@@ -1477,6 +1434,59 @@ class API:
             self._endpoints.smileys_constants)
         return [SmileyConstants(**smiley) for smiley in response]
 
+    @protected_method(scope='messages')
+    def dialogs(self) -> Union[List[Dialog], None]:
+        """
+        Returns list of current user's dialogs.
+
+        :return: List of dialogs or None, if there are no dialogs
+        :rtype: Union[List[Dialog], None]
+        """
+        logger.debug('Executing API method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.dialogs, headers=self._authorization_header)
+        if response:
+            return [Dialog(**dialog) for dialog in response]
+        return None
+
+    @protected_method(scope='messages')
+    def dialog(self, user_id: Union[int, str]) -> Union[List[Message], None]:
+        """
+        Returns list of current user's messages with certain user.
+
+        :param user_id: ID/Nickname of the user to get dialog
+        :type user_id: Union[int, str]
+
+        :return: List of messages or None, if there are no messages
+        :rtype: Union[List[Message], None]
+        """
+        logger.debug('Executing API method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.dialog(user_id), headers=self._authorization_header)
+        if response:
+            return [Message(**message) for message in response]
+        return None
+
+    @protected_method(scope='messages')
+    def delete_dialog(self, user_id: Union[int, str]) -> bool:
+        """
+        Deletes dialog of current user with certain user.
+
+        :param user_id: ID/Nickname of the user to delete dialog
+        :type user_id: Union[int, str]
+
+        :return: Status of message deletion
+        :rtype: bool
+        """
+        logger.debug('Executing API method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.dialog(user_id),
+            headers=self._authorization_header,
+            request_type=RequestType.DELETE)
+        logger.debug(
+            f'Detailed information about deleting the dialog {response=}')
+        return 'notice' in response
+
     def users(self,
               page: Union[int, None] = None,
               limit: Union[int, None] = None) -> Union[List[User], None]:
@@ -1498,14 +1508,12 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 100)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.users,
             query=Utils.generate_query_dict(page=page, limit=limit))
         if response:
             return [User(**user) for user in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def user(self,
              user_id: Union[str, int],
@@ -1644,7 +1652,7 @@ class API:
         :param censored: Type of anime censorship
         :type censored: Union[Censorship, None]
 
-        :return: User's anime list
+        :return: User's anime list or None, if page is empty
         :rtype: Union[List[UserList], None]
         """
         logger.debug('Executing API method')
@@ -1653,7 +1661,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 5000)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_anime_rates(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
@@ -1662,9 +1670,7 @@ class API:
                                             censored=censored))
         if response:
             return [UserList(**user_list) for user_list in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def user_manga_rates(
         self,
@@ -1692,7 +1698,7 @@ class API:
         :param censored: Type of manga censorship
         :type censored: Union[Censorship, None]
 
-        :return: User's manga list
+        :return: User's manga list or None, if page is empty
         :rtype: Union[List[UserList], None]
         """
         logger.debug('Executing API method')
@@ -1701,7 +1707,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 5000)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_manga_rates(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
@@ -1709,9 +1715,7 @@ class API:
                                             censored=censored))
         if response:
             return [UserList(**user_list) for user_list in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def user_favourites(self,
                         user_id: Union[int, str],
@@ -1761,7 +1765,7 @@ class API:
         :param message_type: Type of message
         :type message_type: MessageType
 
-        :return: Current user's messages
+        :return: Current user's messages or None, if page is empty
         :rtype: Union[List[Message], None]
         """
         logger.debug('Executing API method')
@@ -1770,7 +1774,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 100)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_messages(user_id),
             headers=self._authorization_header,
             query=Utils.generate_query_dict(is_nickname=is_nickname,
@@ -1779,9 +1783,7 @@ class API:
                                             type=message_type))
         if response:
             return [Message(**message) for message in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     @protected_method(scope='messages')
     def current_user_unread_messages(
@@ -1837,7 +1839,7 @@ class API:
         :param target_type: Type of target (Anime/Manga)
         :type target_type: Union[TargetType, None]
 
-        :return: User's history
+        :return: User's history or None, if page is empty
         :rtype: Union[List[History], None]
         """
         logger.debug('Executing API method')
@@ -1846,7 +1848,7 @@ class API:
         logger.debug('Checking limit parameter')
         limit = Utils.validate_query_number(limit, 100)
 
-        response: Union[List[Dict[str, Any]], None] = self._request(
+        response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_history(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
                                             page=page,
@@ -1855,9 +1857,7 @@ class API:
                                             target_type=target_type))
         if response:
             return [History(**history) for history in response]
-        logger.info('An error occurred when executing API method')
-        logger.debug(f'Information about an error: {response=}')
-        return response
+        return None
 
     def user_bans(self,
                   user_id: Union[int, str],
