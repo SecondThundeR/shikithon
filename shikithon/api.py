@@ -1578,6 +1578,66 @@ class API:
         response: List[Dict[str, Any]] = self._request(self._endpoints.forums)
         return [Forum(**forum) for forum in response]
 
+    @protected_method(scope='friends')
+    def create_friend(self, friend_id: int):
+        """
+        Creates (adds) new friend by ID.
+
+        Although it is possible to use this method
+        with user nicknames, I recommend to pass user ID
+        (In this case there is an additional check for string)
+
+        :param friend_id: ID of a friend to create (add)
+        :type friend_id: int
+
+        :return: Status of create (addition)
+        :rtype: bool
+        """
+        logger.debug('Executing API method')
+
+        if isinstance(friend_id, str):
+            logger.debug(
+                'Adding to friends was canceled because a string was passed')
+            return False
+
+        response: Union[Dict[str, Any],
+                        int] = self._request(self._endpoints.friend(friend_id),
+                                             headers=self._authorization_header,
+                                             request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about creating a friend {response=}')
+        return 'notice' in response
+
+    @protected_method(scope='friends')
+    def destroy_friend(self, friend_id: int):
+        """
+        Destroys (removes) current friend by ID.
+
+        Although it is possible to use this method
+        with user nicknames, I recommend to pass user ID
+        (In this case there is an additional check for string)
+
+        :param friend_id: ID of a friend to destroy (remove)
+        :type friend_id: int
+
+        :return: Status of destroy (removal)
+        :rtype: bool
+        """
+        logger.debug('Executing API method')
+
+        if isinstance(friend_id, str):
+            logger.debug(
+                'Deletion from friends canceled because a string was passed')
+            return False
+
+        response: Union[Dict[str, Any],
+                        int] = self._request(self._endpoints.friend(friend_id),
+                                             headers=self._authorization_header,
+                                             request_type=RequestType.DELETE)
+        logger.debug(
+            f'Detailed information about destroying a friend {response=}')
+        return 'notice' in response
+
     def users(self,
               page: Optional[int] = None,
               limit: Optional[int] = None) -> Optional[List[User]]:
