@@ -7,7 +7,7 @@ to work with the library
 """
 from enum import Enum
 from time import time
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
 
@@ -71,7 +71,7 @@ class Utils:
 
     @staticmethod
     def generate_query_dict(
-        **params_data: Union[str, bool, int, Enum, List[int], None]
+        **params_data: Optional[Union[str, bool, int, Enum, List[int]]]
     ) -> Dict[str, str]:
         """
         Returns valid query dict for API requests.
@@ -79,7 +79,7 @@ class Utils:
         This methods checks for data type and converts to valid one.
 
         :param params_data: API methods parameters data
-        :type params_data: Union[str, bool, int, Enum, List[int], None]
+        :type params_data: Optional[Union[str, bool, int, Enum, List[int]]]
 
         :return: Valid query dictionary
         :rtype: Dict[str, str]
@@ -111,7 +111,7 @@ class Utils:
 
     @staticmethod
     def generate_data_dict(
-        **dict_data: Union[str, bool, int, Enum, List[int], None]
+        **dict_data: Optional[Union[str, bool, int, Enum, List[int]]]
     ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:
         """
         Returns valid data dict for API requests.
@@ -119,10 +119,10 @@ class Utils:
         This methods checks for data type and converts to valid one.
 
         :param dict_data: API methods body data
-        :type dict_data: Union[str, bool, int, Enum, List[int], None]
+        :type dict_data: Optional[Union[str, bool, int, Enum, List[int]]]
 
         :return: Valid data dictionary
-        :rtype: Union[Dict[str, str], Dict[str, Dict[str, str]]]
+        :rtype: Optional[Union[str, bool, int, Enum, List[int]]]
         """
         logger.debug(
             f'Generating data dictionary for request. Passed {dict_data=}')
@@ -158,8 +158,8 @@ class Utils:
         return new_data_dict
 
     @staticmethod
-    def validate_query_number(query_number: Union[int, None],
-                              upper_limit: int) -> Union[int, None]:
+    def validate_query_number(query_number: Optional[int],
+                              upper_limit: int) -> Optional[int]:
         """
         Validates query number.
 
@@ -167,13 +167,13 @@ class Utils:
         otherwise number or None.
 
         :param query_number: Number to validate
-        :type query_number: Union[int, None]
+        :type query_number: Optional[int]
 
         :param upper_limit: Upper limit for range check
         :type upper_limit: int
 
         :return: Validated value
-        :rtype: Union[int, None]
+        :rtype: Optional[int]
         """
         logger.debug(f'Validating query number ({query_number}) '
                      f'with upper limit ({upper_limit})')

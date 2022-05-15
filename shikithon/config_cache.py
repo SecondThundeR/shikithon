@@ -8,7 +8,7 @@ to restore on next object initializaion
 from json import dumps, loads
 from os import remove
 from os.path import exists
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 from loguru import logger
 
@@ -86,7 +86,7 @@ class ConfigCache:
         return cache_config, True
 
     @staticmethod
-    def get_config(app_name: str) -> Union[Dict[str, str], None]:
+    def get_config(app_name: str) -> Optional[Dict[str, str]]:
         """
         Returns current config from cache file.
 
@@ -94,7 +94,7 @@ class ConfigCache:
         :type app_name: str
 
         :return: Config dictionary or None
-        :rtype: Union[Dict[str, str], None]
+        :rtype: Optional[Dict[str, str]]
         """
         config_name = ConfigCache.config_name(app_name)
         logger.debug(f'Getting "{config_name}" config')
