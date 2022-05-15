@@ -46,6 +46,7 @@ from shikithon.models.dialog import Dialog
 from shikithon.models.favourites import Favourites
 from shikithon.models.forum import Forum
 from shikithon.models.franchise_tree import FranchiseTree
+from shikithon.models.genre import Genre
 from shikithon.models.history import History
 from shikithon.models.link import Link
 from shikithon.models.manga import Manga
@@ -1637,6 +1638,17 @@ class API:
         logger.debug(
             f'Detailed information about destroying a friend {response=}')
         return 'notice' in response
+
+    def genres(self) -> List[Genre]:
+        """
+        Returns list of genres.
+
+        :return: List of genres
+        :rtype: List[Genre]
+        """
+        logger.debug('Executing API method')
+        response: List[Dict[str, Any]] = self._request(self._endpoints.genres)
+        return [Genre(**genre) for genre in response]
 
     def users(self,
               page: Optional[int] = None,
