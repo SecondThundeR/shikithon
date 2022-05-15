@@ -535,7 +535,7 @@ class API:
             logger.debug('Extracting JSON from response')
             return response.json()
         except JSONDecodeError:
-            logger.warning('Failed JSON extracting. Returning text/status_code')
+            logger.debug('Can\'t extract JSON. Returning status_code/text')
             return response.status_code if not response.text else response.text
 
     def refresh_tokens(self):
@@ -1088,12 +1088,10 @@ class API:
                 collection_ids=collection_ids,
                 banned_user_ids=banned_user_ids),
             request_type=RequestType.PATCH)
+        logger.debug(
+            f'Detailed information about updating the club: {response=}')
         if 'errors' in response:
-            logger.info('There was an error when updating the club')
-            logger.debug(
-                f'There was an error when updating the club: {response=}')
             return False, response['errors']
-        logger.info('Successfully updated the club')
         return True, Club(**response)
 
     def club_animes(self, club_id: int) -> List[Anime]:
@@ -1202,12 +1200,10 @@ class API:
                         int] = self._request(self._endpoints.club_join(club_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about joining the club: {response=}')
         if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
-            logger.info('Successfully joined the club')
             return True
-        logger.info('There was an error when joining the club '
-                    'or are you already a member of it')
-        logger.debug(f'There was an error when joining the club: {response=}')
         return False
 
     @protected_method(scope='clubs')
@@ -1226,12 +1222,10 @@ class API:
             self._endpoints.club_leave(club_id),
             headers=self._authorization_header,
             request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about leaving the club: {response=}')
         if isinstance(response, int) and response == ResponseCode.SUCCESS.value:
-            logger.info('Successfully left the club')
             return True
-        logger.info('There was an error when leaving the club '
-                    'or you are already not a member of it')
-        logger.debug(f'There was an error when leaving the club: {response=}')
         return False
 
     def comments(self,
@@ -1345,13 +1339,10 @@ class API:
                                             headers=self._authorization_header,
                                             data=data_dict,
                                             request_type=RequestType.POST)
-
+        logger.debug(
+            f'Detailed information about creating the comment: {response=}')
         if 'errors' in response:
-            logger.info('An error occurred when creating a comment')
-            logger.debug('Information about an error '
-                         f'when creating a comment: {response=}')
             return False, response['errors']
-        logger.info('New comment successfully created')
         return True, Comment(**response)
 
     @protected_method(scope='comments')
@@ -1377,12 +1368,10 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_data_dict(dict_name='comment', body=body),
             request_type=RequestType.PATCH)
+        logger.debug(
+            f'Detailed information about updating the comment: {response=}')
         if 'errors' in response:
-            logger.info('An error occurred when updating a comment')
-            logger.debug('Information about an error '
-                         f'when updating a comment: {response=}')
             return False, response['errors']
-        logger.info(f'Comment #{comment_id} successfully updated')
         return True, Comment(**response)
 
     @protected_method(scope='comments')
@@ -1394,19 +1383,16 @@ class API:
         :type comment_id: int
 
         :return: Status of comment deletion
+        :rtype: bool
         """
         logger.debug('Executing API method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.comment(comment_id),
                                             headers=self._authorization_header,
                                             request_type=RequestType.DELETE)
-        if 'notice' in response:
-            logger.info(f'Comment #{comment_id} successfully deleted')
-            return True
-        logger.info('An error occurred when deleting a comment')
         logger.debug(
-            f'Information about an error when deleting a comment: {response=}')
-        return False
+            f'Detailed information about deleting the comment: {response=}')
+        return 'notice' in response
 
     def anime_constants(self) -> AnimeConstants:
         """
