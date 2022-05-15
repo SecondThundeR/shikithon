@@ -648,7 +648,7 @@ class API:
         :param search: Search phrase to filter animes by name
         :type search: Union[str, None]
 
-        :return: Animes list
+        :return: Animes list or None, if page is empty
         :rtype: Union[List[Anime], None]
         """
         logger.debug('Executing API method')
@@ -814,7 +814,7 @@ class API:
         :param episode: Number of anime episode
         :type episode: Union[int, None]
 
-        :return: List of topics
+        :return: List of topics or None, if page is empty
         :rtype: Union[List[Topic], None]
         """
         logger.debug('Executing API method')
@@ -865,7 +865,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Union[int, None]
 
-        :return: List of recent bans
+        :return: List of recent bans or None, if page is empty
         :rtype: Union[List[Ban], None]
         """
         logger.debug('Executing API method')
@@ -947,7 +947,7 @@ class API:
         :param search: Search phrase to filter clubs by name
         :type search: Union[str, None]
 
-        :return: Clubs list
+        :return: Clubs list or None, if page is empty
         :rtype: Union[List[Club], None]
         """
         logger.debug('Executing API method')
@@ -1257,7 +1257,7 @@ class API:
         :param desc: Status of description in request. Can be 1 or 0
         :type desc: Union[int, None] = None
 
-        :return: List of comments
+        :return: List of comments or None, if page is empty
         :rtype: Union[List[Comment], None]
         """
         logger.debug('Executing API method')
@@ -1631,7 +1631,7 @@ class API:
         :param censored: Type of anime censorship
         :type censored: Union[Censorship, None]
 
-        :return: User's anime list
+        :return: User's anime list or None, if page is empty
         :rtype: Union[List[UserList], None]
         """
         logger.debug('Executing API method')
@@ -1677,7 +1677,7 @@ class API:
         :param censored: Type of manga censorship
         :type censored: Union[Censorship, None]
 
-        :return: User's manga list
+        :return: User's manga list or None, if page is empty
         :rtype: Union[List[UserList], None]
         """
         logger.debug('Executing API method')
@@ -1744,7 +1744,7 @@ class API:
         :param message_type: Type of message
         :type message_type: MessageType
 
-        :return: Current user's messages
+        :return: Current user's messages or None, if page is empty
         :rtype: Union[List[Message], None]
         """
         logger.debug('Executing API method')
@@ -1818,7 +1818,7 @@ class API:
         :param target_type: Type of target (Anime/Manga)
         :type target_type: Union[TargetType, None]
 
-        :return: User's history
+        :return: User's history or None, if page is empty
         :rtype: Union[List[History], None]
         """
         logger.debug('Executing API method')
