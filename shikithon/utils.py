@@ -169,8 +169,8 @@ class Utils:
         """
         Validates query number.
 
-        If number is not in range, returns lower limit number,
-        otherwise number or None.
+        If number is lower, returns lower limit, else upper limit.
+        If number is None, returns or None.
 
         :param query_number: Number to validate
         :type query_number: Optional[int]
@@ -178,7 +178,7 @@ class Utils:
         :param upper_limit: Upper limit for range check
         :type upper_limit: int
 
-        :return: Validated value
+        :return: Validated number
         :rtype: Optional[int]
         """
         logger.debug(f'Validating query number ({query_number}) '
@@ -186,9 +186,52 @@ class Utils:
         if query_number is None:
             logger.debug('Query number is None')
             return query_number
-        if query_number < LOWER_LIMIT_NUMBER or query_number > upper_limit:
-            logger.debug(f'Query number ({query_number}) is not in range. '
+
+        if query_number < LOWER_LIMIT_NUMBER:
+            logger.debug(f'Query number ({query_number}) is lower '
+                         f'than lower limit ({LOWER_LIMIT_NUMBER}). '
                          f'Returning {LOWER_LIMIT_NUMBER=}')
             return LOWER_LIMIT_NUMBER
-        logger.debug(f'Returning validated query number ({query_number})')
+
+        if query_number > upper_limit:
+            logger.debug(f'Query number ({query_number}) is higher '
+                         f'than upper limit ({upper_limit}). '
+                         f'Returning {upper_limit=}')
+            return upper_limit
+
+        logger.debug(f'Returning passed query number ({query_number})')
         return query_number
+
+    @staticmethod
+    def query_numbers_validator(**query_numbers: List[Optional[int]]
+                               ) -> Dict[str, Optional[int]]:
+        """
+        Gets all query numbers to validate and returns validated numbers.
+
+        This method uses validate_query_number method for validating.
+
+        Query numbers are passed in such form:
+            { "page": [1, 100], ... }
+
+            "page" <- Name of query number
+
+            [1 (Passed value), 100 (Upper limit value)]
+
+        This method outputs them like this:
+            { "page": 1 }
+
+            "page" <- Name of query number
+
+            1 <- Validated number
+
+        :param query_numbers: Passed query numbers to validate
+        :type query_numbers: List[Optional[int]]
+        :return: Dict of validated numbers
+        :rtype: Dict[str, Optional[int]]
+        """
+        validated_numbers: Dict[str, Optional[int]] = {}
+        for name, data in query_numbers.items():
+            logger.debug(f'Checking {name} parameter')
+            validated_numbers[name] = (Utils.validate_query_number(
+                data[0], data[1]))
+        return validated_numbers

@@ -15,13 +15,16 @@ from requests import JSONDecodeError, Response, Session
 from shikithon.config_cache import ConfigCache
 from shikithon.decorators import protected_method
 from shikithon.endpoints import Endpoints
-from shikithon.enums.anime import (Censorship, Duration, Kind, MyList, Order,
-                                   Rating, Status)
+from shikithon.enums.anime import (AnimeCensorship, AnimeDuration, AnimeKind,
+                                   AnimeList, AnimeOrder, AnimeRating,
+                                   AnimeStatus)
 from shikithon.enums.club import (CommentPolicy, ImageUploadPolicy, JoinPolicy,
                                   PagePolicy, TopicPolicy)
 from shikithon.enums.comment import CommentableType
 from shikithon.enums.favorite import LinkedType
 from shikithon.enums.history import TargetType
+from shikithon.enums.manga import (MangaCensorship, MangaKind, MangaList,
+                                   MangaOrder, MangaStatus)
 from shikithon.enums.message import MessageType
 from shikithon.enums.person import PersonKind
 from shikithon.enums.request import RequestType
@@ -584,20 +587,21 @@ class API:
     def animes(self,
                page: Optional[int] = None,
                limit: Optional[int] = None,
-               order: Optional[Order] = None,
-               kind: Optional[Kind] = None,
-               status: Optional[Status] = None,
-               season: Optional[str] = None,
+               order: Optional[AnimeOrder] = None,
+               kind: Optional[Union[AnimeKind, List[AnimeKind]]] = None,
+               status: Optional[Union[AnimeStatus, List[AnimeStatus]]] = None,
+               season: Optional[Union[str, List[str]]] = None,
                score: Optional[int] = None,
-               duration: Optional[Duration] = None,
-               rating: Optional[Rating] = None,
-               genre: Optional[List[int]] = None,
-               studio: Optional[List[int]] = None,
-               franchise: Optional[List[int]] = None,
-               censored: Optional[Censorship] = None,
-               my_list: Optional[MyList] = None,
-               ids: Optional[List[int]] = None,
-               exclude_ids: Optional[List[int]] = None,
+               duration: Optional[Union[AnimeDuration,
+                                        List[AnimeDuration]]] = None,
+               rating: Optional[Union[AnimeRating, List[AnimeRating]]] = None,
+               genre: Optional[Union[int, List[int]]] = None,
+               studio: Optional[Union[int, List[int]]] = None,
+               franchise: Optional[Union[int, List[int]]] = None,
+               censored: Optional[AnimeCensorship] = None,
+               my_list: Optional[Union[AnimeList, List[AnimeList]]] = None,
+               ids: Optional[Union[int, List[int]]] = None,
+               exclude_ids: Optional[Union[int, List[int]]] = None,
                search: Optional[str] = None) -> Optional[List[Anime]]:
         """
         Returns animes list.
@@ -609,77 +613,82 @@ class API:
         :type limit: Optional[int]
 
         :param order: Type of order in list
-        :type order: Optional[Order]
+        :type order: Optional[AnimeOrder]
 
-        :param kind: Type of anime topic
-        :type kind: Optional[Kind]
+        :param kind: Type(s) of anime topics
+        :type kind: Optional[Union[AnimeKind, List[AnimeKind]]]
 
-        :param status: Type of anime status
-        :type status: Optional[Status
+        :param status: Type(s) of anime status
+        :type status: Optional[Union[AnimeStatus, List[AnimeStatus]]]
 
-        :param season: Name of anime season
-        :type season: Optional[str
+        :param season: Name(s) of anime seasons
+        :type season: Optional[Union[str, List[str]]]
 
         :param score: Minimal anime score
         :type score: Optional[int]
 
-        :param duration: Duration size of anime
-        :type duration: Optional[Duration]
+        :param duration: Duration size(s) of anime
+        :type duration: Optional[Union[AnimeDuration, List[AnimeDuration]]]
 
-        :param rating: Type of anime rating
-        :type rating: Optional[Rating]
+        :param rating: Type of anime rating(s)
+        :type rating: Optional[Union[AnimeRating, List[AnimeRating]]]
 
-        :param genre: Genres ID
-        :type genre: Optional[List[int]]
+        :param genre: Genre(s) ID
+        :type genre: Optional[Union[int, List[int]]]
 
-        :param studio: Studios ID
-        :type studio: Optional[List[int]]
+        :param studio: Studio(s) ID
+        :type studio: Optional[Union[int, List[int]]]
 
-        :param franchise: Franchises ID
-        :type franchise: Optional[List[int]]
+        :param franchise: Franchise(s) ID
+        :type franchise: Optional[Union[int, List[int]]]
 
         :param censored: Type of anime censorship
-        :type censored: Optional[Censorship]
+        :type censored: Optional[AnimeCensorship]
 
-        :param my_list: Status of anime in current user list
-        :type my_list: Optional[MyList]
+        :param my_list: Status(-es) of anime in current user list
+            Note: If app is in restricted mode,
+            this parameter won't affect on response.
+        :type my_list: Optional[Union[AnimeList, List[AnimeList]]]
 
-        :param ids: Animes ID to include
-        :type ids: Optional[List[int]]
+        :param ids: Anime(s) ID to include
+        :type ids: Optional[Union[int, List[int]]]
 
-        :param exclude_ids: Animes ID to exclude
-        :type exclude_ids: Optional[List[int]]
+        :param exclude_ids: Anime(s) ID to exclude
+        :type exclude_ids: Optional[Union[int, List[int]]]
 
         :param search: Search phrase to filter animes by name
-        :type search: Optional[str
+        :type search: Optional[str]
 
         :return: Animes list or None, if page is empty
         :rtype: Optional[List[Anime]]
         """
-        logger.debug('Executing API method')
-        logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 50)
-        logger.debug('Checking score parameter')
-        score = Utils.validate_query_number(score, 9)
+        logger.debug('Executing "/api/animes" method')
+        validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
+                                                          limit=[limit, 50],
+                                                          score=[score, 9])
+
+        headers: Optional[Dict[str, str]] = None
+
+        if not self.restricted_mode:
+            headers = self._authorization_header
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.animes,
-            query=Utils.generate_query_dict(page=page,
-                                            limit=limit,
+            headers=headers,
+            query=Utils.generate_query_dict(page=validated_numbers['name'],
+                                            limit=validated_numbers['limit'],
                                             order=order,
                                             kind=kind,
                                             status=status,
                                             season=season,
-                                            score=score,
+                                            score=validated_numbers['score'],
                                             duration=duration,
                                             rating=rating,
                                             genre=genre,
                                             studio=studio,
                                             franchise=franchise,
                                             censored=censored,
-                                            my_list=my_list,
+                                            mylist=my_list,
                                             ids=ids,
                                             exclude_ids=exclude_ids,
                                             search=search))
@@ -697,7 +706,7 @@ class API:
         :return: Anime info
         :rtype: Anime
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/animes/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.anime(anime_id))
         return Anime(**response)
@@ -712,7 +721,7 @@ class API:
         :return: List of anime creators
         :rtype: List[Creator]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/animes/:id/roles" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_roles(anime_id))
         return [Creator(**creator) for creator in response]
@@ -727,7 +736,7 @@ class API:
         :return: List of similar animes
         :rtype: List[Anime]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/animes/:id/similar" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.similar_animes(anime_id))
         return [Anime(**anime) for anime in response]
@@ -742,7 +751,7 @@ class API:
         :return: List of relations
         :rtype: List[Relation]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/animes/:id/related" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_related_content(anime_id))
         return [Relation(**relation) for relation in response]
@@ -757,7 +766,7 @@ class API:
         :return: List of screenshot links
         :rtype: List[Screenshot]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/animes/:id/screenshots" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_screenshots(anime_id))
         return [Screenshot(**screenshot) for screenshot in response]
@@ -772,7 +781,7 @@ class API:
         :return: Franchise tree of certain anime
         :rtype: FranchiseTree
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/animes/:id/franchise" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.anime_franchise_tree(anime_id))
         return FranchiseTree(**response)
@@ -787,7 +796,7 @@ class API:
         :return: List of external links
         :rtype: List[Link]
         """
-        logger.debug('Executing API method')
+        logger.debug('Executing "/api/animes/:id/external_links" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_external_links(anime_id))
         return [Link(**link) for link in response]
@@ -796,7 +805,7 @@ class API:
                      anime_id: int,
                      page: Optional[int] = None,
                      limit: Optional[int] = None,
-                     kind: Optional[Status] = None,
+                     kind: Optional[AnimeStatus] = None,
                      episode: Optional[int] = None) -> Optional[List[Topic]]:
         """
         Returns list of topics of certain anime.
@@ -813,24 +822,22 @@ class API:
         :type limit: Optional[int]
 
         :param kind: Kind of anime (Uses status enum values)
-        :type kind: Optional[Status]
+        :type kind: Optional[AnimeStatus]
 
         :param episode: Number of anime episode
         :type episode: Optional[int]
 
         :return: List of topics or None, if page is empty
-        :rtype: Optional[List[Topic
+        :rtype: Optional[List[Topic]]
         """
-        logger.debug('Executing API method')
-        logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 30)
+        logger.debug('Executing "/api/animes/:id/topics" method')
+        validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
+                                                          limit=[limit, 30])
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_topics(anime_id),
-            query=Utils.generate_query_dict(page=page,
-                                            limit=limit,
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
                                             kind=kind,
                                             episode=episode))
         if response:
@@ -874,24 +881,27 @@ class API:
         """
         logger.debug('Executing API method')
         logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 30)
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 30],
+        )
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.bans_list,
-            query=Utils.generate_query_dict(page=page, limit=limit))
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit']))
         if response:
             return [Ban(**ban) for ban in response]
         return None
 
-    def calendar(self,
-                 censored: Optional[Censorship] = None) -> List[CalendarEvent]:
+    def calendar(
+            self,
+            censored: Optional[AnimeCensorship] = None) -> List[CalendarEvent]:
         """
         Returns current calendar events.
 
         :param censored: Status of censorship for events
-        :type censored: Optional[Censorship]
+        :type censored: Optional[AnimeCensorship]
 
         :return: List of calendar events
         :rtype: List[CalendarEvent]
@@ -953,15 +963,15 @@ class API:
         :rtype: Optional[List[Club]]
         """
         logger.debug('Executing API method')
-        logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 30)
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 30],
+        )
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.clubs,
-            query=Utils.generate_query_dict(page=page,
-                                            limit=limit,
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
                                             search=search))
         if response:
             return [Club(**club) for club in response]
@@ -1246,15 +1256,15 @@ class API:
         :rtype: Optional[List[Comment]]
         """
         logger.debug('Executing API method')
-        logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 30)
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 30],
+        )
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.comments,
-            query=Utils.generate_query_dict(page=page,
-                                            limit=limit,
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
                                             commentable_id=commentable_id,
                                             commentable_type=commentable_type,
                                             desc=desc))
@@ -1650,6 +1660,232 @@ class API:
         response: List[Dict[str, Any]] = self._request(self._endpoints.genres)
         return [Genre(**genre) for genre in response]
 
+    def mangas(self,
+               page: Optional[int] = None,
+               limit: Optional[int] = None,
+               order: Optional[MangaOrder] = None,
+               kind: Optional[Union[MangaKind, List[MangaKind]]] = None,
+               status: Optional[Union[MangaStatus, List[MangaStatus]]] = None,
+               season: Optional[Union[str, List[str]]] = None,
+               score: Optional[int] = None,
+               genre: Optional[Union[int, List[int]]] = None,
+               publisher: Optional[Union[int, List[int]]] = None,
+               franchise: Optional[Union[int, List[int]]] = None,
+               censored: Optional[MangaCensorship] = None,
+               my_list: Optional[Union[MangaList, List[MangaList]]] = None,
+               ids: Optional[Union[int, List[int]]] = None,
+               exclude_ids: Optional[Union[int, List[int]]] = None,
+               search: Optional[str] = None) -> Optional[List[Manga]]:
+        """
+        Returns mangas list.
+
+        :param page: Number of page
+        :type page: Optional[int]
+
+        :param limit: Number of results limit
+        :type limit: Optional[int]
+
+        :param order: Type of order in list
+        :type order: Optional[MangaOrder]
+
+        :param kind: Type(s) of manga topic
+        :type kind: Optional[Union[MangaKind, List[MangaKind]]
+
+        :param status: Type(s) of manga status
+        :type status: Optional[Union[MangaStatus, List[MangaStatus]]]
+
+        :param season: Name(s) of manga seasons
+        :type season: Optional[Union[str, List[str]]]
+
+        :param score: Minimal manga score
+        :type score: Optional[int]
+
+        :param publisher: Publisher(s) ID
+        :type publisher: Optional[Union[int, List[int]]
+
+        :param genre: Genre(s) ID
+        :type genre: Optional[Union[int, List[int]]
+
+        :param franchise: Franchise(s) ID
+        :type franchise: Optional[Union[int, List[int]]
+
+        :param censored: Type of manga censorship
+        :type censored: Optional[MangaCensorship]
+
+        :param my_list: Status(-es) of manga in current user list
+            Note: If app in restricted mode,
+            this won't affect on response.
+        :type my_list: Optional[Union[MangaList, List[MangaList]]]
+
+        :param ids: Manga(s) ID to include
+        :type ids: Optional[Union[int, List[int]]
+
+        :param exclude_ids: Manga(s) ID to exclude
+        :type exclude_ids: Optional[Union[int, List[int]]
+
+        :param search: Search phrase to filter mangas by name
+        :type search: Optional[str]
+
+        :return: List of Mangas or None, if page is empty
+        :rtype: Optional[List[Manga]]
+        """
+        logger.debug('Executing "/api/mangas" method')
+        validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
+                                                          limit=[limit, 50],
+                                                          score=[score, 9])
+
+        headers: Optional[Dict[str, str]] = None
+
+        if not self.restricted_mode:
+            headers = self._authorization_header
+
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.mangas,
+            headers=headers,
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
+                                            order=order,
+                                            kind=kind,
+                                            status=status,
+                                            season=season,
+                                            score=validated_numbers['score'],
+                                            genre=genre,
+                                            publisher=publisher,
+                                            franchise=franchise,
+                                            censored=censored,
+                                            mylist=my_list,
+                                            ids=ids,
+                                            exclude_ids=exclude_ids,
+                                            search=search))
+        if response:
+            return [Manga(**manga) for manga in response]
+        return None
+
+    def manga(self, manga_id: int) -> Manga:
+        """
+        Returns info about certain manga.
+
+        :param manga_id: Manga ID to get info
+        :type manga_id: int
+
+        :return: Manga info
+        :rtype: Manga
+        """
+        logger.debug('Executing "/api/mangas/:id" method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.manga(manga_id))
+        return Manga(**response)
+
+    def manga_creators(self, manga_id: int) -> List[Creator]:
+        """
+        Returns creators info of certain manga.
+
+        :param manga_id: Manga ID to get creators
+        :type manga_id: int
+
+        :return: List of manga creators
+        :rtype: List[Creator]
+        """
+        logger.debug('Executing "/api/mangas/:id/roles" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.manga_roles(manga_id))
+        return [Creator(**creator) for creator in response]
+
+    def similar_mangas(self, manga_id: int) -> List[Manga]:
+        """
+        Returns list of similar mangas for certain manga.
+
+        :param manga_id: Manga ID to get similar mangas
+        :type manga_id: int
+
+        :return: List of similar mangas
+        :rtype: List[Manga]
+        """
+        logger.debug('Executing "/api/mangas/:id/similar" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.similar_mangas(manga_id))
+        return [Manga(**manga) for manga in response]
+
+    def manga_related_content(self, manga_id: int) -> List[Relation]:
+        """
+        Returns list of related content of certain manga.
+
+        :param manga_id: Manga ID to get related content
+        :type manga_id: int
+
+        :return: List of relations
+        :rtype: List[Relation]
+        """
+        logger.debug('Executing "/api/mangas/:id/related" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.manga_related_content(manga_id))
+        return [Relation(**relation) for relation in response]
+
+    def manga_franchise_tree(self, manga_id: int) -> FranchiseTree:
+        """
+        Returns franchise tree of certain manga.
+
+        :param manga_id: Manga ID to get franchise tree
+        :type manga_id: int
+
+        :return: Franchise tree of certain manga
+        :rtype: FranchiseTree
+        """
+        logger.debug('Executing "/api/mangas/:id/franchise" method')
+        response: Dict[str, Any] = self._request(
+            self._endpoints.manga_franchise_tree(manga_id))
+        return FranchiseTree(**response)
+
+    def manga_external_links(self, manga_id: int) -> List[Link]:
+        """
+        Returns list of external links of certain manga.
+
+        :param manga_id: Manga ID to get external links
+        :type manga_id: int
+
+        :return: List of external links
+        :rtype: List[Link]
+        """
+        logger.debug('Executing "/api/mangas/:id/external_links" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.manga_external_links(manga_id))
+        return [Link(**link) for link in response]
+
+    def manga_topics(self,
+                     manga_id: int,
+                     page: Optional[int] = None,
+                     limit: Optional[int] = None) -> Optional[List[Topic]]:
+        """
+        Returns list of topics of certain manga.
+
+        If some data are not provided, using default values.
+
+        :param manga_id: Manga ID to get topics
+        :type manga_id: int
+
+        :param page: Number of page
+        :type page: Optional[int]
+
+        :param limit: Number of results limit
+        :type limit: Optional[int]
+
+        :return: List of topics or None, if page is empty
+        :rtype: Optional[List[Topic]]
+        """
+        logger.debug('Executing "/api/mangas/:id/topics" method')
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 30],
+        )
+
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.manga_topics(manga_id),
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit']))
+        if response:
+            return [Topic(**topic) for topic in response]
+        return None
+
     def users(self,
               page: Optional[int] = None,
               limit: Optional[int] = None) -> Optional[List[User]]:
@@ -1666,14 +1902,15 @@ class API:
         :rtype: Optional[List[User]]
         """
         logger.debug('Executing API method')
-        logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 100)
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 100],
+        )
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.users,
-            query=Utils.generate_query_dict(page=page, limit=limit))
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit']))
         if response:
             return [User(**user) for user in response]
         return None
@@ -1791,8 +2028,9 @@ class API:
             is_nickname: Optional[bool] = None,
             page: Optional[int] = None,
             limit: Optional[int] = None,
-            status: Optional[MyList] = None,
-            censored: Optional[Censorship] = None) -> Optional[List[UserList]]:
+            status: Optional[AnimeList] = None,
+            censored: Optional[AnimeCensorship] = None
+    ) -> Optional[List[UserList]]:
         """
         Returns user's anime list.
 
@@ -1809,25 +2047,25 @@ class API:
         :type limit: Optional[int]
 
         :param status: Status of status of anime in list
-        :type status: Optional[MyList]
+        :type status: Optional[AnimeList]
 
         :param censored: Type of anime censorship
-        :type censored: Optional[Censorship]
+        :type censored: Optional[AnimeCensorship]
 
         :return: User's anime list or None, if page is empty
         :rtype: Optional[List[UserList]]
         """
         logger.debug('Executing API method')
-        logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 5000)
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 5000],
+        )
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_anime_rates(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
-                                            page=page,
-                                            limit=limit,
+                                            page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
                                             status=status,
                                             censored=censored))
         if response:
@@ -1840,7 +2078,8 @@ class API:
             is_nickname: Optional[bool] = None,
             page: Optional[int] = None,
             limit: Optional[int] = None,
-            censored: Optional[Censorship] = None) -> Optional[List[UserList]]:
+            censored: Optional[AnimeCensorship] = None
+    ) -> Optional[List[UserList]]:
         """
         Returns user's manga list.
 
@@ -1857,22 +2096,22 @@ class API:
         :type limit: Optional[int]
 
         :param censored: Type of manga censorship
-        :type censored: Optional[Censorship]
+        :type censored: Optional[AnimeCensorship]
 
         :return: User's manga list or None, if page is empty
         :rtype: Optional[List[UserList]]
         """
         logger.debug('Executing API method')
-        logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 5000)
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 5000],
+        )
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_manga_rates(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
-                                            page=page,
-                                            limit=limit,
+                                            page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
                                             censored=censored))
         if response:
             return [UserList(**user_list) for user_list in response]
@@ -1930,17 +2169,17 @@ class API:
         :rtype: Optional[List[Message]]
         """
         logger.debug('Executing API method')
-        logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 100)
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 100],
+        )
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_messages(user_id),
             headers=self._authorization_header,
             query=Utils.generate_query_dict(is_nickname=is_nickname,
-                                            page=page,
-                                            limit=limit,
+                                            page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
                                             type=message_type))
         if response:
             return [Message(**message) for message in response]
@@ -2004,16 +2243,16 @@ class API:
         :rtype: Optional[List[History]]
         """
         logger.debug('Executing API method')
-        logger.debug('Checking page parameter')
-        page = Utils.validate_query_number(page, 100000)
-        logger.debug('Checking limit parameter')
-        limit = Utils.validate_query_number(limit, 100)
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 100],
+        )
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_history(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname,
-                                            page=page,
-                                            limit=limit,
+                                            page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
                                             target_id=target_id,
                                             target_type=target_type))
         if response:
