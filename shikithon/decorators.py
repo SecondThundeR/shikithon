@@ -37,8 +37,7 @@ def protected_method(scope=None):
                 or if required scope is missing
             :rtype: None
             """
-            logger.debug('Checking the possibility of using a protected '
-                         f'"{function.__name__}" method')
+            logger.debug('Checking the possibility of using a protected method')
             if api.restricted_mode:
                 logger.debug('It is not possible to use the protected method '
                              'due to the restricted mode')
