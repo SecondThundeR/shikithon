@@ -609,12 +609,12 @@ class Endpoints:
         """
         return f'{self.base_url}/dialogs'
 
-    def dialog(self, dialog_id: int) -> str:
+    def dialog(self, dialog_id: Union[int, str]) -> str:
         """
-        Returns endpoint of a certain comment.
+        Returns endpoint of a certain dialog with user.
 
-        :param dialog_id: Dialog ID for endpoint
-        :type dialog_id: int
+        :param dialog_id: User ID/Nickname for endpoint
+        :type dialog_id: Union[int, str]
 
         :return: Dialog endpoint link
         :rtype: str
