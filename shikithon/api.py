@@ -1089,97 +1089,6 @@ class API:
             f'Detailed information about updating the club {response=}')
         return Club(**response) if 'errors' not in response else None
 
-    @protected_method()
-    def create_favorite(self,
-                        linked_type: LinkedType,
-                        linked_id: int,
-                        kind: PersonKind = PersonKind.NONE) -> bool:
-        """
-        Creates a favorite.
-
-        :param linked_type: Type of object for making favorite
-        :type linked_type: LinkedType
-
-        :param linked_id: ID of linked type
-        :type linked_id: int
-
-        :param kind: Kind of linked type
-            (Required when linked_type is LinkedType.Person)
-        :type kind: PersonKind
-
-        :return: Status of favorite create
-        :rtype: bool
-        """
-        logger.debug('Executing API method')
-        response: Dict[str,
-                       Any] = self._request(self._endpoints.favorites_create(
-                           linked_type, linked_id, kind),
-                                            headers=self._authorization_header,
-                                            request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about creating a favorite {response=}')
-        return 'success' in response
-
-    @protected_method()
-    def destroy_favorite(self, linked_type: LinkedType, linked_id: int) -> bool:
-        """
-        Destroys a favorite.
-
-        :param linked_type: Type of object for destroying from favorite
-        :type linked_type: LinkedType
-
-        :param linked_id: ID of linked type
-        :type linked_id: int
-
-        :return: Status of favorite destroy
-        :rtype: bool
-        """
-        logger.debug('Executing API method')
-        response: Dict[str,
-                       Any] = self._request(self._endpoints.favorites_destroy(
-                           linked_type, linked_id),
-                                            headers=self._authorization_header,
-                                            request_type=RequestType.DELETE)
-        logger.debug(
-            f'Detailed information about destroying a favorite {response=}')
-        return 'success' in response
-
-    @protected_method()
-    def reorder_favorite(self,
-                         favorite_id: int,
-                         new_index: Optional[int] = None):
-        """
-        Reorders a favorite to the new index.
-
-        :param favorite_id: ID of a favorite to reorder
-        :type favorite_id: int
-
-        :param new_index: Index of a new position of favorite
-        :type new_index: Optional[int]
-        """
-        logger.debug('Executing API method')
-        response: Union[Dict[str, Any], int] = self._request(
-            self._endpoints.favorites_reorder(favorite_id),
-            headers=self._authorization_header,
-            query=Utils.generate_query_dict(new_index=new_index),
-            request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about reordering a favorite {response=}')
-        if isinstance(response, int):
-            return response == ResponseCode.SUCCESS.value
-        return False
-
-    def forums(self) -> List[Forum]:
-        """
-        Returns list of forums.
-
-        :returns: List of forums
-        :rtype: List[Forum]
-        """
-        logger.debug('Executing API method')
-        response: List[Dict[str, Any]] = self._request(self._endpoints.forums)
-        return [Forum(**forum) for forum in response]
-
     def club_animes(self, club_id: int) -> List[Anime]:
         """
         Returns anime list of club.
@@ -1574,6 +1483,97 @@ class API:
         logger.debug(
             f'Detailed information about deleting the dialog {response=}')
         return 'notice' in response
+
+    @protected_method()
+    def create_favorite(self,
+                        linked_type: LinkedType,
+                        linked_id: int,
+                        kind: PersonKind = PersonKind.NONE) -> bool:
+        """
+        Creates a favorite.
+
+        :param linked_type: Type of object for making favorite
+        :type linked_type: LinkedType
+
+        :param linked_id: ID of linked type
+        :type linked_id: int
+
+        :param kind: Kind of linked type
+            (Required when linked_type is LinkedType.Person)
+        :type kind: PersonKind
+
+        :return: Status of favorite create
+        :rtype: bool
+        """
+        logger.debug('Executing API method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.favorites_create(
+                           linked_type, linked_id, kind),
+                                            headers=self._authorization_header,
+                                            request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about creating a favorite {response=}')
+        return 'success' in response
+
+    @protected_method()
+    def destroy_favorite(self, linked_type: LinkedType, linked_id: int) -> bool:
+        """
+        Destroys a favorite.
+
+        :param linked_type: Type of object for destroying from favorite
+        :type linked_type: LinkedType
+
+        :param linked_id: ID of linked type
+        :type linked_id: int
+
+        :return: Status of favorite destroy
+        :rtype: bool
+        """
+        logger.debug('Executing API method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.favorites_destroy(
+                           linked_type, linked_id),
+                                            headers=self._authorization_header,
+                                            request_type=RequestType.DELETE)
+        logger.debug(
+            f'Detailed information about destroying a favorite {response=}')
+        return 'success' in response
+
+    @protected_method()
+    def reorder_favorite(self,
+                         favorite_id: int,
+                         new_index: Optional[int] = None):
+        """
+        Reorders a favorite to the new index.
+
+        :param favorite_id: ID of a favorite to reorder
+        :type favorite_id: int
+
+        :param new_index: Index of a new position of favorite
+        :type new_index: Optional[int]
+        """
+        logger.debug('Executing API method')
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.favorites_reorder(favorite_id),
+            headers=self._authorization_header,
+            query=Utils.generate_query_dict(new_index=new_index),
+            request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about reordering a favorite {response=}')
+        if isinstance(response, int):
+            return response == ResponseCode.SUCCESS.value
+        return False
+
+    def forums(self) -> List[Forum]:
+        """
+        Returns list of forums.
+
+        :returns: List of forums
+        :rtype: List[Forum]
+        """
+        logger.debug('Executing API method')
+        response: List[Dict[str, Any]] = self._request(self._endpoints.forums)
+        return [Forum(**forum) for forum in response]
 
     def users(self,
               page: Optional[int] = None,
