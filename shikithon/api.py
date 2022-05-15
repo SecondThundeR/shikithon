@@ -40,6 +40,7 @@ from shikithon.models.constants import (AnimeConstants, ClubConstants,
                                         MangaConstants, SmileyConstants,
                                         UserRateConstants)
 from shikithon.models.creator import Creator
+from shikithon.models.dialog import Dialog
 from shikithon.models.favourites import Favourites
 from shikithon.models.franchise_tree import FranchiseTree
 from shikithon.models.history import History
@@ -1465,6 +1466,59 @@ class API:
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.smileys_constants)
         return [SmileyConstants(**smiley) for smiley in response]
+
+    @protected_method(scope='messages')
+    def dialogs(self) -> Union[List[Dialog], None]:
+        """
+        Returns list of current user's dialogs.
+
+        :return: List of dialogs or None, if there are no dialogs
+        :rtype: Union[List[Dialog], None]
+        """
+        logger.debug('Executing API method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.dialogs, headers=self._authorization_header)
+        if response:
+            return [Dialog(**dialog) for dialog in response]
+        return None
+
+    @protected_method(scope='messages')
+    def dialog(self, user_id: Union[int, str]) -> Union[List[Message], None]:
+        """
+        Returns list of current user's messages with certain user.
+
+        :param user_id: ID/Nickname of the user to get dialog
+        :type user_id: Union[int, str]
+
+        :return: List of messages or None, if there are no messages
+        :rtype: Union[List[Message], None]
+        """
+        logger.debug('Executing API method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.dialog(user_id), headers=self._authorization_header)
+        if response:
+            return [Message(**message) for message in response]
+        return None
+
+    @protected_method(scope='messages')
+    def delete_dialog(self, user_id: Union[int, str]) -> bool:
+        """
+        Deletes dialog of current user with certain user.
+
+        :param user_id: ID/Nickname of the user to delete dialog
+        :type user_id: Union[int, str]
+
+        :return: Status of message deletion
+        :rtype: bool
+        """
+        logger.debug('Executing API method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.dialog(user_id),
+            headers=self._authorization_header,
+            request_type=RequestType.DELETE)
+        logger.debug(
+            f'Detailed information about deleting the dialog: {response=}')
+        return 'notice' in response
 
     def users(self,
               page: Union[int, None] = None,
