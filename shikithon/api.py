@@ -493,37 +493,37 @@ class API:
         :return: Response JSON, text or status code
         :rtype: Union[List[Dict[str, Any]], Dict[str, Any], str, None]
         """
-        response: Union[Response, None] = None
 
         logger.info(f'{request_type.value} {url}')
         logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
 
         if request_type == RequestType.GET:
-            response = self._session.get(url, headers=headers, params=query)
-        if request_type == RequestType.POST:
-            response = self._session.post(url,
-                                          headers=headers,
-                                          params=query,
-                                          json=data)
-        if request_type == RequestType.PUT:
-            response = self._session.put(url,
-                                         headers=headers,
-                                         params=query,
-                                         json=data)
-        if request_type == RequestType.PATCH:
-            response = self._session.patch(url,
-                                           headers=headers,
-                                           params=query,
-                                           json=data)
-        if request_type == RequestType.DELETE:
-            response = self._session.delete(url,
-                                            headers=headers,
-                                            params=query,
-                                            json=data)
-
-        if response is None:
-            logger.debug('Response is empty. Returning None')
-            return response
+            response: Response = self._session.get(url,
+                                                   headers=headers,
+                                                   params=query)
+        elif request_type == RequestType.POST:
+            response: Response = self._session.post(url,
+                                                    headers=headers,
+                                                    params=query,
+                                                    json=data)
+        elif request_type == RequestType.PUT:
+            response: Response = self._session.put(url,
+                                                   headers=headers,
+                                                   params=query,
+                                                   json=data)
+        elif request_type == RequestType.PATCH:
+            response: Response = self._session.patch(url,
+                                                     headers=headers,
+                                                     params=query,
+                                                     json=data)
+        elif request_type == RequestType.DELETE:
+            response: Response = self._session.delete(url,
+                                                      headers=headers,
+                                                      params=query,
+                                                      json=data)
+        else:
+            logger.debug('Unknown request_type. Returning None')
+            return None
 
         if response.status_code == ResponseCode.RETRY_LATER.value:
             logger.info('Hit RPS cooldown. Waiting on request repeat')
@@ -534,7 +534,7 @@ class API:
             logger.debug('Extracting JSON from response')
             return response.json()
         except JSONDecodeError:
-            logger.error('Failed JSON extracting. Returning text/status_code')
+            logger.warning('Failed JSON extracting. Returning text/status_code')
             return response.status_code if not response.text else response.text
 
     def refresh_tokens(self):
