@@ -422,10 +422,9 @@ class API:
                                               request_type=RequestType.POST)
 
         try:
-            logger.info('Returning new access and refresh tokens')
+            logger.debug('Returning new access and refresh tokens')
             return oauth_json['access_token'], oauth_json['refresh_token']
         except KeyError as err:
-            logger.critical('Failed returning new tokens')
             error_info = dumps(oauth_json)
             raise AccessTokenException(
                 'An error occurred while receiving tokens, '
@@ -527,7 +526,7 @@ class API:
             return response
 
         if response.status_code == ResponseCode.RETRY_LATER.value:
-            logger.warning('Hit RPS cooldown. Waiting on request repeat')
+            logger.info('Hit RPS cooldown. Waiting on request repeat')
             sleep(RATE_LIMIT_RPS_COOLDOWN)
             return self._request(url, data, headers, query, request_type)
 
