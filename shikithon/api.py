@@ -1087,7 +1087,7 @@ class API:
                 banned_user_ids=banned_user_ids),
             request_type=RequestType.PATCH)
         logger.debug(
-            f'Detailed information about updating the club: {response=}')
+            f'Detailed information about updating the club {response=}')
         return Club(**response) if 'errors' not in response else None
 
     def club_animes(self, club_id: int) -> List[Anime]:
@@ -1196,8 +1196,7 @@ class API:
                         int] = self._request(self._endpoints.club_join(club_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about joining the club: {response=}')
+        logger.debug(f'Detailed information about joining the club {response=}')
         return response == ResponseCode.SUCCESS.value
 
     @protected_method(scope='clubs')
@@ -1216,8 +1215,7 @@ class API:
             self._endpoints.club_leave(club_id),
             headers=self._authorization_header,
             request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about leaving the club: {response=}')
+        logger.debug(f'Detailed information about leaving the club {response=}')
         return response == ResponseCode.SUCCESS.value
 
     def comments(self,
@@ -1329,7 +1327,7 @@ class API:
                                             data=data_dict,
                                             request_type=RequestType.POST)
         logger.debug(
-            f'Detailed information about creating the comment: {response=}')
+            f'Detailed information about creating the comment {response=}')
         return Comment(**response) if 'errors' not in response else None
 
     @protected_method(scope='comments')
@@ -1354,7 +1352,7 @@ class API:
             data=Utils.generate_data_dict(dict_name='comment', body=body),
             request_type=RequestType.PATCH)
         logger.debug(
-            f'Detailed information about updating the comment: {response=}')
+            f'Detailed information about updating the comment {response=}')
         return Comment(**response) if 'errors' not in response else None
 
     @protected_method(scope='comments')
@@ -1374,7 +1372,7 @@ class API:
                                             headers=self._authorization_header,
                                             request_type=RequestType.DELETE)
         logger.debug(
-            f'Detailed information about deleting the comment: {response=}')
+            f'Detailed information about deleting the comment {response=}')
         return 'notice' in response
 
     def anime_constants(self) -> AnimeConstants:
@@ -1486,7 +1484,7 @@ class API:
             headers=self._authorization_header,
             request_type=RequestType.DELETE)
         logger.debug(
-            f'Detailed information about deleting the dialog: {response=}')
+            f'Detailed information about deleting the dialog {response=}')
         return 'notice' in response
 
     def users(self,
