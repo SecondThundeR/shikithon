@@ -675,7 +675,7 @@ class API:
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.animes,
             headers=headers,
-            query=Utils.generate_query_dict(page=validated_numbers['name'],
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             order=order,
                                             kind=kind,
