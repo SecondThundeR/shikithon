@@ -1318,7 +1318,7 @@ class API:
         :param broadcast: Broadcast comment in club’s topic status
         :type broadcast: Optional[bool]
 
-        :return: Updated comment info or None if an error occurred
+        :return: Created comment info or None if an error occurred
         :rtype: Optional[Comment]
         """
         logger.debug('Executing "/api/comments" method')
