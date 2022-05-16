@@ -1894,6 +1894,190 @@ class API:
             return [Topic(**topic) for topic in response]
         return None
 
+    @protected_method(scope='messages')
+    def message(self, message_id) -> Message:
+        """
+        Returns message info.
+
+        :param message_id: ID of message to get info
+        :type message_id: int
+
+        :return: Message info
+        :rtype: Message
+        """
+        logger.debug('Executing "/api/messages/:id" method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.message(message_id),
+                                            headers=self._authorization_header)
+        return Message(**response)
+
+    @protected_method(scope='messages')
+    def create_message(self, body: str, from_id: int,
+                       to_id: int) -> Optional[Message]:
+        """
+        Updates message.
+
+        :param body: Body of message
+        :type body: str
+
+        :param from_id: Sender ID
+        :type from_id: int
+
+        :param to_id: Reciver ID
+        :type to_id: int
+
+        :return: Created message info or None if an error occurred
+        :rtype: Optional[Message]
+        """
+        logger.debug('Executing "/api/messages" method')
+        response: Dict[str, Any] = self._request(
+            self._endpoints.messages,
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='message',
+                                          body=body,
+                                          from_id=from_id,
+                                          kind='Private',
+                                          to_id=to_id),
+            request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about creating the message {response=}')
+        return Message(**response) if 'errors' not in response else None
+
+    @protected_method(scope='messages')
+    def update_message(self, message_id: int, body: str) -> Optional[Message]:
+        """
+        Updates message.
+
+        :param message_id: ID of message to update
+        :type message_id: int
+
+        :param body: New body of message
+        :type body: str
+
+        :return: Updated message info or None if an error occurred
+        :rtype: Optional[Message]
+        """
+        logger.debug('Executing "/api/messages/:id" method')
+        response: Dict[str, Any] = self._request(
+            self._endpoints.message(message_id),
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='message', body=body),
+            request_type=RequestType.PATCH)
+        logger.debug(
+            f'Detailed information about updating the message {response=}')
+        return Message(**response) if 'errors' not in response else None
+
+    @protected_method(scope='messages')
+    def delete_message(self, message_id: int) -> bool:
+        """
+        Deletes message.
+
+        :param message_id: ID of message to delete
+        :type message_id: int
+
+        :return: Status of message deletion
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/messages/:id" method')
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.message(message_id),
+            headers=self._authorization_header,
+            request_type=RequestType.DELETE)
+        logger.debug(
+            f'Detailed information about deleting the message {response=}')
+        if isinstance(response, int):
+            return response == ResponseCode.NO_CONTENT.value
+        return False
+
+    @protected_method(scope='messages')
+    def message_mark_read(self,
+                          message_ids: Optional[Union[int, List[int]]] = None,
+                          is_read: Optional[bool] = None) -> bool:
+        """
+        Marks read/unread selected messages.
+
+        This method uses generate_query_dict for data dict,
+        because there is no need for nested dictionary
+
+        :param message_ids: ID(s) of messages to mark read/unread
+        :type message_ids: Optional[Union[int, List[int]]]
+
+        :param is_read: Status of message (read/unread)
+        :type is_read: Optional[bool]
+
+        :return: Status of messages read/unread
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/messages/mark_read" method')
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.messages_mark_read,
+            headers=self._authorization_header,
+            data=Utils.generate_query_dict(ids=message_ids, is_read=is_read),
+            request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about marking selected messages {response=}')
+        if isinstance(response, int):
+            return response == ResponseCode.SUCCESS.value
+        return False
+
+    @protected_method(scope='messages')
+    def read_all_messages(self, message_type: MessageType) -> bool:
+        """
+        Reads all messages on current user's account.
+
+        This method uses generate_query_dict for data dict,
+        because there is no need for nested dictionary
+
+        Note: This methods accepts as type only MessageType.NEWS and
+        MessageType.NOTIFICATIONS
+
+        :param message_type: Type of messages to read
+        :type message_type: MessageType
+
+        :return: Status of messages read
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/messages/read_all" method')
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.messages_read_all,
+            headers=self._authorization_header,
+            data=Utils.generate_query_dict(type=message_type),
+            request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about reading all messages {response=}')
+        if isinstance(response, int):
+            return response == ResponseCode.SUCCESS.value
+        return False
+
+    @protected_method(scope='messages')
+    def delete_all_messages(self, message_type: MessageType) -> bool:
+        """
+        Deletes all messages on current user's account.
+
+        This method uses generate_query_dict for data dict,
+        because there is no need for nested dictionary
+
+        Note: This methods accepts as type only MessageType.NEWS and
+        MessageType.NOTIFICATIONS
+
+        :param message_type: Type of messages to delete
+        :type message_type: MessageType
+
+        :return: Status of messages deletion
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/messages/delete_all" method')
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.messages_delete_all,
+            headers=self._authorization_header,
+            data=Utils.generate_query_dict(type=message_type),
+            request_type=RequestType.POST)
+        logger.debug(
+            f'Detailed information about deleting all messages {response=}')
+        if isinstance(response, int):
+            return response == ResponseCode.SUCCESS.value
+        return False
+
     def users(self,
               page: Optional[int] = None,
               limit: Optional[int] = None) -> Optional[List[User]]:
