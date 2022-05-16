@@ -106,8 +106,10 @@ class Utils:
                 for item in data:
                     if isinstance(item, Enum):
                         formatted_data.append(item.value)
-                    elif item.isdigit():
+                    elif isinstance(item, int):
                         formatted_data.append(str(item))
+                    elif isinstance(item, str) and item.isdigit():
+                        formatted_data.append(item)
                 query_dict[key] = ','.join(formatted_data)
             else:
                 query_dict[key] = data
@@ -157,8 +159,10 @@ class Utils:
                 for item in data:
                     if isinstance(item, Enum):
                         formatted_data.append(item.value)
-                    elif item.isdigit():
+                    elif isinstance(item, int):
                         formatted_data.append(str(item))
+                    elif isinstance(item, str) and item.isdigit():
+                        formatted_data.append(item)
                 new_data_dict[data_dict_name][key] = ','.join(formatted_data)
             else:
                 new_data_dict[data_dict_name][key] = data
