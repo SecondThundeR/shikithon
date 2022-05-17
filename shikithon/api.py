@@ -881,7 +881,7 @@ class API:
         :type limit: Optional[int]
 
         :return: List of recent bans or None, if page is empty
-        :rtype: Optional[List[Ban
+        :rtype: Optional[List[Ban]]
         """
         logger.debug('Executing "/api/bans" method')
         logger.debug('Checking page parameter')
@@ -961,7 +961,7 @@ class API:
         :type limit: Optional[int]
 
         :param search: Search phrase to filter clubs by name
-        :type search: Optional[str
+        :type search: Optional[str]
 
         :return: Clubs list or None, if page is empty
         :rtype: Optional[List[Club]]
@@ -1023,10 +1023,10 @@ class API:
         :type club_id: int
 
         :param name: New name of club
-        :type name: Optional[str
+        :type name: Optional[str]
 
         :param description: New description of club
-        :type description: Optional[str
+        :type description: Optional[str]
 
         :param display_images: New display images status of club
         :type display_images: Optional[bool]
@@ -1916,7 +1916,7 @@ class API:
     def create_message(self, body: str, from_id: int,
                        to_id: int) -> Optional[Message]:
         """
-        Updates message.
+        Creates message.
 
         :param body: Body of message
         :type body: str
