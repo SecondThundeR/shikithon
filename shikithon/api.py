@@ -2209,7 +2209,7 @@ class API:
         return User(**response)
 
     @protected_method()
-    def sign_out(self):
+    def user_sign_out(self):
         """Sends sign out request to API."""
         logger.debug('Executing "/api/users/sign_out" method')
         self._request(self._endpoints.sign_out,
