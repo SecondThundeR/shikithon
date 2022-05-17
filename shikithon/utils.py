@@ -51,7 +51,7 @@ class Utils:
         :return: Converted app name for filename
         :rtype: str
         """
-        logger.debug(f'Converting "{app_name}" for cached config')
+        logger.debug(f'Converting {app_name=} for cached config')
         return '_'.join(app_name.lower().split(' '))
 
     @staticmethod
@@ -71,7 +71,8 @@ class Utils:
 
     @staticmethod
     def generate_query_dict(
-        **params_data: Optional[Union[str, bool, int, Enum, List[int]]]
+        **params_data: Optional[Union[str, bool, int, Enum, List[Union[int,
+                                                                       str]]]]
     ) -> Dict[str, str]:
         """
         Returns valid query dict for API requests.
@@ -79,7 +80,8 @@ class Utils:
         This methods checks for data type and converts to valid one.
 
         :param params_data: API methods parameters data
-        :type params_data: Optional[Union[str, bool, int, Enum, List[int]]]
+        :type params_data:
+            Optional[Union[str, bool, int, Enum, List[Union[int, str]]]]
 
         :return: Valid query dictionary
         :rtype: Dict[str, str]
@@ -100,10 +102,15 @@ class Utils:
             elif isinstance(data, Enum):
                 query_dict[key] = data.value
             elif isinstance(data, list):
-                data = [
-                    str(value) if value.isdigit() else value for value in data
-                ]
-                query_dict[key] = ','.join(data)
+                formatted_data: List[str] = []
+                for item in data:
+                    if isinstance(item, Enum):
+                        formatted_data.append(item.value)
+                    elif isinstance(item, int):
+                        formatted_data.append(str(item))
+                    elif isinstance(item, str) and item.isdigit():
+                        formatted_data.append(item)
+                query_dict[key] = ','.join(formatted_data)
             else:
                 query_dict[key] = data
         logger.debug(f'Generated query dictionary: {query_dict=}')
@@ -148,10 +155,15 @@ class Utils:
             elif isinstance(data, Enum):
                 new_data_dict[data_dict_name][key] = data.value
             elif isinstance(data, list):
-                data = [
-                    str(value) if value.isdigit() else value for value in data
-                ]
-                new_data_dict[data_dict_name][key] = ','.join(data)
+                formatted_data: List[str] = []
+                for item in data:
+                    if isinstance(item, Enum):
+                        formatted_data.append(item.value)
+                    elif isinstance(item, int):
+                        formatted_data.append(str(item))
+                    elif isinstance(item, str) and item.isdigit():
+                        formatted_data.append(item)
+                new_data_dict[data_dict_name][key] = ','.join(formatted_data)
             else:
                 new_data_dict[data_dict_name][key] = data
         logger.debug(f'Generated data dictionary: {new_data_dict=}')
@@ -163,8 +175,8 @@ class Utils:
         """
         Validates query number.
 
-        If number is not in range, returns lower limit number,
-        otherwise number or None.
+        If number is lower, returns lower limit, else upper limit.
+        If number is None, returns or None.
 
         :param query_number: Number to validate
         :type query_number: Optional[int]
@@ -172,17 +184,60 @@ class Utils:
         :param upper_limit: Upper limit for range check
         :type upper_limit: int
 
-        :return: Validated value
+        :return: Validated number
         :rtype: Optional[int]
         """
-        logger.debug(f'Validating query number ({query_number}) '
-                     f'with upper limit ({upper_limit})')
+        logger.debug(f'Validating query number ("{query_number}") '
+                     f'with upper limit ("{upper_limit}")')
         if query_number is None:
-            logger.debug('Query number is None')
+            logger.debug('Query number is "None"')
             return query_number
-        if query_number < LOWER_LIMIT_NUMBER or query_number > upper_limit:
-            logger.debug(f'Query number ({query_number}) is not in range. '
+
+        if query_number < LOWER_LIMIT_NUMBER:
+            logger.debug(f'Query number ("{query_number}") is lower '
+                         f'than lower limit ("{LOWER_LIMIT_NUMBER}"). '
                          f'Returning {LOWER_LIMIT_NUMBER=}')
             return LOWER_LIMIT_NUMBER
-        logger.debug(f'Returning validated query number ({query_number})')
+
+        if query_number > upper_limit:
+            logger.debug(f'Query number ("{query_number}") is higher '
+                         f'than upper limit ("{upper_limit}"). '
+                         f'Returning {upper_limit=}')
+            return upper_limit
+
+        logger.debug(f'Returning passed query number ("{query_number}")')
         return query_number
+
+    @staticmethod
+    def query_numbers_validator(**query_numbers: List[Optional[int]]
+                               ) -> Dict[str, Optional[int]]:
+        """
+        Gets all query numbers to validate and returns validated numbers.
+
+        This method uses validate_query_number method for validating.
+
+        Query numbers are passed in such form:
+            { "page": [1, 100], ... }
+
+            "page" <- Name of query number
+
+            [1 (Passed value), 100 (Upper limit value)]
+
+        This method outputs them like this:
+            { "page": 1 }
+
+            "page" <- Name of query number
+
+            1 <- Validated number
+
+        :param query_numbers: Passed query numbers to validate
+        :type query_numbers: List[Optional[int]]
+        :return: Dict of validated numbers
+        :rtype: Dict[str, Optional[int]]
+        """
+        validated_numbers: Dict[str, Optional[int]] = {}
+        for name, data in query_numbers.items():
+            logger.debug(f'Checking "{name}" parameter')
+            validated_numbers[name] = (Utils.validate_query_number(
+                data[0], data[1]))
+        return validated_numbers

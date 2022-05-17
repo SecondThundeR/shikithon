@@ -123,7 +123,7 @@ class ConfigCache:
 
         try:
             with open(config_name, 'w', encoding='utf-8') as config_file:
-                config_file.write(dumps(config))
+                config_file.write(dumps(config, indent=4))
             return True
         except IOError as err:
             logger.warning(f'Couldn\'t save config to file: {err}')
