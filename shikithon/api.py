@@ -54,6 +54,7 @@ from shikithon.models.history import History
 from shikithon.models.link import Link
 from shikithon.models.manga import Manga
 from shikithon.models.message import Message
+from shikithon.models.people import People
 from shikithon.models.ranobe import Ranobe
 from shikithon.models.relation import Relation
 from shikithon.models.screenshot import Screenshot
@@ -935,7 +936,7 @@ class API:
         Returns list of found characters.
 
         :param search: Search query for characters
-        :type search: Optional[str
+        :type search: Optional[str]
 
         :return: List of found characters
         :rtype: List[Character]
@@ -2077,6 +2078,48 @@ class API:
         if isinstance(response, int):
             return response == ResponseCode.SUCCESS.value
         return False
+
+    def people(self, people_id: int) -> People:
+        """
+        Returns info about a person.
+
+        :param people_id: ID of person to get info
+        :type people_id: int
+
+        :return: Info about a person
+        :rtype: People
+        """
+        logger.debug('Executing "/api/people/:id" method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.people(people_id))
+        return People(**response)
+
+    def people_search(
+            self,
+            search: Optional[str] = None,
+            people_kind: Optional[PersonKind] = None) -> Optional[List[People]]:
+        """
+        Returns list of found persons.
+
+        Note: This API method only allows PersonKind.SEYU,
+        PersonKind.MANGAKA or PersonKind.PRODUCER as kind parameter
+
+        :param search:  Search query for persons
+        :type search: Optional[str]
+
+        :param people_kind: Kind of person for searching
+        :type people_kind: Optional[PersonKind]
+
+        :return: List of found persons or None, if list is empty
+        :rtype: Optional[List[People]]
+        """
+        logger.debug('Executing "/api/people/search" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.people_search,
+            query=Utils.generate_query_dict(search=search, kind=people_kind))
+        if not response:
+            return None
+        return [People(**people) for people in response]
 
     def users(self,
               page: Optional[int] = None,
