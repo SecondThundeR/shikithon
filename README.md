@@ -192,7 +192,7 @@ print(user_achievements[0])
 - [isort](https://github.com/PyCQA/isort) для сортировки импортов
 [(Лицензия)](https://github.com/PyCQA/isort/blob/main/LICENSE)
 - [pre-commit](https://github.com/pre-commit/pre-commit) для автоматизации всего вот этого выше :)
-- [(Лицензия)](https://github.com/pre-commit/pre-commit/blob/main/LICENSE)
+[(Лицензия)](https://github.com/pre-commit/pre-commit/blob/main/LICENSE)
 
 ## Лицензия проекта
 
