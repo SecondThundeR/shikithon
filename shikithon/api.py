@@ -911,8 +911,9 @@ class API:
         return None
 
     def calendar(
-            self,
-            censored: Optional[AnimeCensorship] = None) -> Optional[List[CalendarEvent]]:
+        self,
+        censored: Optional[AnimeCensorship] = None
+    ) -> Optional[List[CalendarEvent]]:
         """
         Returns current calendar events.
 
@@ -945,7 +946,9 @@ class API:
             self._endpoints.character(character_id))
         return Character(**response)
 
-    def character_search(self, search: Optional[str] = None) -> Optional[List[Character]]:
+    def character_search(self,
+                         search: Optional[str] = None
+                        ) -> Optional[List[Character]]:
         """
         Returns list of found characters.
 
@@ -2257,9 +2260,10 @@ class API:
         self._request(self._endpoints.sign_out,
                       headers=self._authorization_header)
 
-    def user_friends(self,
-                     user_id: Union[str, int],
-                     is_nickname: Optional[bool] = None) -> Optional[List[User]]:
+    def user_friends(
+            self,
+            user_id: Union[str, int],
+            is_nickname: Optional[bool] = None) -> Optional[List[User]]:
         """
         Returns user's friends.
 
