@@ -647,7 +647,7 @@ class API:
         :type censored: Optional[AnimeCensorship]
 
         :param my_list: Status(-es) of anime in current user list
-            Note: If app is in restricted mode,
+            **Note:** If app is in restricted mode,
             this parameter won't affect on response.
         :type my_list: Optional[Union[AnimeList, List[AnimeList]]]
 
@@ -1721,7 +1721,7 @@ class API:
         :type censored: Optional[MangaCensorship]
 
         :param my_list: Status(-es) of manga in current user list
-            Note: If app in restricted mode,
+            **Note:** If app in restricted mode,
             this won't affect on response.
         :type my_list: Optional[Union[MangaList, List[MangaList]]]
 
@@ -2029,7 +2029,7 @@ class API:
         This method uses generate_query_dict for data dict,
         because there is no need for nested dictionary
 
-        Note: This methods accepts as type only MessageType.NEWS and
+        **Note:** This methods accepts as type only MessageType.NEWS and
         MessageType.NOTIFICATIONS
 
         :param message_type: Type of messages to read
@@ -2058,7 +2058,7 @@ class API:
         This method uses generate_query_dict for data dict,
         because there is no need for nested dictionary
 
-        Note: This methods accepts as type only MessageType.NEWS and
+        **Note:** This methods accepts as type only MessageType.NEWS and
         MessageType.NOTIFICATIONS
 
         :param message_type: Type of messages to delete
@@ -2101,7 +2101,7 @@ class API:
         """
         Returns list of found persons.
 
-        Note: This API method only allows PersonKind.SEYU,
+        **Note:** This API method only allows PersonKind.SEYU,
         PersonKind.MANGAKA or PersonKind.PRODUCER as kind parameter
 
         :param search:  Search query for persons
