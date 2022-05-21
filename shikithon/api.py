@@ -428,7 +428,8 @@ class API:
         oauth_json: Dict[str,
                          Any] = self._request(self._endpoints.oauth_token,
                                               data=data,
-                                              request_type=RequestType.POST)
+                                              request_type=RequestType.POST,
+                                              json_logging=False)
 
         try:
             logger.debug('Returning new access and refresh tokens')
@@ -469,7 +470,8 @@ class API:
         data: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
         query: Optional[Dict[str, str]] = None,
-        request_type: RequestType = RequestType.GET
+        request_type: RequestType = RequestType.GET,
+        json_logging: bool = True,
     ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]:
         """
         Create request and return response JSON.
@@ -498,6 +500,9 @@ class API:
 
         :param request_type: Type of current request
         :type request_type: RequestType
+
+        :param json_logging: Parameter for logging JSON response
+        :type json_logging: bool
 
         :return: Response JSON, text or status code
         :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]
@@ -542,9 +547,10 @@ class API:
         try:
             logger.debug('Extracting JSON from response')
             json_response = response.json()
-            logger.debug(
-                'Successful extraction. '
-                f'Here are the details of the response: {json_response}')
+            if json_logging:
+                logger.debug(
+                    'Successful extraction. '
+                    f'Here are the details of the response: {json_response}')
             return json_response
         except JSONDecodeError:
             logger.debug('Can\'t extract JSON. Returning status_code/text')
