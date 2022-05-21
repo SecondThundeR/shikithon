@@ -541,7 +541,11 @@ class API:
 
         try:
             logger.debug('Extracting JSON from response')
-            return response.json()
+            json_response = response.json()
+            logger.debug(
+                'Successful extraction. '
+                f'Here are the details of the response: {json_response}')
+            return json_response
         except JSONDecodeError:
             logger.debug('Can\'t extract JSON. Returning status_code/text')
             return response.status_code if not response.text else response.text
@@ -1119,8 +1123,6 @@ class API:
                 collection_ids=collection_ids,
                 banned_user_ids=banned_user_ids),
             request_type=RequestType.PATCH)
-        logger.debug(
-            f'Detailed information about updating the club {response=}')
         return Club(**response) if 'errors' not in response else None
 
     def club_animes(self, club_id: int) -> Optional[List[Anime]]:
@@ -1241,7 +1243,6 @@ class API:
                         int] = self._request(self._endpoints.club_join(club_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
-        logger.debug(f'Detailed information about joining the club {response=}')
         return response == ResponseCode.SUCCESS.value
 
     @protected_method(scope='clubs')
@@ -1260,7 +1261,6 @@ class API:
             self._endpoints.club_leave(club_id),
             headers=self._authorization_header,
             request_type=RequestType.POST)
-        logger.debug(f'Detailed information about leaving the club {response=}')
         return response == ResponseCode.SUCCESS.value
 
     def comments(self,
@@ -1370,8 +1370,6 @@ class API:
                                             headers=self._authorization_header,
                                             data=data_dict,
                                             request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about creating the comment {response=}')
         return Comment(**response) if 'errors' not in response else None
 
     @protected_method(scope='comments')
@@ -1394,8 +1392,6 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_data_dict(dict_name='comment', body=body),
             request_type=RequestType.PATCH)
-        logger.debug(
-            f'Detailed information about updating the comment {response=}')
         return Comment(**response) if 'errors' not in response else None
 
     @protected_method(scope='comments')
@@ -1414,8 +1410,6 @@ class API:
                        Any] = self._request(self._endpoints.comment(comment_id),
                                             headers=self._authorization_header,
                                             request_type=RequestType.DELETE)
-        logger.debug(
-            f'Detailed information about deleting the comment {response=}')
         return 'notice' in response
 
     def anime_constants(self) -> AnimeConstants:
@@ -1528,8 +1522,6 @@ class API:
             self._endpoints.dialog(user_id),
             headers=self._authorization_header,
             request_type=RequestType.DELETE)
-        logger.debug(
-            f'Detailed information about deleting the dialog {response=}')
         return 'notice' in response
 
     @protected_method()
@@ -1561,8 +1553,6 @@ class API:
                            linked_type, linked_id, kind),
                                             headers=self._authorization_header,
                                             request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about creating a favorite {response=}')
         return 'success' in response
 
     @protected_method()
@@ -1587,8 +1577,6 @@ class API:
                            linked_type, linked_id),
                                             headers=self._authorization_header,
                                             request_type=RequestType.DELETE)
-        logger.debug(
-            f'Detailed information about destroying a favorite {response=}')
         return 'success' in response
 
     @protected_method()
@@ -1613,8 +1601,6 @@ class API:
             headers=self._authorization_header,
             query=Utils.generate_query_dict(new_index=new_index),
             request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about reordering a favorite {response=}')
         if isinstance(response, int):
             return response == ResponseCode.SUCCESS.value
         return False
@@ -1658,8 +1644,6 @@ class API:
                         int] = self._request(self._endpoints.friend(friend_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about creating a friend {response=}')
         return 'notice' in response
 
     @protected_method(scope='friends')
@@ -1688,8 +1672,6 @@ class API:
                         int] = self._request(self._endpoints.friend(friend_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.DELETE)
-        logger.debug(
-            f'Detailed information about destroying a friend {response=}')
         return 'notice' in response
 
     def genres(self) -> Optional[List[Genre]]:
@@ -1985,8 +1967,6 @@ class API:
                                           kind='Private',
                                           to_id=to_id),
             request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about creating the message {response=}')
         return Message(**response) if 'errors' not in response else None
 
     @protected_method(scope='messages')
@@ -2009,8 +1989,6 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_data_dict(dict_name='message', body=body),
             request_type=RequestType.PATCH)
-        logger.debug(
-            f'Detailed information about updating the message {response=}')
         return Message(**response) if 'errors' not in response else None
 
     @protected_method(scope='messages')
@@ -2029,8 +2007,6 @@ class API:
             self._endpoints.message(message_id),
             headers=self._authorization_header,
             request_type=RequestType.DELETE)
-        logger.debug(
-            f'Detailed information about deleting the message {response=}')
         if isinstance(response, int):
             return response == ResponseCode.NO_CONTENT.value
         return False
@@ -2060,8 +2036,6 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_query_dict(ids=message_ids, is_read=is_read),
             request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about marking selected messages {response=}')
         if isinstance(response, int):
             return response == ResponseCode.SUCCESS.value
         return False
@@ -2089,8 +2063,6 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_query_dict(type=message_type),
             request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about reading all messages {response=}')
         if isinstance(response, int):
             return response == ResponseCode.SUCCESS.value
         return False
@@ -2118,8 +2090,6 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_query_dict(type=message_type),
             request_type=RequestType.POST)
-        logger.debug(
-            f'Detailed information about deleting all messages {response=}')
         if isinstance(response, int):
             return response == ResponseCode.SUCCESS.value
         return False
