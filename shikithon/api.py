@@ -556,6 +556,34 @@ class API:
             logger.debug('Can\'t extract JSON. Returning status_code/text')
             return response.status_code if not response.text else response.text
 
+    def _semi_protected_method(self, api_name: str) -> Optional[Dict[str, str]]:
+        """
+        This method utilizes protected method decoration logic
+        for such methods, which uses access tokens in some situations.
+
+        :param api_name: Name of API endpoint for calling as protected
+        :type api_name: str
+
+        :return: Authorization header with correct tokens or None
+        :rtype: Optional[Dict[str, str]]
+        """
+        logger.debug(f'Checking the possibility of using "{api_name}" '
+                     f'as protected method')
+
+        if self.restricted_mode:
+            logger.debug(f'It is not possible to use "{api_name}" '
+                         'as the protected method '
+                         'due to the restricted mode')
+            return None
+
+        if self.token_expired():
+            logger.debug('Token has expired. Refreshing...')
+            self.refresh_tokens()
+
+        logger.debug('All checks for use of the protected '
+                     'method have been passed')
+        return self._authorization_header
+
     def refresh_tokens(self):
         """
         Manages tokens refreshing and caching.
@@ -680,11 +708,10 @@ class API:
                                                           limit=[limit, 50],
                                                           score=[score, 9])
 
-        headers: Optional[Dict[str, str]] = None
+        headers: Dict[str, str] = self._user_agent
 
-        if not self.restricted_mode:
-            logger.debug('Using "/api/animes" as protected method')
-            headers = self._authorization_header
+        if my_list:
+            headers = self._semi_protected_method('/api/animes')
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.animes,
@@ -1767,11 +1794,10 @@ class API:
                                                           limit=[limit, 50],
                                                           score=[score, 9])
 
-        headers: Optional[Dict[str, str]] = None
+        headers: Dict[str, str] = self._user_agent
 
-        if not self.restricted_mode:
-            logger.debug('Using "/api/mangas" as protected method')
-            headers = self._authorization_header
+        if my_list:
+            headers = self._semi_protected_method('/api/mangas')
 
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.mangas,
