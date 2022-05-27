@@ -55,6 +55,7 @@ from shikithon.models.link import Link
 from shikithon.models.manga import Manga
 from shikithon.models.message import Message
 from shikithon.models.people import People
+from shikithon.models.publisher import Publisher
 from shikithon.models.ranobe import Ranobe
 from shikithon.models.relation import Relation
 from shikithon.models.screenshot import Screenshot
@@ -2167,6 +2168,20 @@ class API:
         if not response:
             return None
         return [People(**people) for people in response]
+
+    def publishers(self) -> Optional[List[Publisher]]:
+        """
+        Returns list of publishers.
+
+        :return: List of publishers
+        :rtype: Optional[List[Publisher]]
+        """
+        logger.debug('Executing "/api/publishers" method')
+        response: List[Dict[str,
+                            Any]] = self._request(self._endpoints.publishers)
+        if not response:
+            return None
+        return [Publisher(**publisher) for publisher in response]
 
     def users(self,
               page: Optional[int] = None,
