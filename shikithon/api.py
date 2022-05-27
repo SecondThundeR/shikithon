@@ -27,6 +27,8 @@ from shikithon.enums.manga import (MangaCensorship, MangaKind, MangaList,
                                    MangaOrder, MangaStatus)
 from shikithon.enums.message import MessageType
 from shikithon.enums.person import PersonKind
+from shikithon.enums.ranobe import (RanobeCensorship, RanobeList, RanobeOrder,
+                                    RanobeStatus)
 from shikithon.enums.request import RequestType
 from shikithon.enums.response import ResponseCode
 from shikithon.exceptions import (AccessTokenException, MissingAppName,
@@ -2182,6 +2184,237 @@ class API:
         if not response:
             return None
         return [Publisher(**publisher) for publisher in response]
+
+    def ranobes(self,
+                page: Optional[int] = None,
+                limit: Optional[int] = None,
+                order: Optional[RanobeOrder] = None,
+                status: Optional[Union[RanobeStatus,
+                                       List[RanobeStatus]]] = None,
+                season: Optional[Union[str, List[str]]] = None,
+                score: Optional[int] = None,
+                genre: Optional[Union[int, List[int]]] = None,
+                publisher: Optional[Union[int, List[int]]] = None,
+                franchise: Optional[Union[int, List[int]]] = None,
+                censored: Optional[RanobeCensorship] = None,
+                my_list: Optional[Union[RanobeList, List[RanobeList]]] = None,
+                ids: Optional[Union[int, List[int]]] = None,
+                exclude_ids: Optional[Union[int, List[int]]] = None,
+                search: Optional[str] = None) -> Optional[List[Ranobe]]:
+        """
+        Returns ranobe list.
+
+        :param page: Number of page
+        :type page: Optional[int]
+
+        :param limit: Number of results limit
+        :type limit: Optional[int]
+
+        :param order: Type of order in list
+        :type order: Optional[RanobeOrder]
+
+        :param status: Type(s) of ranobe status
+        :type status: Optional[Union[RanobeStatus, List[RanobeStatus]]]
+
+        :param season: Name(s) of ranobe seasons
+        :type season: Optional[Union[str, List[str]]]
+
+        :param score: Minimal ranobe score
+        :type score: Optional[int]
+
+        :param publisher: Publisher(s) ID
+        :type publisher: Optional[Union[int, List[int]]
+
+        :param genre: Genre(s) ID
+        :type genre: Optional[Union[int, List[int]]
+
+        :param franchise: Franchise(s) ID
+        :type franchise: Optional[Union[int, List[int]]
+
+        :param censored: Type of ranobe censorship
+        :type censored: Optional[RanobeCensorship]
+
+        :param my_list: Status(-es) of ranobe in current user list
+            **Note:** If app in restricted mode,
+            this won't affect on response.
+        :type my_list: Optional[Union[RanobeList, List[RanobeList]]]
+
+        :param ids: Ranobe(s) ID to include
+        :type ids: Optional[Union[int, List[int]]
+
+        :param exclude_ids: Ranobe(s) ID to exclude
+        :type exclude_ids: Optional[Union[int, List[int]]
+
+        :param search: Search phrase to filter ranobe by name
+        :type search: Optional[str]
+
+        :return: List of Ranobe or None if page is empty
+        :rtype: Optional[List[Ranobe]]
+        """
+        logger.debug('Executing "/api/ranobe" method')
+        validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
+                                                          limit=[limit, 50],
+                                                          score=[score, 9])
+
+        headers: Dict[str, str] = self._user_agent
+
+        if my_list:
+            headers = self._semi_protected_method('/api/ranobe')
+
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.ranobes,
+            headers=headers,
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
+                                            order=order,
+                                            status=status,
+                                            season=season,
+                                            score=validated_numbers['score'],
+                                            genre=genre,
+                                            publisher=publisher,
+                                            franchise=franchise,
+                                            censored=censored,
+                                            mylist=my_list,
+                                            ids=ids,
+                                            exclude_ids=exclude_ids,
+                                            search=search))
+        if not response:
+            return None
+        return [Ranobe(**ranobe) for ranobe in response]
+
+    def ranobe(self, ranobe_id: int) -> Ranobe:
+        """
+        Returns info about certain ranobe.
+
+        :param ranobe_id: Ranobe ID to get info
+        :type ranobe_id: int
+
+        :return: Ranobe info
+        :rtype: Ranobe
+        """
+        logger.debug('Executing "/api/ranobe/:id" method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.ranobe(ranobe_id))
+        return Ranobe(**response)
+
+    def ranobe_creators(self, ranobe_id: int) -> Optional[List[Creator]]:
+        """
+        Returns creators info of certain ranobe.
+
+        :param ranobe_id: Ranobe ID to get creators
+        :type ranobe_id: int
+
+        :return: List of ranobe creators or None if list is empty
+        :rtype: Optional[List[Creator]]
+        """
+        logger.debug('Executing "/api/ranobe/:id/roles" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.ranobe_roles(ranobe_id))
+        if not response:
+            return None
+        return [Creator(**creator) for creator in response]
+
+    def similar_ranobes(self, ranobe_id: int) -> Optional[List[Ranobe]]:
+        """
+        Returns list of similar ranobes for certain ranobe.
+
+        :param ranobe_id: Ranobe ID to get similar ranobes
+        :type ranobe_id: int
+
+        :return: List of similar ranobes or None if list is empty
+        :rtype: Optional[List[Ranobe]]
+        """
+        logger.debug('Executing "/api/ranobe/:id/similar" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.similar_ranobes(ranobe_id))
+        if not response:
+            return None
+        return [Ranobe(**ranobe) for ranobe in response]
+
+    def ranobe_related_content(self,
+                               ranobe_id: int) -> Optional[List[Relation]]:
+        """
+        Returns list of related content of certain ranobe.
+
+        :param ranobe_id: Ranobe ID to get related content
+        :type ranobe_id: int
+
+        :return: List of relations or None if list is empty
+        :rtype: Optional[List[Relation]]
+        """
+        logger.debug('Executing "/api/ranobe/:id/related" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.ranobe_related_content(ranobe_id))
+        if not response:
+            return None
+        return [Relation(**relation) for relation in response]
+
+    def ranobe_franchise_tree(self, ranobe_id: int) -> FranchiseTree:
+        """
+        Returns franchise tree of certain ranobe.
+
+        :param ranobe_id: Ranobe ID to get franchise tree
+        :type ranobe_id: int
+
+        :return: Franchise tree of certain ranobe
+        :rtype: FranchiseTree
+        """
+        logger.debug('Executing "/api/ranobe/:id/franchise" method')
+        response: Dict[str, Any] = self._request(
+            self._endpoints.ranobe_franchise_tree(ranobe_id))
+        return FranchiseTree(**response)
+
+    def ranobe_external_links(self, ranobe_id: int) -> Optional[List[Link]]:
+        """
+        Returns list of external links of certain ranobe.
+
+        :param ranobe_id: Ranobe ID to get external links
+        :type ranobe_id: int
+
+        :return: List of external links or None if list is empty
+        :rtype: Optional[List[Link]]
+        """
+        logger.debug('Executing "/api/ranobe/:id/external_links" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.ranobe_external_links(ranobe_id))
+        if not response:
+            return None
+        return [Link(**link) for link in response]
+
+    def ranobe_topics(self,
+                      ranobe_id: int,
+                      page: Optional[int] = None,
+                      limit: Optional[int] = None) -> Optional[List[Topic]]:
+        """
+        Returns list of topics of certain ranobe.
+
+        If some data are not provided, using default values.
+
+        :param ranobe_id: Ranobe ID to get topics
+        :type ranobe_id: int
+
+        :param page: Number of page
+        :type page: Optional[int]
+
+        :param limit: Number of results limit
+        :type limit: Optional[int]
+
+        :return: List of topics or None if page is empty
+        :rtype: Optional[List[Topic]]
+        """
+        logger.debug('Executing "/api/ranobe/:id/topics" method')
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 30],
+        )
+
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.ranobe_topics(ranobe_id),
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit']))
+        if not response:
+            return None
+        return [Topic(**topic) for topic in response]
 
     def users(self,
               page: Optional[int] = None,
