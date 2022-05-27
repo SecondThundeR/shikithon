@@ -703,7 +703,7 @@ class API:
         :param search: Search phrase to filter animes by name
         :type search: Optional[str]
 
-        :return: Animes list or None if page is empty
+        :return: Animes list or None if list is empty
         :rtype: Optional[List[Anime]]
         """
         logger.debug('Executing "/api/animes" method')
@@ -881,7 +881,7 @@ class API:
         :param episode: Number of anime episode
         :type episode: Optional[int]
 
-        :return: List of topics or None if page is empty
+        :return: List of topics or None if list is empty
         :rtype: Optional[List[Topic]]
         """
         logger.debug('Executing "/api/animes/:id/topics" method')
@@ -932,7 +932,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :return: List of recent bans or None if page is empty
+        :return: List of recent bans or None if list is empty
         :rtype: Optional[List[Ban]]
         """
         logger.debug('Executing "/api/bans" method')
@@ -1022,7 +1022,7 @@ class API:
         :param search: Search phrase to filter clubs by name
         :type search: Optional[str]
 
-        :return: Clubs list or None if page is empty
+        :return: Clubs list or None if list is empty
         :rtype: Optional[List[Club]]
         """
         logger.debug('Executing "/api/clubs" method')
@@ -1323,7 +1323,7 @@ class API:
         :param desc: Status of description in request. Can be 1 or 0
         :type desc: Optional[int]
 
-        :return: List of comments or None if page is empty
+        :return: List of comments or None if list is empty
         :rtype: Optional[List[Comment]]
         """
         logger.debug('Executing "/api/comments" method')
@@ -1514,7 +1514,7 @@ class API:
         """
         Returns list of current user's dialogs.
 
-        :return: List of dialogs or None if there are no dialogs
+        :return: List of dialogs or None if list is empty
         :rtype: Optional[List[Dialog]]
         """
         logger.debug('Executing "/api/dialogs" method')
@@ -1532,7 +1532,7 @@ class API:
         :param user_id: ID/Nickname of the user to get dialog
         :type user_id: Union[int, str]
 
-        :return: List of messages or None if there are no messages
+        :return: List of messages or None if list is empty
         :rtype: Optional[List[Message]]
         """
         logger.debug('Executing "/api/dialogs/:id" method')
@@ -1789,7 +1789,7 @@ class API:
         :param search: Search phrase to filter mangas by name
         :type search: Optional[str]
 
-        :return: List of Mangas or None if page is empty
+        :return: List of Mangas or None if list is empty
         :rtype: Optional[List[Manga]]
         """
         logger.debug('Executing "/api/mangas" method')
@@ -1940,7 +1940,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :return: List of topics or None if page is empty
+        :return: List of topics or None if list is empty
         :rtype: Optional[List[Topic]]
         """
         logger.debug('Executing "/api/mangas/:id/topics" method')
@@ -2175,7 +2175,7 @@ class API:
         """
         Returns list of publishers.
 
-        :return: List of publishers
+        :return: List of publishers or None if list is empty
         :rtype: Optional[List[Publisher]]
         """
         logger.debug('Executing "/api/publishers" method')
@@ -2248,7 +2248,7 @@ class API:
         :param search: Search phrase to filter ranobe by name
         :type search: Optional[str]
 
-        :return: List of Ranobe or None if page is empty
+        :return: List of Ranobe or None if list is empty
         :rtype: Optional[List[Ranobe]]
         """
         logger.debug('Executing "/api/ranobe" method')
@@ -2399,7 +2399,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :return: List of topics or None if page is empty
+        :return: List of topics or None if list is empty
         :rtype: Optional[List[Topic]]
         """
         logger.debug('Executing "/api/ranobe/:id/topics" method')
@@ -2416,6 +2416,19 @@ class API:
             return None
         return [Topic(**topic) for topic in response]
 
+    def active_users(self) -> Optional[List[int]]:
+        """
+        Returns list of IDs of active users.
+
+        :return: List of IDs of active users or None if list is empty
+        :rtype: Optional[List[int]]
+        """
+        logger.debug('Executing "/api/stats/active_users" method')
+        response: List[int] = self._request(self._endpoints.active_users)
+        if not response:
+            return None
+        return response
+
     def users(self,
               page: Optional[int] = None,
               limit: Optional[int] = None) -> Optional[List[User]]:
@@ -2428,7 +2441,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :return: List of users
+        :return: List of users or None if list is empty
         :rtype: Optional[List[User]]
         """
         logger.debug('Executing "/api/users" method')
@@ -2587,7 +2600,7 @@ class API:
         :param censored: Type of anime censorship
         :type censored: Optional[AnimeCensorship]
 
-        :return: User's anime list or None if page is empty
+        :return: User's anime list or None if list is empty
         :rtype: Optional[List[UserList]]
         """
         logger.debug('Executing "/api/users/:id/anime_rates" method')
@@ -2633,7 +2646,7 @@ class API:
         :param censored: Type of manga censorship
         :type censored: Optional[AnimeCensorship]
 
-        :return: User's manga list or None if page is empty
+        :return: User's manga list or None if list is empty
         :rtype: Optional[List[UserList]]
         """
         logger.debug('Executing "/api/users/:id/manga_rates" method')
@@ -2700,7 +2713,7 @@ class API:
         :param message_type: Type of message
         :type message_type: MessageType
 
-        :return: Current user's messages or None if page is empty
+        :return: Current user's messages or None if list is empty
         :rtype: Optional[List[Message]]
         """
         logger.debug('Executing "/api/users/:id/messages" method')
@@ -2774,7 +2787,7 @@ class API:
         :param target_type: Type of target (Anime/Manga)
         :type target_type: Optional[TargetType]
 
-        :return: User's history or None if page is empty
+        :return: User's history or None if list is empty
         :rtype: Optional[List[History]]
         """
         logger.debug('Executing "/api/users/:id/history" method')
