@@ -734,9 +734,9 @@ class API:
                                             ids=ids,
                                             exclude_ids=exclude_ids,
                                             search=search))
-        if response:
-            return [Anime(**anime) for anime in response]
-        return None
+        if not response:
+            return None
+        return [Anime(**anime) for anime in response]
 
     def anime(self, anime_id: int) -> Anime:
         """
@@ -892,9 +892,9 @@ class API:
                                             limit=validated_numbers['limit'],
                                             kind=kind,
                                             episode=episode))
-        if response:
-            return [Topic(**topic) for topic in response]
-        return None
+        if not response:
+            return None
+        return [Topic(**topic) for topic in response]
 
     @protected_method()
     def appears(self, comment_ids: List[str]) -> bool:
@@ -944,9 +944,9 @@ class API:
             self._endpoints.bans_list,
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit']))
-        if response:
-            return [Ban(**ban) for ban in response]
-        return None
+        if not response:
+            return None
+        return [Ban(**ban) for ban in response]
 
     def calendar(
         self,
@@ -1034,9 +1034,9 @@ class API:
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             search=search))
-        if response:
-            return [Club(**club) for club in response]
-        return None
+        if not response:
+            return None
+        return [Club(**club) for club in response]
 
     def club(self, club_id: int) -> Club:
         """
@@ -1337,9 +1337,9 @@ class API:
                                             commentable_id=commentable_id,
                                             commentable_type=commentable_type,
                                             desc=desc))
-        if response:
-            return [Comment(**comment) for comment in response]
-        return None
+        if not response:
+            return None
+        return [Comment(**comment) for comment in response]
 
     def comment(self, comment_id: int) -> Comment:
         """
@@ -1518,9 +1518,9 @@ class API:
         logger.debug('Executing "/api/dialogs" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialogs, headers=self._authorization_header)
-        if response:
-            return [Dialog(**dialog) for dialog in response]
-        return None
+        if not response:
+            return None
+        return [Dialog(**dialog) for dialog in response]
 
     @protected_method(scope='messages')
     def dialog(self, user_id: Union[int, str]) -> Optional[List[Message]]:
@@ -1536,9 +1536,9 @@ class API:
         logger.debug('Executing "/api/dialogs/:id" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialog(user_id), headers=self._authorization_header)
-        if response:
-            return [Message(**message) for message in response]
-        return None
+        if not response:
+            return None
+        return [Message(**message) for message in response]
 
     @protected_method(scope='messages')
     def delete_dialog(self, user_id: Union[int, str]) -> bool:
@@ -1818,9 +1818,9 @@ class API:
                                             ids=ids,
                                             exclude_ids=exclude_ids,
                                             search=search))
-        if response:
-            return [Manga(**manga) for manga in response]
-        return None
+        if not response:
+            return None
+        return [Manga(**manga) for manga in response]
 
     def manga(self, manga_id: int) -> Manga:
         """
@@ -2370,9 +2370,9 @@ class API:
                                             limit=validated_numbers['limit'],
                                             status=status,
                                             censored=censored))
-        if response:
-            return [UserList(**user_list) for user_list in response]
-        return None
+        if not response:
+            return None
+        return [UserList(**user_list) for user_list in response]
 
     def user_manga_rates(
             self,
@@ -2415,9 +2415,9 @@ class API:
                                             page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             censored=censored))
-        if response:
-            return [UserList(**user_list) for user_list in response]
-        return None
+        if not response:
+            return None
+        return [UserList(**user_list) for user_list in response]
 
     def user_favourites(self,
                         user_id: Union[int, str],
@@ -2483,9 +2483,9 @@ class API:
                                             page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             type=message_type))
-        if response:
-            return [Message(**message) for message in response]
-        return None
+        if not response:
+            return None
+        return [Message(**message) for message in response]
 
     @protected_method(scope='messages')
     def current_user_unread_messages(
