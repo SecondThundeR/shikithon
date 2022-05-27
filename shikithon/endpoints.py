@@ -1002,7 +1002,7 @@ class Endpoints:
         return f'{self.ranobe(ranobe_id)}/topics'
 
     @property
-    def stats(self) -> str:
+    def active_users(self) -> str:
         """
         Returns endpoints of a list of users,
         having at least 1 completed animes and active during last month.
@@ -1031,6 +1031,10 @@ class Endpoints:
         :rtype: str
         """
         return f'{self.base_url}/styles'
+
+    @property
+    def style_preview(self) -> str:
+        return f'{self.styles}/preview'
 
     def style(self, style_id: int) -> str:
         """
