@@ -61,6 +61,7 @@ from shikithon.models.publisher import Publisher
 from shikithon.models.ranobe import Ranobe
 from shikithon.models.relation import Relation
 from shikithon.models.screenshot import Screenshot
+from shikithon.models.studio import Studio
 from shikithon.models.topic import Topic
 from shikithon.models.unread_messages import UnreadMessages
 from shikithon.models.user import User
@@ -2428,6 +2429,19 @@ class API:
         if not response:
             return None
         return response
+
+    def studios(self) -> Optional[List[Studio]]:
+        """
+        Returns list of studios.
+
+        :return: List of studios or None if list is empty
+        :rtype: Optional[List[Studio]]
+        """
+        logger.debug('Executing "/api/studios" method')
+        response: List[Dict[str, Any]] = self._request(self._endpoints.studios)
+        if not response:
+            return None
+        return [Studio(**studio) for studio in response]
 
     def users(self,
               page: Optional[int] = None,
