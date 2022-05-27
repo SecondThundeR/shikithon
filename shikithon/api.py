@@ -2045,9 +2045,9 @@ class API:
         return False
 
     @protected_method(scope='messages')
-    def message_mark_read(self,
-                          message_ids: Optional[Union[int, List[int]]] = None,
-                          is_read: Optional[bool] = None) -> bool:
+    def mark_messages_read(self,
+                           message_ids: Optional[Union[int, List[int]]] = None,
+                           is_read: Optional[bool] = None) -> bool:
         """
         Marks read/unread selected messages.
 
