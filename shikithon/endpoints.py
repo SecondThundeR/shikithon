@@ -1032,6 +1032,10 @@ class Endpoints:
         """
         return f'{self.base_url}/styles'
 
+    @property
+    def style_preview(self) -> str:
+        return f'{self.styles}/preview'
+
     def style(self, style_id: int) -> str:
         """
         Returns endpoint of the style.

@@ -31,6 +31,7 @@ from shikithon.enums.ranobe import (RanobeCensorship, RanobeList, RanobeOrder,
                                     RanobeStatus)
 from shikithon.enums.request import RequestType
 from shikithon.enums.response import ResponseCode
+from shikithon.enums.style import OwnerType
 from shikithon.exceptions import (AccessTokenException, MissingAppName,
                                   MissingAuthCode, MissingClientID,
                                   MissingClientSecret, MissingConfigData,
@@ -62,6 +63,7 @@ from shikithon.models.ranobe import Ranobe
 from shikithon.models.relation import Relation
 from shikithon.models.screenshot import Screenshot
 from shikithon.models.studio import Studio
+from shikithon.models.style import Style
 from shikithon.models.topic import Topic
 from shikithon.models.unread_messages import UnreadMessages
 from shikithon.models.user import User
@@ -2442,6 +2444,102 @@ class API:
         if not response:
             return None
         return [Studio(**studio) for studio in response]
+
+    def style(self, style_id: int) -> Optional[Style]:
+        """
+        Returns info about style.
+
+        :param style_id: Style ID to get info
+        :type style_id: int
+
+        :return: Info about style or None if there is an error
+        :rtype: Optional[Style]
+        """
+        logger.debug('Executing "/api/styles/:id" method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.style(style_id))
+        if not response or 'code' in response:
+            return None
+        return Style(**response)
+
+    @protected_method()
+    def preview_style(self, css: str) -> Optional[Style]:
+        """
+        Previews style with passed CSS code.
+
+        :param css: CSS code to preview
+        :type css: str
+
+        :return: Info about previewed style or None if there is an error
+        :rtype: Optional[Style]
+        """
+        logger.debug('Executing "/api/styles/preview" method')
+        response: Dict[str, Any] = self._request(
+            self._endpoints.style_preview,
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='style', css=css),
+            request_type=RequestType.POST)
+        return Style(**response) if 'errors' not in response else None
+
+    @protected_method()
+    def create_style(self, css: str, name: str, owner_id: int,
+                     owner_type: OwnerType) -> Optional[Style]:
+        """
+        Creates new style.
+
+        :param css: CSS code for style
+        :type css: str
+
+        :param name: Style name
+        :type name: str
+
+        :param owner_id: User/Club ID for style ownership
+        :type owner_id: int
+
+        :param owner_type: Type of owner (User/Club)
+        :type owner_type: OwnerType
+
+        :return: Info about previewed style or None if there is an error
+        :rtype: Optional[Style]
+        """
+        logger.debug('Executing "/api/styles" method')
+        response: Dict[str, Any] = self._request(
+            self._endpoints.styles,
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='style',
+                                          css=css,
+                                          name=name,
+                                          owner_id=owner_id,
+                                          owner_type=owner_type),
+            request_type=RequestType.POST)
+        return Style(**response) if 'errors' not in response else None
+
+    @protected_method()
+    def update_style(self, style_id: int, css: Optional[str],
+                     name: Optional[str]) -> Optional[Style]:
+        """
+        Updates existing style.
+
+        :param style_id: ID of existing style for edit
+        :type style_id: int
+
+        :param css: New CSS code for style
+        :type css: Optional[str]
+
+        :param name: New style name
+        :type name: Optional[str]
+
+        :return: Info about updated style or None if there is an error
+        :rtype: Optional[Style]
+        """
+        logger.debug('Executing "/api/styles/:id" method')
+        response: Dict[str, Any] = self._request(
+            self._endpoints.style(style_id),
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='style', css=css,
+                                          name=name),
+            request_type=RequestType.PATCH)
+        return Style(**response) if 'errors' not in response else None
 
     def users(self,
               page: Optional[int] = None,
