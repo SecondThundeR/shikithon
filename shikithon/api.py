@@ -544,7 +544,7 @@ class API:
             return None
 
         if response.status_code == ResponseCode.RETRY_LATER.value:
-            logger.info('Hit RPS cooldown. Waiting on request repeat')
+            logger.debug('Hit RPS cooldown. Waiting on request repeat')
             sleep(RATE_LIMIT_RPS_COOLDOWN)
             return self._request(url, data, headers, query, request_type)
 
