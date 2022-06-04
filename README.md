@@ -1,6 +1,6 @@
-<div style="text-align:center">
+<div align="center">
     <!-- Not a final logo :( (or not?) -->
-    <img src="https://raw.githubusercontent.com/SecondThundeR/shikithon/main/assets/logo.png" alt="Shikithon Logo">
+    <img src="https://raw.githubusercontent.com/SecondThundeR/shikithon/main/assets/logo.png">
     <h1>Shikithon</h1>
     <p>Очередной враппер для Shikimori API, написанный на Python</p>
 </div>
@@ -27,12 +27,12 @@
 
 Это позволяет не задумываться об обработке очередного ответа от сервера и сосредоточиться над реализацией своей идеи.
 
-Также, данная библиотека поддерживает ранние версии Python, начиная с 3.8.
+Также, данная библиотека поддерживает ранние версии Python, начиная с 3.8.10.
 
 > Поддержка Python 3.6.x не имеет смысла, так как она не является актуальной на момент разработки, а Python 3.7.x
 > не поддерживается на Apple Silicon _(Основная платформа, на которой разрабатывается данная библиотека)_.
 >
-> Поэтому в качестве минимальной версии был выбран Python 3.8
+> Поэтому в качестве минимальной версии был выбран Python 3.8.10
 
 ## Установка
 
