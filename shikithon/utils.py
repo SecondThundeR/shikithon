@@ -96,10 +96,7 @@ class Utils:
             if data is None:
                 continue
             if isinstance(data, bool):
-                if data is True:
-                    query_dict[key] = str(int(data))
-                else:
-                    continue
+                query_dict[key] = str(int(data))
             elif isinstance(data, int):
                 query_dict[key] = str(data)
             elif isinstance(data, Enum):
@@ -247,7 +244,8 @@ class Utils:
 
     @staticmethod
     def validate_return_data(
-        response_data: Union[List[Dict[str, Any]], Dict[str, Any], List[Any]],
+        response_data: Union[List[Dict[str, Any]], Dict[str, Any], List[Any],
+                             int],
         data_model: Optional[pydantic.main.ModelMetaclass] = None,
         response_code: Optional[ResponseCode] = None
     ) -> Optional[Union[pydantic.main.ModelMetaclass,
