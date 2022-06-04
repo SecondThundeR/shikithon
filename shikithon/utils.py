@@ -10,6 +10,7 @@ from time import time
 from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
+from pydantic.main import ModelMetaclass
 
 LOWER_LIMIT_NUMBER = 1
 
@@ -241,3 +242,32 @@ class Utils:
             validated_numbers[name] = (Utils.validate_query_number(
                 data[0], data[1]))
         return validated_numbers
+
+    @staticmethod
+    def validate_return_data(
+        response_data: Union[List[Dict[str, Any]],
+                             Dict[str, Any]], data_model: ModelMetaclass
+    ) -> Optional[Union[ModelMetaclass, List[ModelMetaclass]]]:
+        """
+        Validates passed response data and returns
+        parsed models.
+
+        :param response_data: Response data
+        :type response_data: Union[List[Dict[str, Any]]
+
+        :param data_model: Model to convert into passed response data
+        :type data_model: ModelMetaclass
+
+        :return: Parsed response data
+        :rtype: Optional[ModelMetaclass, List[ModelMetaclass]]
+        """
+        if not response_data:
+            return None
+
+        if 'errors' in response_data or 'code' in response_data:
+            return None
+
+        if isinstance(response_data, list):
+            return [data_model(**item) for item in response_data]
+
+        return data_model(**response_data)
