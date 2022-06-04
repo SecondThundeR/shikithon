@@ -21,7 +21,7 @@ from shikithon.enums.anime import (AnimeCensorship, AnimeDuration, AnimeKind,
 from shikithon.enums.club import (CommentPolicy, ImageUploadPolicy, JoinPolicy,
                                   PagePolicy, TopicPolicy)
 from shikithon.enums.comment import CommentableType
-from shikithon.enums.favorite import LinkedType
+from shikithon.enums.favorite import FavoriteLinkedType
 from shikithon.enums.history import TargetType
 from shikithon.enums.manga import (MangaCensorship, MangaKind, MangaList,
                                    MangaOrder, MangaStatus)
@@ -32,6 +32,8 @@ from shikithon.enums.ranobe import (RanobeCensorship, RanobeList, RanobeOrder,
 from shikithon.enums.request import RequestType
 from shikithon.enums.response import ResponseCode
 from shikithon.enums.style import OwnerType
+from shikithon.enums.topic import (EntryTopics, ForumType, NewsTopics,
+                                   TopicLinkedType, TopicsType)
 from shikithon.exceptions import (AccessTokenException, MissingAppName,
                                   MissingAuthCode, MissingClientID,
                                   MissingClientSecret, MissingConfigData,
@@ -119,7 +121,6 @@ class API:
                 'compression': 'zip'
             },
         ])
-
         logger.info('Initializing API object')
 
         self._endpoints: Endpoints = Endpoints(SHIKIMORI_API_URL,
@@ -625,16 +626,14 @@ class API:
         :param user_id: User ID for getting achievements
         :type user_id: int
 
-        :return: List of achievements or None if list is empty
+        :return: List of achievements
         :rtype: Optional[List[Achievement]]
         """
         logger.debug('Executing "/api/achievements/ method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.achievements,
             query=Utils.generate_query_dict(user_id=user_id))
-        if not response:
-            return None
-        return [Achievement(**achievement) for achievement in response]
+        return Utils.validate_return_data(response, data_model=Achievement)
 
     def animes(self,
                page: Optional[int] = None,
@@ -711,7 +710,7 @@ class API:
         :param search: Search phrase to filter animes by name
         :type search: Optional[str]
 
-        :return: Animes list or None if list is empty
+        :return: Animes list
         :rtype: Optional[List[Anime]]
         """
         logger.debug('Executing "/api/animes" method')
@@ -744,11 +743,9 @@ class API:
                                             ids=ids,
                                             exclude_ids=exclude_ids,
                                             search=search))
-        if not response:
-            return None
-        return [Anime(**anime) for anime in response]
+        return Utils.validate_return_data(response, data_model=Anime)
 
-    def anime(self, anime_id: int) -> Anime:
+    def anime(self, anime_id: int) -> Optional[Anime]:
         """
         Returns info about certain anime.
 
@@ -756,12 +753,12 @@ class API:
         :type anime_id: int
 
         :return: Anime info
-        :rtype: Anime
+        :rtype: Optional[Anime]
         """
         logger.debug('Executing "/api/animes/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.anime(anime_id))
-        return Anime(**response)
+        return Utils.validate_return_data(response, data_model=Anime)
 
     def anime_creators(self, anime_id: int) -> Optional[List[Creator]]:
         """
@@ -770,15 +767,13 @@ class API:
         :param anime_id: Anime ID to get creators
         :type anime_id: int
 
-        :return: List of anime creators or None if list is empty
+        :return: List of anime creators
         :rtype: Optional[List[Creator]]
         """
         logger.debug('Executing "/api/animes/:id/roles" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_roles(anime_id))
-        if not response:
-            return None
-        return [Creator(**creator) for creator in response]
+        return Utils.validate_return_data(response, data_model=Creator)
 
     def similar_animes(self, anime_id: int) -> Optional[List[Anime]]:
         """
@@ -787,15 +782,13 @@ class API:
         :param anime_id: Anime ID to get similar animes
         :type anime_id: int
 
-        :return: List of similar animes or None if list is empty
+        :return: List of similar animes
         :rtype: Optional[List[Anime]]
         """
         logger.debug('Executing "/api/animes/:id/similar" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.similar_animes(anime_id))
-        if not response:
-            return None
-        return [Anime(**anime) for anime in response]
+        return Utils.validate_return_data(response, data_model=Anime)
 
     def anime_related_content(self, anime_id: int) -> Optional[List[Relation]]:
         """
@@ -804,15 +797,13 @@ class API:
         :param anime_id: Anime ID to get related content
         :type anime_id: int
 
-        :return: List of relations or None if list is empty
+        :return: List of relations
         :rtype: Optional[List[Relation]]
         """
         logger.debug('Executing "/api/animes/:id/related" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_related_content(anime_id))
-        if not response:
-            return None
-        return [Relation(**relation) for relation in response]
+        return Utils.validate_return_data(response, data_model=Relation)
 
     def anime_screenshots(self, anime_id: int) -> Optional[List[Screenshot]]:
         """
@@ -821,17 +812,15 @@ class API:
         :param anime_id: Anime ID to get screenshot links
         :type anime_id: int
 
-        :return: List of screenshot links or None if list is empty
+        :return: List of screenshot links
         :rtype: Optional[List[Screenshot]]
         """
         logger.debug('Executing "/api/animes/:id/screenshots" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_screenshots(anime_id))
-        if not response:
-            return None
-        return [Screenshot(**screenshot) for screenshot in response]
+        return Utils.validate_return_data(response, data_model=Screenshot)
 
-    def anime_franchise_tree(self, anime_id: int) -> FranchiseTree:
+    def anime_franchise_tree(self, anime_id: int) -> Optional[FranchiseTree]:
         """
         Returns franchise tree of certain anime.
 
@@ -839,12 +828,12 @@ class API:
         :type anime_id: int
 
         :return: Franchise tree of certain anime
-        :rtype: FranchiseTree
+        :rtype: Optional[FranchiseTree]
         """
         logger.debug('Executing "/api/animes/:id/franchise" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.anime_franchise_tree(anime_id))
-        return FranchiseTree(**response)
+        return Utils.validate_return_data(response, data_model=FranchiseTree)
 
     def anime_external_links(self, anime_id: int) -> Optional[List[Link]]:
         """
@@ -853,15 +842,13 @@ class API:
         :param anime_id: Anime ID to get external links
         :type anime_id: int
 
-        :return: List of external links or None if list is empty
+        :return: List of external links
         :rtype: Optional[List[Link]]
         """
         logger.debug('Executing "/api/animes/:id/external_links" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_external_links(anime_id))
-        if not response:
-            return None
-        return [Link(**link) for link in response]
+        return Utils.validate_return_data(response, data_model=Link)
 
     def anime_topics(self,
                      anime_id: int,
@@ -889,7 +876,7 @@ class API:
         :param episode: Number of anime episode
         :type episode: Optional[int]
 
-        :return: List of topics or None if list is empty
+        :return: List of topics
         :rtype: Optional[List[Topic]]
         """
         logger.debug('Executing "/api/animes/:id/topics" method')
@@ -902,9 +889,7 @@ class API:
                                             limit=validated_numbers['limit'],
                                             kind=kind,
                                             episode=episode))
-        if not response:
-            return None
-        return [Topic(**topic) for topic in response]
+        return Utils.validate_return_data(response, data_model=Topic)
 
     @protected_method()
     def appears(self, comment_ids: List[str]) -> bool:
@@ -921,12 +906,13 @@ class API:
         :rtype: bool
         """
         logger.debug('Executing "/api/appears" method')
-        response_code: int = self._request(
+        response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.appears,
             headers=self._authorization_header,
             data=Utils.generate_query_dict(ids=comment_ids),
             request_type=RequestType.POST)
-        return response_code == ResponseCode.SUCCESS.value
+        return Utils.validate_return_data(response,
+                                          response_code=ResponseCode.SUCCESS)
 
     def bans(self,
              page: Optional[int] = None,
@@ -940,7 +926,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :return: List of recent bans or None if list is empty
+        :return: List of recent bans
         :rtype: Optional[List[Ban]]
         """
         logger.debug('Executing "/api/bans" method')
@@ -954,9 +940,7 @@ class API:
             self._endpoints.bans_list,
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit']))
-        if not response:
-            return None
-        return [Ban(**ban) for ban in response]
+        return Utils.validate_return_data(response, data_model=Ban)
 
     def calendar(
         self,
@@ -968,18 +952,16 @@ class API:
         :param censored: Status of censorship for events
         :type censored: Optional[AnimeCensorship]
 
-        :return: List of calendar events or None if list is empty
+        :return: List of calendar events
         :rtype: Optional[List[CalendarEvent]]
         """
         logger.debug('Executing "api/calendar" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.calendar,
             query=Utils.generate_query_dict(censored=censored))
-        if not response:
-            return None
-        return [CalendarEvent(**calendar_event) for calendar_event in response]
+        return Utils.validate_return_data(response, data_model=CalendarEvent)
 
-    def character(self, character_id: int) -> Character:
+    def character(self, character_id: int) -> Optional[Character]:
         """
         Returns character info by ID.
 
@@ -987,12 +969,12 @@ class API:
         :type character_id: int
 
         :return: Character info
-        :rtype: Character
+        :rtype: Optional[Character]
         """
         logger.debug('Executing "/api/characters/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.character(character_id))
-        return Character(**response)
+        return Utils.validate_return_data(response, data_model=Character)
 
     def character_search(self,
                          search: Optional[str] = None
@@ -1003,16 +985,14 @@ class API:
         :param search: Search query for characters
         :type search: Optional[str]
 
-        :return: List of found characters or None if list is empty
+        :return: List of found characters
         :rtype: Optional[List[Character]]
         """
         logger.debug('Executing "/api/characters/search" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.character_search,
             query=Utils.generate_query_dict(search=search))
-        if not response:
-            return None
-        return [Character(**character) for character in response]
+        return Utils.validate_return_data(response, data_model=Character)
 
     def clubs(self,
               page: Optional[int] = None,
@@ -1030,7 +1010,7 @@ class API:
         :param search: Search phrase to filter clubs by name
         :type search: Optional[str]
 
-        :return: Clubs list or None if list is empty
+        :return: Clubs list
         :rtype: Optional[List[Club]]
         """
         logger.debug('Executing "/api/clubs" method')
@@ -1044,11 +1024,9 @@ class API:
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             search=search))
-        if not response:
-            return None
-        return [Club(**club) for club in response]
+        return Utils.validate_return_data(response, data_model=Club)
 
-    def club(self, club_id: int) -> Club:
+    def club(self, club_id: int) -> Optional[Club]:
         """
         Returns info about club.
 
@@ -1056,11 +1034,11 @@ class API:
         :type club_id: int
 
         :return: Info about club
-        :rtype: Club
+        :rtype: Optional[Club]
         """
         logger.debug('Executing "/api/clubs/:id" method')
         response: Dict[str, Any] = self._request(self._endpoints.club(club_id))
-        return Club(**response)
+        return Utils.validate_return_data(response, data_model=Club)
 
     @protected_method(scope='clubs')
     def club_update(
@@ -1140,7 +1118,7 @@ class API:
         :param banned_user_ids: New banned user ids of club
         :type banned_user_ids: Optional[List[int]]
 
-        :return: Updated club info or None if an error occurred
+        :return: Updated club info
         :rtype: Optional[Club]
         """
         logger.debug('Executing "/api/clubs/:id" method')
@@ -1167,7 +1145,7 @@ class API:
                 collection_ids=collection_ids,
                 banned_user_ids=banned_user_ids),
             request_type=RequestType.PATCH)
-        return Club(**response) if 'errors' not in response else None
+        return Utils.validate_return_data(response, data_model=Club)
 
     def club_animes(self, club_id: int) -> Optional[List[Anime]]:
         """
@@ -1176,15 +1154,13 @@ class API:
         :param club_id: Club ID to get anime list
         :type club_id: int
 
-        :return: Club anime list or None if list is empty
+        :return: Club anime list
         :rtype: Optional[List[Anime]]
         """
         logger.debug('Executing "/api/clubs/:id/animes" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_animes(club_id))
-        if not response:
-            return None
-        return [Anime(**anime) for anime in response]
+        return Utils.validate_return_data(response, data_model=Anime)
 
     def club_mangas(self, club_id: int) -> Optional[List[Manga]]:
         """
@@ -1193,15 +1169,13 @@ class API:
         :param club_id: Club ID to get manga list
         :type club_id: int
 
-        :return: Club manga list or None if list is empty
+        :return: Club manga list
         :rtype: Optional[List[Manga]]
         """
         logger.debug('Executing "/api/clubs/:id/mangas" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_mangas(club_id))
-        if not response:
-            return None
-        return [Manga(**manga) for manga in response]
+        return Utils.validate_return_data(response, data_model=Manga)
 
     def club_ranobe(self, club_id: int) -> Optional[List[Ranobe]]:
         """
@@ -1210,15 +1184,13 @@ class API:
         :param club_id: Club ID to get ranobe list
         :type club_id: int
 
-        :return: Club ranobe list or None if list is empty
+        :return: Club ranobe list
         :rtype: Optional[List[Ranobe]]
         """
         logger.debug('Executing "/api/clubs/:id/ranobe" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_ranobe(club_id))
-        if not response:
-            return None
-        return [Ranobe(**ranobe) for ranobe in response]
+        return Utils.validate_return_data(response, data_model=Ranobe)
 
     def club_characters(self, club_id: int) -> Optional[List[Character]]:
         """
@@ -1227,15 +1199,13 @@ class API:
         :param club_id: Club ID to get character list
         :type club_id: int
 
-        :return: Club character list or None if list is empty
+        :return: Club character list
         :rtype: Optional[List[Character]]
         """
         logger.debug('Executing "/api/clubs/:id/characters" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_characters(club_id))
-        if not response:
-            return None
-        return [Character(**character) for character in response]
+        return Utils.validate_return_data(response, data_model=Character)
 
     def club_members(self, club_id: int) -> Optional[List[User]]:
         """
@@ -1244,15 +1214,13 @@ class API:
         :param club_id: Club ID to get member list
         :type club_id: int
 
-        :return: Club member list or None if list is empty
+        :return: Club member list
         :rtype: Optional[List[User]]
         """
         logger.debug('Executing "/api/clubs/:id/members" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_members(club_id))
-        if not response:
-            return None
-        return [User(**user) for user in response]
+        return Utils.validate_return_data(response, data_model=User)
 
     def club_images(self, club_id: int) -> Optional[List[ClubImage]]:
         """
@@ -1261,15 +1229,13 @@ class API:
         :param club_id: Club ID to get images
         :type club_id: int
 
-        :return: Club's images or None if list is empty
+        :return: Club's images
         :rtype: Optional[List[ClubImage]]
         """
         logger.debug('Executing "/api/clubs/:id/images" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_images(club_id))
-        if not response:
-            return None
-        return [ClubImage(**club_image) for club_image in response]
+        return Utils.validate_return_data(response, data_model=ClubImage)
 
     @protected_method(scope='clubs')
     def club_join(self, club_id: int):
@@ -1287,7 +1253,7 @@ class API:
                         int] = self._request(self._endpoints.club_join(club_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
-        return response == ResponseCode.SUCCESS.value
+        return Utils.validate_return_data(response)
 
     @protected_method(scope='clubs')
     def club_leave(self, club_id: int) -> bool:
@@ -1305,7 +1271,7 @@ class API:
             self._endpoints.club_leave(club_id),
             headers=self._authorization_header,
             request_type=RequestType.POST)
-        return response == ResponseCode.SUCCESS.value
+        return Utils.validate_return_data(response)
 
     def comments(self,
                  commentable_id: int,
@@ -1331,7 +1297,7 @@ class API:
         :param desc: Status of description in request. Can be 1 or 0
         :type desc: Optional[int]
 
-        :return: List of comments or None if list is empty
+        :return: List of comments
         :rtype: Optional[List[Comment]]
         """
         logger.debug('Executing "/api/comments" method')
@@ -1347,11 +1313,9 @@ class API:
                                             commentable_id=commentable_id,
                                             commentable_type=commentable_type,
                                             desc=desc))
-        if not response:
-            return None
-        return [Comment(**comment) for comment in response]
+        return Utils.validate_return_data(response, data_model=Comment)
 
-    def comment(self, comment_id: int) -> Comment:
+    def comment(self, comment_id: int) -> Optional[Comment]:
         """
         Returns comment info.
 
@@ -1359,12 +1323,12 @@ class API:
         :type comment_id: int
 
         :return: Comment info
-        :rtype: Comment
+        :rtype: Optional[Comment]
         """
         logger.debug('Executing "/api/comments/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.comment(comment_id))
-        return Comment(**response)
+        return Utils.validate_return_data(response, data_model=Comment)
 
     @protected_method(scope='comments')
     def create_comment(self,
@@ -1394,7 +1358,7 @@ class API:
         :param broadcast: Broadcast comment in club’s topic status
         :type broadcast: Optional[bool]
 
-        :return: Created comment info or None if an error occurred
+        :return: Created comment info
         :rtype: Optional[Comment]
         """
         logger.debug('Executing "/api/comments" method')
@@ -1414,7 +1378,7 @@ class API:
                                             headers=self._authorization_header,
                                             data=data_dict,
                                             request_type=RequestType.POST)
-        return Comment(**response) if 'errors' not in response else None
+        return Utils.validate_return_data(response, data_model=Comment)
 
     @protected_method(scope='comments')
     def update_comment(self, comment_id: int, body: str) -> Optional[Comment]:
@@ -1427,7 +1391,7 @@ class API:
         :param body: New body of comment
         :type body: str
 
-        :return: Updated comment info or None if an error occurred
+        :return: Updated comment info
         :rtype: Optional[Comment]
         """
         logger.debug('Executing "/api/comments/:id" method')
@@ -1436,7 +1400,7 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_data_dict(dict_name='comment', body=body),
             request_type=RequestType.PATCH)
-        return Comment(**response) if 'errors' not in response else None
+        return Utils.validate_return_data(response, data_model=Comment)
 
     @protected_method(scope='comments')
     def delete_comment(self, comment_id: int) -> bool:
@@ -1454,83 +1418,80 @@ class API:
                        Any] = self._request(self._endpoints.comment(comment_id),
                                             headers=self._authorization_header,
                                             request_type=RequestType.DELETE)
-        return 'notice' in response
+        return Utils.validate_return_data(response)
 
-    def anime_constants(self) -> AnimeConstants:
+    def anime_constants(self) -> Optional[AnimeConstants]:
         """
         Returns anime constants values.
 
         :return: Anime constants values
-        :rtype: AnimeConstants
+        :rtype: Optional[AnimeConstants]
         """
         logger.debug('Executing "/api/constants/anime" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.anime_constants)
-        return AnimeConstants(**response)
+        return Utils.validate_return_data(response, data_model=AnimeConstants)
 
-    def manga_constants(self) -> MangaConstants:
+    def manga_constants(self) -> Optional[MangaConstants]:
         """
         Returns manga constants values.
 
         :return: Manga constants values
-        :rtype: MangaConstants
+        :rtype: Optional[MangaConstants]
         """
         logger.debug('Executing "/api/constants/manga" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.manga_constants)
-        return MangaConstants(**response)
+        return Utils.validate_return_data(response, data_model=MangaConstants)
 
-    def user_rate_constants(self) -> UserRateConstants:
+    def user_rate_constants(self) -> Optional[UserRateConstants]:
         """
         Returns user rate constants values.
 
         :return: User rate constants values
-        :rtype: UserRateConstants
+        :rtype: Optional[UserRateConstants]
         """
         logger.debug('Executing "/api/constants/user_rate" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.user_rate_constants)
-        return UserRateConstants(**response)
+        return Utils.validate_return_data(response,
+                                          data_model=UserRateConstants)
 
-    def club_constants(self) -> ClubConstants:
+    def club_constants(self) -> Optional[ClubConstants]:
         """
         Returns club constants values.
 
         :return: Club constants values
-        :rtype: ClubConstants
+        :rtype: Optional[ClubConstants]
         """
         logger.debug('Executing "/api/constants/club" method')
         response: Dict[str, Any] = self._request(self._endpoints.club_constants)
-        return ClubConstants(**response)
+        return Utils.validate_return_data(response, data_model=ClubConstants)
 
     def smileys_constants(self) -> Optional[List[SmileyConstants]]:
         """
         Returns list of smileys constants values.
 
-        :return: List of smileys constants values or None if list is empty
+        :return: List of smileys constants values
         :rtype: Optional[List[SmileyConstants]]
         """
         logger.debug('Executing "/api/constants/smileys" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.smileys_constants)
-        if not response:
-            return None
-        return [SmileyConstants(**smiley) for smiley in response]
+        return Utils.validate_return_data(response, data_model=SmileyConstants)
 
     @protected_method(scope='messages')
     def dialogs(self) -> Optional[List[Dialog]]:
         """
         Returns list of current user's dialogs.
 
-        :return: List of dialogs or None if list is empty
+        :return: List of dialogs
         :rtype: Optional[List[Dialog]]
         """
         logger.debug('Executing "/api/dialogs" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialogs, headers=self._authorization_header)
-        if not response:
-            return None
-        return [Dialog(**dialog) for dialog in response]
+        return Utils.validate_return_data(response, data_model=Dialog)
 
     @protected_method(scope='messages')
     def dialog(self, user_id: Union[int, str]) -> Optional[List[Message]]:
@@ -1540,15 +1501,13 @@ class API:
         :param user_id: ID/Nickname of the user to get dialog
         :type user_id: Union[int, str]
 
-        :return: List of messages or None if list is empty
+        :return: List of messages
         :rtype: Optional[List[Message]]
         """
         logger.debug('Executing "/api/dialogs/:id" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialog(user_id), headers=self._authorization_header)
-        if not response:
-            return None
-        return [Message(**message) for message in response]
+        return Utils.validate_return_data(response, data_model=Message)
 
     @protected_method(scope='messages')
     def delete_dialog(self, user_id: Union[int, str]) -> bool:
@@ -1566,18 +1525,18 @@ class API:
             self._endpoints.dialog(user_id),
             headers=self._authorization_header,
             request_type=RequestType.DELETE)
-        return 'notice' in response
+        return Utils.validate_return_data(response)
 
     @protected_method()
     def create_favorite(self,
-                        linked_type: LinkedType,
+                        linked_type: FavoriteLinkedType,
                         linked_id: int,
                         kind: PersonKind = PersonKind.NONE) -> bool:
         """
         Creates a favorite.
 
         :param linked_type: Type of object for making favorite
-        :type linked_type: LinkedType
+        :type linked_type: FavoriteLinkedType
 
         :param linked_id: ID of linked type
         :type linked_id: int
@@ -1597,15 +1556,16 @@ class API:
                            linked_type, linked_id, kind),
                                             headers=self._authorization_header,
                                             request_type=RequestType.POST)
-        return 'success' in response
+        return Utils.validate_return_data(response)
 
     @protected_method()
-    def destroy_favorite(self, linked_type: LinkedType, linked_id: int) -> bool:
+    def destroy_favorite(self, linked_type: FavoriteLinkedType,
+                         linked_id: int) -> bool:
         """
         Destroys a favorite.
 
         :param linked_type: Type of object for destroying from favorite
-        :type linked_type: LinkedType
+        :type linked_type: FavoriteLinkedType
 
         :param linked_id: ID of linked type
         :type linked_id: int
@@ -1621,7 +1581,7 @@ class API:
                            linked_type, linked_id),
                                             headers=self._authorization_header,
                                             request_type=RequestType.DELETE)
-        return 'success' in response
+        return Utils.validate_return_data(response)
 
     @protected_method()
     def reorder_favorite(self,
@@ -1645,31 +1605,24 @@ class API:
             headers=self._authorization_header,
             query=Utils.generate_query_dict(new_index=new_index),
             request_type=RequestType.POST)
-        if isinstance(response, int):
-            return response == ResponseCode.SUCCESS.value
-        return False
+        return Utils.validate_return_data(response,
+                                          response_code=ResponseCode.SUCCESS)
 
     def forums(self) -> Optional[List[Forum]]:
         """
         Returns list of forums.
 
-        :returns: List of forums or None if list is empty
+        :returns: List of forums
         :rtype: Optional[List[Forum]]
         """
         logger.debug('Executing "/api/forums" method')
         response: List[Dict[str, Any]] = self._request(self._endpoints.forums)
-        if not response:
-            return None
-        return [Forum(**forum) for forum in response]
+        return Utils.validate_return_data(response, data_model=Forum)
 
     @protected_method(scope='friends')
     def create_friend(self, friend_id: int):
         """
         Creates (adds) new friend by ID.
-
-        Although it is possible to use this method
-        with user nicknames, I recommend to pass user ID
-        (In this case there is an additional check for string)
 
         :param friend_id: ID of a friend to create (add)
         :type friend_id: int
@@ -1678,26 +1631,16 @@ class API:
         :rtype: bool
         """
         logger.debug('Executing "/api/friends/:id" method')
-
-        if isinstance(friend_id, str):
-            logger.debug(
-                'Adding to friends was canceled because a string was passed')
-            return False
-
         response: Union[Dict[str, Any],
                         int] = self._request(self._endpoints.friend(friend_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
-        return 'notice' in response
+        return Utils.validate_return_data(response)
 
     @protected_method(scope='friends')
     def destroy_friend(self, friend_id: int):
         """
         Destroys (removes) current friend by ID.
-
-        Although it is possible to use this method
-        with user nicknames, I recommend to pass user ID
-        (In this case there is an additional check for string)
 
         :param friend_id: ID of a friend to destroy (remove)
         :type friend_id: int
@@ -1706,30 +1649,22 @@ class API:
         :rtype: bool
         """
         logger.debug('Executing "/api/friends/:id" method')
-
-        if isinstance(friend_id, str):
-            logger.debug(
-                'Deletion from friends canceled because a string was passed')
-            return False
-
         response: Union[Dict[str, Any],
                         int] = self._request(self._endpoints.friend(friend_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.DELETE)
-        return 'notice' in response
+        return Utils.validate_return_data(response)
 
     def genres(self) -> Optional[List[Genre]]:
         """
         Returns list of genres.
 
-        :return: List of genres or None if list is empty
+        :return: List of genres
         :rtype: Optional[List[Genre]]
         """
         logger.debug('Executing "/api/genres" method')
         response: List[Dict[str, Any]] = self._request(self._endpoints.genres)
-        if not response:
-            return None
-        return [Genre(**genre) for genre in response]
+        return Utils.validate_return_data(response, data_model=Genre)
 
     def mangas(self,
                page: Optional[int] = None,
@@ -1797,7 +1732,7 @@ class API:
         :param search: Search phrase to filter mangas by name
         :type search: Optional[str]
 
-        :return: List of Mangas or None if list is empty
+        :return: List of Mangas
         :rtype: Optional[List[Manga]]
         """
         logger.debug('Executing "/api/mangas" method')
@@ -1828,11 +1763,9 @@ class API:
                                             ids=ids,
                                             exclude_ids=exclude_ids,
                                             search=search))
-        if not response:
-            return None
-        return [Manga(**manga) for manga in response]
+        return Utils.validate_return_data(response, data_model=Manga)
 
-    def manga(self, manga_id: int) -> Manga:
+    def manga(self, manga_id: int) -> Optional[Manga]:
         """
         Returns info about certain manga.
 
@@ -1840,12 +1773,12 @@ class API:
         :type manga_id: int
 
         :return: Manga info
-        :rtype: Manga
+        :rtype: Optional[Manga]
         """
         logger.debug('Executing "/api/mangas/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.manga(manga_id))
-        return Manga(**response)
+        return Utils.validate_return_data(response, data_model=Manga)
 
     def manga_creators(self, manga_id: int) -> Optional[List[Creator]]:
         """
@@ -1854,15 +1787,13 @@ class API:
         :param manga_id: Manga ID to get creators
         :type manga_id: int
 
-        :return: List of manga creators or None if list is empty
+        :return: List of manga creators
         :rtype: Optional[List[Creator]]
         """
         logger.debug('Executing "/api/mangas/:id/roles" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.manga_roles(manga_id))
-        if not response:
-            return None
-        return [Creator(**creator) for creator in response]
+        return Utils.validate_return_data(response, data_model=Creator)
 
     def similar_mangas(self, manga_id: int) -> Optional[List[Manga]]:
         """
@@ -1871,15 +1802,13 @@ class API:
         :param manga_id: Manga ID to get similar mangas
         :type manga_id: int
 
-        :return: List of similar mangas or None if list is empty
+        :return: List of similar mangas
         :rtype: Optional[List[Manga]]
         """
         logger.debug('Executing "/api/mangas/:id/similar" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.similar_mangas(manga_id))
-        if not response:
-            return None
-        return [Manga(**manga) for manga in response]
+        return Utils.validate_return_data(response, data_model=Manga)
 
     def manga_related_content(self, manga_id: int) -> Optional[List[Relation]]:
         """
@@ -1888,17 +1817,15 @@ class API:
         :param manga_id: Manga ID to get related content
         :type manga_id: int
 
-        :return: List of relations or None if list is empty
+        :return: List of relations
         :rtype: Optional[List[Relation]]
         """
         logger.debug('Executing "/api/mangas/:id/related" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.manga_related_content(manga_id))
-        if not response:
-            return None
-        return [Relation(**relation) for relation in response]
+        return Utils.validate_return_data(response, data_model=Relation)
 
-    def manga_franchise_tree(self, manga_id: int) -> FranchiseTree:
+    def manga_franchise_tree(self, manga_id: int) -> Optional[FranchiseTree]:
         """
         Returns franchise tree of certain manga.
 
@@ -1906,12 +1833,12 @@ class API:
         :type manga_id: int
 
         :return: Franchise tree of certain manga
-        :rtype: FranchiseTree
+        :rtype: Optional[FranchiseTree]
         """
         logger.debug('Executing "/api/mangas/:id/franchise" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.manga_franchise_tree(manga_id))
-        return FranchiseTree(**response)
+        return Utils.validate_return_data(response, data_model=FranchiseTree)
 
     def manga_external_links(self, manga_id: int) -> Optional[List[Link]]:
         """
@@ -1920,15 +1847,13 @@ class API:
         :param manga_id: Manga ID to get external links
         :type manga_id: int
 
-        :return: List of external links or None if list is empty
+        :return: List of external links
         :rtype: Optional[List[Link]]
         """
         logger.debug('Executing "/api/mangas/:id/external_links" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.manga_external_links(manga_id))
-        if not response:
-            return None
-        return [Link(**link) for link in response]
+        return Utils.validate_return_data(response, data_model=Link)
 
     def manga_topics(self,
                      manga_id: int,
@@ -1948,7 +1873,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :return: List of topics or None if list is empty
+        :return: List of topics
         :rtype: Optional[List[Topic]]
         """
         logger.debug('Executing "/api/mangas/:id/topics" method')
@@ -1961,12 +1886,10 @@ class API:
             self._endpoints.manga_topics(manga_id),
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit']))
-        if not response:
-            return None
-        return [Topic(**topic) for topic in response]
+        return Utils.validate_return_data(response, data_model=Topic)
 
     @protected_method(scope='messages')
-    def message(self, message_id) -> Message:
+    def message(self, message_id) -> Optional[Message]:
         """
         Returns message info.
 
@@ -1974,13 +1897,13 @@ class API:
         :type message_id: int
 
         :return: Message info
-        :rtype: Message
+        :rtype: Optional[Message]
         """
         logger.debug('Executing "/api/messages/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.message(message_id),
                                             headers=self._authorization_header)
-        return Message(**response)
+        return Utils.validate_return_data(response, data_model=Message)
 
     @protected_method(scope='messages')
     def create_message(self, body: str, from_id: int,
@@ -1997,7 +1920,7 @@ class API:
         :param to_id: Reciver ID
         :type to_id: int
 
-        :return: Created message info or None if an error occurred
+        :return: Created message info
         :rtype: Optional[Message]
         """
         logger.debug('Executing "/api/messages" method')
@@ -2010,7 +1933,7 @@ class API:
                                           kind='Private',
                                           to_id=to_id),
             request_type=RequestType.POST)
-        return Message(**response) if 'errors' not in response else None
+        return Utils.validate_return_data(response, data_model=Message)
 
     @protected_method(scope='messages')
     def update_message(self, message_id: int, body: str) -> Optional[Message]:
@@ -2023,7 +1946,7 @@ class API:
         :param body: New body of message
         :type body: str
 
-        :return: Updated message info or None if an error occurred
+        :return: Updated message info
         :rtype: Optional[Message]
         """
         logger.debug('Executing "/api/messages/:id" method')
@@ -2032,7 +1955,7 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_data_dict(dict_name='message', body=body),
             request_type=RequestType.PATCH)
-        return Message(**response) if 'errors' not in response else None
+        return Utils.validate_return_data(response, data_model=Message)
 
     @protected_method(scope='messages')
     def delete_message(self, message_id: int) -> bool:
@@ -2050,9 +1973,8 @@ class API:
             self._endpoints.message(message_id),
             headers=self._authorization_header,
             request_type=RequestType.DELETE)
-        if isinstance(response, int):
-            return response == ResponseCode.NO_CONTENT.value
-        return False
+        return Utils.validate_return_data(response,
+                                          response_code=ResponseCode.NO_CONTENT)
 
     @protected_method(scope='messages')
     def mark_messages_read(self,
@@ -2079,9 +2001,8 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_query_dict(ids=message_ids, is_read=is_read),
             request_type=RequestType.POST)
-        if isinstance(response, int):
-            return response == ResponseCode.SUCCESS.value
-        return False
+        return Utils.validate_return_data(response,
+                                          response_code=ResponseCode.SUCCESS)
 
     @protected_method(scope='messages')
     def read_all_messages(self, message_type: MessageType) -> bool:
@@ -2106,9 +2027,8 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_query_dict(type=message_type),
             request_type=RequestType.POST)
-        if isinstance(response, int):
-            return response == ResponseCode.SUCCESS.value
-        return False
+        return Utils.validate_return_data(response,
+                                          response_code=ResponseCode.SUCCESS)
 
     @protected_method(scope='messages')
     def delete_all_messages(self, message_type: MessageType) -> bool:
@@ -2133,11 +2053,10 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_query_dict(type=message_type),
             request_type=RequestType.POST)
-        if isinstance(response, int):
-            return response == ResponseCode.SUCCESS.value
-        return False
+        return Utils.validate_return_data(response,
+                                          response_code=ResponseCode.SUCCESS)
 
-    def people(self, people_id: int) -> People:
+    def people(self, people_id: int) -> Optional[People]:
         """
         Returns info about a person.
 
@@ -2145,12 +2064,12 @@ class API:
         :type people_id: int
 
         :return: Info about a person
-        :rtype: People
+        :rtype: Optional[People]
         """
         logger.debug('Executing "/api/people/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.people(people_id))
-        return People(**response)
+        return Utils.validate_return_data(response, data_model=People)
 
     def people_search(
             self,
@@ -2168,30 +2087,26 @@ class API:
         :param people_kind: Kind of person for searching
         :type people_kind: Optional[PersonKind]
 
-        :return: List of found persons or None if list is empty
+        :return: List of found persons
         :rtype: Optional[List[People]]
         """
         logger.debug('Executing "/api/people/search" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.people_search,
             query=Utils.generate_query_dict(search=search, kind=people_kind))
-        if not response:
-            return None
-        return [People(**people) for people in response]
+        return Utils.validate_return_data(response, data_model=People)
 
     def publishers(self) -> Optional[List[Publisher]]:
         """
         Returns list of publishers.
 
-        :return: List of publishers or None if list is empty
+        :return: List of publishers
         :rtype: Optional[List[Publisher]]
         """
         logger.debug('Executing "/api/publishers" method')
         response: List[Dict[str,
                             Any]] = self._request(self._endpoints.publishers)
-        if not response:
-            return None
-        return [Publisher(**publisher) for publisher in response]
+        return Utils.validate_return_data(response, data_model=Publisher)
 
     def ranobes(self,
                 page: Optional[int] = None,
@@ -2256,7 +2171,7 @@ class API:
         :param search: Search phrase to filter ranobe by name
         :type search: Optional[str]
 
-        :return: List of Ranobe or None if list is empty
+        :return: List of Ranobe
         :rtype: Optional[List[Ranobe]]
         """
         logger.debug('Executing "/api/ranobe" method')
@@ -2286,11 +2201,9 @@ class API:
                                             ids=ids,
                                             exclude_ids=exclude_ids,
                                             search=search))
-        if not response:
-            return None
-        return [Ranobe(**ranobe) for ranobe in response]
+        return Utils.validate_return_data(response, data_model=Ranobe)
 
-    def ranobe(self, ranobe_id: int) -> Ranobe:
+    def ranobe(self, ranobe_id: int) -> Optional[Ranobe]:
         """
         Returns info about certain ranobe.
 
@@ -2298,12 +2211,12 @@ class API:
         :type ranobe_id: int
 
         :return: Ranobe info
-        :rtype: Ranobe
+        :rtype: Optional[Ranobe]
         """
         logger.debug('Executing "/api/ranobe/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.ranobe(ranobe_id))
-        return Ranobe(**response)
+        return Utils.validate_return_data(response, data_model=Ranobe)
 
     def ranobe_creators(self, ranobe_id: int) -> Optional[List[Creator]]:
         """
@@ -2312,15 +2225,13 @@ class API:
         :param ranobe_id: Ranobe ID to get creators
         :type ranobe_id: int
 
-        :return: List of ranobe creators or None if list is empty
+        :return: List of ranobe creators
         :rtype: Optional[List[Creator]]
         """
         logger.debug('Executing "/api/ranobe/:id/roles" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.ranobe_roles(ranobe_id))
-        if not response:
-            return None
-        return [Creator(**creator) for creator in response]
+        return Utils.validate_return_data(response, data_model=Creator)
 
     def similar_ranobes(self, ranobe_id: int) -> Optional[List[Ranobe]]:
         """
@@ -2329,15 +2240,13 @@ class API:
         :param ranobe_id: Ranobe ID to get similar ranobes
         :type ranobe_id: int
 
-        :return: List of similar ranobes or None if list is empty
+        :return: List of similar ranobes
         :rtype: Optional[List[Ranobe]]
         """
         logger.debug('Executing "/api/ranobe/:id/similar" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.similar_ranobes(ranobe_id))
-        if not response:
-            return None
-        return [Ranobe(**ranobe) for ranobe in response]
+        return Utils.validate_return_data(response, data_model=Ranobe)
 
     def ranobe_related_content(self,
                                ranobe_id: int) -> Optional[List[Relation]]:
@@ -2347,17 +2256,15 @@ class API:
         :param ranobe_id: Ranobe ID to get related content
         :type ranobe_id: int
 
-        :return: List of relations or None if list is empty
+        :return: List of relations
         :rtype: Optional[List[Relation]]
         """
         logger.debug('Executing "/api/ranobe/:id/related" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.ranobe_related_content(ranobe_id))
-        if not response:
-            return None
-        return [Relation(**relation) for relation in response]
+        return Utils.validate_return_data(response, data_model=Relation)
 
-    def ranobe_franchise_tree(self, ranobe_id: int) -> FranchiseTree:
+    def ranobe_franchise_tree(self, ranobe_id: int) -> Optional[FranchiseTree]:
         """
         Returns franchise tree of certain ranobe.
 
@@ -2365,12 +2272,12 @@ class API:
         :type ranobe_id: int
 
         :return: Franchise tree of certain ranobe
-        :rtype: FranchiseTree
+        :rtype: Optional[FranchiseTree]
         """
         logger.debug('Executing "/api/ranobe/:id/franchise" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.ranobe_franchise_tree(ranobe_id))
-        return FranchiseTree(**response)
+        return Utils.validate_return_data(response, data_model=FranchiseTree)
 
     def ranobe_external_links(self, ranobe_id: int) -> Optional[List[Link]]:
         """
@@ -2379,15 +2286,13 @@ class API:
         :param ranobe_id: Ranobe ID to get external links
         :type ranobe_id: int
 
-        :return: List of external links or None if list is empty
+        :return: List of external links
         :rtype: Optional[List[Link]]
         """
         logger.debug('Executing "/api/ranobe/:id/external_links" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.ranobe_external_links(ranobe_id))
-        if not response:
-            return None
-        return [Link(**link) for link in response]
+        return Utils.validate_return_data(response, data_model=Link)
 
     def ranobe_topics(self,
                       ranobe_id: int,
@@ -2407,7 +2312,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :return: List of topics or None if list is empty
+        :return: List of topics
         :rtype: Optional[List[Topic]]
         """
         logger.debug('Executing "/api/ranobe/:id/topics" method')
@@ -2420,35 +2325,29 @@ class API:
             self._endpoints.ranobe_topics(ranobe_id),
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit']))
-        if not response:
-            return None
-        return [Topic(**topic) for topic in response]
+        return Utils.validate_return_data(response, data_model=Topic)
 
     def active_users(self) -> Optional[List[int]]:
         """
         Returns list of IDs of active users.
 
-        :return: List of IDs of active users or None if list is empty
+        :return: List of IDs of active users
         :rtype: Optional[List[int]]
         """
         logger.debug('Executing "/api/stats/active_users" method')
         response: List[int] = self._request(self._endpoints.active_users)
-        if not response:
-            return None
-        return response
+        return Utils.validate_return_data(response)
 
     def studios(self) -> Optional[List[Studio]]:
         """
         Returns list of studios.
 
-        :return: List of studios or None if list is empty
+        :return: List of studios
         :rtype: Optional[List[Studio]]
         """
         logger.debug('Executing "/api/studios" method')
         response: List[Dict[str, Any]] = self._request(self._endpoints.studios)
-        if not response:
-            return None
-        return [Studio(**studio) for studio in response]
+        return Utils.validate_return_data(response, data_model=Studio)
 
     def style(self, style_id: int) -> Optional[Style]:
         """
@@ -2457,15 +2356,13 @@ class API:
         :param style_id: Style ID to get info
         :type style_id: int
 
-        :return: Info about style or None if there is an error
+        :return: Info about style
         :rtype: Optional[Style]
         """
         logger.debug('Executing "/api/styles/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.style(style_id))
-        if not response or 'code' in response:
-            return None
-        return Style(**response)
+        return Utils.validate_return_data(response, data_model=Style)
 
     @protected_method()
     def preview_style(self, css: str) -> Optional[Style]:
@@ -2475,7 +2372,7 @@ class API:
         :param css: CSS code to preview
         :type css: str
 
-        :return: Info about previewed style or None if there is an error
+        :return: Info about previewed style
         :rtype: Optional[Style]
         """
         logger.debug('Executing "/api/styles/preview" method')
@@ -2484,7 +2381,7 @@ class API:
             headers=self._authorization_header,
             data=Utils.generate_data_dict(dict_name='style', css=css),
             request_type=RequestType.POST)
-        return Style(**response) if 'errors' not in response else None
+        return Utils.validate_return_data(response, data_model=Style)
 
     @protected_method()
     def create_style(self, css: str, name: str, owner_id: int,
@@ -2504,7 +2401,7 @@ class API:
         :param owner_type: Type of owner (User/Club)
         :type owner_type: OwnerType
 
-        :return: Info about previewed style or None if there is an error
+        :return: Info about previewed style
         :rtype: Optional[Style]
         """
         logger.debug('Executing "/api/styles" method')
@@ -2517,7 +2414,7 @@ class API:
                                           owner_id=owner_id,
                                           owner_type=owner_type),
             request_type=RequestType.POST)
-        return Style(**response) if 'errors' not in response else None
+        return Utils.validate_return_data(response, data_model=Style)
 
     @protected_method()
     def update_style(self, style_id: int, css: Optional[str],
@@ -2534,7 +2431,7 @@ class API:
         :param name: New style name
         :type name: Optional[str]
 
-        :return: Info about updated style or None if there is an error
+        :return: Info about updated style
         :rtype: Optional[Style]
         """
         logger.debug('Executing "/api/styles/:id" method')
@@ -2544,7 +2441,222 @@ class API:
             data=Utils.generate_data_dict(dict_name='style', css=css,
                                           name=name),
             request_type=RequestType.PATCH)
-        return Style(**response) if 'errors' not in response else None
+        return Utils.validate_return_data(response, data_model=Style)
+
+    def topics(
+        self,
+        page: Optional[int] = None,
+        limit: Optional[int] = None,
+        forum: Optional[ForumType] = None,
+        linked_id: Optional[int] = None,
+        linked_type: Optional[TopicLinkedType] = None,
+        topic_type: Optional[Union[TopicsType, EntryTopics, NewsTopics]] = None
+    ) -> Optional[List[Topic]]:
+        """
+        Returns list of topics.
+
+        :param page: Number of page
+        :type page: Optional[int]
+
+        :param limit: Number of results limit
+        :type limit: Optional[int]
+
+        :param forum: Number of results limit
+        :type forum: Optional[ForumType]
+
+        :param linked_id: ID of linked topic (Used together with linked_type)
+        :type linked_id: Optional[int]
+
+        :param linked_type: Type of linked topic (Used together with linked_id)
+        :type linked_type: Optional[TopicLinkedType]
+
+        :param topic_type: Optional[Union[TopicsType, EntryTopics, NewsTopics]]
+        :type topic_type: Optional[int]
+
+        :return: List of topics
+        :rtype: Optional[List[Topic]]
+        """
+        logger.debug('Executing "/api/topics" method')
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 30],
+        )
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.topics,
+            query=Utils.generate_query_dict(page=validated_numbers['page'],
+                                            limit=validated_numbers['limit'],
+                                            forum=forum,
+                                            linked_id=linked_id,
+                                            linked_type=linked_type,
+                                            type=topic_type))
+        return Utils.validate_return_data(response, data_model=Topic)
+
+    def updates_topics(self,
+                       page: Optional[int] = None,
+                       limit: Optional[int] = None) -> Optional[List[Topic]]:
+        """
+        Returns list of NewsTopics about database updates.
+
+        :param page: Number of page
+        :type page: Optional[int]
+
+        :param limit: Number of results limit
+        :type limit: Optional[int]
+
+        :return: List of topics
+        :rtype: Optional[List[Topic]]
+        """
+        logger.debug('Executing "/api/topics/updates" method')
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 30],
+        )
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.updates_topics,
+            query=Utils.generate_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+            ))
+        return Utils.validate_return_data(response, data_model=Topic)
+
+    def hot_topics(self, limit: Optional[int] = None) -> Optional[List[Topic]]:
+        """
+        Returns list of hot topics.
+
+        :param limit: Number of results limit
+        :type limit: Optional[int]
+
+        :return: List of topics
+        :rtype: Optional[List[Topic]]
+        """
+        logger.debug('Executing "/api/topics/hot" method')
+        validated_numbers = Utils.query_numbers_validator(limit=[limit, 10],)
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.hot_topics,
+            query=Utils.generate_query_dict(limit=validated_numbers['limit'],))
+        return Utils.validate_return_data(response, data_model=Topic)
+
+    def topic(self, topic_id: int) -> Optional[Topic]:
+        """
+        Returns info about topic.
+
+        :param topic_id: ID of topic to get
+        :type topic_id: int
+
+        :return: Info about topic
+        :rtype: Optional[Topic]
+        """
+        logger.debug('Executing "/api/topics/:id" method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.topic(topic_id))
+        return Utils.validate_return_data(response, data_model=Topic)
+
+    @protected_method(scope='topics')
+    def create_topic(
+            self,
+            body: str,
+            forum_id: int,
+            title: str,
+            user_id: int,
+            linked_id: Optional[int] = None,
+            linked_type: Optional[TopicLinkedType] = None) -> Optional[Topic]:
+        """
+        Creates topic.
+
+        :param body: Body of topic
+        :type body: str
+
+        :param forum_id: ID of forum to post
+        :type forum_id: int
+
+        :param title: Title of topic
+        :type title: str
+
+        :param user_id: ID of topic creator
+        :type user_id: int
+
+        :param linked_id: ID of linked topic (Used together with linked_type)
+        :type linked_type: Optional[int]
+
+        :param linked_type: Type of linked topic (Used together with linked_id)
+        :type linked_type: Optional[TopicLinkedType]
+
+        :return: Created topic info
+        :rtype: Optional[Topic]
+        """
+        logger.debug('Executing "/api/topics" method')
+        response: Dict[str, Any] = self._request(
+            self._endpoints.topics,
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='topic',
+                                          body=body,
+                                          forum_id=forum_id,
+                                          linked_id=linked_id,
+                                          linked_type=linked_type,
+                                          title=title,
+                                          type=TopicsType.REGULAR_TOPIC,
+                                          user_id=user_id),
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response, data_model=Topic)
+
+    @protected_method(scope='topics')
+    def update_topic(
+            self,
+            topic_id: int,
+            body: str,
+            title: str,
+            linked_id: Optional[int] = None,
+            linked_type: Optional[TopicLinkedType] = None) -> Optional[Topic]:
+        """
+        Updated topic.
+
+        :param topic_id: ID of topic to update
+        :type topic_id: int
+
+        :param body: Body of topic
+        :type body: str
+
+        :param title: Title of topic
+        :type title: str
+
+        :param linked_id: ID of linked topic (Used together with linked_type)
+        :type linked_type: Optional[int]
+
+        :param linked_type: Type of linked topic (Used together with linked_id)
+        :type linked_type: Optional[TopicLinkedType]
+
+        :return: Updated topic info
+        :rtype: Optional[Topic]
+        """
+        logger.debug('Executing "/api/topics/:id" method')
+        response: Dict[str, Any] = self._request(
+            self._endpoints.topic(topic_id),
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='topic',
+                                          body=body,
+                                          linked_id=linked_id,
+                                          linked_type=linked_type,
+                                          title=title),
+            request_type=RequestType.PATCH)
+        return Utils.validate_return_data(response, data_model=Topic)
+
+    @protected_method(scope='topics')
+    def delete_topic(self, topic_id: int) -> Optional[bool]:
+        """
+        Deletes topic.
+
+        :param topic_id: ID of topic to delete
+        :type topic_id: int
+
+        :return: Status of topic deletion
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/topics/:id" method')
+        response: Union[Dict[str, Any],
+                        int] = self._request(self._endpoints.topic(topic_id),
+                                             headers=self._authorization_header,
+                                             request_type=RequestType.DELETE)
+        return Utils.validate_return_data(response)
 
     def users(self,
               page: Optional[int] = None,
@@ -2558,7 +2670,7 @@ class API:
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :return: List of users or None if list is empty
+        :return: List of users
         :rtype: Optional[List[User]]
         """
         logger.debug('Executing "/api/users" method')
@@ -2571,13 +2683,11 @@ class API:
             self._endpoints.users,
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit']))
-        if not response:
-            return None
-        return [User(**user) for user in response]
+        return Utils.validate_return_data(response, data_model=User)
 
     def user(self,
              user_id: Union[str, int],
-             is_nickname: Optional[bool] = None) -> User:
+             is_nickname: Optional[bool] = None) -> Optional[User]:
         """
         Returns info about user.
 
@@ -2588,17 +2698,17 @@ class API:
         :type is_nickname: Optional[bool]
 
         :return: Info about user
-        :rtype: User
+        :rtype: Optional[User]
         """
         logger.debug('Executing "/api/users/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        return User(**response)
+        return Utils.validate_return_data(response, data_model=User)
 
     def user_info(self,
                   user_id: Union[str, int],
-                  is_nickname: Optional[bool] = None) -> User:
+                  is_nickname: Optional[bool] = None) -> Optional[User]:
         """
         Returns user's brief info.
 
@@ -2609,29 +2719,29 @@ class API:
         :type is_nickname: Optional[bool]
 
         :return: User's brief info
-        :rtype: User
+        :rtype: Optional[User]
         """
         logger.debug('Executing "/api/users"/:id/info method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_info(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        return User(**response)
+        return Utils.validate_return_data(response, data_model=User)
 
     @protected_method()
-    def current_user(self) -> User:
+    def current_user(self) -> Optional[User]:
         """
         Returns brief info about current user.
 
         Current user evaluated depending on authorization code.
 
         :return: Current user brief info
-        :rtype: User
+        :rtype: Optional[User]
         """
         logger.debug('Executing "/api/users/whoami" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.whoami,
                                             headers=self._authorization_header)
-        return User(**response)
+        return Utils.validate_return_data(response, data_model=User)
 
     @protected_method()
     def user_sign_out(self):
@@ -2653,16 +2763,14 @@ class API:
         :param is_nickname: Specify if passed user_id is nickname
         :type is_nickname: Optional[bool]
 
-        :return: List of user's friends or None if list is empty
+        :return: List of user's friends
         :rtype: Optional[List[User]]
         """
         logger.debug('Executing "/api/users/:id/friends" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_friends(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        if not response:
-            return None
-        return [User(**friend) for friend in response]
+        return Utils.validate_return_data(response, data_model=User)
 
     def user_clubs(self,
                    user_id: Union[int, str],
@@ -2676,16 +2784,14 @@ class API:
         :param is_nickname: Specify if passed user_id is nickname
         :type is_nickname: Optional[bool]
 
-        :return: List of user's clubs or None if list is empty
+        :return: List of user's clubs
         :rtype: Optional[List[Club]]
         """
         logger.debug('Executing "/api/users/:id/clubs" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_clubs(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        if not response:
-            return None
-        return [Club(**club) for club in response]
+        return Utils.validate_return_data(response, data_model=Club)
 
     def user_anime_rates(
             self,
@@ -2717,7 +2823,7 @@ class API:
         :param censored: Type of anime censorship
         :type censored: Optional[AnimeCensorship]
 
-        :return: User's anime list or None if list is empty
+        :return: User's anime list
         :rtype: Optional[List[UserList]]
         """
         logger.debug('Executing "/api/users/:id/anime_rates" method')
@@ -2733,9 +2839,7 @@ class API:
                                             limit=validated_numbers['limit'],
                                             status=status,
                                             censored=censored))
-        if not response:
-            return None
-        return [UserList(**user_list) for user_list in response]
+        return Utils.validate_return_data(response, data_model=UserList)
 
     def user_manga_rates(
             self,
@@ -2763,7 +2867,7 @@ class API:
         :param censored: Type of manga censorship
         :type censored: Optional[AnimeCensorship]
 
-        :return: User's manga list or None if list is empty
+        :return: User's manga list
         :rtype: Optional[List[UserList]]
         """
         logger.debug('Executing "/api/users/:id/manga_rates" method')
@@ -2778,13 +2882,12 @@ class API:
                                             page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             censored=censored))
-        if not response:
-            return None
-        return [UserList(**user_list) for user_list in response]
+        return Utils.validate_return_data(response, data_model=UserList)
 
-    def user_favourites(self,
-                        user_id: Union[int, str],
-                        is_nickname: Optional[bool] = None) -> Favourites:
+    def user_favourites(
+            self,
+            user_id: Union[int, str],
+            is_nickname: Optional[bool] = None) -> Optional[Favourites]:
         """
         Returns user's favourites.
 
@@ -2795,13 +2898,13 @@ class API:
         :type is_nickname: Optional[bool]
 
         :return: User's favourites
-        :rtype: Favourites
+        :rtype: Optional[Favourites]
         """
         logger.debug('Executing "/api/users/:id/favourites" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_favourites(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        return Favourites(**response)
+        return Utils.validate_return_data(response, data_model=Favourites)
 
     @protected_method(scope='messages')
     def current_user_messages(
@@ -2830,7 +2933,7 @@ class API:
         :param message_type: Type of message
         :type message_type: MessageType
 
-        :return: Current user's messages or None if list is empty
+        :return: Current user's messages
         :rtype: Optional[List[Message]]
         """
         logger.debug('Executing "/api/users/:id/messages" method')
@@ -2846,15 +2949,13 @@ class API:
                                             page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             type=message_type))
-        if not response:
-            return None
-        return [Message(**message) for message in response]
+        return Utils.validate_return_data(response, data_model=Message)
 
     @protected_method(scope='messages')
     def current_user_unread_messages(
             self,
             user_id: Union[int, str],
-            is_nickname: Optional[bool] = None) -> UnreadMessages:
+            is_nickname: Optional[bool] = None) -> Optional[UnreadMessages]:
         """
         Returns current user's unread messages counter.
 
@@ -2865,14 +2966,14 @@ class API:
         :type is_nickname: Optional[bool]
 
         :return: Current user's unread messages counters
-        :rtype: UnreadMessages
+        :rtype: Optional[UnreadMessages]
         """
         logger.debug('Executing "/api/users/:id/unread_messages" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_unread_messages(user_id),
             headers=self._authorization_header,
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        return UnreadMessages(**response)
+        return Utils.validate_return_data(response, data_model=UnreadMessages)
 
     def user_history(
             self,
@@ -2904,7 +3005,7 @@ class API:
         :param target_type: Type of target (Anime/Manga)
         :type target_type: Optional[TargetType]
 
-        :return: User's history or None if list is empty
+        :return: User's history
         :rtype: Optional[List[History]]
         """
         logger.debug('Executing "/api/users/:id/history" method')
@@ -2920,9 +3021,7 @@ class API:
                                             limit=validated_numbers['limit'],
                                             target_id=target_id,
                                             target_type=target_type))
-        if not response:
-            return None
-        return [History(**history) for history in response]
+        return Utils.validate_return_data(response, data_model=History)
 
     def user_bans(self,
                   user_id: Union[int, str],
@@ -2936,13 +3035,11 @@ class API:
         :param is_nickname: Specify if passed user_id is nickname
         :type is_nickname: Optional[bool]
 
-        :return: User's bans or None if list is empty
+        :return: User's bans
         :rtype: Optional[List[Ban]]
         """
         logger.debug('Executing "/api/users/:id/bans" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_bans(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        if not response:
-            return None
-        return [Ban(**ban) for ban in response]
+        return Utils.validate_return_data(response, data_model=Ban)
