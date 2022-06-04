@@ -272,6 +272,7 @@ class API:
         - Validation of config and variables
         - Customizing the session header user agent
         - Getting access/refresh tokens if they are missing
+        - Refresh current tokens if they are not valid
 
         Otherwise, if only app name is provided, setting it
 
@@ -288,6 +289,10 @@ class API:
             logger.debug('No tokens found')
             tokens_data: Tuple[str, str] = self._get_access_token()
             self._update_tokens(tokens_data)
+
+        if self.token_expired():
+            logger.debug('Token has expired. Refreshing...')
+            self.refresh_tokens()
 
     @logger.catch(onerror=lambda _: sys.exit(1))
     def _validate_config(self, config: Union[str, Dict[str, str]]):
