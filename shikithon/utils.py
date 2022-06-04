@@ -12,6 +12,8 @@ from typing import Any, Dict, List, Optional, Union
 from loguru import logger
 from pydantic.main import ModelMetaclass
 
+from shikithon.enums.response import ResponseCode
+
 LOWER_LIMIT_NUMBER = 1
 
 
@@ -245,29 +247,34 @@ class Utils:
 
     @staticmethod
     def validate_return_data(
-        response_data: Union[List[Dict[str, Any]],
-                             Dict[str, Any]], data_model: ModelMetaclass
-    ) -> Optional[Union[ModelMetaclass, List[ModelMetaclass]]]:
+        response_data: Union[List[Dict[str, Any]], Dict[str, Any], List[Any]],
+        data_model: Optional[ModelMetaclass] = None
+    ) -> Optional[Union[ModelMetaclass, List[ModelMetaclass], List[Any], bool]]:
         """
         Validates passed response data and returns
         parsed models.
 
         :param response_data: Response data
-        :type response_data: Union[List[Dict[str, Any]]
+        :type response_data: Union[List[Dict[str, Any],
+            Dict[str, Any], List[Any]]]
 
         :param data_model: Model to convert into passed response data
-        :type data_model: ModelMetaclass
+        :type data_model: Optional[ModelMetaclass]
 
         :return: Parsed response data
-        :rtype: Optional[ModelMetaclass, List[ModelMetaclass]]
+        :rtype: Optional[Union[ModelMetaclass, List[ModelMetaclass], bool]]
         """
         if not response_data:
             return None
 
+        if isinstance(response_data, int):
+            return response_data == ResponseCode.SUCCESS.value
+
         if 'errors' in response_data or 'code' in response_data:
             return None
 
-        if isinstance(response_data, list):
-            return [data_model(**item) for item in response_data]
+        if data_model is None:
+            return response_data
 
-        return data_model(**response_data)
+        return [data_model(**item) for item in response_data] if isinstance(
+            response_data, list) else data_model(**response_data)
