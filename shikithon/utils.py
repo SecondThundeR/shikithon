@@ -7,9 +7,8 @@ to work with the library
 """
 from enum import Enum
 from time import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
-import pydantic.main
 from loguru import logger
 
 from shikithon.enums.response import ResponseCode
@@ -246,10 +245,9 @@ class Utils:
     def validate_return_data(
         response_data: Union[List[Dict[str, Any]], Dict[str, Any], List[Any],
                              int],
-        data_model: Optional[pydantic.main.ModelMetaclass] = None,
+        data_model: Optional[Type[Any]] = None,
         response_code: Optional[ResponseCode] = None
-    ) -> Optional[Union[pydantic.main.ModelMetaclass,
-                        List[pydantic.main.ModelMetaclass], List[Any], bool]]:
+    ) -> Optional[Union[Type[Any], List[Type[Any]], List[Any], bool]]:
         """
         Validates passed response data and returns
         parsed models.
@@ -259,15 +257,14 @@ class Utils:
             Dict[str, Any], List[Any]]]
 
         :param data_model: Model to convert into passed response data
-        :type data_model: Optional[pydantic.main.ModelMetaclass]
+        :type data_model: Optional[Type[Any]]
 
         :param response_code: Code of response
             (Used only when response_data is int)
         :type response_code: Optional[ResponseCode]
 
         :return: Parsed response data
-        :rtype: Optional[Union[pydantic.main.ModelMetaclass,
-            List[pydantic.main.ModelMetaclass], bool]]
+        :rtype: Optional[Union[Type[Any], List[Type[Any]], bool]]
         """
         logger.debug(f'Validating return data: {response_data=}, '
                      f'{data_model=}, {response_code=}')
