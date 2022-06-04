@@ -1071,7 +1071,7 @@ class Endpoints:
         return f'{self.topics}/{topic_id}'
 
     @property
-    def topics_updates(self) -> str:
+    def updates_topics(self) -> str:
         """
         Returns endpoint of the topics updates list.
 
