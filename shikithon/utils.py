@@ -286,6 +286,10 @@ class Utils:
             logger.debug('Response data contains errors info. Returning None')
             return None
 
+        if 'notice' in response_data or 'success' in response_data:
+            logger.debug('Response data contains success info. Returning True')
+            return True
+
         if data_model is None:
             logger.debug("Data model isn't passed. Returning response data")
             return response_data
