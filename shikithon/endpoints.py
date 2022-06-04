@@ -6,7 +6,7 @@ customized endpoints via input parameters.
 """
 from typing import Union
 
-from shikithon.enums.favorite import LinkedType
+from shikithon.enums.favorite import FavoriteLinkedType
 from shikithon.enums.person import PersonKind
 from shikithon.utils import Utils
 
@@ -634,14 +634,14 @@ class Endpoints:
         """
         return f'{self.base_url_v2}/episode_notifications'
 
-    def favorites_create(self, linked_type: LinkedType, linked_id: int,
+    def favorites_create(self, linked_type: FavoriteLinkedType, linked_id: int,
                          kind: PersonKind) -> str:
         """
         Returns endpoint for creating some type
         of object as favorite
 
         :param linked_type: Type of object
-        :type linked_type: LinkedType
+        :type linked_type: FavoriteLinkedType
 
         :param linked_id: ID of linked object
         :type linked_id: int
@@ -656,13 +656,14 @@ class Endpoints:
         return f'{self.base_url}/favorites/' \
                f'{linked_type.value}/{linked_id}/{kind.value}'
 
-    def favorites_destroy(self, linked_type: LinkedType, linked_id: int) -> str:
+    def favorites_destroy(self, linked_type: FavoriteLinkedType,
+                          linked_id: int) -> str:
         """
         Returns endpoint for destroying some type
         of object from favorites
 
         :param linked_type: Type of object
-        :type linked_type: LinkedType
+        :type linked_type: FavoriteLinkedType
 
         :param linked_id: ID of linked object
         :type linked_id: int
