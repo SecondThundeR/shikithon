@@ -7,9 +7,11 @@ to work with the library
 """
 from enum import Enum
 from time import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from loguru import logger
+
+from shikithon.enums.response import ResponseCode
 
 LOWER_LIMIT_NUMBER = 1
 
@@ -93,10 +95,7 @@ class Utils:
             if data is None:
                 continue
             if isinstance(data, bool):
-                if data is True:
-                    query_dict[key] = str(int(data))
-                else:
-                    continue
+                query_dict[key] = str(int(data))
             elif isinstance(data, int):
                 query_dict[key] = str(data)
             elif isinstance(data, Enum):
@@ -241,3 +240,55 @@ class Utils:
             validated_numbers[name] = (Utils.validate_query_number(
                 data[0], data[1]))
         return validated_numbers
+
+    @staticmethod
+    def validate_return_data(
+        response_data: Union[List[Dict[str, Any]], Dict[str, Any], List[Any],
+                             int],
+        data_model: Optional[Type[Any]] = None,
+        response_code: Optional[ResponseCode] = None
+    ) -> Optional[Union[Type[Any], List[Type[Any]], List[Any], bool]]:
+        """
+        Validates passed response data and returns
+        parsed models.
+
+        :param response_data: Response data
+        :type response_data: Union[List[Dict[str, Any],
+            Dict[str, Any], List[Any]]]
+
+        :param data_model: Model to convert into passed response data
+        :type data_model: Optional[Type[Any]]
+
+        :param response_code: Code of response
+            (Used only when response_data is int)
+        :type response_code: Optional[ResponseCode]
+
+        :return: Parsed response data
+        :rtype: Optional[Union[Type[Any], List[Type[Any]], bool]]
+        """
+        logger.debug(f'Validating return data: {response_data=}, '
+                     f'{data_model=}, {response_code=}')
+        if not response_data:
+            logger.debug('Response data is empty. Returning None')
+            return None
+
+        if isinstance(response_data, int):
+            logger.debug('Response data is int. Returning value '
+                         'of response code comparison')
+            return response_data == response_code.value
+
+        if 'errors' in response_data or 'code' in response_data:
+            logger.debug('Response data contains errors info. Returning None')
+            return None
+
+        if 'notice' in response_data or 'success' in response_data:
+            logger.debug('Response data contains success info. Returning True')
+            return True
+
+        if data_model is None:
+            logger.debug("Data model isn't passed. Returning response data")
+            return response_data
+
+        logger.debug('Data model is passed. Returning parsed data')
+        return [data_model(**item) for item in response_data] if isinstance(
+            response_data, list) else data_model(**response_data)

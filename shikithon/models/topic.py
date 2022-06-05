@@ -13,19 +13,19 @@ from shikithon.models.user import User
 class Topic(BaseModel):
     """Represents topic entity."""
     id: int
-    topic_title: str
-    body: str
-    html_body: str
-    html_footer: str
+    topic_title: Optional[str]
+    body: Optional[str]
+    html_body: Optional[str]
+    html_footer: Optional[str]
     created_at: datetime
-    comments_count: int
-    forum: Forum
-    user: User
-    type: str
-    linked_id: int
-    linked_type: str
+    comments_count: Optional[int]
+    forum: Optional[Forum]
+    user: Optional[User]
+    type: Optional[str]
+    linked_id: Optional[int]
+    linked_type: Optional[str]
     linked: Union[Anime, Manga]
-    viewed: bool
+    viewed: Optional[bool]
     last_comment_viewed: Optional[bool]
     event: Optional[str]
     episode: Optional[int]

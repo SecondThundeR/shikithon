@@ -1,6 +1,7 @@
+<!-- If PyCharm or IDEA will throw a warning here, just ignore it -->
 <div align="center">
     <!-- Not a final logo :( (or not?) -->
-    <img src="https://raw.githubusercontent.com/SecondThundeR/shikithon/main/assets/logo.png">
+    <img src="https://raw.githubusercontent.com/SecondThundeR/shikithon/main/assets/logo.png" alt="Shikithon Logo">
     <h1>Shikithon</h1>
     <p>Очередной враппер для Shikimori API, написанный на Python</p>
 </div>

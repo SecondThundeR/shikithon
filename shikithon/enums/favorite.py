@@ -2,7 +2,7 @@
 from enum import Enum
 
 
-class LinkedType(Enum):
+class FavoriteLinkedType(Enum):
     """Contains constants related for favorite linked type."""
     ANIME = 'Anime'
     MANGA = 'Manga'
