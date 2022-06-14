@@ -441,7 +441,7 @@ class API:
                          Any] = self._request(self._endpoints.oauth_token,
                                               data=data,
                                               request_type=RequestType.POST,
-                                              json_logging=False)
+                                              output_logging=False)
 
         try:
             logger.debug('Returning new access and refresh tokens')
@@ -483,7 +483,7 @@ class API:
         headers: Optional[Dict[str, str]] = None,
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
-        json_logging: bool = True,
+        output_logging: bool = True,
     ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]:
         """
         Create request and return response JSON.
@@ -513,15 +513,16 @@ class API:
         :param request_type: Type of current request
         :type request_type: RequestType
 
-        :param json_logging: Parameter for logging JSON response
-        :type json_logging: bool
+        :param output_logging: Parameter for logging JSON response
+        :type output_logging: bool
 
         :return: Response JSON, text or status code
         :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]
         """
 
         logger.info(f'{request_type.value} {url}')
-        logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
+        if output_logging:
+            logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
 
         if request_type == RequestType.GET:
             response: Response = self._session.get(url,
@@ -559,7 +560,7 @@ class API:
         try:
             logger.debug('Extracting JSON from response')
             json_response = response.json()
-            if json_logging:
+            if output_logging:
                 logger.debug(
                     'Successful extraction. '
                     f'Here are the details of the response: {json_response}')
