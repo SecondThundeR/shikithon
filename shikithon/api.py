@@ -49,6 +49,7 @@ from shikithon.models.comment import Comment
 from shikithon.models.constants import (AnimeConstants, ClubConstants,
                                         MangaConstants, SmileyConstants,
                                         UserRateConstants)
+from shikithon.models.created_user_image import CreatedUserImage
 from shikithon.models.creator import Creator
 from shikithon.models.dialog import Dialog
 from shikithon.models.favourites import Favourites
@@ -441,7 +442,7 @@ class API:
                          Any] = self._request(self._endpoints.oauth_token,
                                               data=data,
                                               request_type=RequestType.POST,
-                                              json_logging=False)
+                                              output_logging=False)
 
         try:
             logger.debug('Returning new access and refresh tokens')
@@ -480,10 +481,11 @@ class API:
         self,
         url: str,
         data: Optional[Dict[str, str]] = None,
+        files: Optional[Dict[str, Tuple[str, bytes, str]]] = None,
         headers: Optional[Dict[str, str]] = None,
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
-        json_logging: bool = True,
+        output_logging: bool = True,
     ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]:
         """
         Create request and return response JSON.
@@ -504,6 +506,9 @@ class API:
         :param data: Request body data
         :type data: Optional[Dict[str, str]]
 
+        :param files: Binary data for request
+        :type files: Optional[Dict[str, Tuple[str, bytes, str]]]
+
         :param headers: Custom headers for request
         :type headers: Optional[Dict[str, str]]
 
@@ -513,15 +518,18 @@ class API:
         :param request_type: Type of current request
         :type request_type: RequestType
 
-        :param json_logging: Parameter for logging JSON response
-        :type json_logging: bool
+        :param output_logging: Parameter for logging JSON response
+        :type output_logging: bool
 
         :return: Response JSON, text or status code
         :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]
         """
 
         logger.info(f'{request_type.value} {url}')
-        logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
+        if output_logging:
+            logger.debug(
+                f'Request info details: {data=}, {files=}, {headers=}, {query=}'
+            )
 
         if request_type == RequestType.GET:
             response: Response = self._session.get(url,
@@ -529,16 +537,19 @@ class API:
                                                    params=query)
         elif request_type == RequestType.POST:
             response: Response = self._session.post(url,
+                                                    files=files,
                                                     headers=headers,
                                                     params=query,
                                                     json=data)
         elif request_type == RequestType.PUT:
             response: Response = self._session.put(url,
+                                                   files=files,
                                                    headers=headers,
                                                    params=query,
                                                    json=data)
         elif request_type == RequestType.PATCH:
             response: Response = self._session.patch(url,
+                                                     files=files,
                                                      headers=headers,
                                                      params=query,
                                                      json=data)
@@ -559,7 +570,7 @@ class API:
         try:
             logger.debug('Extracting JSON from response')
             json_response = response.json()
-            if json_logging:
+            if output_logging:
                 logger.debug(
                     'Successful extraction. '
                     f'Here are the details of the response: {json_response}')
@@ -2657,6 +2668,38 @@ class API:
                                              headers=self._authorization_header,
                                              request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
+
+    @protected_method(scope='comments')
+    def create_user_image(
+            self,
+            image_url: str,
+            linked_type: Optional[str] = None) -> Optional[CreatedUserImage]:
+        """
+        Creates an user image.
+
+        Note: This function currently only supports sending local images.
+        Support for remote images will be added in the future (maybe).
+
+        :param image_url: URL of image to create on server
+        :type image_url: str
+
+        :param linked_type: Type of linked image
+        :type linked_type: Optional[str]
+
+        :return: Created image info
+        :rtype: Optional[CreatedUserImage]
+        """
+        logger.debug('Executing "/api/user_images" method')
+        with open(image_url, 'rb') as image_file:
+            image_data = image_file.read()
+            files = {'image': (image_url, image_data, 'multipart/form-data')}
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.user_images,
+            headers=self._authorization_header,
+            files=files,
+            data=Utils.generate_data_dict(linked_type=linked_type),
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response, data_model=CreatedUserImage)
 
     def users(self,
               page: Optional[int] = None,

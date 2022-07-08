@@ -42,6 +42,7 @@
 ## Пример использования
 
 С использованием полного конфига:
+
 ```py
 from json import loads
 # Необязательно
@@ -93,6 +94,7 @@ print(user_achievements[0])
 ```
 
 С использованием имени приложения:
+
 ```py
 # Необязательно
 from typing import List
@@ -147,10 +149,10 @@ print(user_achievements[0])
 ### Получение данных для конфигурации
 
 Для начала вам необходимо создать новое OAuth-приложение [здесь](https://shikimori.one/oauth/applications)
-*(После этого, сохраните `app_name`, `client_id`, `client_secret`, а так же `redirect_uri`)*
+_(После этого, сохраните `app_name`, `client_id`, `client_secret`, а так же `redirect_uri`)_
 
 Позже, [на данной странице](https://shikimori.one/oauth) выберите свое приложение, необходимые разрешения
-и получите код авторизации *(После этого сохраните, `scopes` и `auth_code`)*
+и получите код авторизации _(После этого сохраните, `scopes` и `auth_code`)_
 
 **Теперь ваш файл конфигурации готов!**
 
@@ -186,6 +188,7 @@ print(user_achievements[0])
 [(Лицензия)](https://github.com/Delgan/loguru/blob/master/LICENSE)
 
 В качестве зависимостей для разработки, проект использует тоже четыре библиотеки:
+
 - [pylint](https://github.com/PyCQA/pylint) для статической проверки кода
 [(Лицензия)](https://github.com/PyCQA/pylint/blob/main/LICENSE)
 - [yapf](https://github.com/google/yapf) для форматирования кода
