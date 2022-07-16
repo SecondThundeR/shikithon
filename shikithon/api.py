@@ -4,13 +4,15 @@ This is main module with a class
 for interacting with the Shikimori API.
 """
 import sys
+from io import BytesIO
 from json import dumps
 from time import sleep, time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from loguru import logger
 from ratelimit import limits, sleep_and_retry
-from requests import JSONDecodeError, Response, Session
+from requests import JSONDecodeError, Response, Session, get
+from validators import url as is_url
 
 from shikithon.config_cache import ConfigCache
 from shikithon.decorators import protected_method
@@ -2672,16 +2674,13 @@ class API:
     @protected_method(scope='comments')
     def create_user_image(
             self,
-            image_url: str,
+            image_path: str,
             linked_type: Optional[str] = None) -> Optional[CreatedUserImage]:
         """
         Creates an user image.
 
-        Note: This function currently only supports sending local images.
-        Support for remote images will be added in the future (maybe).
-
-        :param image_url: URL of image to create on server
-        :type image_url: str
+        :param image_path: Path or URL to image to create on server
+        :type image_path: str
 
         :param linked_type: Type of linked image
         :type linked_type: Optional[str]
@@ -2690,9 +2689,15 @@ class API:
         :rtype: Optional[CreatedUserImage]
         """
         logger.debug('Executing "/api/user_images" method')
-        with open(image_url, 'rb') as image_file:
-            image_data = image_file.read()
-            files = {'image': (image_url, image_data, 'multipart/form-data')}
+
+        if is_url(image_path):
+            image_response = get(image_path)
+            image_data = BytesIO(image_response.content)
+        else:
+            with open(image_path, 'rb') as image_file:
+                image_data = image_file.read()
+
+        files = {'image': (image_path, image_data, 'multipart/form-data')}
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.user_images,
             headers=self._authorization_header,
