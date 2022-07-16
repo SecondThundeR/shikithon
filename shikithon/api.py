@@ -1,4 +1,4 @@
-""" Shikithon API Module.
+"""Shikithon API Module.
 
 This is main module with a class
 for interacting with the Shikimori API.
@@ -36,6 +36,7 @@ from shikithon.enums.response import ResponseCode
 from shikithon.enums.style import OwnerType
 from shikithon.enums.topic import (EntryTopics, ForumType, NewsTopics,
                                    TopicLinkedType, TopicsType)
+from shikithon.enums.video import VideoKind
 from shikithon.exceptions import (AccessTokenException, MissingAppName,
                                   MissingAuthCode, MissingClientID,
                                   MissingClientSecret, MissingConfigData,
@@ -73,12 +74,14 @@ from shikithon.models.topic import Topic
 from shikithon.models.unread_messages import UnreadMessages
 from shikithon.models.user import User
 from shikithon.models.user_list import UserList
+from shikithon.models.video import Video
 from shikithon.utils import Utils
 
 SHIKIMORI_API_URL = 'https://shikimori.one/api'
 SHIKIMORI_API_URL_V2 = 'https://shikimori.one/api/v2'
 SHIKIMORI_OAUTH_URL = 'https://shikimori.one/oauth'
 DEFAULT_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+
 ONE_MINUTE = 60
 MAX_CALLS_PER_MINUTE = 90
 RATE_LIMIT_RPS_COOLDOWN = 1
@@ -267,6 +270,7 @@ class API:
         header['Authorization'] = f'Bearer {self._access_token}'
         return header
 
+    @logger.catch(onerror=lambda _: sys.exit(1))
     def _init_config(self, config: Union[str, Dict[str, str]]):
         """
         Special method for initializing an object.
@@ -456,6 +460,7 @@ class API:
                 f'here is the information from the response: {error_info}'
             ) from err
 
+    @logger.catch(onerror=lambda _: sys.exit(1))
     def _update_tokens(self, tokens_data: Tuple[str, str]):
         """
         Set new tokens and update token expire time.
@@ -470,6 +475,31 @@ class API:
         self._tokens = tokens_data
         self._cache_config()
 
+    @logger.catch(onerror=lambda _: sys.exit(1))
+    def refresh_tokens(self):
+        """
+        Manages tokens refreshing and caching.
+
+        This method gets new access/refresh tokens and
+        updates them in current instance, as well as
+        caching new config.
+        """
+        tokens_data: Tuple[str,
+                           str] = self._get_access_token(refresh_token=True)
+        self._update_tokens(tokens_data)
+
+    def token_expired(self):
+        """
+        Checks if current access token is expired.
+
+        :return: Result of token expiration check
+        :rtype: bool
+        """
+        logger.debug('Checking if current time is greater '
+                     'than current token expire time')
+        return int(time()) > self._token_expire
+
+    @logger.catch(onerror=lambda _: sys.exit(1))
     def _cache_config(self):
         """Updates token expire time and caches new config."""
         self._token_expire = Utils.get_new_expire_time(TOKEN_EXPIRE_TIME)
@@ -477,6 +507,7 @@ class API:
         logger.debug('New expiration time has been set '
                      'and cached configuration has been updated')
 
+    @logger.catch
     @sleep_and_retry
     @limits(calls=MAX_CALLS_PER_MINUTE, period=ONE_MINUTE)
     def _request(
@@ -567,7 +598,8 @@ class API:
         if response.status_code == ResponseCode.RETRY_LATER.value:
             logger.debug('Hit RPS cooldown. Waiting on request repeat')
             sleep(RATE_LIMIT_RPS_COOLDOWN)
-            return self._request(url, data, headers, query, request_type)
+            return self._request(url, data, files, headers, query, request_type,
+                                 output_logging)
 
         try:
             logger.debug('Extracting JSON from response')
@@ -581,6 +613,7 @@ class API:
             logger.debug('Can\'t extract JSON. Returning status_code/text')
             return response.status_code if not response.text else response.text
 
+    @logger.catch
     def _semi_protected_method(self, api_name: str) -> Optional[Dict[str, str]]:
         """
         This method utilizes protected method decoration logic
@@ -608,29 +641,6 @@ class API:
         logger.debug('All checks for use of the protected '
                      'method have been passed')
         return self._authorization_header
-
-    def refresh_tokens(self):
-        """
-        Manages tokens refreshing and caching.
-
-        This method gets new access/refresh tokens and
-        updates them in current instance, as well as
-        caching new config.
-        """
-        tokens_data: Tuple[str,
-                           str] = self._get_access_token(refresh_token=True)
-        self._update_tokens(tokens_data)
-
-    def token_expired(self):
-        """
-        Checks if current access token is expired.
-
-        :return: Result of token expiration check
-        :rtype: bool
-        """
-        logger.debug('Checking if current time is greater '
-                     'than current token expire time')
-        return int(time()) > self._token_expire
 
     def achievements(self, user_id: int) -> Optional[List[Achievement]]:
         """
@@ -903,6 +913,77 @@ class API:
                                             kind=kind,
                                             episode=episode))
         return Utils.validate_return_data(response, data_model=Topic)
+
+    def anime_videos(self, anime_id: int) -> Optional[List[Video]]:
+        """
+        Returns anime videso.
+
+        :param anime_id: Anime ID to get videos
+        :type anime_id: int
+
+        :return: Anime videos list
+        :rtype: Optional[List[Video]]
+        """
+        logger.debug('Executing "/api/animes/:anime_id/videos" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.anime_videos(anime_id))
+        return Utils.validate_return_data(response, data_model=Video)
+
+    @protected_method(scope='content')
+    def create_anime_video(self, anime_id: int, kind: VideoKind, name: str,
+                           url: str) -> Optional[Video]:
+        """
+        Creates anime video.
+
+        :param anime_id: Anime ID to create video
+        :type anime_id: int
+
+        :param kind: Kind of video
+        :type kind: str
+
+        :param name: Name of video
+        :type name: str
+
+        :param url: URL of video
+        :type url: str
+
+        :return: Created video info
+        :rtype: Optional[Video]
+        """
+        logger.debug('Executing "/api/animes/:anime_id/videos" method')
+        data_dict: Dict[str, Any] = Utils.generate_data_dict(dict_name='video',
+                                                             kind=kind,
+                                                             name=name,
+                                                             url=url)
+
+        response: Dict[str, Any] = self._request(
+            self._endpoints.anime_videos(anime_id),
+            headers=self._authorization_header,
+            data=data_dict,
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response, data_model=Video)
+
+    @protected_method(scope='content')
+    def delete_anime_video(self, anime_id: int, video_id: int) -> bool:
+        """
+        Deletes anime video.
+
+        :param anime_id: Anime ID to delete video
+        :type anime_id: int
+
+        :param video_id: Video ID to delete
+        :type video_id: str
+
+        :return: Status of video deletion
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/animes/:anime_id/videos/:id" method')
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.anime_video(
+                           anime_id, video_id),
+                                            headers=self._authorization_header,
+                                            request_type=RequestType.DELETE)
+        return Utils.validate_return_data(response)
 
     @protected_method()
     def appears(self, comment_ids: List[str]) -> bool:
