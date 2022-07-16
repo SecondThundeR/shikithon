@@ -1,4 +1,6 @@
-"""Model for /api/videos"""
+"""Model for /api/animes/:anime_id/videos"""
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -8,6 +10,6 @@ class Video(BaseModel):
     url: str
     image_url: str
     player_url: str
-    name: str
+    name: Optional[str]
     kind: str
     hosting: str
