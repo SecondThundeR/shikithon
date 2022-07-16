@@ -1,4 +1,4 @@
-"""Model for /api/v2/user_rates"""
+"""Model for /api/user_rates and /api/v2/user_rates"""
 from datetime import datetime
 from typing import Optional
 
