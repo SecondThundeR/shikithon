@@ -339,7 +339,7 @@ class Endpoints:
         :param anime_id: Anime ID for endpoint
         :type anime_id: int
 
-        :param video_id: Anime's video ID for endpoint
+        :param video_id: Video ID for endpoint
         :type video_id: int
 
         :return: Anime's video destroy endpoint link

@@ -176,7 +176,7 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 
 ## Зависимости проекта
 
-Данный проект использует четыре библиотеки:
+Данный проект использует пять библиотек:
 
 - [requests](https://github.com/psf/requests) для запросов к API
 [(Лицензия)](https://github.com/psf/requests/blob/main/LICENSE)
@@ -186,8 +186,10 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 [(Лицензия)](https://github.com/tomasbasham/ratelimit/blob/master/LICENSE.txt)
 - [loguru](https://github.com/Delgan/loguru) для удобного логгирования
 [(Лицензия)](https://github.com/Delgan/loguru/blob/master/LICENSE)
+- [validators](https://github.com/kvesteri/validators) для проверки строк на наличие ссылки в ней
+[(Лицензия)](https://github.com/kvesteri/validators/blob/master/LICENSE)
 
-В качестве зависимостей для разработки, проект использует тоже четыре библиотеки:
+В качестве зависимостей для разработки, проект использует четыре библиотеки:
 
 - [pylint](https://github.com/PyCQA/pylint) для статической проверки кода
 [(Лицензия)](https://github.com/PyCQA/pylint/blob/main/LICENSE)
@@ -195,7 +197,7 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 [(Лицензия)](https://github.com/google/yapf/blob/main/LICENSE)
 - [isort](https://github.com/PyCQA/isort) для сортировки импортов
 [(Лицензия)](https://github.com/PyCQA/isort/blob/main/LICENSE)
-- [pre-commit](https://github.com/pre-commit/pre-commit) для автоматизации всего вот этого выше :)
+- [pre-commit](https://github.com/pre-commit/pre-commit) для автоматизации проверки с использованием библиотек выше :)
 [(Лицензия)](https://github.com/pre-commit/pre-commit/blob/main/LICENSE)
 
 ## Лицензия проекта

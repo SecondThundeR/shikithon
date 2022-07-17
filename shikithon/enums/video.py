@@ -2,7 +2,7 @@
 from enum import Enum
 
 
-class Kind(Enum):
+class VideoKind(Enum):
     """Contains constants related for video kind."""
     PV = 'pv'
     CHARACTER_TRAILER = 'character_trailer'
@@ -15,7 +15,7 @@ class Kind(Enum):
     EPISODE_PREVIEW = 'episode_preview'
 
 
-class Hosting(Enum):
+class VideoHosting(Enum):
     """Contains constants related for video hostings."""
     YOUTUBE = 'youtube'
     VK = 'vk'
