@@ -36,6 +36,7 @@ from shikithon.enums.response import ResponseCode
 from shikithon.enums.style import OwnerType
 from shikithon.enums.topic import (EntryTopics, ForumType, NewsTopics,
                                    TopicLinkedType, TopicsType)
+from shikithon.enums.user_rate import UserRateType
 from shikithon.enums.video import VideoKind
 from shikithon.exceptions import (AccessTokenException, MissingAppName,
                                   MissingAuthCode, MissingClientID,
@@ -2786,6 +2787,24 @@ class API:
             data=Utils.generate_data_dict(linked_type=linked_type),
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=CreatedUserImage)
+
+    @protected_method('user_rates')
+    def delete_entire_user_rates(self, user_rate_type: UserRateType):
+        logger.debug('Executing "/api/user_rates/:type/cleanup" method')
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.user_rates_cleanup(user_rate_type.value),
+            headers=self._authorization_header,
+            request_type=RequestType.DELETE)
+        return Utils.validate_return_data(response)
+
+    @protected_method('user_rates')
+    def reset_all_user_rates(self, user_rate_type: UserRateType):
+        logger.debug('Executing "/api/user_rates/:type/reset" method')
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.user_rates_reset(user_rate_type.value),
+            headers=self._authorization_header,
+            request_type=RequestType.DELETE)
+        return Utils.validate_return_data(response)
 
     def users(self,
               page: Optional[int] = None,
