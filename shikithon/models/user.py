@@ -30,6 +30,6 @@ class User(BaseModel):
     common_info: Optional[List[str]]
     show_comments: Optional[bool]
     in_friends: Optional[bool]
-    is_ignored: Optional[str]
+    is_ignored: Optional[bool]
     stats: Optional[Stats]
     style_id: Optional[int]
