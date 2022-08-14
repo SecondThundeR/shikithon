@@ -3191,3 +3191,39 @@ class API:
             self._endpoints.user_bans(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return Utils.validate_return_data(response, data_model=Ban)
+
+    @protected_method(scope='topics')
+    def ignore_topic(self, topic_id: int) -> bool:
+        """
+        Set topic as ignored.
+
+        :param topic_id: ID of topic to ignore
+        :type topic_id: int
+
+        :return: True if topic was ignored, False otherwise
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/v2/topics/:topic_id/ignore" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.topic_ignore(topic_id),
+            headers=self._authorization_header,
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response) is True
+
+    @protected_method(scope='topics')
+    def unignore_topic(self, topic_id: int) -> bool:
+        """
+        Set topic as unignored.
+
+        :param topic_id: ID of topic to unignore
+        :type topic_id: int
+
+        :return: True if topic was unignored, False otherwise
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/v2/topics/:topic_id/ignore" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.topic_ignore(topic_id),
+            headers=self._authorization_header,
+            request_type=RequestType.DELETE)
+        return Utils.validate_return_data(response) is False
