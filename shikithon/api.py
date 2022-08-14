@@ -3227,3 +3227,39 @@ class API:
             headers=self._authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response) is False
+
+    @protected_method(scope='ignores')
+    def ignore_user(self, user_id: int) -> bool:
+        """
+        Set user as ignored.
+
+        :param user_id: ID of topic to ignore
+        :type user_id: int
+
+        :return: True if user was ignored, False otherwise
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/v2/users/:user_id/ignore" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.user_ignore(user_id),
+            headers=self._authorization_header,
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response) is True
+
+    @protected_method(scope='ignores')
+    def unignore_user(self, user_id: int) -> bool:
+        """
+        Set user as unignored.
+
+        :param user_id: ID of user to unignore
+        :type user_id: int
+
+        :return: True if user was unignored, False otherwise
+        :rtype: bool
+        """
+        logger.debug('Executing "/api/v2/users/:user_id/ignore" method')
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.user_ignore(user_id),
+            headers=self._authorization_header,
+            request_type=RequestType.DELETE)
+        return Utils.validate_return_data(response) is False
