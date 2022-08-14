@@ -2772,7 +2772,7 @@ class API:
         """
         logger.debug('Executing "/api/user_images" method')
 
-        if is_url(image_path):
+        if isinstance(is_url(image_path), bool):
             image_response = get(image_path)
             image_data = BytesIO(image_response.content)
         else:
