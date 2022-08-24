@@ -35,9 +35,9 @@ class Endpoints:
         :param oauth_url: URL for Shikimori OAuth
         :type oauth_url: str
         """
-        self._base_url: str = base_url
-        self._base_url_v2: str = base_url_v2
-        self._oauth_url: str = oauth_url
+        self._base_url = base_url
+        self._base_url_v2 = base_url_v2
+        self._oauth_url = oauth_url
 
     @property
     def base_url(self) -> str:

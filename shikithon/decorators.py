@@ -1,7 +1,7 @@
 """Custom decorators for API class."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from loguru import logger
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from shikithon.api import API
 
 
-def protected_method(scope=None):
+def protected_method(scope: Optional[str] = None):
     """
     Decorator for protected API methods.
 

@@ -82,6 +82,7 @@ class ConfigCache:
                          'Deleting old cached config')
             ConfigCache.delete_config(config_app_name)
             return {}, False
+
         logger.debug('Cached config is valid')
         return cache_config, True
 
