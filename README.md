@@ -43,7 +43,10 @@
 С использованием полного конфига:
 
 ```py
+from typing import Dict
+
 from json import loads
+
 from shikithon import API
 
 # Можно установить данные конфигурации в коде
@@ -58,7 +61,7 @@ config = {
 
 # Или же прочитать его из внешнего файла
 with open("config.json", "r", encoding="utf-8") as config_file:
-    config_2 = loads(config_file.read())
+    config_2: Dict[str, str] = loads(config_file.read())
 
 # Инициализация объекта API
 shikimori = API(config)
