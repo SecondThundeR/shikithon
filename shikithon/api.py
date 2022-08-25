@@ -36,7 +36,8 @@ from shikithon.enums.response import ResponseCode
 from shikithon.enums.style import OwnerType
 from shikithon.enums.topic import (EntryTopics, ForumType, NewsTopics,
                                    TopicLinkedType, TopicsType)
-from shikithon.enums.user_rate import UserRateType
+from shikithon.enums.user_rate import (UserRateStatus, UserRateTarget,
+                                       UserRateType)
 from shikithon.enums.video import VideoKind
 from shikithon.exceptions import (AccessTokenException, MissingAppVariable,
                                   MissingAuthCode, MissingConfigData)
@@ -74,6 +75,7 @@ from shikithon.models.topic import Topic
 from shikithon.models.unread_messages import UnreadMessages
 from shikithon.models.user import User
 from shikithon.models.user_list import UserList
+from shikithon.models.user_rate import UserRate
 from shikithon.models.video import Video
 from shikithon.utils import Utils
 
@@ -2767,13 +2769,88 @@ class API:
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=CreatedUserImage)
 
+    @method_endpoint('/api/v2/user_rates')
+    def user_rates(self,
+                   user_id: int,
+                   target_id: Optional[int] = None,
+                   target_type: Optional[UserRateTarget] = None,
+                   status: Optional[UserRateStatus] = None,
+                   page: Optional[int] = None,
+                   limit: Optional[int] = None) -> Optional[List[UserRate]]:
+        """
+        Returns list of user rates.
+
+        **Note:** When passing target_id, target_type is required.
+
+        Also there is a strange API behavior, so when pass nothing,
+        endpoint not working.
+        However, docs shows that page/limit ignored when user_id is set (bruh)
+
+        :param user_id: ID of user to get rates for
+        :type user_id: int
+
+        :param target_id: ID of anime/manga to get rates for
+        :type target_id: Optional[int]
+
+        :param target_type: Type of target_id to get rates for
+        :type target_type: Optional[UserRateTarget]
+
+        :param status: Status of target_type to get rates for
+        :type target_type: Optional[UserRateStatus]
+
+        :param page: Number of page
+        :type page: Optional[int]
+
+        :param limit: Number of results limit
+        (This field is ignored when user_id is set)
+        :type limit: Optional[int]
+
+        :return: List with info about user rates
+        (This field is ignored when user_id is set)
+        :rtype: Optional[List[UserRate]]
+        """
+        if target_id is not None and target_type is None:
+            logger.warning('target_type is required when passing target_id')
+            return None
+
+        validated_numbers = Utils.query_numbers_validator(
+            page=[page, 100000],
+            limit=[limit, 1000],
+        )
+
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.user_rates,
+            query=Utils.generate_query_dict(user_id=user_id,
+                                            target_id=target_id,
+                                            target_type=target_type,
+                                            status=status,
+                                            page=validated_numbers['page'],
+                                            limit=validated_numbers['limit']))
+        return Utils.validate_return_data(response, data_model=UserRate)
+
+    @method_endpoint('/api/v2/user_rates/:id')
+    def user_rate(self, rate_id: int) -> Optional[UserRate]:
+        """
+        Returns info about user rate.
+
+        :param rate_id: ID of rate to get
+        :type rate_id: int
+
+        :return: Info about user rate
+        :rtype: Optional[UserRate]
+        """
+        response: Dict[str,
+                       Any] = self._request(self._endpoints.user_rate(rate_id))
+        return Utils.validate_return_data(response, data_model=UserRate)
+
+    @method_endpoint('/api/users_rates/:type/cleanup')
     @protected_method('user_rates')
     def delete_entire_user_rates(self, user_rate_type: UserRateType):
-        logger.debug('Executing "/api/user_rates/:type/cleanup" method')
-        response: Union[Dict[str, Any], int] = self._request(
-            self._endpoints.user_rates_cleanup(user_rate_type.value),
-            headers=self._authorization_header,
-            request_type=RequestType.DELETE)
+        response: Union[Dict[str, Any],
+                        int] = self._request(self._endpoints.user_rates_cleanup(
+                            str(user_rate_type.value)),
+                                             headers=self._authorization_header,
+                                             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
     @method_endpoint('/api/user_rates/:type/reset')
@@ -2895,7 +2972,6 @@ class API:
         :return: List of user's friends
         :rtype: Optional[List[User]]
         """
-        logger.debug('Executing "/api/users/:id/friends" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_friends(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))

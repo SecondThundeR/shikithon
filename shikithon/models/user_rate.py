@@ -13,7 +13,7 @@ class UserRate(BaseModel):
     target_type: Optional[str]
     score: int
     status: str
-    text: str
+    text: Optional[str]
     episodes: Optional[int]
     chapters: Optional[int]
     volumes: Optional[int]
