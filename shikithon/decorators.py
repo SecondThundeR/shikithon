@@ -60,21 +60,21 @@ def protected_method(scope: Optional[str] = None):
     return protected_method_decorator
 
 
-def method_endpoint_logger(method_endpoint: str):
+def method_endpoint(method_endpoint_name: str):
     """
     Decorator for logging method endpoint.
     """
 
-    def method_logger_decorator(function):
+    def endpoint_logger_decorator(function):
 
-        def method_logger_wrapper(*args, **kwargs):
+        def endpoint_logger_wrapper(*args, **kwargs):
             """
             Decorator's wrapper function.
             Logs endpoint of method
             """
-            logger.debug(f'Executing "{method_endpoint}" method')
+            logger.debug(f'Executing "{method_endpoint_name}" method')
             return function(*args, **kwargs)
 
-        return method_logger_wrapper
+        return endpoint_logger_wrapper
 
-    return method_logger_decorator
+    return endpoint_logger_decorator
