@@ -24,9 +24,9 @@ def protected_method(scope: Optional[str] = None):
     protected method.
     """
 
-    def decorator(function):
+    def protected_method_decorator(function):
 
-        def wrapper(api: API, *args, **kwargs):
+        def protected_method_wrapper(api: API, *args, **kwargs):
             """
             Decorator's wrapper function.
 
@@ -55,6 +55,26 @@ def protected_method(scope: Optional[str] = None):
                          'method have been passed')
             return function(api, *args, **kwargs)
 
-        return wrapper
+        return protected_method_wrapper
 
-    return decorator
+    return protected_method_decorator
+
+
+def method_endpoint_logger(method_endpoint: str):
+    """
+    Decorator for logging method endpoint.
+    """
+
+    def method_logger_decorator(function):
+
+        def method_logger_wrapper(*args, **kwargs):
+            """
+            Decorator's wrapper function.
+            Logs endpoint of method
+            """
+            logger.debug(f'Executing "{method_endpoint}" method')
+            return function(*args, **kwargs)
+
+        return method_logger_wrapper
+
+    return method_logger_decorator
