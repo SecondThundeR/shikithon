@@ -11,11 +11,11 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from loguru import logger
 from ratelimit import limits, sleep_and_retry
-from requests import JSONDecodeError, Response, Session, get
+from requests import JSONDecodeError, Session, get
 from validators import url as is_url
 
 from shikithon.config_cache import ConfigCache
-from shikithon.decorators import protected_method
+from shikithon.decorators import method_endpoint, protected_method
 from shikithon.endpoints import Endpoints
 from shikithon.enums.anime import (AnimeCensorship, AnimeDuration, AnimeKind,
                                    AnimeList, AnimeOrder, AnimeRating,
@@ -38,10 +38,9 @@ from shikithon.enums.topic import (EntryTopics, ForumType, NewsTopics,
                                    TopicLinkedType, TopicsType)
 from shikithon.enums.user_rate import UserRateType
 from shikithon.enums.video import VideoKind
-from shikithon.exceptions import (AccessTokenException, MissingAppName,
-                                  MissingAuthCode, MissingClientID,
-                                  MissingClientSecret, MissingConfigData,
-                                  MissingScopes)
+from shikithon.exceptions import (AccessTokenException, MissingAppVariable,
+                                  MissingAuthCode, MissingConfigData)
+from shikithon.models.abuse_response import AbuseResponse
 from shikithon.models.achievement import Achievement
 from shikithon.models.anime import Anime
 from shikithon.models.ban import Ban
@@ -130,21 +129,20 @@ class API:
         ])
         logger.info('Initializing API object')
 
-        self._endpoints: Endpoints = Endpoints(SHIKIMORI_API_URL,
-                                               SHIKIMORI_API_URL_V2,
-                                               SHIKIMORI_OAUTH_URL)
-        self._session: Session = Session()
+        self._endpoints = Endpoints(SHIKIMORI_API_URL, SHIKIMORI_API_URL_V2,
+                                    SHIKIMORI_OAUTH_URL)
+        self._session = Session()
 
         self._restricted_mode = False
-        self._app_name: str = ''
-        self._client_id: str = ''
-        self._client_secret: str = ''
-        self._redirect_uri: str = ''
-        self._scopes: str = ''
-        self._auth_code: str = ''
-        self._access_token: str = ''
-        self._refresh_token: str = ''
-        self._token_expire: int = -1
+        self._app_name = ''
+        self._client_id = ''
+        self._client_secret = ''
+        self._redirect_uri = ''
+        self._scopes = ''
+        self._auth_code = ''
+        self._access_token = ''
+        self._refresh_token = ''
+        self._token_expire = -1
 
         self._init_config(config)
         logger.info('Successfully initialized API object')
@@ -296,7 +294,7 @@ class API:
 
         if isinstance(config, dict) and not self._access_token:
             logger.debug('No tokens found')
-            tokens_data: Tuple[str, str] = self._get_access_token()
+            tokens_data = self._get_access_token()
             self._update_tokens(tokens_data)
 
         if self.token_expired():
@@ -354,10 +352,7 @@ class API:
             self._scopes = config['scopes']
             self._auth_code = config['auth_code']
         except KeyError as err:
-            raise MissingConfigData(
-                'It is impossible to initialize an API object'
-                'without missing variables. '
-                'Recheck your config and try again.') from err
+            raise MissingConfigData() from err
 
     @logger.catch(onerror=lambda _: sys.exit(1))
     def _validate_vars(self):
@@ -378,41 +373,33 @@ class API:
         - If redirect URI set to empty string, set to default URI.
         - If authorization code set to empty string,
         returns URL for getting auth code.
-        - If restricted mode is True, returns after app name check.
+        - If restricted mode is True, stops validation after app name check.
 
-        :raises MissingAppName: If app name is set to empty string
-        :raises MissingClientID: If client ID is set to empty string
-        :raises MissingClientSecret: If client secret is set to empty string
-        :raises MissingScopes: If scopes is set to empty string
+        :raises MissingAppVariable: If app variable in config is missing
         :raises MissingAuthCode: If auth code is set to empty string
         """
-        exception_msg: str = 'To use the Shikimori API correctly, ' \
-                             'you need to pass the application '
-
         if not self._app_name:
-            raise MissingAppName(exception_msg + 'name')
+            raise MissingAppVariable('name')
 
         if self.restricted_mode:
             return
 
         if not self._client_id:
-            raise MissingClientID(exception_msg + 'Client ID')
+            raise MissingAppVariable('Client ID')
 
         if not self._client_secret:
-            raise MissingClientSecret(exception_msg + 'Client Secret')
+            raise MissingAppVariable('Client Secret')
 
         if not self._redirect_uri:
             self._redirect_uri = DEFAULT_REDIRECT_URI
 
         if not self._scopes:
-            raise MissingScopes(exception_msg + 'scopes')
+            raise MissingAppVariable('scopes')
 
         if not self._auth_code:
-            auth_link: str = self._endpoints.authorization_link(
+            auth_link = self._endpoints.authorization_link(
                 self._client_id, self._redirect_uri, self._scopes)
-            raise MissingAuthCode(exception_msg +
-                                  'authorization code. To get one, go to '
-                                  f'{auth_link}')
+            raise MissingAuthCode(auth_link)
 
     @logger.catch(onerror=lambda _: sys.exit(1))
     def _get_access_token(self, refresh_token: bool = False) -> Tuple[str, str]:
@@ -430,7 +417,7 @@ class API:
 
         :raises AccessTokenException: If token request failed
         """
-        data: Dict[str, str] = {
+        data = {
             'client_id': self._client_id,
             'client_secret': self._client_secret
         }
@@ -456,10 +443,7 @@ class API:
             return oauth_json['access_token'], oauth_json['refresh_token']
         except KeyError as err:
             error_info = dumps(oauth_json)
-            raise AccessTokenException(
-                'An error occurred while receiving tokens, '
-                f'here is the information from the response: {error_info}'
-            ) from err
+            raise AccessTokenException(error_info) from err
 
     @logger.catch(onerror=lambda _: sys.exit(1))
     def _update_tokens(self, tokens_data: Tuple[str, str]):
@@ -485,8 +469,7 @@ class API:
         updates them in current instance, as well as
         caching new config.
         """
-        tokens_data: Tuple[str,
-                           str] = self._get_access_token(refresh_token=True)
+        tokens_data = self._get_access_token(refresh_token=True)
         self._update_tokens(tokens_data)
 
     def token_expired(self):
@@ -566,32 +549,30 @@ class API:
             )
 
         if request_type == RequestType.GET:
-            response: Response = self._session.get(url,
-                                                   headers=headers,
-                                                   params=query)
+            response = self._session.get(url, headers=headers, params=query)
         elif request_type == RequestType.POST:
-            response: Response = self._session.post(url,
-                                                    files=files,
-                                                    headers=headers,
-                                                    params=query,
-                                                    json=data)
+            response = self._session.post(url,
+                                          files=files,
+                                          headers=headers,
+                                          params=query,
+                                          json=data)
         elif request_type == RequestType.PUT:
-            response: Response = self._session.put(url,
-                                                   files=files,
-                                                   headers=headers,
-                                                   params=query,
-                                                   json=data)
+            response = self._session.put(url,
+                                         files=files,
+                                         headers=headers,
+                                         params=query,
+                                         json=data)
         elif request_type == RequestType.PATCH:
-            response: Response = self._session.patch(url,
-                                                     files=files,
-                                                     headers=headers,
-                                                     params=query,
-                                                     json=data)
+            response = self._session.patch(url,
+                                           files=files,
+                                           headers=headers,
+                                           params=query,
+                                           json=data)
         elif request_type == RequestType.DELETE:
-            response: Response = self._session.delete(url,
-                                                      headers=headers,
-                                                      params=query,
-                                                      json=data)
+            response = self._session.delete(url,
+                                            headers=headers,
+                                            params=query,
+                                            json=data)
         else:
             logger.debug('Unknown request_type. Returning None')
             return None
@@ -643,6 +624,7 @@ class API:
                      'method have been passed')
         return self._authorization_header
 
+    @method_endpoint('/api/achievements')
     def achievements(self, user_id: int) -> Optional[List[Achievement]]:
         """
         Returns achievements of user by ID.
@@ -653,12 +635,12 @@ class API:
         :return: List of achievements
         :rtype: Optional[List[Achievement]]
         """
-        logger.debug('Executing "/api/achievements/ method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.achievements,
             query=Utils.generate_query_dict(user_id=user_id))
         return Utils.validate_return_data(response, data_model=Achievement)
 
+    @method_endpoint('/api/animes')
     def animes(self,
                page: Optional[int] = None,
                limit: Optional[int] = None,
@@ -737,12 +719,11 @@ class API:
         :return: Animes list
         :rtype: Optional[List[Anime]]
         """
-        logger.debug('Executing "/api/animes" method')
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 50],
                                                           score=[score, 9])
 
-        headers: Dict[str, str] = self._user_agent
+        headers = self._user_agent
 
         if my_list:
             headers = self._semi_protected_method('/api/animes')
@@ -769,6 +750,7 @@ class API:
                                             search=search))
         return Utils.validate_return_data(response, data_model=Anime)
 
+    @method_endpoint('/api/animes/:id')
     def anime(self, anime_id: int) -> Optional[Anime]:
         """
         Returns info about certain anime.
@@ -779,11 +761,11 @@ class API:
         :return: Anime info
         :rtype: Optional[Anime]
         """
-        logger.debug('Executing "/api/animes/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.anime(anime_id))
         return Utils.validate_return_data(response, data_model=Anime)
 
+    @method_endpoint('/api/animes/:id/roles')
     def anime_creators(self, anime_id: int) -> Optional[List[Creator]]:
         """
         Returns creators info of certain anime.
@@ -794,11 +776,11 @@ class API:
         :return: List of anime creators
         :rtype: Optional[List[Creator]]
         """
-        logger.debug('Executing "/api/animes/:id/roles" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_roles(anime_id))
         return Utils.validate_return_data(response, data_model=Creator)
 
+    @method_endpoint('/api/animes/:id/similar')
     def similar_animes(self, anime_id: int) -> Optional[List[Anime]]:
         """
         Returns list of similar animes for certain anime.
@@ -809,11 +791,11 @@ class API:
         :return: List of similar animes
         :rtype: Optional[List[Anime]]
         """
-        logger.debug('Executing "/api/animes/:id/similar" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.similar_animes(anime_id))
         return Utils.validate_return_data(response, data_model=Anime)
 
+    @method_endpoint('/api/animes/:id/related')
     def anime_related_content(self, anime_id: int) -> Optional[List[Relation]]:
         """
         Returns list of related content of certain anime.
@@ -824,11 +806,11 @@ class API:
         :return: List of relations
         :rtype: Optional[List[Relation]]
         """
-        logger.debug('Executing "/api/animes/:id/related" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_related_content(anime_id))
         return Utils.validate_return_data(response, data_model=Relation)
 
+    @method_endpoint('/api/animes/:id/screenshots')
     def anime_screenshots(self, anime_id: int) -> Optional[List[Screenshot]]:
         """
         Returns list of screenshot links of certain anime.
@@ -839,11 +821,11 @@ class API:
         :return: List of screenshot links
         :rtype: Optional[List[Screenshot]]
         """
-        logger.debug('Executing "/api/animes/:id/screenshots" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_screenshots(anime_id))
         return Utils.validate_return_data(response, data_model=Screenshot)
 
+    @method_endpoint('/api/animes/:id/franchise')
     def anime_franchise_tree(self, anime_id: int) -> Optional[FranchiseTree]:
         """
         Returns franchise tree of certain anime.
@@ -854,11 +836,11 @@ class API:
         :return: Franchise tree of certain anime
         :rtype: Optional[FranchiseTree]
         """
-        logger.debug('Executing "/api/animes/:id/franchise" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.anime_franchise_tree(anime_id))
         return Utils.validate_return_data(response, data_model=FranchiseTree)
 
+    @method_endpoint('/api/animes/:id/external_links')
     def anime_external_links(self, anime_id: int) -> Optional[List[Link]]:
         """
         Returns list of external links of certain anime.
@@ -869,11 +851,11 @@ class API:
         :return: List of external links
         :rtype: Optional[List[Link]]
         """
-        logger.debug('Executing "/api/animes/:id/external_links" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_external_links(anime_id))
         return Utils.validate_return_data(response, data_model=Link)
 
+    @method_endpoint('/api/animes/:id/topics')
     def anime_topics(self,
                      anime_id: int,
                      page: Optional[int] = None,
@@ -903,7 +885,6 @@ class API:
         :return: List of topics
         :rtype: Optional[List[Topic]]
         """
-        logger.debug('Executing "/api/animes/:id/topics" method')
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 30])
 
@@ -915,6 +896,7 @@ class API:
                                             episode=episode))
         return Utils.validate_return_data(response, data_model=Topic)
 
+    @method_endpoint('/api/animes/:anime_id/videos')
     def anime_videos(self, anime_id: int) -> Optional[List[Video]]:
         """
         Returns anime videso.
@@ -925,11 +907,11 @@ class API:
         :return: Anime videos list
         :rtype: Optional[List[Video]]
         """
-        logger.debug('Executing "/api/animes/:anime_id/videos" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.anime_videos(anime_id))
         return Utils.validate_return_data(response, data_model=Video)
 
+    @method_endpoint('/api/animes/:anime_id/videos')
     @protected_method(scope='content')
     def create_anime_video(self, anime_id: int, kind: VideoKind, name: str,
                            url: str) -> Optional[Video]:
@@ -951,12 +933,10 @@ class API:
         :return: Created video info
         :rtype: Optional[Video]
         """
-        logger.debug('Executing "/api/animes/:anime_id/videos" method')
         data_dict: Dict[str, Any] = Utils.generate_data_dict(dict_name='video',
                                                              kind=kind,
                                                              name=name,
                                                              url=url)
-
         response: Dict[str, Any] = self._request(
             self._endpoints.anime_videos(anime_id),
             headers=self._authorization_header,
@@ -2694,6 +2674,7 @@ class API:
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=Topic)
 
+    @method_endpoint('/api/topics/:id')
     @protected_method(scope='topics')
     def update_topic(
             self,
@@ -2723,7 +2704,6 @@ class API:
         :return: Updated topic info
         :rtype: Optional[Topic]
         """
-        logger.debug('Executing "/api/topics/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.topic(topic_id),
             headers=self._authorization_header,
@@ -2735,6 +2715,7 @@ class API:
             request_type=RequestType.PATCH)
         return Utils.validate_return_data(response, data_model=Topic)
 
+    @method_endpoint('/api/topics/:id')
     @protected_method(scope='topics')
     def delete_topic(self, topic_id: int) -> Optional[bool]:
         """
@@ -2746,13 +2727,13 @@ class API:
         :return: Status of topic deletion
         :rtype: bool
         """
-        logger.debug('Executing "/api/topics/:id" method')
         response: Union[Dict[str, Any],
                         int] = self._request(self._endpoints.topic(topic_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/user_images')
     @protected_method(scope='comments')
     def create_user_image(
             self,
@@ -2770,8 +2751,6 @@ class API:
         :return: Created image info
         :rtype: Optional[CreatedUserImage]
         """
-        logger.debug('Executing "/api/user_images" method')
-
         if isinstance(is_url(image_path), bool):
             image_response = get(image_path)
             image_data = BytesIO(image_response.content)
@@ -2797,15 +2776,17 @@ class API:
             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/user_rates/:type/reset')
     @protected_method('user_rates')
     def reset_all_user_rates(self, user_rate_type: UserRateType):
-        logger.debug('Executing "/api/user_rates/:type/reset" method')
-        response: Union[Dict[str, Any], int] = self._request(
-            self._endpoints.user_rates_reset(user_rate_type.value),
-            headers=self._authorization_header,
-            request_type=RequestType.DELETE)
+        response: Union[Dict[str, Any],
+                        int] = self._request(self._endpoints.user_rates_reset(
+                            str(user_rate_type.value)),
+                                             headers=self._authorization_header,
+                                             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/users')
     def users(self,
               page: Optional[int] = None,
               limit: Optional[int] = None) -> Optional[List[User]]:
@@ -2821,7 +2802,6 @@ class API:
         :return: List of users
         :rtype: Optional[List[User]]
         """
-        logger.debug('Executing "/api/users" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 100],
@@ -2833,6 +2813,7 @@ class API:
                                             limit=validated_numbers['limit']))
         return Utils.validate_return_data(response, data_model=User)
 
+    @method_endpoint('/api/users/:id')
     def user(self,
              user_id: Union[str, int],
              is_nickname: Optional[bool] = None) -> Optional[User]:
@@ -2848,12 +2829,12 @@ class API:
         :return: Info about user
         :rtype: Optional[User]
         """
-        logger.debug('Executing "/api/users/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return Utils.validate_return_data(response, data_model=User)
 
+    @method_endpoint('/api/users/:id/info')
     def user_info(self,
                   user_id: Union[str, int],
                   is_nickname: Optional[bool] = None) -> Optional[User]:
@@ -2869,12 +2850,12 @@ class API:
         :return: User's brief info
         :rtype: Optional[User]
         """
-        logger.debug('Executing "/api/users"/:id/info method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_info(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return Utils.validate_return_data(response, data_model=User)
 
+    @method_endpoint('/api/users/whoami')
     @protected_method()
     def current_user(self) -> Optional[User]:
         """
@@ -2885,19 +2866,19 @@ class API:
         :return: Current user brief info
         :rtype: Optional[User]
         """
-        logger.debug('Executing "/api/users/whoami" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.whoami,
                                             headers=self._authorization_header)
         return Utils.validate_return_data(response, data_model=User)
 
+    @method_endpoint('/api/users/sign_out')
     @protected_method()
     def user_sign_out(self):
         """Sends sign out request to API."""
-        logger.debug('Executing "/api/users/sign_out" method')
         self._request(self._endpoints.sign_out,
                       headers=self._authorization_header)
 
+    @method_endpoint('/api/users/:id/friends')
     def user_friends(
             self,
             user_id: Union[str, int],
@@ -2920,6 +2901,7 @@ class API:
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return Utils.validate_return_data(response, data_model=User)
 
+    @method_endpoint('/api/users/:id/clubs')
     def user_clubs(self,
                    user_id: Union[int, str],
                    is_nickname: Optional[bool] = None) -> Optional[List[Club]]:
@@ -2935,12 +2917,12 @@ class API:
         :return: List of user's clubs
         :rtype: Optional[List[Club]]
         """
-        logger.debug('Executing "/api/users/:id/clubs" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_clubs(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return Utils.validate_return_data(response, data_model=Club)
 
+    @method_endpoint('/api/users/:id/anime_rates')
     def user_anime_rates(
             self,
             user_id: Union[int, str],
@@ -2974,7 +2956,6 @@ class API:
         :return: User's anime list
         :rtype: Optional[List[UserList]]
         """
-        logger.debug('Executing "/api/users/:id/anime_rates" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 5000],
@@ -2989,6 +2970,7 @@ class API:
                                             censored=censored))
         return Utils.validate_return_data(response, data_model=UserList)
 
+    @method_endpoint('/api/users/:id/manga_rates')
     def user_manga_rates(
             self,
             user_id: Union[int, str],
@@ -3018,7 +3000,6 @@ class API:
         :return: User's manga list
         :rtype: Optional[List[UserList]]
         """
-        logger.debug('Executing "/api/users/:id/manga_rates" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 5000],
@@ -3032,6 +3013,7 @@ class API:
                                             censored=censored))
         return Utils.validate_return_data(response, data_model=UserList)
 
+    @method_endpoint('/api/users/:id/favourites')
     def user_favourites(
             self,
             user_id: Union[int, str],
@@ -3048,12 +3030,12 @@ class API:
         :return: User's favourites
         :rtype: Optional[Favourites]
         """
-        logger.debug('Executing "/api/users/:id/favourites" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_favourites(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return Utils.validate_return_data(response, data_model=Favourites)
 
+    @method_endpoint('/api/users/:id/messages')
     @protected_method(scope='messages')
     def current_user_messages(
         self,
@@ -3084,7 +3066,6 @@ class API:
         :return: Current user's messages
         :rtype: Optional[List[Message]]
         """
-        logger.debug('Executing "/api/users/:id/messages" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 100],
@@ -3099,6 +3080,7 @@ class API:
                                             type=message_type))
         return Utils.validate_return_data(response, data_model=Message)
 
+    @method_endpoint('/api/users/:id/unread_messages')
     @protected_method(scope='messages')
     def current_user_unread_messages(
             self,
@@ -3116,13 +3098,13 @@ class API:
         :return: Current user's unread messages counters
         :rtype: Optional[UnreadMessages]
         """
-        logger.debug('Executing "/api/users/:id/unread_messages" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.user_unread_messages(user_id),
             headers=self._authorization_header,
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return Utils.validate_return_data(response, data_model=UnreadMessages)
 
+    @method_endpoint('/api/users/:id/history')
     def user_history(
             self,
             user_id: Union[int, str],
@@ -3156,7 +3138,6 @@ class API:
         :return: User's history
         :rtype: Optional[List[History]]
         """
-        logger.debug('Executing "/api/users/:id/history" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 100],
@@ -3171,6 +3152,7 @@ class API:
                                             target_type=target_type))
         return Utils.validate_return_data(response, data_model=History)
 
+    @method_endpoint('/api/users/:id/bans')
     def user_bans(self,
                   user_id: Union[int, str],
                   is_nickname: Optional[bool] = None) -> Optional[List[Ban]]:
@@ -3186,12 +3168,12 @@ class API:
         :return: User's bans
         :rtype: Optional[List[Ban]]
         """
-        logger.debug('Executing "/api/users/:id/bans" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_bans(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
         return Utils.validate_return_data(response, data_model=Ban)
 
+    @method_endpoint('/api/v2/topics/:topic_id/ignore')
     @protected_method(scope='topics')
     def ignore_topic(self, topic_id: int) -> bool:
         """
@@ -3203,13 +3185,13 @@ class API:
         :return: True if topic was ignored, False otherwise
         :rtype: bool
         """
-        logger.debug('Executing "/api/v2/topics/:topic_id/ignore" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.topic_ignore(topic_id),
             headers=self._authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_return_data(response) is True
 
+    @method_endpoint('/api/v2/topics/:topic_id/ignore')
     @protected_method(scope='topics')
     def unignore_topic(self, topic_id: int) -> bool:
         """
@@ -3221,13 +3203,13 @@ class API:
         :return: True if topic was unignored, False otherwise
         :rtype: bool
         """
-        logger.debug('Executing "/api/v2/topics/:topic_id/ignore" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.topic_ignore(topic_id),
             headers=self._authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response) is False
 
+    @method_endpoint('/api/v2/users/:user_id/ignore')
     @protected_method(scope='ignores')
     def ignore_user(self, user_id: int) -> bool:
         """
@@ -3239,13 +3221,13 @@ class API:
         :return: True if user was ignored, False otherwise
         :rtype: bool
         """
-        logger.debug('Executing "/api/v2/users/:user_id/ignore" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_ignore(user_id),
             headers=self._authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_return_data(response) is True
 
+    @method_endpoint('/api/v2/users/:user_id/ignore')
     @protected_method(scope='ignores')
     def unignore_user(self, user_id: int) -> bool:
         """
@@ -3257,9 +3239,85 @@ class API:
         :return: True if user was unignored, False otherwise
         :rtype: bool
         """
-        logger.debug('Executing "/api/v2/users/:user_id/ignore" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.user_ignore(user_id),
             headers=self._authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response) is False
+
+    @method_endpoint('/api/v2/abuse_requests/offtopic')
+    def mark_comment_offtopic(self, comment_id: int) -> Optional[AbuseResponse]:
+        """
+        Mark comment as offtopic.
+
+        :param comment_id: ID of comment to mark as offtopic
+        :type comment_id: int
+
+        :return: Object with info about abuse request
+        :rtype: Optional[AbuseResponse]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.abuse_offtopic,
+            data=Utils.generate_data_dict(comment_id=comment_id),
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response, data_model=AbuseResponse)
+
+    @method_endpoint('/api/v2/abuse_requests/abuse')
+    def convert_comment_review(self,
+                               comment_id: int) -> Optional[AbuseResponse]:
+        """
+        Convert comment to review.
+
+        :param comment_id: ID of comment to convert to review
+        :type comment_id: int
+
+        :return: Object with info about abuse request
+        :rtype: Optional[AbuseResponse]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.abuse_review,
+            data=Utils.generate_data_dict(comment_id=comment_id),
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response, data_model=AbuseResponse)
+
+    @method_endpoint('/api/v2/abuse_requests/abuse')
+    def create_violation_abuse_request(self, comment_id: int,
+                                       reason: str) -> Optional[AbuseResponse]:
+        """
+        Create abuse about violation of site rules
+
+        :param comment_id: ID of comment to create abuse request
+        :type comment_id: int
+
+        :param reason: Additional info about violation
+        :type reason: str
+
+        :return: Object with info about abuse request
+        :rtype: Optional[AbuseResponse]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.abuse_violation,
+            data=Utils.generate_data_dict(comment_id=comment_id, reason=reason),
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response, data_model=AbuseResponse)
+
+    @method_endpoint('/api/v2/abuse_requests/spoiler')
+    def create_spoiler_abuse_request(self, comment_id: int,
+                                     reason: str) -> Optional[AbuseResponse]:
+        """
+        Create abuse about spoiler in content.
+
+        :param comment_id: ID of comment to create abuse request
+        :type comment_id: int
+
+        :param reason: Additional info about spoiler
+        :type reason: str
+
+        :return: Object with info about abuse request
+        :rtype: Optional[AbuseResponse]
+        """
+        response: List[Dict[str, Any]] = self._request(
+            self._endpoints.abuse_spoiler,
+            data=Utils.generate_data_dict(comment_id=comment_id, reason=reason),
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response, data_model=AbuseResponse)
