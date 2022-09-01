@@ -1,8 +1,8 @@
 """Enums for response status codes."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class ResponseCode(Enum):
+class ResponseCode(EnhancedEnum):
     """Contains response status codes."""
     SUCCESS = 200
     NO_CONTENT = 204

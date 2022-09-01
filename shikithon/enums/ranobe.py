@@ -1,8 +1,8 @@
 """Enums for /api/ranobe."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class RanobeOrder(Enum):
+class RanobeOrder(EnhancedEnum):
     """Contains constants related for list ordering query."""
     ID = 'id'
     ID_DESC = 'id_desc'
@@ -19,7 +19,7 @@ class RanobeOrder(Enum):
     RANDOM = 'random'
 
 
-class RanobeStatus(Enum):
+class RanobeStatus(EnhancedEnum):
     """Contains constants related for getting certain status of ranobe."""
     ANONS = 'anons'
     NOT_ANONS = '!anons'
@@ -33,7 +33,7 @@ class RanobeStatus(Enum):
     NOT_DISCONTINUED = '!discontinued'
 
 
-class RanobeCensorship(Enum):
+class RanobeCensorship(EnhancedEnum):
     """Contains constants related for getting
     certain censorship status of ranobe.
     """
@@ -41,7 +41,7 @@ class RanobeCensorship(Enum):
     UNCENSORED = 'false'
 
 
-class RanobeList(Enum):
+class RanobeList(EnhancedEnum):
     """Contains constants related for getting
     certain user list status of ranobe.
     """

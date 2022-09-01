@@ -1,8 +1,8 @@
 """Enums for /api/clubs."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class JoinPolicy(Enum):
+class JoinPolicy(EnhancedEnum):
     """Contains constants related for join policy setting."""
     FREE = 'free'
     MEMBER_INVITE = 'member_invite'
@@ -10,26 +10,26 @@ class JoinPolicy(Enum):
     OWNER_INVITE = 'owner_invite'
 
 
-class CommentPolicy(Enum):
+class CommentPolicy(EnhancedEnum):
     """Contains constants related for comment policy setting."""
     FREE = 'free'
     MEMBERS = 'members'
     ADMINS = 'admins'
 
 
-class TopicPolicy(Enum):
+class TopicPolicy(EnhancedEnum):
     """Contains constants related for topic policy setting."""
     MEMBERS = 'members'
     ADMINS = 'admins'
 
 
-class PagePolicy(Enum):
+class PagePolicy(EnhancedEnum):
     """Contains constants related for page policy setting."""
     MEMBERS = 'members'
     ADMINS = 'admins'
 
 
-class ImageUploadPolicy(Enum):
+class ImageUploadPolicy(EnhancedEnum):
     """Contains constants related for image upload policy setting."""
     MEMBERS = 'members'
     ADMINS = 'admins'

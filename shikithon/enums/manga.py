@@ -1,8 +1,8 @@
 """Enums for /api/mangas."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class MangaOrder(Enum):
+class MangaOrder(EnhancedEnum):
     """Contains constants related for list ordering query."""
     ID = 'id'
     ID_DESC = 'id_desc'
@@ -18,7 +18,7 @@ class MangaOrder(Enum):
     RANDOM = 'random'
 
 
-class MangaKind(Enum):
+class MangaKind(EnhancedEnum):
     """Contains constants related for getting certain kind of manga."""
     MANGA = 'manga'
     NOT_MANGA = '!manga'
@@ -36,7 +36,7 @@ class MangaKind(Enum):
     NOT_DOUJIN = '!doujin'
 
 
-class MangaStatus(Enum):
+class MangaStatus(EnhancedEnum):
     """Contains constants related for getting certain status of manga."""
     ANONS = 'anons'
     NOT_ANONS = '!anons'
@@ -50,7 +50,7 @@ class MangaStatus(Enum):
     NOT_DISCONTINUED = '!discontinued'
 
 
-class MangaCensorship(Enum):
+class MangaCensorship(EnhancedEnum):
     """Contains constants related for getting
     certain censorship status of manga.
     """
@@ -58,7 +58,7 @@ class MangaCensorship(Enum):
     UNCENSORED = 'false'
 
 
-class MangaList(Enum):
+class MangaList(EnhancedEnum):
     """Contains constants related for getting
     certain user list status of manga.
     """

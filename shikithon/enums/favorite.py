@@ -1,8 +1,8 @@
 """Enums for /api/favorites."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class FavoriteLinkedType(Enum):
+class FavoriteLinkedType(EnhancedEnum):
     """Contains constants related for favorite linked type."""
     ANIME = 'Anime'
     MANGA = 'Manga'

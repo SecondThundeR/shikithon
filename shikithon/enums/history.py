@@ -1,8 +1,8 @@
 """Enums for /api/users/:id/history"""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class TargetType(Enum):
+class TargetType(EnhancedEnum):
     """Contains constants related for history target type."""
     ANIME = 'Anime'
     MANGA = 'Manga'

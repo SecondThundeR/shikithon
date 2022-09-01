@@ -1,8 +1,8 @@
 """Enums for /api/topics."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class TopicsType(Enum):
+class TopicsType(EnhancedEnum):
     """Contains constants related for getting certain type of topic."""
     REGULAR_TOPIC = 'Topic'
     CLUB_USER_TOPIC = 'Topics::ClubUserTopic'
@@ -10,7 +10,7 @@ class TopicsType(Enum):
     NEWS_TOPIC = 'Topics::NewsTopic'
 
 
-class EntryTopics(Enum):
+class EntryTopics(EnhancedEnum):
     """Contains constants related for getting certain type of topic."""
     ANIME_TOPIC = 'Topics::EntryTopics::AnimeTopic'
     ARTICLE_TOPIC = 'Topics::EntryTopics::ArticleTopic'
@@ -27,12 +27,12 @@ class EntryTopics(Enum):
     REVIEW_TOPIC = 'Topics::EntryTopics::ReviewTopic'
 
 
-class NewsTopics(Enum):
+class NewsTopics(EnhancedEnum):
     """Contains constants related for getting certain type of news topic."""
     CONTEST_STATUS_TOPIC = 'Topics::NewsTopics::ContestStatusTopic'
 
 
-class ForumType(Enum):
+class ForumType(EnhancedEnum):
     """Contains constants related for getting certain type of forum."""
     ALL = 'all'
     ANIMANGA = 'animanga'
@@ -50,7 +50,7 @@ class ForumType(Enum):
     COSPLAY = 'cosplay'
 
 
-class TopicLinkedType(Enum):
+class TopicLinkedType(EnhancedEnum):
     """Contains constants related for getting certain linked type of topic."""
     ANIME = 'Anime'
     MANGA = 'Manga'

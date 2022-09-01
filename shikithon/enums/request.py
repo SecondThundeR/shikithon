@@ -1,8 +1,8 @@
 """Enums for types of requests."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class RequestType(Enum):
+class RequestType(EnhancedEnum):
     """Contains types of requests."""
     GET = 'GET'
     POST = 'POST'
