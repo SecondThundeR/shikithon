@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from loguru import logger
 
+from shikithon.enums.enhanced_enum import EnhancedEnum
 from shikithon.enums.response import ResponseCode
 
 LOWER_LIMIT_NUMBER = 1
@@ -167,6 +168,41 @@ class Utils:
                 new_data_dict[data_dict_name][key] = data
         logger.debug(f'Generated data dictionary: {new_data_dict=}')
         return new_data_dict
+
+    @staticmethod
+    def validate_enum_params(
+            enum_params: Dict[Type[EnhancedEnum], Union[str,
+                                                        List[str]]]) -> bool:
+        enums_counter = 0
+        logger.debug('Checking if enum parameters are valid')
+        for enum, param in enum_params.items():
+            if param is None:
+                continue
+
+            enums_counter += 1
+            enum_values = enum.get_values()
+
+            if isinstance(param, list):
+                for item in param:
+                    if item not in enum_values:
+                        logger.warning(f'"{item}" is not valid value '
+                                       f'of "{enum.get_name()}".'
+                                       f'\nAccepted values: {enum_values}')
+                        return False
+                break
+
+            if param not in enum_values:
+                logger.warning(
+                    f'"{param}" is not valid value of "{enum.get_name()}".'
+                    f'\nAccepted values: {enum_values}')
+                return False
+
+        if enums_counter > 0:
+            logger.debug(f'All ({enums_counter}) enum parameters are valid')
+        else:
+            logger.debug('There are no enum parameters to check')
+
+        return True
 
     @staticmethod
     def validate_query_number(query_number: Optional[int],
