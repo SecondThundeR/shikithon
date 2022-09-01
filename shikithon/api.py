@@ -671,13 +671,13 @@ class API:
         :type limit: Optional[int]
 
         :param order: Type of order in list
-        :type order: Optional[AnimeOrder]
+        :type order: Optional[str]
 
         :param kind: Type(s) of anime topics
-        :type kind: Optional[Union[AnimeKind, List[AnimeKind]]]
+        :type kind: Optional[Union[str, List[str]]]
 
         :param status: Type(s) of anime status
-        :type status: Optional[Union[AnimeStatus, List[AnimeStatus]]]
+        :type status: Optional[Union[str, List[str]]]
 
         :param season: Name(s) of anime seasons
         :type season: Optional[Union[str, List[str]]]
@@ -686,10 +686,10 @@ class API:
         :type score: Optional[int]
 
         :param duration: Duration size(s) of anime
-        :type duration: Optional[Union[AnimeDuration, List[AnimeDuration]]]
+        :type duration: Optional[Union[str, List[str]]]
 
         :param rating: Type of anime rating(s)
-        :type rating: Optional[Union[AnimeRating, List[AnimeRating]]]
+        :type rating: Optional[Union[str, List[str]]]
 
         :param genre: Genre(s) ID
         :type genre: Optional[Union[int, List[int]]]
@@ -701,12 +701,12 @@ class API:
         :type franchise: Optional[Union[int, List[int]]]
 
         :param censored: Type of anime censorship
-        :type censored: Optional[AnimeCensorship]
+        :type censored: Optional[str]
 
         :param my_list: Status(-es) of anime in current user list
             **Note:** If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[AnimeList, List[AnimeList]]]
+        :type my_list: Optional[Union[str, List[str]]]
 
         :param ids: Anime(s) ID to include
         :type ids: Optional[Union[int, List[int]]]

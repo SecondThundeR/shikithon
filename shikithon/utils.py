@@ -173,6 +173,19 @@ class Utils:
     def validate_enum_params(
             enum_params: Dict[Type[EnhancedEnum], Union[str,
                                                         List[str]]]) -> bool:
+        """
+        Validates string parameter with enum values.
+
+        Function gets dictionary with enum and string values.
+        If string value is in enum values, function returns True.
+        If not, throws logger.warning() and returns False
+
+        :param enum_params: Dictionary with values to validate
+        :type enum_params: Dict[Type[EnhancedEnum], Union[str, List[str]]]
+
+        :return: Result of validation
+        :rtype: bool
+        """
         enums_counter = 0
         logger.debug('Checking if enum parameters are valid')
         for enum, param in enum_params.items():
