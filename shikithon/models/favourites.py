@@ -10,6 +10,7 @@ class Favourites(BaseModel):
     """Represents collection of favourites by category."""
     animes: List[Optional[Favourite]]
     mangas: List[Optional[Favourite]]
+    ranobe: List[Optional[Favourite]]
     characters: List[Optional[Favourite]]
     people: List[Optional[Favourite]]
     mangakas: List[Optional[Favourite]]
