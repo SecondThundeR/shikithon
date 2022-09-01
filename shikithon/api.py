@@ -646,19 +646,18 @@ class API:
     def animes(self,
                page: Optional[int] = None,
                limit: Optional[int] = None,
-               order: Optional[AnimeOrder] = None,
-               kind: Optional[Union[AnimeKind, List[AnimeKind]]] = None,
-               status: Optional[Union[AnimeStatus, List[AnimeStatus]]] = None,
+               order: Optional[str] = None,
+               kind: Optional[Union[str, List[str]]] = None,
+               status: Optional[Union[str, List[str]]] = None,
                season: Optional[Union[str, List[str]]] = None,
                score: Optional[int] = None,
-               duration: Optional[Union[AnimeDuration,
-                                        List[AnimeDuration]]] = None,
-               rating: Optional[Union[AnimeRating, List[AnimeRating]]] = None,
+               duration: Optional[Union[str, List[str]]] = None,
+               rating: Optional[Union[str, List[str]]] = None,
                genre: Optional[Union[int, List[int]]] = None,
                studio: Optional[Union[int, List[int]]] = None,
                franchise: Optional[Union[int, List[int]]] = None,
-               censored: Optional[AnimeCensorship] = None,
-               my_list: Optional[Union[AnimeList, List[AnimeList]]] = None,
+               censored: Optional[str] = None,
+               my_list: Optional[Union[str, List[str]]] = None,
                ids: Optional[Union[int, List[int]]] = None,
                exclude_ids: Optional[Union[int, List[int]]] = None,
                search: Optional[str] = None) -> Optional[List[Anime]]:
@@ -721,6 +720,18 @@ class API:
         :return: Animes list
         :rtype: Optional[List[Anime]]
         """
+        is_enum_params_valid = Utils.validate_enum_params({
+            AnimeOrder: order,
+            AnimeKind: kind,
+            AnimeStatus: status,
+            AnimeDuration: duration,
+            AnimeRating: rating,
+            AnimeCensorship: censored,
+            AnimeList: my_list,
+        })
+        if not is_enum_params_valid:
+            return None
+
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 50],
                                                           score=[score, 9])
