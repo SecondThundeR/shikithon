@@ -2022,7 +2022,6 @@ class API:
         :return: Message info
         :rtype: Optional[Message]
         """
-        logger.debug('Executing "/api/messages/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.message(message_id),
                                             headers=self._authorization_header)
@@ -2474,7 +2473,6 @@ class API:
         :return: List of IDs of active users
         :rtype: Optional[List[int]]
         """
-        logger.debug('Executing "/api/stats/active_users" method')
         response: List[int] = self._request(self._endpoints.active_users)
         return Utils.validate_return_data(response)
 
