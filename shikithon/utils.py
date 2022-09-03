@@ -5,11 +5,13 @@ This file contains the Utils class
 with all the necessary utility methods
 to work with the library
 """
-from enum import Enum
+from io import BytesIO
 from time import time
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from loguru import logger
+from requests import get
+from validators import url as is_url
 
 from shikithon.enums.enhanced_enum import EnhancedEnum
 from shikithon.enums.response import ResponseCode
@@ -73,9 +75,31 @@ class Utils:
         return int(time()) + time_expire_constant
 
     @staticmethod
+    def get_image_data(
+            image_path: str
+    ) -> Dict[str, Tuple[str, Union[BytesIO, bytes], str]]:
+        """
+        Extract image data from image path.
+        If image_path is a link, fetch the image data from the link.
+
+        :param image_path: Path to image
+        :type image_path: str
+
+        :return: Image data
+        :rtype: Dict[str, Tuple[str, Union[BytesIO, bytes], str]]
+        """
+        if isinstance(is_url(image_path), bool):
+            image_response = get(image_path)
+            image_data = BytesIO(image_response.content)
+        else:
+            with open(image_path, 'rb') as image_file:
+                image_data = image_file.read()
+
+        return {'image': (image_path, image_data, 'multipart/form-data')}
+
+    @staticmethod
     def generate_query_dict(
-        **params_data: Optional[Union[str, bool, int, Enum, List[Union[int,
-                                                                       str]]]]
+        **params_data: Optional[Union[str, bool, int, List[Union[int, str]]]]
     ) -> Dict[str, str]:
         """
         Returns valid query dict for API requests.
@@ -84,7 +108,7 @@ class Utils:
 
         :param params_data: API methods parameters data
         :type params_data:
-            Optional[Union[str, bool, int, Enum, List[Union[int, str]]]]
+            Optional[Union[str, bool, int, List[Union[int, str]]]]
 
         :return: Valid query dictionary
         :rtype: Dict[str, str]
@@ -99,14 +123,10 @@ class Utils:
                 query_dict[key] = str(int(data))
             elif isinstance(data, int):
                 query_dict[key] = str(data)
-            elif isinstance(data, Enum):
-                query_dict[key] = str(data.value)
             elif isinstance(data, list):
                 formatted_data: List[str] = []
                 for item in data:
-                    if isinstance(item, Enum):
-                        formatted_data.append(str(item.value))
-                    elif isinstance(item, int):
+                    if isinstance(item, int):
                         formatted_data.append(str(item))
                     elif isinstance(item, str) and item.isdigit():
                         formatted_data.append(item)
@@ -118,7 +138,7 @@ class Utils:
 
     @staticmethod
     def generate_data_dict(
-        **dict_data: Optional[Union[str, bool, int, Enum, List[int]]]
+        **dict_data: Optional[Union[str, bool, int, List[int]]]
     ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:
         """
         Returns valid data dict for API requests.
@@ -126,10 +146,10 @@ class Utils:
         This methods checks for data type and converts to valid one.
 
         :param dict_data: API methods body data
-        :type dict_data: Optional[Union[str, bool, int, Enum, List[int]]]
+        :type dict_data: Optional[Union[str, bool, int, List[int]]]
 
         :return: Valid data dictionary
-        :rtype: Optional[Union[str, bool, int, Enum, List[int]]]
+        :rtype: Optional[Union[str, bool, int, List[int]]]
         """
         logger.debug(
             f'Generating data dictionary for request. Passed {dict_data=}')
@@ -152,14 +172,10 @@ class Utils:
                 new_data_dict[data_dict_name][key] = data
             elif isinstance(data, int):
                 new_data_dict[data_dict_name][key] = str(data)
-            elif isinstance(data, Enum):
-                new_data_dict[data_dict_name][key] = str(data.value)
             elif isinstance(data, list):
                 formatted_data: List[str] = []
                 for item in data:
-                    if isinstance(item, Enum):
-                        formatted_data.append(str(item.value))
-                    elif isinstance(item, int):
+                    if isinstance(item, int):
                         formatted_data.append(str(item))
                     elif isinstance(item, str) and item.isdigit():
                         formatted_data.append(item)
@@ -180,8 +196,8 @@ class Utils:
         If string value is in enum values, function returns True.
         If not, throws logger.warning() and returns False
 
-        :param enum_params: Dictionary with values to validate
-        :type enum_params: Dict[Type[EnhancedEnum], Union[str, List[str]]]
+        :param enum_params: Dictionary with values to validate.
+        :type enum_params: Dict[Type[EnhancedEnum], Union[str, List[str]]])
 
         :return: Result of validation
         :rtype: bool
