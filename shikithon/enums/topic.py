@@ -2,16 +2,12 @@
 from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class TopicsType(EnhancedEnum):
+class TopicType(EnhancedEnum):
     """Contains constants related for getting certain type of topic."""
     REGULAR_TOPIC = 'Topic'
     CLUB_USER_TOPIC = 'Topics::ClubUserTopic'
     ENTRY_TOPIC = 'Topics::EntryTopic'
     NEWS_TOPIC = 'Topics::NewsTopic'
-
-
-class EntryTopics(EnhancedEnum):
-    """Contains constants related for getting certain type of topic."""
     ANIME_TOPIC = 'Topics::EntryTopics::AnimeTopic'
     ARTICLE_TOPIC = 'Topics::EntryTopics::ArticleTopic'
     CHARACTER_TOPIC = 'Topics::EntryTopics::CharacterTopic'
@@ -25,10 +21,6 @@ class EntryTopics(EnhancedEnum):
     RANOBE_TOPIC = 'Topics::EntryTopics::RanobeTopic'
     CRITIQUE_TOPIC = 'Topics::EntryTopics::CritiqueTopic'
     REVIEW_TOPIC = 'Topics::EntryTopics::ReviewTopic'
-
-
-class NewsTopics(EnhancedEnum):
-    """Contains constants related for getting certain type of news topic."""
     CONTEST_STATUS_TOPIC = 'Topics::NewsTopics::ContestStatusTopic'
 
 
