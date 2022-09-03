@@ -4,15 +4,13 @@ This is main module with a class
 for interacting with the Shikimori API.
 """
 import sys
-from io import BytesIO
 from json import dumps
 from time import sleep, time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from loguru import logger
 from ratelimit import limits, sleep_and_retry
-from requests import JSONDecodeError, Session, get
-from validators import url as is_url
+from requests import JSONDecodeError, Session
 
 from shikithon.config_cache import ConfigCache
 from shikithon.decorators import method_endpoint, protected_method
@@ -34,8 +32,7 @@ from shikithon.enums.ranobe import (RanobeCensorship, RanobeList, RanobeOrder,
 from shikithon.enums.request import RequestType
 from shikithon.enums.response import ResponseCode
 from shikithon.enums.style import OwnerType
-from shikithon.enums.topic import (EntryTopics, ForumType, NewsTopics,
-                                   TopicLinkedType, TopicsType)
+from shikithon.enums.topic import ForumType, TopicLinkedType, TopicType
 from shikithon.enums.user_rate import (UserRateStatus, UserRateTarget,
                                        UserRateType)
 from shikithon.enums.video import VideoKind
@@ -398,10 +395,13 @@ class API:
         if not self._scopes:
             raise MissingAppVariable('scopes')
 
-        if not self._auth_code:
-            auth_link = self._endpoints.authorization_link(
-                self._client_id, self._redirect_uri, self._scopes)
-            raise MissingAuthCode(auth_link)
+        if self._auth_code:
+            return
+
+        auth_link = self._endpoints.authorization_link(self._client_id,
+                                                       self._redirect_uri,
+                                                       self._scopes)
+        raise MissingAuthCode(auth_link)
 
     @logger.catch(onerror=lambda _: sys.exit(1))
     def _get_access_token(self, refresh_token: bool = False) -> Tuple[str, str]:
@@ -419,24 +419,24 @@ class API:
 
         :raises AccessTokenException: If token request failed
         """
-        data = {
+        data_body = {
             'client_id': self._client_id,
             'client_secret': self._client_secret
         }
 
         if refresh_token:
             logger.info('Refreshing current tokens')
-            data['grant_type'] = 'refresh_token'
-            data['refresh_token'] = self._refresh_token
+            data_body['grant_type'] = 'refresh_token'
+            data_body['refresh_token'] = self._refresh_token
         else:
             logger.info('Getting new tokens')
-            data['grant_type'] = 'authorization_code'
-            data['code'] = self._auth_code
-            data['redirect_uri'] = self._redirect_uri
+            data_body['grant_type'] = 'authorization_code'
+            data_body['code'] = self._auth_code
+            data_body['redirect_uri'] = self._redirect_uri
 
         oauth_json: Dict[str,
                          Any] = self._request(self._endpoints.oauth_token,
-                                              data=data,
+                                              data=data_body,
                                               request_type=RequestType.POST,
                                               output_logging=False)
 
@@ -720,16 +720,15 @@ class API:
         :return: Animes list
         :rtype: Optional[List[Anime]]
         """
-        is_enum_params_valid = Utils.validate_enum_params({
-            AnimeOrder: order,
-            AnimeKind: kind,
-            AnimeStatus: status,
-            AnimeDuration: duration,
-            AnimeRating: rating,
-            AnimeCensorship: censored,
-            AnimeList: my_list,
-        })
-        if not is_enum_params_valid:
+        if not Utils.validate_enum_params({
+                AnimeOrder: order,
+                AnimeKind: kind,
+                AnimeStatus: status,
+                AnimeDuration: duration,
+                AnimeRating: rating,
+                AnimeCensorship: censored,
+                AnimeList: my_list,
+        }):
             return None
 
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
@@ -873,7 +872,7 @@ class API:
                      anime_id: int,
                      page: Optional[int] = None,
                      limit: Optional[int] = None,
-                     kind: Optional[AnimeStatus] = None,
+                     kind: Optional[str] = None,
                      episode: Optional[int] = None) -> Optional[List[Topic]]:
         """
         Returns list of topics of certain anime.
@@ -889,8 +888,8 @@ class API:
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :param kind: Kind of anime (Uses status enum values)
-        :type kind: Optional[AnimeStatus]
+        :param kind: Kind of anime
+        :type kind: Optional[str]
 
         :param episode: Number of anime episode
         :type episode: Optional[int]
@@ -898,6 +897,9 @@ class API:
         :return: List of topics
         :rtype: Optional[List[Topic]]
         """
+        if not Utils.validate_enum_params({AnimeKind: kind}):
+            return None
+
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 30])
 
@@ -925,8 +927,8 @@ class API:
         return Utils.validate_return_data(response, data_model=Video)
 
     @method_endpoint('/api/animes/:anime_id/videos')
-    @protected_method(scope='content')
-    def create_anime_video(self, anime_id: int, kind: VideoKind, name: str,
+    @protected_method('content')
+    def create_anime_video(self, anime_id: int, kind: str, name: str,
                            url: str) -> Optional[Video]:
         """
         Creates anime video.
@@ -946,6 +948,9 @@ class API:
         :return: Created video info
         :rtype: Optional[Video]
         """
+        if not Utils.validate_enum_params({VideoKind: kind}):
+            return None
+
         data_dict: Dict[str, Any] = Utils.generate_data_dict(dict_name='video',
                                                              kind=kind,
                                                              name=name,
@@ -957,7 +962,8 @@ class API:
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=Video)
 
-    @protected_method(scope='content')
+    @method_endpoint('/api/animes/:anime_id/videos/:id')
+    @protected_method('content')
     def delete_anime_video(self, anime_id: int, video_id: int) -> bool:
         """
         Deletes anime video.
@@ -971,7 +977,6 @@ class API:
         :return: Status of video deletion
         :rtype: bool
         """
-        logger.debug('Executing "/api/animes/:anime_id/videos/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.anime_video(
                            anime_id, video_id),
@@ -979,6 +984,7 @@ class API:
                                             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/appears')
     @protected_method()
     def appears(self, comment_ids: List[str]) -> bool:
         """
@@ -993,7 +999,6 @@ class API:
         :return: Status of mark
         :rtype: bool
         """
-        logger.debug('Executing "/api/appears" method')
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.appears,
             headers=self._authorization_header,
@@ -1002,6 +1007,7 @@ class API:
         return Utils.validate_return_data(response,
                                           response_code=ResponseCode.SUCCESS)
 
+    @method_endpoint('/api/bans')
     def bans(self,
              page: Optional[int] = None,
              limit: Optional[int] = None) -> Optional[List[Ban]]:
@@ -1017,8 +1023,6 @@ class API:
         :return: List of recent bans
         :rtype: Optional[List[Ban]]
         """
-        logger.debug('Executing "/api/bans" method')
-        logger.debug('Checking page parameter')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 30],
@@ -1030,25 +1034,28 @@ class API:
                                             limit=validated_numbers['limit']))
         return Utils.validate_return_data(response, data_model=Ban)
 
+    @method_endpoint('/api/calendar')
     def calendar(
-        self,
-        censored: Optional[AnimeCensorship] = None
-    ) -> Optional[List[CalendarEvent]]:
+            self,
+            censored: Optional[str] = None) -> Optional[List[CalendarEvent]]:
         """
         Returns current calendar events.
 
         :param censored: Status of censorship for events
-        :type censored: Optional[AnimeCensorship]
+        :type censored: Optional[str]
 
         :return: List of calendar events
         :rtype: Optional[List[CalendarEvent]]
         """
-        logger.debug('Executing "api/calendar" method')
+        if not Utils.validate_enum_params({AnimeCensorship: censored}):
+            return None
+
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.calendar,
             query=Utils.generate_query_dict(censored=censored))
         return Utils.validate_return_data(response, data_model=CalendarEvent)
 
+    @method_endpoint('/api/characters/:id')
     def character(self, character_id: int) -> Optional[Character]:
         """
         Returns character info by ID.
@@ -1059,11 +1066,11 @@ class API:
         :return: Character info
         :rtype: Optional[Character]
         """
-        logger.debug('Executing "/api/characters/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.character(character_id))
         return Utils.validate_return_data(response, data_model=Character)
 
+    @method_endpoint('/api/characters/search')
     def character_search(self,
                          search: Optional[str] = None
                         ) -> Optional[List[Character]]:
@@ -1076,12 +1083,12 @@ class API:
         :return: List of found characters
         :rtype: Optional[List[Character]]
         """
-        logger.debug('Executing "/api/characters/search" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.character_search,
             query=Utils.generate_query_dict(search=search))
         return Utils.validate_return_data(response, data_model=Character)
 
+    @method_endpoint('/api/clubs')
     def clubs(self,
               page: Optional[int] = None,
               limit: Optional[int] = None,
@@ -1101,7 +1108,6 @@ class API:
         :return: Clubs list
         :rtype: Optional[List[Club]]
         """
-        logger.debug('Executing "/api/clubs" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 30],
@@ -1114,6 +1120,7 @@ class API:
                                             search=search))
         return Utils.validate_return_data(response, data_model=Club)
 
+    @method_endpoint('/api/clubs/:id')
     def club(self, club_id: int) -> Optional[Club]:
         """
         Returns info about club.
@@ -1124,22 +1131,22 @@ class API:
         :return: Info about club
         :rtype: Optional[Club]
         """
-        logger.debug('Executing "/api/clubs/:id" method')
         response: Dict[str, Any] = self._request(self._endpoints.club(club_id))
         return Utils.validate_return_data(response, data_model=Club)
 
-    @protected_method(scope='clubs')
+    @method_endpoint('/api/clubs/:id')
+    @protected_method('clubs')
     def club_update(
             self,
             club_id: int,
             name: Optional[str] = None,
-            join_policy: Optional[JoinPolicy] = None,
+            join_policy: Optional[str] = None,
             description: Optional[str] = None,
             display_images: Optional[bool] = None,
-            comment_policy: Optional[CommentPolicy] = None,
-            topic_policy: Optional[TopicPolicy] = None,
-            page_policy: Optional[PagePolicy] = None,
-            image_upload_policy: Optional[ImageUploadPolicy] = None,
+            comment_policy: Optional[str] = None,
+            topic_policy: Optional[str] = None,
+            page_policy: Optional[str] = None,
+            image_upload_policy: Optional[str] = None,
             is_censored: Optional[bool] = None,
             anime_ids: Optional[List[int]] = None,
             manga_ids: Optional[List[int]] = None,
@@ -1168,19 +1175,19 @@ class API:
         :type is_censored: Optional[bool]
 
         :param join_policy: New join policy of club
-        :type join_policy: Optional[JoinPolicy]
+        :type join_policy: Optional[str]
 
         :param comment_policy: New comment policy of club
-        :type comment_policy: Optional[CommentPolicy]
+        :type comment_policy: Optional[str]
 
         :param topic_policy: New topic policy of club
-        :type topic_policy: Optional[TopicPolicy]
+        :type topic_policy: Optional[str]
 
         :param page_policy: New page policy of club
-        :type page_policy: Optional[PagePolicy]
+        :type page_policy: Optional[str]
 
         :param image_upload_policy: New image upload policy of club
-        :type image_upload_policy: Optional[ImageUploadPolicy]
+        :type image_upload_policy: Optional[str]
 
         :param anime_ids: New anime ids of club
         :type anime_ids: Optional[List[int]]
@@ -1209,7 +1216,15 @@ class API:
         :return: Updated club info
         :rtype: Optional[Club]
         """
-        logger.debug('Executing "/api/clubs/:id" method')
+        if not Utils.validate_enum_params({
+                JoinPolicy: join_policy,
+                CommentPolicy: comment_policy,
+                TopicPolicy: topic_policy,
+                PagePolicy: page_policy,
+                ImageUploadPolicy: image_upload_policy
+        }):
+            return None
+
         response: Dict[str, Any] = self._request(
             self._endpoints.club(club_id),
             headers=self._authorization_header,
@@ -1235,6 +1250,7 @@ class API:
             request_type=RequestType.PATCH)
         return Utils.validate_return_data(response, data_model=Club)
 
+    @method_endpoint('/api/clubs/:id/animes')
     def club_animes(self, club_id: int) -> Optional[List[Anime]]:
         """
         Returns anime list of club.
@@ -1245,11 +1261,11 @@ class API:
         :return: Club anime list
         :rtype: Optional[List[Anime]]
         """
-        logger.debug('Executing "/api/clubs/:id/animes" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_animes(club_id))
         return Utils.validate_return_data(response, data_model=Anime)
 
+    @method_endpoint('/api/clubs/:id/mangas')
     def club_mangas(self, club_id: int) -> Optional[List[Manga]]:
         """
         Returns manga list of club.
@@ -1260,11 +1276,11 @@ class API:
         :return: Club manga list
         :rtype: Optional[List[Manga]]
         """
-        logger.debug('Executing "/api/clubs/:id/mangas" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_mangas(club_id))
         return Utils.validate_return_data(response, data_model=Manga)
 
+    @method_endpoint('/api/clubs/:id/ranobe')
     def club_ranobe(self, club_id: int) -> Optional[List[Ranobe]]:
         """
         Returns ranobe list of club.
@@ -1275,11 +1291,11 @@ class API:
         :return: Club ranobe list
         :rtype: Optional[List[Ranobe]]
         """
-        logger.debug('Executing "/api/clubs/:id/ranobe" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_ranobe(club_id))
         return Utils.validate_return_data(response, data_model=Ranobe)
 
+    @method_endpoint('/api/clubs/:id/characters')
     def club_characters(self, club_id: int) -> Optional[List[Character]]:
         """
         Returns character list of club.
@@ -1290,11 +1306,11 @@ class API:
         :return: Club character list
         :rtype: Optional[List[Character]]
         """
-        logger.debug('Executing "/api/clubs/:id/characters" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_characters(club_id))
         return Utils.validate_return_data(response, data_model=Character)
 
+    @method_endpoint('/api/clubs/:id/members')
     def club_members(self, club_id: int) -> Optional[List[User]]:
         """
         Returns member list of club.
@@ -1305,11 +1321,11 @@ class API:
         :return: Club member list
         :rtype: Optional[List[User]]
         """
-        logger.debug('Executing "/api/clubs/:id/members" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_members(club_id))
         return Utils.validate_return_data(response, data_model=User)
 
+    @method_endpoint('/api/clubs/:id/images')
     def club_images(self, club_id: int) -> Optional[List[ClubImage]]:
         """
         Returns images of club.
@@ -1320,12 +1336,12 @@ class API:
         :return: Club's images
         :rtype: Optional[List[ClubImage]]
         """
-        logger.debug('Executing "/api/clubs/:id/images" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.club_images(club_id))
         return Utils.validate_return_data(response, data_model=ClubImage)
 
-    @protected_method(scope='clubs')
+    @method_endpoint('/api/clubs/:id/join')
+    @protected_method('clubs')
     def club_join(self, club_id: int):
         """
         Joins club by ID.
@@ -1336,14 +1352,14 @@ class API:
         :return: Status of join
         :rtype: bool
         """
-        logger.debug('Executing "/api/clubs/:id/join" method')
         response: Union[Dict[str, Any],
                         int] = self._request(self._endpoints.club_join(club_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
         return Utils.validate_return_data(response)
 
-    @protected_method(scope='clubs')
+    @method_endpoint('/api/clubs/:id/leave')
+    @protected_method('clubs')
     def club_leave(self, club_id: int) -> bool:
         """
         Leaves club by ID.
@@ -1354,16 +1370,16 @@ class API:
         :return: Status of leave
         :rtype: bool
         """
-        logger.debug('Executing "/api/clubs/:id/leave" method')
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.club_leave(club_id),
             headers=self._authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/comments')
     def comments(self,
                  commentable_id: int,
-                 commentable_type: CommentableType,
+                 commentable_type: str,
                  page: Optional[int] = None,
                  limit: Optional[int] = None,
                  desc: Optional[int] = None) -> Optional[List[Comment]]:
@@ -1374,7 +1390,7 @@ class API:
         :type commentable_id: int
 
         :param commentable_type: Type of entity to get comment
-        :type commentable_type: CommentableType
+        :type commentable_type: str
 
         :param page: Number of page
         :type page: Optional[int]
@@ -1388,7 +1404,9 @@ class API:
         :return: List of comments
         :rtype: Optional[List[Comment]]
         """
-        logger.debug('Executing "/api/comments" method')
+        if not Utils.validate_enum_params({CommentableType: commentable_type}):
+            return None
+
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 30],
@@ -1403,6 +1421,7 @@ class API:
                                             desc=desc))
         return Utils.validate_return_data(response, data_model=Comment)
 
+    @method_endpoint('/api/comments/:id')
     def comment(self, comment_id: int) -> Optional[Comment]:
         """
         Returns comment info.
@@ -1413,16 +1432,16 @@ class API:
         :return: Comment info
         :rtype: Optional[Comment]
         """
-        logger.debug('Executing "/api/comments/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.comment(comment_id))
         return Utils.validate_return_data(response, data_model=Comment)
 
-    @protected_method(scope='comments')
+    @method_endpoint('/api/comments')
+    @protected_method('comments')
     def create_comment(self,
                        body: str,
                        commentable_id: int,
-                       commentable_type: CommentableType,
+                       commentable_type: str,
                        is_offtopic: Optional[bool] = None,
                        broadcast: Optional[bool] = None) -> Optional[Comment]:
         """
@@ -1438,7 +1457,7 @@ class API:
         :type commentable_id: int
 
         :param commentable_type: Type of entity to comment on
-        :type commentable_type: CommentableType
+        :type commentable_type: str
 
         :param is_offtopic: Status of offtopic
         :type is_offtopic: Optional[bool]
@@ -1449,7 +1468,9 @@ class API:
         :return: Created comment info
         :rtype: Optional[Comment]
         """
-        logger.debug('Executing "/api/comments" method')
+        if not Utils.validate_enum_params({CommentableType: commentable_type}):
+            return None
+
         data_dict: Dict[str, Any] = Utils.generate_data_dict(
             dict_name='comment',
             body=body,
@@ -1468,7 +1489,8 @@ class API:
                                             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=Comment)
 
-    @protected_method(scope='comments')
+    @method_endpoint('/api/comments/:id')
+    @protected_method('comments')
     def update_comment(self, comment_id: int, body: str) -> Optional[Comment]:
         """
         Updates comment.
@@ -1482,7 +1504,6 @@ class API:
         :return: Updated comment info
         :rtype: Optional[Comment]
         """
-        logger.debug('Executing "/api/comments/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.comment(comment_id),
             headers=self._authorization_header,
@@ -1490,7 +1511,8 @@ class API:
             request_type=RequestType.PATCH)
         return Utils.validate_return_data(response, data_model=Comment)
 
-    @protected_method(scope='comments')
+    @method_endpoint('/api/comments/:id')
+    @protected_method('comments')
     def delete_comment(self, comment_id: int) -> bool:
         """
         Deletes comment.
@@ -1501,13 +1523,13 @@ class API:
         :return: Status of comment deletion
         :rtype: bool
         """
-        logger.debug('Executing "/api/comments/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.comment(comment_id),
                                             headers=self._authorization_header,
                                             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/constants/anime')
     def anime_constants(self) -> Optional[AnimeConstants]:
         """
         Returns anime constants values.
@@ -1515,11 +1537,11 @@ class API:
         :return: Anime constants values
         :rtype: Optional[AnimeConstants]
         """
-        logger.debug('Executing "/api/constants/anime" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.anime_constants)
         return Utils.validate_return_data(response, data_model=AnimeConstants)
 
+    @method_endpoint('/api/constants/manga')
     def manga_constants(self) -> Optional[MangaConstants]:
         """
         Returns manga constants values.
@@ -1527,11 +1549,11 @@ class API:
         :return: Manga constants values
         :rtype: Optional[MangaConstants]
         """
-        logger.debug('Executing "/api/constants/manga" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.manga_constants)
         return Utils.validate_return_data(response, data_model=MangaConstants)
 
+    @method_endpoint('/api/constants/user_rate')
     def user_rate_constants(self) -> Optional[UserRateConstants]:
         """
         Returns user rate constants values.
@@ -1539,12 +1561,12 @@ class API:
         :return: User rate constants values
         :rtype: Optional[UserRateConstants]
         """
-        logger.debug('Executing "/api/constants/user_rate" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.user_rate_constants)
         return Utils.validate_return_data(response,
                                           data_model=UserRateConstants)
 
+    @method_endpoint('/api/constants/club')
     def club_constants(self) -> Optional[ClubConstants]:
         """
         Returns club constants values.
@@ -1552,10 +1574,10 @@ class API:
         :return: Club constants values
         :rtype: Optional[ClubConstants]
         """
-        logger.debug('Executing "/api/constants/club" method')
         response: Dict[str, Any] = self._request(self._endpoints.club_constants)
         return Utils.validate_return_data(response, data_model=ClubConstants)
 
+    @method_endpoint('/api/constants/smileys')
     def smileys_constants(self) -> Optional[List[SmileyConstants]]:
         """
         Returns list of smileys constants values.
@@ -1563,12 +1585,12 @@ class API:
         :return: List of smileys constants values
         :rtype: Optional[List[SmileyConstants]]
         """
-        logger.debug('Executing "/api/constants/smileys" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.smileys_constants)
         return Utils.validate_return_data(response, data_model=SmileyConstants)
 
-    @protected_method(scope='messages')
+    @method_endpoint('/api/dialogs')
+    @protected_method('messages')
     def dialogs(self) -> Optional[List[Dialog]]:
         """
         Returns list of current user's dialogs.
@@ -1576,12 +1598,12 @@ class API:
         :return: List of dialogs
         :rtype: Optional[List[Dialog]]
         """
-        logger.debug('Executing "/api/dialogs" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialogs, headers=self._authorization_header)
         return Utils.validate_return_data(response, data_model=Dialog)
 
-    @protected_method(scope='messages')
+    @method_endpoint('/api/dialogs/:id')
+    @protected_method('messages')
     def dialog(self, user_id: Union[int, str]) -> Optional[List[Message]]:
         """
         Returns list of current user's messages with certain user.
@@ -1592,12 +1614,12 @@ class API:
         :return: List of messages
         :rtype: Optional[List[Message]]
         """
-        logger.debug('Executing "/api/dialogs/:id" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialog(user_id), headers=self._authorization_header)
         return Utils.validate_return_data(response, data_model=Message)
 
-    @protected_method(scope='messages')
+    @method_endpoint('/api/dialogs/:id')
+    @protected_method('messages')
     def delete_dialog(self, user_id: Union[int, str]) -> bool:
         """
         Deletes dialog of current user with certain user.
@@ -1608,37 +1630,40 @@ class API:
         :return: Status of message deletion
         :rtype: bool
         """
-        logger.debug('Executing "/api/dialogs/:id" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.dialog(user_id),
             headers=self._authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/favorites/:linked_type/:linked_id(/:kind)')
     @protected_method()
     def create_favorite(self,
-                        linked_type: FavoriteLinkedType,
+                        linked_type: str,
                         linked_id: int,
-                        kind: PersonKind = PersonKind.NONE) -> bool:
+                        kind: str = PersonKind.NONE.value) -> bool:
         """
         Creates a favorite.
 
         :param linked_type: Type of object for making favorite
-        :type linked_type: FavoriteLinkedType
+        :type linked_type: str
 
         :param linked_id: ID of linked type
         :type linked_id: int
 
         :param kind: Kind of linked type
-            (Required when linked_type is LinkedType.Person)
-        :type kind: PersonKind
+            (Required when linked_type is 'Person')
+        :type kind: str
 
         :return: Status of favorite create
         :rtype: bool
         """
-        logger.debug('Executing '
-                     '"/api/favorites/:linked_type/:linked_id(/:kind)" '
-                     'method')
+        if not Utils.validate_enum_params({
+                FavoriteLinkedType: linked_type,
+                PersonKind: kind
+        }):
+            return False
+
         response: Dict[str,
                        Any] = self._request(self._endpoints.favorites_create(
                            linked_type, linked_id, kind),
@@ -1646,14 +1671,14 @@ class API:
                                             request_type=RequestType.POST)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/favorites/:linked_type/:linked_id')
     @protected_method()
-    def destroy_favorite(self, linked_type: FavoriteLinkedType,
-                         linked_id: int) -> bool:
+    def destroy_favorite(self, linked_type: str, linked_id: int) -> bool:
         """
         Destroys a favorite.
 
         :param linked_type: Type of object for destroying from favorite
-        :type linked_type: FavoriteLinkedType
+        :type linked_type: str
 
         :param linked_id: ID of linked type
         :type linked_id: int
@@ -1661,9 +1686,9 @@ class API:
         :return: Status of favorite destroy
         :rtype: bool
         """
-        logger.debug('Executing '
-                     '"/api/favorites/:linked_type/:linked_id" '
-                     'method')
+        if not Utils.validate_enum_params({FavoriteLinkedType: linked_type}):
+            return False
+
         response: Dict[str,
                        Any] = self._request(self._endpoints.favorites_destroy(
                            linked_type, linked_id),
@@ -1671,6 +1696,7 @@ class API:
                                             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/favorites/:id/reorder')
     @protected_method()
     def reorder_favorite(self,
                          favorite_id: int,
@@ -1687,7 +1713,6 @@ class API:
         :return: Status of reorder
         :rtype: bool
         """
-        logger.debug('Executing "/api/favorites/:id/reorder" method')
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.favorites_reorder(favorite_id),
             headers=self._authorization_header,
@@ -1696,6 +1721,7 @@ class API:
         return Utils.validate_return_data(response,
                                           response_code=ResponseCode.SUCCESS)
 
+    @method_endpoint('/api/forums')
     def forums(self) -> Optional[List[Forum]]:
         """
         Returns list of forums.
@@ -1703,11 +1729,11 @@ class API:
         :returns: List of forums
         :rtype: Optional[List[Forum]]
         """
-        logger.debug('Executing "/api/forums" method')
         response: List[Dict[str, Any]] = self._request(self._endpoints.forums)
         return Utils.validate_return_data(response, data_model=Forum)
 
-    @protected_method(scope='friends')
+    @method_endpoint('/api/friends/:id')
+    @protected_method('friends')
     def create_friend(self, friend_id: int):
         """
         Creates (adds) new friend by ID.
@@ -1718,14 +1744,14 @@ class API:
         :return: Status of create (addition)
         :rtype: bool
         """
-        logger.debug('Executing "/api/friends/:id" method')
         response: Union[Dict[str, Any],
                         int] = self._request(self._endpoints.friend(friend_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.POST)
         return Utils.validate_return_data(response)
 
-    @protected_method(scope='friends')
+    @method_endpoint('/api/friends/:id')
+    @protected_method('friends')
     def destroy_friend(self, friend_id: int):
         """
         Destroys (removes) current friend by ID.
@@ -1736,13 +1762,13 @@ class API:
         :return: Status of destroy (removal)
         :rtype: bool
         """
-        logger.debug('Executing "/api/friends/:id" method')
         response: Union[Dict[str, Any],
                         int] = self._request(self._endpoints.friend(friend_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/genres')
     def genres(self) -> Optional[List[Genre]]:
         """
         Returns list of genres.
@@ -1750,23 +1776,23 @@ class API:
         :return: List of genres
         :rtype: Optional[List[Genre]]
         """
-        logger.debug('Executing "/api/genres" method')
         response: List[Dict[str, Any]] = self._request(self._endpoints.genres)
         return Utils.validate_return_data(response, data_model=Genre)
 
+    @method_endpoint('/api/mangas')
     def mangas(self,
                page: Optional[int] = None,
                limit: Optional[int] = None,
-               order: Optional[MangaOrder] = None,
-               kind: Optional[Union[MangaKind, List[MangaKind]]] = None,
-               status: Optional[Union[MangaStatus, List[MangaStatus]]] = None,
+               order: Optional[str] = None,
+               kind: Optional[Union[str, List[str]]] = None,
+               status: Optional[Union[str, List[str]]] = None,
                season: Optional[Union[str, List[str]]] = None,
                score: Optional[int] = None,
                genre: Optional[Union[int, List[int]]] = None,
                publisher: Optional[Union[int, List[int]]] = None,
                franchise: Optional[Union[int, List[int]]] = None,
-               censored: Optional[MangaCensorship] = None,
-               my_list: Optional[Union[MangaList, List[MangaList]]] = None,
+               censored: Optional[str] = None,
+               my_list: Optional[Union[str, List[str]]] = None,
                ids: Optional[Union[int, List[int]]] = None,
                exclude_ids: Optional[Union[int, List[int]]] = None,
                search: Optional[str] = None) -> Optional[List[Manga]]:
@@ -1780,13 +1806,13 @@ class API:
         :type limit: Optional[int]
 
         :param order: Type of order in list
-        :type order: Optional[MangaOrder]
+        :type order: Optional[str]
 
         :param kind: Type(s) of manga topic
-        :type kind: Optional[Union[MangaKind, List[MangaKind]]
+        :type kind: Optional[Union[str, List[str]]
 
         :param status: Type(s) of manga status
-        :type status: Optional[Union[MangaStatus, List[MangaStatus]]]
+        :type status: Optional[Union[str, List[str]]]
 
         :param season: Name(s) of manga seasons
         :type season: Optional[Union[str, List[str]]]
@@ -1804,12 +1830,12 @@ class API:
         :type franchise: Optional[Union[int, List[int]]
 
         :param censored: Type of manga censorship
-        :type censored: Optional[MangaCensorship]
+        :type censored: Optional[str]
 
         :param my_list: Status(-es) of manga in current user list
             **Note:** If app in restricted mode,
             this won't affect on response.
-        :type my_list: Optional[Union[MangaList, List[MangaList]]]
+        :type my_list: Optional[Union[str, List[str]]]
 
         :param ids: Manga(s) ID to include
         :type ids: Optional[Union[int, List[int]]
@@ -1823,7 +1849,15 @@ class API:
         :return: List of Mangas
         :rtype: Optional[List[Manga]]
         """
-        logger.debug('Executing "/api/mangas" method')
+        if not Utils.validate_enum_params({
+                MangaOrder: order,
+                MangaKind: kind,
+                MangaStatus: status,
+                MangaCensorship: censored,
+                MangaList: my_list
+        }):
+            return None
+
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 50],
                                                           score=[score, 9])
@@ -1853,6 +1887,7 @@ class API:
                                             search=search))
         return Utils.validate_return_data(response, data_model=Manga)
 
+    @method_endpoint('/api/mangas/:id')
     def manga(self, manga_id: int) -> Optional[Manga]:
         """
         Returns info about certain manga.
@@ -1863,11 +1898,11 @@ class API:
         :return: Manga info
         :rtype: Optional[Manga]
         """
-        logger.debug('Executing "/api/mangas/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.manga(manga_id))
         return Utils.validate_return_data(response, data_model=Manga)
 
+    @method_endpoint('/api/mangas/:id/roles')
     def manga_creators(self, manga_id: int) -> Optional[List[Creator]]:
         """
         Returns creators info of certain manga.
@@ -1878,11 +1913,11 @@ class API:
         :return: List of manga creators
         :rtype: Optional[List[Creator]]
         """
-        logger.debug('Executing "/api/mangas/:id/roles" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.manga_roles(manga_id))
         return Utils.validate_return_data(response, data_model=Creator)
 
+    @method_endpoint('/api/mangas/:id/similar')
     def similar_mangas(self, manga_id: int) -> Optional[List[Manga]]:
         """
         Returns list of similar mangas for certain manga.
@@ -1893,11 +1928,11 @@ class API:
         :return: List of similar mangas
         :rtype: Optional[List[Manga]]
         """
-        logger.debug('Executing "/api/mangas/:id/similar" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.similar_mangas(manga_id))
         return Utils.validate_return_data(response, data_model=Manga)
 
+    @method_endpoint('/api/mangas/:id/related')
     def manga_related_content(self, manga_id: int) -> Optional[List[Relation]]:
         """
         Returns list of related content of certain manga.
@@ -1908,11 +1943,11 @@ class API:
         :return: List of relations
         :rtype: Optional[List[Relation]]
         """
-        logger.debug('Executing "/api/mangas/:id/related" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.manga_related_content(manga_id))
         return Utils.validate_return_data(response, data_model=Relation)
 
+    @method_endpoint('/api/mangas/:id/franchise')
     def manga_franchise_tree(self, manga_id: int) -> Optional[FranchiseTree]:
         """
         Returns franchise tree of certain manga.
@@ -1923,11 +1958,11 @@ class API:
         :return: Franchise tree of certain manga
         :rtype: Optional[FranchiseTree]
         """
-        logger.debug('Executing "/api/mangas/:id/franchise" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.manga_franchise_tree(manga_id))
         return Utils.validate_return_data(response, data_model=FranchiseTree)
 
+    @method_endpoint('/api/mangas/:id/external_links')
     def manga_external_links(self, manga_id: int) -> Optional[List[Link]]:
         """
         Returns list of external links of certain manga.
@@ -1938,11 +1973,11 @@ class API:
         :return: List of external links
         :rtype: Optional[List[Link]]
         """
-        logger.debug('Executing "/api/mangas/:id/external_links" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.manga_external_links(manga_id))
         return Utils.validate_return_data(response, data_model=Link)
 
+    @method_endpoint('/api/mangas/:id/topics')
     def manga_topics(self,
                      manga_id: int,
                      page: Optional[int] = None,
@@ -1964,7 +1999,6 @@ class API:
         :return: List of topics
         :rtype: Optional[List[Topic]]
         """
-        logger.debug('Executing "/api/mangas/:id/topics" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 30],
@@ -1976,8 +2010,9 @@ class API:
                                             limit=validated_numbers['limit']))
         return Utils.validate_return_data(response, data_model=Topic)
 
-    @protected_method(scope='messages')
-    def message(self, message_id) -> Optional[Message]:
+    @method_endpoint('/api/messages/:id')
+    @protected_method('messages')
+    def message(self, message_id: int) -> Optional[Message]:
         """
         Returns message info.
 
@@ -1993,7 +2028,8 @@ class API:
                                             headers=self._authorization_header)
         return Utils.validate_return_data(response, data_model=Message)
 
-    @protected_method(scope='messages')
+    @method_endpoint('/api/messages')
+    @protected_method('messages')
     def create_message(self, body: str, from_id: int,
                        to_id: int) -> Optional[Message]:
         """
@@ -2011,7 +2047,6 @@ class API:
         :return: Created message info
         :rtype: Optional[Message]
         """
-        logger.debug('Executing "/api/messages" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.messages,
             headers=self._authorization_header,
@@ -2023,7 +2058,8 @@ class API:
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=Message)
 
-    @protected_method(scope='messages')
+    @method_endpoint('/api/messages/:id')
+    @protected_method('messages')
     def update_message(self, message_id: int, body: str) -> Optional[Message]:
         """
         Updates message.
@@ -2037,7 +2073,6 @@ class API:
         :return: Updated message info
         :rtype: Optional[Message]
         """
-        logger.debug('Executing "/api/messages/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.message(message_id),
             headers=self._authorization_header,
@@ -2045,7 +2080,8 @@ class API:
             request_type=RequestType.PATCH)
         return Utils.validate_return_data(response, data_model=Message)
 
-    @protected_method(scope='messages')
+    @method_endpoint('/api/messages/:id')
+    @protected_method('messages')
     def delete_message(self, message_id: int) -> bool:
         """
         Deletes message.
@@ -2056,7 +2092,6 @@ class API:
         :return: Status of message deletion
         :rtype: bool
         """
-        logger.debug('Executing "/api/messages/:id" method')
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.message(message_id),
             headers=self._authorization_header,
@@ -2064,7 +2099,8 @@ class API:
         return Utils.validate_return_data(response,
                                           response_code=ResponseCode.NO_CONTENT)
 
-    @protected_method(scope='messages')
+    @method_endpoint('/api/messages/mark_read')
+    @protected_method('messages')
     def mark_messages_read(self,
                            message_ids: Optional[Union[int, List[int]]] = None,
                            is_read: Optional[bool] = None) -> bool:
@@ -2083,7 +2119,6 @@ class API:
         :return: Status of messages read/unread
         :rtype: bool
         """
-        logger.debug('Executing "/api/messages/mark_read" method')
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.messages_mark_read,
             headers=self._authorization_header,
@@ -2092,24 +2127,27 @@ class API:
         return Utils.validate_return_data(response,
                                           response_code=ResponseCode.SUCCESS)
 
-    @protected_method(scope='messages')
-    def read_all_messages(self, message_type: MessageType) -> bool:
+    @method_endpoint('/api/messages/read_all')
+    @protected_method('messages')
+    def read_all_messages(self, message_type: str) -> bool:
         """
         Reads all messages on current user's account.
 
         This method uses generate_query_dict for data dict,
         because there is no need for nested dictionary
 
-        **Note:** This methods accepts as type only MessageType.NEWS and
-        MessageType.NOTIFICATIONS
+        **Note:** This methods accepts as type only 'news' and
+        'notifications'
 
         :param message_type: Type of messages to read
-        :type message_type: MessageType
+        :type message_type: str
 
         :return: Status of messages read
         :rtype: bool
         """
-        logger.debug('Executing "/api/messages/read_all" method')
+        if not Utils.validate_enum_params({MessageType: message_type}):
+            return False
+
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.messages_read_all,
             headers=self._authorization_header,
@@ -2118,24 +2156,27 @@ class API:
         return Utils.validate_return_data(response,
                                           response_code=ResponseCode.SUCCESS)
 
-    @protected_method(scope='messages')
-    def delete_all_messages(self, message_type: MessageType) -> bool:
+    @method_endpoint('/api/messages/delete_all')
+    @protected_method('messages')
+    def delete_all_messages(self, message_type: str) -> bool:
         """
         Deletes all messages on current user's account.
 
         This method uses generate_query_dict for data dict,
         because there is no need for nested dictionary
 
-        **Note:** This methods accepts as type only MessageType.NEWS and
-        MessageType.NOTIFICATIONS
+        **Note:** This methods accepts as type only 'news' and
+        'notifications'
 
         :param message_type: Type of messages to delete
-        :type message_type: MessageType
+        :type message_type: str
 
         :return: Status of messages deletion
         :rtype: bool
         """
-        logger.debug('Executing "/api/messages/delete_all" method')
+        if not Utils.validate_enum_params({MessageType: message_type}):
+            return False
+
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.messages_delete_all,
             headers=self._authorization_header,
@@ -2144,6 +2185,7 @@ class API:
         return Utils.validate_return_data(response,
                                           response_code=ResponseCode.SUCCESS)
 
+    @method_endpoint('/api/people/:id')
     def people(self, people_id: int) -> Optional[People]:
         """
         Returns info about a person.
@@ -2154,36 +2196,39 @@ class API:
         :return: Info about a person
         :rtype: Optional[People]
         """
-        logger.debug('Executing "/api/people/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.people(people_id))
         return Utils.validate_return_data(response, data_model=People)
 
+    @method_endpoint('/api/people/search')
     def people_search(
             self,
             search: Optional[str] = None,
-            people_kind: Optional[PersonKind] = None) -> Optional[List[People]]:
+            people_kind: Optional[str] = None) -> Optional[List[People]]:
         """
         Returns list of found persons.
 
-        **Note:** This API method only allows PersonKind.SEYU,
-        PersonKind.MANGAKA or PersonKind.PRODUCER as kind parameter
+        **Note:** This API method only allows 'seyu',
+        'mangaka' or 'producer' as kind parameter
 
         :param search:  Search query for persons
         :type search: Optional[str]
 
         :param people_kind: Kind of person for searching
-        :type people_kind: Optional[PersonKind]
+        :type people_kind: Optional[str]
 
         :return: List of found persons
         :rtype: Optional[List[People]]
         """
-        logger.debug('Executing "/api/people/search" method')
+        if not Utils.validate_enum_params({PersonKind: people_kind}):
+            return None
+
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.people_search,
             query=Utils.generate_query_dict(search=search, kind=people_kind))
         return Utils.validate_return_data(response, data_model=People)
 
+    @method_endpoint('/api/publishers')
     def publishers(self) -> Optional[List[Publisher]]:
         """
         Returns list of publishers.
@@ -2191,24 +2236,23 @@ class API:
         :return: List of publishers
         :rtype: Optional[List[Publisher]]
         """
-        logger.debug('Executing "/api/publishers" method')
         response: List[Dict[str,
                             Any]] = self._request(self._endpoints.publishers)
         return Utils.validate_return_data(response, data_model=Publisher)
 
+    @method_endpoint('/api/ranobe')
     def ranobes(self,
                 page: Optional[int] = None,
                 limit: Optional[int] = None,
-                order: Optional[RanobeOrder] = None,
-                status: Optional[Union[RanobeStatus,
-                                       List[RanobeStatus]]] = None,
+                order: Optional[str] = None,
+                status: Optional[Union[str, List[str]]] = None,
                 season: Optional[Union[str, List[str]]] = None,
                 score: Optional[int] = None,
                 genre: Optional[Union[int, List[int]]] = None,
                 publisher: Optional[Union[int, List[int]]] = None,
                 franchise: Optional[Union[int, List[int]]] = None,
-                censored: Optional[RanobeCensorship] = None,
-                my_list: Optional[Union[RanobeList, List[RanobeList]]] = None,
+                censored: Optional[str] = None,
+                my_list: Optional[Union[str, List[str]]] = None,
                 ids: Optional[Union[int, List[int]]] = None,
                 exclude_ids: Optional[Union[int, List[int]]] = None,
                 search: Optional[str] = None) -> Optional[List[Ranobe]]:
@@ -2222,10 +2266,10 @@ class API:
         :type limit: Optional[int]
 
         :param order: Type of order in list
-        :type order: Optional[RanobeOrder]
+        :type order: Optional[str]
 
         :param status: Type(s) of ranobe status
-        :type status: Optional[Union[RanobeStatus, List[RanobeStatus]]]
+        :type status: Optional[Union[str, List[str]]]
 
         :param season: Name(s) of ranobe seasons
         :type season: Optional[Union[str, List[str]]]
@@ -2243,12 +2287,12 @@ class API:
         :type franchise: Optional[Union[int, List[int]]
 
         :param censored: Type of ranobe censorship
-        :type censored: Optional[RanobeCensorship]
+        :type censored: Optional[str]
 
         :param my_list: Status(-es) of ranobe in current user list
             **Note:** If app in restricted mode,
             this won't affect on response.
-        :type my_list: Optional[Union[RanobeList, List[RanobeList]]]
+        :type my_list: Optional[Union[str, List[str]]]
 
         :param ids: Ranobe(s) ID to include
         :type ids: Optional[Union[int, List[int]]
@@ -2262,7 +2306,14 @@ class API:
         :return: List of Ranobe
         :rtype: Optional[List[Ranobe]]
         """
-        logger.debug('Executing "/api/ranobe" method')
+        if not Utils.validate_enum_params({
+                RanobeOrder: order,
+                RanobeStatus: status,
+                RanobeList: my_list,
+                RanobeCensorship: censored
+        }):
+            return None
+
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 50],
                                                           score=[score, 9])
@@ -2291,6 +2342,7 @@ class API:
                                             search=search))
         return Utils.validate_return_data(response, data_model=Ranobe)
 
+    @method_endpoint('/api/ranobe/:id')
     def ranobe(self, ranobe_id: int) -> Optional[Ranobe]:
         """
         Returns info about certain ranobe.
@@ -2301,11 +2353,11 @@ class API:
         :return: Ranobe info
         :rtype: Optional[Ranobe]
         """
-        logger.debug('Executing "/api/ranobe/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.ranobe(ranobe_id))
         return Utils.validate_return_data(response, data_model=Ranobe)
 
+    @method_endpoint('/api/ranobe/:id/roles')
     def ranobe_creators(self, ranobe_id: int) -> Optional[List[Creator]]:
         """
         Returns creators info of certain ranobe.
@@ -2316,11 +2368,11 @@ class API:
         :return: List of ranobe creators
         :rtype: Optional[List[Creator]]
         """
-        logger.debug('Executing "/api/ranobe/:id/roles" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.ranobe_roles(ranobe_id))
         return Utils.validate_return_data(response, data_model=Creator)
 
+    @method_endpoint('/api/ranobe/:id/similar')
     def similar_ranobes(self, ranobe_id: int) -> Optional[List[Ranobe]]:
         """
         Returns list of similar ranobes for certain ranobe.
@@ -2331,11 +2383,11 @@ class API:
         :return: List of similar ranobes
         :rtype: Optional[List[Ranobe]]
         """
-        logger.debug('Executing "/api/ranobe/:id/similar" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.similar_ranobes(ranobe_id))
         return Utils.validate_return_data(response, data_model=Ranobe)
 
+    @method_endpoint('/api/ranobe/:id/related')
     def ranobe_related_content(self,
                                ranobe_id: int) -> Optional[List[Relation]]:
         """
@@ -2347,11 +2399,11 @@ class API:
         :return: List of relations
         :rtype: Optional[List[Relation]]
         """
-        logger.debug('Executing "/api/ranobe/:id/related" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.ranobe_related_content(ranobe_id))
         return Utils.validate_return_data(response, data_model=Relation)
 
+    @method_endpoint('/api/ranobe/:id/franchise')
     def ranobe_franchise_tree(self, ranobe_id: int) -> Optional[FranchiseTree]:
         """
         Returns franchise tree of certain ranobe.
@@ -2362,11 +2414,11 @@ class API:
         :return: Franchise tree of certain ranobe
         :rtype: Optional[FranchiseTree]
         """
-        logger.debug('Executing "/api/ranobe/:id/franchise" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.ranobe_franchise_tree(ranobe_id))
         return Utils.validate_return_data(response, data_model=FranchiseTree)
 
+    @method_endpoint('/api/ranobe/:id/external_links')
     def ranobe_external_links(self, ranobe_id: int) -> Optional[List[Link]]:
         """
         Returns list of external links of certain ranobe.
@@ -2377,11 +2429,11 @@ class API:
         :return: List of external links
         :rtype: Optional[List[Link]]
         """
-        logger.debug('Executing "/api/ranobe/:id/external_links" method')
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.ranobe_external_links(ranobe_id))
         return Utils.validate_return_data(response, data_model=Link)
 
+    @method_endpoint('/api/ranobe/:id/topics')
     def ranobe_topics(self,
                       ranobe_id: int,
                       page: Optional[int] = None,
@@ -2403,7 +2455,6 @@ class API:
         :return: List of topics
         :rtype: Optional[List[Topic]]
         """
-        logger.debug('Executing "/api/ranobe/:id/topics" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 30],
@@ -2415,6 +2466,7 @@ class API:
                                             limit=validated_numbers['limit']))
         return Utils.validate_return_data(response, data_model=Topic)
 
+    @method_endpoint('/api/stats/active_users')
     def active_users(self) -> Optional[List[int]]:
         """
         Returns list of IDs of active users.
@@ -2426,6 +2478,7 @@ class API:
         response: List[int] = self._request(self._endpoints.active_users)
         return Utils.validate_return_data(response)
 
+    @method_endpoint('/api/studios')
     def studios(self) -> Optional[List[Studio]]:
         """
         Returns list of studios.
@@ -2433,10 +2486,10 @@ class API:
         :return: List of studios
         :rtype: Optional[List[Studio]]
         """
-        logger.debug('Executing "/api/studios" method')
         response: List[Dict[str, Any]] = self._request(self._endpoints.studios)
         return Utils.validate_return_data(response, data_model=Studio)
 
+    @method_endpoint('/api/styles/:id')
     def style(self, style_id: int) -> Optional[Style]:
         """
         Returns info about style.
@@ -2447,11 +2500,11 @@ class API:
         :return: Info about style
         :rtype: Optional[Style]
         """
-        logger.debug('Executing "/api/styles/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.style(style_id))
         return Utils.validate_return_data(response, data_model=Style)
 
+    @method_endpoint('/api/styles/preview')
     @protected_method()
     def preview_style(self, css: str) -> Optional[Style]:
         """
@@ -2463,7 +2516,6 @@ class API:
         :return: Info about previewed style
         :rtype: Optional[Style]
         """
-        logger.debug('Executing "/api/styles/preview" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.style_preview,
             headers=self._authorization_header,
@@ -2471,9 +2523,10 @@ class API:
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=Style)
 
+    @method_endpoint('/api/styles')
     @protected_method()
     def create_style(self, css: str, name: str, owner_id: int,
-                     owner_type: OwnerType) -> Optional[Style]:
+                     owner_type: str) -> Optional[Style]:
         """
         Creates new style.
 
@@ -2487,12 +2540,14 @@ class API:
         :type owner_id: int
 
         :param owner_type: Type of owner (User/Club)
-        :type owner_type: OwnerType
+        :type owner_type: str
 
         :return: Info about previewed style
         :rtype: Optional[Style]
         """
-        logger.debug('Executing "/api/styles" method')
+        if not Utils.validate_enum_params({OwnerType: owner_type}):
+            return None
+
         response: Dict[str, Any] = self._request(
             self._endpoints.styles,
             headers=self._authorization_header,
@@ -2504,6 +2559,7 @@ class API:
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=Style)
 
+    @method_endpoint('/api/styles/:id')
     @protected_method()
     def update_style(self, style_id: int, css: Optional[str],
                      name: Optional[str]) -> Optional[Style]:
@@ -2522,7 +2578,6 @@ class API:
         :return: Info about updated style
         :rtype: Optional[Style]
         """
-        logger.debug('Executing "/api/styles/:id" method')
         response: Dict[str, Any] = self._request(
             self._endpoints.style(style_id),
             headers=self._authorization_header,
@@ -2531,15 +2586,14 @@ class API:
             request_type=RequestType.PATCH)
         return Utils.validate_return_data(response, data_model=Style)
 
-    def topics(
-        self,
-        page: Optional[int] = None,
-        limit: Optional[int] = None,
-        forum: Optional[ForumType] = None,
-        linked_id: Optional[int] = None,
-        linked_type: Optional[TopicLinkedType] = None,
-        topic_type: Optional[Union[TopicsType, EntryTopics, NewsTopics]] = None
-    ) -> Optional[List[Topic]]:
+    @method_endpoint('/api/topics')
+    def topics(self,
+               page: Optional[int] = None,
+               limit: Optional[int] = None,
+               forum: Optional[str] = None,
+               linked_id: Optional[int] = None,
+               linked_type: Optional[str] = None,
+               topic_type: Optional[str] = None) -> Optional[List[Topic]]:
         """
         Returns list of topics.
 
@@ -2550,25 +2604,32 @@ class API:
         :type limit: Optional[int]
 
         :param forum: Number of results limit
-        :type forum: Optional[ForumType]
+        :type forum: Optional[str]
 
         :param linked_id: ID of linked topic (Used together with linked_type)
         :type linked_id: Optional[int]
 
         :param linked_type: Type of linked topic (Used together with linked_id)
-        :type linked_type: Optional[TopicLinkedType]
+        :type linked_type: Optional[str]
 
-        :param topic_type: Optional[Union[TopicsType, EntryTopics, NewsTopics]]
-        :type topic_type: Optional[int]
+        :param topic_type: Type of topic.
+        :type topic_type: Optional[str]
 
         :return: List of topics
         :rtype: Optional[List[Topic]]
         """
-        logger.debug('Executing "/api/topics" method')
+        if not Utils.validate_enum_params({
+                ForumType: forum,
+                TopicLinkedType: linked_type,
+                TopicType: topic_type
+        }):
+            return None
+
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 30],
         )
+
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.topics,
             query=Utils.generate_query_dict(page=validated_numbers['page'],
@@ -2579,6 +2640,7 @@ class API:
                                             type=topic_type))
         return Utils.validate_return_data(response, data_model=Topic)
 
+    @method_endpoint('/api/topics/updates')
     def updates_topics(self,
                        page: Optional[int] = None,
                        limit: Optional[int] = None) -> Optional[List[Topic]]:
@@ -2594,11 +2656,11 @@ class API:
         :return: List of topics
         :rtype: Optional[List[Topic]]
         """
-        logger.debug('Executing "/api/topics/updates" method')
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 30],
         )
+
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.updates_topics,
             query=Utils.generate_query_dict(
@@ -2607,6 +2669,7 @@ class API:
             ))
         return Utils.validate_return_data(response, data_model=Topic)
 
+    @method_endpoint('/api/topics/hot')
     def hot_topics(self, limit: Optional[int] = None) -> Optional[List[Topic]]:
         """
         Returns list of hot topics.
@@ -2617,13 +2680,14 @@ class API:
         :return: List of topics
         :rtype: Optional[List[Topic]]
         """
-        logger.debug('Executing "/api/topics/hot" method')
-        validated_numbers = Utils.query_numbers_validator(limit=[limit, 10],)
+        validated_numbers = Utils.query_numbers_validator(limit=[limit, 10])
+
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.hot_topics,
             query=Utils.generate_query_dict(limit=validated_numbers['limit'],))
         return Utils.validate_return_data(response, data_model=Topic)
 
+    @method_endpoint('/api/topics/:id')
     def topic(self, topic_id: int) -> Optional[Topic]:
         """
         Returns info about topic.
@@ -2634,20 +2698,19 @@ class API:
         :return: Info about topic
         :rtype: Optional[Topic]
         """
-        logger.debug('Executing "/api/topics/:id" method')
         response: Dict[str,
                        Any] = self._request(self._endpoints.topic(topic_id))
         return Utils.validate_return_data(response, data_model=Topic)
 
-    @protected_method(scope='topics')
-    def create_topic(
-            self,
-            body: str,
-            forum_id: int,
-            title: str,
-            user_id: int,
-            linked_id: Optional[int] = None,
-            linked_type: Optional[TopicLinkedType] = None) -> Optional[Topic]:
+    @method_endpoint('/api/topics')
+    @protected_method('topics')
+    def create_topic(self,
+                     body: str,
+                     forum_id: int,
+                     title: str,
+                     user_id: int,
+                     linked_id: Optional[int] = None,
+                     linked_type: Optional[str] = None) -> Optional[Topic]:
         """
         Creates topic.
 
@@ -2667,12 +2730,14 @@ class API:
         :type linked_type: Optional[int]
 
         :param linked_type: Type of linked topic (Used together with linked_id)
-        :type linked_type: Optional[TopicLinkedType]
+        :type linked_type: Optional[str]
 
         :return: Created topic info
         :rtype: Optional[Topic]
         """
-        logger.debug('Executing "/api/topics" method')
+        if not Utils.validate_enum_params({TopicLinkedType: linked_type}):
+            return None
+
         response: Dict[str, Any] = self._request(
             self._endpoints.topics,
             headers=self._authorization_header,
@@ -2682,20 +2747,20 @@ class API:
                                           linked_id=linked_id,
                                           linked_type=linked_type,
                                           title=title,
-                                          type=TopicsType.REGULAR_TOPIC,
+                                          type=str(
+                                              TopicType.REGULAR_TOPIC.value),
                                           user_id=user_id),
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
-    @protected_method(scope='topics')
-    def update_topic(
-            self,
-            topic_id: int,
-            body: str,
-            title: str,
-            linked_id: Optional[int] = None,
-            linked_type: Optional[TopicLinkedType] = None) -> Optional[Topic]:
+    @protected_method('topics')
+    def update_topic(self,
+                     topic_id: int,
+                     body: str,
+                     title: str,
+                     linked_id: Optional[int] = None,
+                     linked_type: Optional[str] = None) -> Optional[Topic]:
         """
         Updated topic.
 
@@ -2712,11 +2777,14 @@ class API:
         :type linked_type: Optional[int]
 
         :param linked_type: Type of linked topic (Used together with linked_id)
-        :type linked_type: Optional[TopicLinkedType]
+        :type linked_type: Optional[str]
 
         :return: Updated topic info
         :rtype: Optional[Topic]
         """
+        if not Utils.validate_enum_params({TopicLinkedType: linked_type}):
+            return None
+
         response: Dict[str, Any] = self._request(
             self._endpoints.topic(topic_id),
             headers=self._authorization_header,
@@ -2729,7 +2797,7 @@ class API:
         return Utils.validate_return_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
-    @protected_method(scope='topics')
+    @protected_method('topics')
     def delete_topic(self, topic_id: int) -> Optional[bool]:
         """
         Deletes topic.
@@ -2747,7 +2815,7 @@ class API:
         return Utils.validate_return_data(response)
 
     @method_endpoint('/api/user_images')
-    @protected_method(scope='comments')
+    @protected_method('comments')
     def create_user_image(
             self,
             image_path: str,
@@ -2764,18 +2832,10 @@ class API:
         :return: Created image info
         :rtype: Optional[CreatedUserImage]
         """
-        if isinstance(is_url(image_path), bool):
-            image_response = get(image_path)
-            image_data = BytesIO(image_response.content)
-        else:
-            with open(image_path, 'rb') as image_file:
-                image_data = image_file.read()
-
-        files = {'image': (image_path, image_data, 'multipart/form-data')}
         response: Union[Dict[str, Any], int] = self._request(
             self._endpoints.user_images,
             headers=self._authorization_header,
-            files=files,
+            files=Utils.get_image_data(image_path),
             data=Utils.generate_data_dict(linked_type=linked_type),
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=CreatedUserImage)
@@ -2784,8 +2844,8 @@ class API:
     def user_rates(self,
                    user_id: int,
                    target_id: Optional[int] = None,
-                   target_type: Optional[UserRateTarget] = None,
-                   status: Optional[UserRateStatus] = None,
+                   target_type: Optional[str] = None,
+                   status: Optional[str] = None,
                    page: Optional[int] = None,
                    limit: Optional[int] = None) -> Optional[List[UserRate]]:
         """
@@ -2804,16 +2864,16 @@ class API:
         :type target_id: Optional[int]
 
         :param target_type: Type of target_id to get rates for
-        :type target_type: Optional[UserRateTarget]
+        :type target_type: Optional[str]
 
         :param status: Status of target_type to get rates for
-        :type target_type: Optional[UserRateStatus]
+        :type target_type: Optional[str]
 
         :param page: Number of page
         :type page: Optional[int]
 
         :param limit: Number of results limit
-        (This field is ignored when user_id is set)
+            (This field is ignored when user_id is set)
         :type limit: Optional[int]
 
         :return: List with info about user rates
@@ -2822,6 +2882,12 @@ class API:
         """
         if target_id is not None and target_type is None:
             logger.warning('target_type is required when passing target_id')
+            return None
+
+        if not Utils.validate_enum_params({
+                UserRateTarget: target_type,
+                UserRateStatus: status
+        }):
             return None
 
         validated_numbers = Utils.query_numbers_validator(
@@ -2854,24 +2920,218 @@ class API:
                        Any] = self._request(self._endpoints.user_rate(rate_id))
         return Utils.validate_return_data(response, data_model=UserRate)
 
-    @method_endpoint('/api/users_rates/:type/cleanup')
+    @method_endpoint('/api/v2/user_rates')
     @protected_method('user_rates')
-    def delete_entire_user_rates(self, user_rate_type: UserRateType):
+    def create_user_rate(self,
+                         user_id: int,
+                         target_id: int,
+                         target_type: str,
+                         status: Optional[str] = None,
+                         score: Optional[int] = None,
+                         chapters: Optional[int] = None,
+                         episodes: Optional[int] = None,
+                         volumes: Optional[int] = None,
+                         rewatches: Optional[int] = None,
+                         text: Optional[str] = None) -> Optional[UserRate]:
+        """
+        Creates new user rate and return info about it.
+
+        :param user_id: ID of user to create user rate for
+        :type user_id: int
+
+        :param target_id: ID of target to create user rate for
+        :type target_id: int
+
+        :param target_type: Type of target_id to create user rate for
+            (Anime or Manga)
+        :type target_type: str
+
+        :param status: Status of target
+        :type status: Optional[str]
+
+        :param score: Score of target
+        :type score: Optional[int]
+
+        :param chapters: Watched/read chapters of target
+        :type chapters: Optional[int]
+
+        :param episodes: Watched/read episodes of target
+        :type episodes: Optional[int]
+
+        :param volumes: Watched/read volumes of target
+        :type volumes: Optional[int]
+
+        :param rewatches: Number of target rewatches
+        :type rewatches: Optional[int]
+
+        :param text: Text note for user rate
+        :type text: Optional[str]
+
+        :return: Info about new user rate
+        :rtype: Optional[UserRate]
+        """
+        if not Utils.validate_enum_params({
+                UserRateTarget: target_type,
+                UserRateStatus: status
+        }):
+            return None
+
+        validated_numbers = Utils.query_numbers_validator(score=[score, 10])
+
+        response: Dict[str, Any] = self._request(
+            self._endpoints.user_rates,
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='user_rate',
+                                          user_id=user_id,
+                                          target_id=target_id,
+                                          target_type=target_type,
+                                          status=status,
+                                          score=validated_numbers['score'],
+                                          chapters=chapters,
+                                          episodes=episodes,
+                                          volumes=volumes,
+                                          rewatches=rewatches,
+                                          text=text),
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response, data_model=UserRate)
+
+    @method_endpoint('/api/v2/user_rates/:id')
+    @protected_method('user_rates')
+    def update_user_rate(self,
+                         rate_id: int,
+                         status: Optional[str] = None,
+                         score: Optional[int] = None,
+                         chapters: Optional[int] = None,
+                         episodes: Optional[int] = None,
+                         volumes: Optional[int] = None,
+                         rewatches: Optional[int] = None,
+                         text: Optional[str] = None) -> Optional[UserRate]:
+        """
+        Updates user rate and return new info about it.
+
+        :param rate_id: ID of user rate to edit
+        :type rate_id: int
+
+        :param status: Status of target
+        :type status: Optional[str]
+
+        :param score: Score of target
+        :type score: Optional[int]
+
+        :param chapters: Watched/read chapters of target
+        :type chapters: Optional[int]
+
+        :param episodes: Watched/read episodes of target
+        :type episodes: Optional[int]
+
+        :param volumes: Watched/read volumes of target
+        :type volumes: Optional[int]
+
+        :param rewatches: Number of target rewatches
+        :type rewatches: Optional[int]
+
+        :param text: Text note for user rate
+        :type text: Optional[str]
+
+        :return: Info about new user rate
+        :rtype: Optional[UserRate]
+        """
+        if not Utils.validate_enum_params({UserRateStatus: status}):
+            return None
+
+        validated_numbers = Utils.query_numbers_validator(score=[score, 10])
+
+        response: Dict[str, Any] = self._request(
+            self._endpoints.user_rate(rate_id),
+            headers=self._authorization_header,
+            data=Utils.generate_data_dict(dict_name='user_rate',
+                                          status=status,
+                                          score=validated_numbers['score'],
+                                          chapters=chapters,
+                                          episodes=episodes,
+                                          volumes=volumes,
+                                          rewatches=rewatches,
+                                          text=text),
+            request_type=RequestType.PATCH)
+        return Utils.validate_return_data(response, data_model=UserRate)
+
+    @method_endpoint('/api/v2/user_rates/:id/increment')
+    @protected_method('user_rates')
+    def increment_user_rate(self, rate_id: int) -> Optional[UserRate]:
+        """
+        Increments user rate episode/chapters and return updated info.
+
+        :param rate_id: ID of user rate to increment episode/chapters
+        :type rate_id: int
+
+        :return: Info about updated user rate
+        :rtype: Optional[UserRate]
+        """
+        response: Dict[str, Any] = self._request(
+            self._endpoints.user_rate_increment(rate_id),
+            headers=self._authorization_header,
+            request_type=RequestType.POST)
+        return Utils.validate_return_data(response, data_model=UserRate)
+
+    @method_endpoint('/api/v2/user_rates/:id')
+    @protected_method('user_rates')
+    def delete_user_rate(self, rate_id: int) -> bool:
+        """
+        Deletes user rate.
+
+        :param rate_id: ID of user rate to delete
+        :type rate_id: int
+
+        :return: Status of user rate deletion
+        :rtype: bool
+        """
         response: Union[Dict[str, Any],
-                        int] = self._request(self._endpoints.user_rates_cleanup(
-                            str(user_rate_type.value)),
+                        int] = self._request(self._endpoints.user_rate(rate_id),
                                              headers=self._authorization_header,
                                              request_type=RequestType.DELETE)
+        return Utils.validate_return_data(response,
+                                          response_code=ResponseCode.NO_CONTENT)
+
+    @method_endpoint('/api/users_rates/:type/cleanup')
+    @protected_method('user_rates')
+    def delete_entire_user_rates(self, user_rate_type: str) -> bool:
+        """
+        Deletes all user rates.
+
+        :param user_rate_type: Type of user rates to delete
+        :type user_rate_type: str
+
+        :return: Status of user rates deletion
+        :rtype: bool
+        """
+        if not Utils.validate_enum_params({UserRateType: user_rate_type}):
+            return False
+
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.user_rates_cleanup(user_rate_type),
+            headers=self._authorization_header,
+            request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
     @method_endpoint('/api/user_rates/:type/reset')
     @protected_method('user_rates')
-    def reset_all_user_rates(self, user_rate_type: UserRateType):
-        response: Union[Dict[str, Any],
-                        int] = self._request(self._endpoints.user_rates_reset(
-                            str(user_rate_type.value)),
-                                             headers=self._authorization_header,
-                                             request_type=RequestType.DELETE)
+    def reset_all_user_rates(self, user_rate_type: str) -> bool:
+        """
+        Resets all user rates.
+
+        :param user_rate_type: Type of user rates to reset
+        :type user_rate_type: UserRateType
+
+        :return: Status of user rates reset
+        :rtype: bool
+        """
+        if not Utils.validate_enum_params({UserRateType: user_rate_type}):
+            return False
+
+        response: Union[Dict[str, Any], int] = self._request(
+            self._endpoints.user_rates_reset(user_rate_type),
+            headers=self._authorization_header,
+            request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
 
     @method_endpoint('/api/users')
@@ -3016,9 +3276,8 @@ class API:
             is_nickname: Optional[bool] = None,
             page: Optional[int] = None,
             limit: Optional[int] = None,
-            status: Optional[AnimeList] = None,
-            censored: Optional[AnimeCensorship] = None
-    ) -> Optional[List[UserList]]:
+            status: Optional[str] = None,
+            censored: Optional[str] = None) -> Optional[List[UserList]]:
         """
         Returns user's anime list.
 
@@ -3035,14 +3294,20 @@ class API:
         :type limit: Optional[int]
 
         :param status: Status of status of anime in list
-        :type status: Optional[AnimeList]
+        :type status: Optional[str]
 
         :param censored: Type of anime censorship
-        :type censored: Optional[AnimeCensorship]
+        :type censored: Optional[str]
 
         :return: User's anime list
         :rtype: Optional[List[UserList]]
         """
+        if not Utils.validate_enum_params({
+                AnimeList: status,
+                AnimeCensorship: censored
+        }):
+            return None
+
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 5000],
@@ -3064,8 +3329,7 @@ class API:
             is_nickname: Optional[bool] = None,
             page: Optional[int] = None,
             limit: Optional[int] = None,
-            censored: Optional[AnimeCensorship] = None
-    ) -> Optional[List[UserList]]:
+            censored: Optional[str] = None) -> Optional[List[UserList]]:
         """
         Returns user's manga list.
 
@@ -3082,11 +3346,14 @@ class API:
         :type limit: Optional[int]
 
         :param censored: Type of manga censorship
-        :type censored: Optional[AnimeCensorship]
+        :type censored: Optional[str]
 
         :return: User's manga list
         :rtype: Optional[List[UserList]]
         """
+        if not Utils.validate_enum_params({AnimeCensorship: censored}):
+            return None
+
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 5000],
@@ -3123,14 +3390,14 @@ class API:
         return Utils.validate_return_data(response, data_model=Favourites)
 
     @method_endpoint('/api/users/:id/messages')
-    @protected_method(scope='messages')
+    @protected_method('messages')
     def current_user_messages(
-        self,
-        user_id: Union[int, str],
-        is_nickname: Optional[bool] = None,
-        page: Optional[int] = None,
-        limit: Optional[int] = None,
-        message_type: MessageType = MessageType.NEWS
+            self,
+            user_id: Union[int, str],
+            is_nickname: Optional[bool] = None,
+            page: Optional[int] = None,
+            limit: Optional[int] = None,
+            message_type: str = MessageType.NEWS.value
     ) -> Optional[List[Message]]:
         """
         Returns current user's messages by type.
@@ -3148,11 +3415,14 @@ class API:
         :type limit: Optional[int]
 
         :param message_type: Type of message
-        :type message_type: MessageType
+        :type message_type: str
 
         :return: Current user's messages
         :rtype: Optional[List[Message]]
         """
+        if not Utils.validate_enum_params({MessageType: message_type}):
+            return None
+
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 100],
@@ -3168,7 +3438,7 @@ class API:
         return Utils.validate_return_data(response, data_model=Message)
 
     @method_endpoint('/api/users/:id/unread_messages')
-    @protected_method(scope='messages')
+    @protected_method('messages')
     def current_user_unread_messages(
             self,
             user_id: Union[int, str],
@@ -3199,8 +3469,7 @@ class API:
             page: Optional[int] = None,
             limit: Optional[int] = None,
             target_id: Optional[int] = None,
-            target_type: Optional[TargetType] = None
-    ) -> Optional[List[History]]:
+            target_type: Optional[str] = None) -> Optional[List[History]]:
         """
         Returns history of user.
 
@@ -3220,11 +3489,14 @@ class API:
         :type target_id: Optional[int]
 
         :param target_type: Type of target (Anime/Manga)
-        :type target_type: Optional[TargetType]
+        :type target_type: Optional[str]
 
         :return: User's history
         :rtype: Optional[List[History]]
         """
+        if not Utils.validate_enum_params({TargetType: target_type}):
+            return None
+
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
             limit=[limit, 100],
@@ -3261,7 +3533,7 @@ class API:
         return Utils.validate_return_data(response, data_model=Ban)
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
-    @protected_method(scope='topics')
+    @protected_method('topics')
     def ignore_topic(self, topic_id: int) -> bool:
         """
         Set topic as ignored.
@@ -3279,7 +3551,7 @@ class API:
         return Utils.validate_return_data(response) is True
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
-    @protected_method(scope='topics')
+    @protected_method('topics')
     def unignore_topic(self, topic_id: int) -> bool:
         """
         Set topic as unignored.
@@ -3297,7 +3569,7 @@ class API:
         return Utils.validate_return_data(response) is False
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
-    @protected_method(scope='ignores')
+    @protected_method('ignores')
     def ignore_user(self, user_id: int) -> bool:
         """
         Set user as ignored.
@@ -3315,7 +3587,7 @@ class API:
         return Utils.validate_return_data(response) is True
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
-    @protected_method(scope='ignores')
+    @protected_method('ignores')
     def unignore_user(self, user_id: int) -> bool:
         """
         Set user as unignored.
