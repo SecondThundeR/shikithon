@@ -6,8 +6,6 @@ customized endpoints via input parameters.
 """
 from typing import Union
 
-from shikithon.enums.favorite import FavoriteLinkedType
-from shikithon.enums.person import PersonKind
 from shikithon.utils import Utils
 
 
@@ -634,36 +632,35 @@ class Endpoints:
         """
         return f'{self.base_url_v2}/episode_notifications'
 
-    def favorites_create(self, linked_type: FavoriteLinkedType, linked_id: int,
-                         kind: PersonKind) -> str:
+    def favorites_create(self, linked_type: str, linked_id: int,
+                         kind: str) -> str:
         """
         Returns endpoint for creating some type
         of object as favorite
 
         :param linked_type: Type of object
-        :type linked_type: FavoriteLinkedType
+        :type linked_type: str
 
         :param linked_id: ID of linked object
         :type linked_id: int
 
         :param kind: Kind of linked object
-            (Required when linked_type is LinkedType.Person)
-        :type kind: PersonKind
+            (Required when linked_type is 'Person')
+        :type kind: str
 
         :return: Favorite create endpoint link
         :rtype: str
         """
         return f'{self.base_url}/favorites/' \
-               f'{linked_type.value}/{linked_id}/{kind.value}'
+               f'{linked_type}/{linked_id}/{kind}'
 
-    def favorites_destroy(self, linked_type: FavoriteLinkedType,
-                          linked_id: int) -> str:
+    def favorites_destroy(self, linked_type: str, linked_id: int) -> str:
         """
         Returns endpoint for destroying some type
         of object from favorites
 
         :param linked_type: Type of object
-        :type linked_type: FavoriteLinkedType
+        :type linked_type: str
 
         :param linked_id: ID of linked object
         :type linked_id: int
@@ -672,7 +669,7 @@ class Endpoints:
         :rtype: str
         """
         return f'{self.base_url}/favorites/' \
-               f'{linked_type.value}/{linked_id}'
+               f'{linked_type}/{linked_id}'
 
     def favorites_reorder(self, favorite_id: int) -> str:
         """
