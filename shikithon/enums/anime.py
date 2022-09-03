@@ -1,8 +1,8 @@
 """Enums for /api/animes."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class AnimeOrder(Enum):
+class AnimeOrder(EnhancedEnum):
     """Contains constants related for list ordering query."""
     ID = 'id'
     ID_DESC = 'id_desc'
@@ -18,7 +18,7 @@ class AnimeOrder(Enum):
     RANDOM = 'random'
 
 
-class AnimeKind(Enum):
+class AnimeKind(EnhancedEnum):
     """Contains constants related for getting certain kind of anime."""
     TV = 'tv'
     NOT_TV = '!tv'
@@ -40,7 +40,7 @@ class AnimeKind(Enum):
     NOT_MUSIC = '!music'
 
 
-class AnimeStatus(Enum):
+class AnimeStatus(EnhancedEnum):
     """Contains constants related for getting certain status of anime."""
     ANONS = 'anons'
     NOT_ANONS = '!anons'
@@ -50,7 +50,7 @@ class AnimeStatus(Enum):
     NOT_RELEASED = '!released'
 
 
-class AnimeDuration(Enum):
+class AnimeDuration(EnhancedEnum):
     """Contains constants related for getting certain duration of anime."""
     SHORT = 'S'
     NOT_SHORT = '!S'
@@ -60,7 +60,7 @@ class AnimeDuration(Enum):
     NOT_LONG = '!F'
 
 
-class AnimeRating(Enum):
+class AnimeRating(EnhancedEnum):
     """Contains constants related for getting certain rating of anime."""
     NO_RATING = 'none'
     NOT_NO_RATING = '!none'
@@ -78,7 +78,7 @@ class AnimeRating(Enum):
     NOT_HENTAI = '!rx'
 
 
-class AnimeCensorship(Enum):
+class AnimeCensorship(EnhancedEnum):
     """Contains constants related for getting
     certain censorship status of anime.
     """
@@ -86,7 +86,7 @@ class AnimeCensorship(Enum):
     UNCENSORED = 'false'
 
 
-class AnimeList(Enum):
+class AnimeList(EnhancedEnum):
     """Contains constants related for getting
     certain user list status of anime.
     """

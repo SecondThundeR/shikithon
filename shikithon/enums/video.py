@@ -1,8 +1,8 @@
 """Enums for /api/animes/:anime_id/videos."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class VideoKind(Enum):
+class VideoKind(EnhancedEnum):
     """Contains constants related for video kind."""
     PV = 'pv'
     CHARACTER_TRAILER = 'character_trailer'
@@ -15,7 +15,7 @@ class VideoKind(Enum):
     EPISODE_PREVIEW = 'episode_preview'
 
 
-class VideoHosting(Enum):
+class VideoHosting(EnhancedEnum):
     """Contains constants related for video hostings."""
     YOUTUBE = 'youtube'
     VK = 'vk'

@@ -1,8 +1,8 @@
 """Enums for /api/users/:id/messages"""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class MessageType(Enum):
+class MessageType(EnhancedEnum):
     """Contains constants related for message type."""
     INBOX = 'inbox'
     PRIVATE = 'private'

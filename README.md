@@ -1,6 +1,5 @@
 <!-- If PyCharm or IDEA will throw a warning here, just ignore it -->
 <div align="center">
-    <!-- Not a final logo :( (or not?) -->
     <img src="https://raw.githubusercontent.com/SecondThundeR/shikithon/main/assets/logo.png" alt="Shikithon Logo">
     <h1>Shikithon</h1>
     <p>Очередной враппер для Shikimori API, написанный на Python</p>
@@ -8,13 +7,10 @@
 
 [![Publish Shikithon package to PyPI](https://github.com/SecondThundeR/shikithon/actions/workflows/pypi-publish.yml/badge.svg)](https://github.com/SecondThundeR/shikithon/actions/workflows/pypi-publish.yml)
 
-> Данная библиотека находится на ранней стадии разработки.
+> **Состояние библиотеки:** завершена основная разработка
 >
-> **Большинство** функционала отстуствует на данный момент и, скорее всего,
-> текущий функционал может иметь критические баги.
->
-> На данный момент, использовать библиотеку как базу для вашего приложения стоит на свой страх и риск
-> (Или если есть большое желание проверить работоспособность этой библиотеки).
+> На данный момент, библиотека поддерживает лишь синхронное взаимодействие с API,
+> асинхронное взаимодействие и прочие улучшения будут добавлены в будущем
 
 ## Преимущество библиотеки
 
@@ -34,7 +30,6 @@
 > не поддерживается на Apple Silicon _(Основная платформа, на которой разрабатывается данная библиотека)_.
 >
 > Поэтому в качестве минимальной версии был выбран Python 3.8.10
-
 ## Установка
 
  ```pip install shikithon```
@@ -44,18 +39,14 @@
 С использованием полного конфига:
 
 ```py
+from typing import Dict
+
 from json import loads
-# Необязательно
-from typing import Dict, List
 
 from shikithon import API
-# Необязательно
-from shikithon.models.achievement import Achievement
-# Необязательно
-from shikithon.models.user import User
 
 # Можно установить данные конфигурации в коде
-config: Dict[str, str] = {
+config = {
     "app_name": "...",
     "client_id": "...",
     "client_secret": "...",
@@ -69,15 +60,15 @@ with open("config.json", "r", encoding="utf-8") as config_file:
     config_2: Dict[str, str] = loads(config_file.read())
 
 # Инициализация объекта API
-shikimori: API = API(config)
+shikimori = API(config)
 
 # Получение данных текущего пользователя через /users/whoami
-user: User = shikimori.current_user()
+user = shikimori.current_user()
 print(f"Current user is {user.nickname}")
 
 # Получение достижений пользователя через /achievements
 # и вывод первого достижения
-user_achievements: List[Achievement] = shikimori.achievements(user.id)
+user_achievements = shikimori.achievements(user.id)
 print(user_achievements[0])
 
 # >> Current user is SecondThundeR
@@ -96,22 +87,17 @@ print(user_achievements[0])
 С использованием имени приложения:
 
 ```py
-# Необязательно
-from typing import List
-
 from shikithon import API
-# Необязательно
-from shikithon.models.achievement import Achievement
 
 # Можно установить имя приложения в коде
-app_name: str = "..."
+app_name = "..."
 
 # Или же прочитать его из внешнего файла
 with open("config.txt", "r", encoding="utf-8") as config_file:
-    app_name_2: str = config_file.readline().strip()
+    app_name_2 = config_file.readline().strip()
 
 # Инициализация объекта API
-shikimori: API = API(app_name)
+shikimori = API(app_name)
 
 # Попытка получения данных текущего пользователя через /users/whoami
 # При попытке доступа к защищенному методу, возвращает всегда None
@@ -121,10 +107,11 @@ print(user)
 # Получение достижений пользователя через /achievements
 # и вывод первого достижения
 # Можно получать достижения любого пользователя через ID
-user_achievements: List[Achievement] = shikimori.achievements(1)
+user_achievements = shikimori.achievements(1)
 print(user_achievements[0])
 
 # >> None
+
 # >> id=811883697
 # >> neko_id='aa_megami_sama'
 # >> level=0
@@ -204,3 +191,6 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 
 Данный проект имеет MIT лицензию.
 Ознакомиться с ее содержанием можно [здесь](https://github.com/SecondThundeR/shikithon/blob/main/LICENSE)
+
+Проект использует логотип сайта [Shikimori](https://shikimori.org) для логотипа в этом README.md.
+Все права принадлежат правообладателям и используются по принципу _fair use_.

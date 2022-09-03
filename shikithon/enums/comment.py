@@ -1,8 +1,8 @@
 """Enums for /api/comments."""
-from enum import Enum
+from shikithon.enums.enhanced_enum import EnhancedEnum
 
 
-class CommentableType(Enum):
+class CommentableType(EnhancedEnum):
     """Contains constants related for commentable type."""
     TOPIC = 'Topic'
     USER = 'User'
