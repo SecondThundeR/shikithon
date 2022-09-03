@@ -3619,7 +3619,7 @@ class API:
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=AbuseResponse)
 
-    @method_endpoint('/api/v2/abuse_requests/abuse')
+    @method_endpoint('/api/v2/abuse_requests/review')
     def convert_comment_review(self,
                                comment_id: int) -> Optional[AbuseResponse]:
         """
