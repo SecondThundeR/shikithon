@@ -4,10 +4,10 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from shikithon.models.anime import Anime
-from shikithon.models.forum import Forum
-from shikithon.models.manga import Manga
-from shikithon.models.user import User
+from .anime import Anime
+from .forum import Forum
+from .manga import Manga
+from .user import User
 
 
 class Topic(BaseModel):

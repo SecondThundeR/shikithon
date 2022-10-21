@@ -12,7 +12,6 @@ from loguru import logger
 from ratelimit import limits, sleep_and_retry
 from requests import JSONDecodeError, Session
 
-from shikithon.config_cache import ConfigCache
 from shikithon.decorators import method_endpoint, protected_method
 from shikithon.endpoints import Endpoints
 from shikithon.enums.anime import (AnimeCensorship, AnimeDuration, AnimeKind,
@@ -74,7 +73,7 @@ from shikithon.models.user import User
 from shikithon.models.user_list import UserList
 from shikithon.models.user_rate import UserRate
 from shikithon.models.video import Video
-from shikithon.utils import Utils
+from shikithon.utils import ConfigCache, Utils
 
 SHIKIMORI_API_URL = 'https://shikimori.one/api'
 SHIKIMORI_API_URL_V2 = 'https://shikimori.one/api/v2'

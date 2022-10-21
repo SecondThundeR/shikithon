@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.anime import Anime
+from .anime import Anime
 
 
 class CalendarEvent(BaseModel):

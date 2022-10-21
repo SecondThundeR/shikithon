@@ -1,5 +1,5 @@
 """Enums for /api/user_rates."""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class UserRateType(EnhancedEnum):

@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.type import Type
+from .type import Type
 
 
 class TypeList(BaseModel):

@@ -3,11 +3,11 @@ from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
-from shikithon.models.activity import Activity
-from shikithon.models.rating_list import RatingList
-from shikithon.models.score_list import ScoreList
-from shikithon.models.status_list import StatusList
-from shikithon.models.type_list import TypeList
+from .activity import Activity
+from .rating_list import RatingList
+from .score_list import ScoreList
+from .status_list import StatusList
+from .type_list import TypeList
 
 
 class Stats(BaseModel):

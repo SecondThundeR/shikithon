@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from loguru import logger
 
-from shikithon.utils import Utils
+from .utils import Utils
 
 
 class ConfigCache:

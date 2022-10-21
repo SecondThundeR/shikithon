@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.image import Image
+from .image import Image
 
 
 class Manga(BaseModel):

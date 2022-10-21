@@ -4,8 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.comment import Comment
-from shikithon.models.user import User
+from .comment import Comment
+from .user import User
 
 
 class Ban(BaseModel):

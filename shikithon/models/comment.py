@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.user import User
+from .user import User
 
 
 class Comment(BaseModel):

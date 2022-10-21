@@ -3,8 +3,8 @@ from typing import List
 
 from pydantic import BaseModel
 
-from shikithon.models.tree_link import TreeLink
-from shikithon.models.tree_node import TreeNode
+from .tree_link import TreeLink
+from .tree_node import TreeNode
 
 
 class FranchiseTree(BaseModel):

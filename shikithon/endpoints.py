@@ -6,7 +6,7 @@ customized endpoints via input parameters.
 """
 from typing import Union
 
-from shikithon.utils import Utils
+from shikithon.utils.utils import Utils
 
 
 class Endpoints:

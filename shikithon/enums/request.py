@@ -1,5 +1,5 @@
 """Enums for types of requests."""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class RequestType(EnhancedEnum):

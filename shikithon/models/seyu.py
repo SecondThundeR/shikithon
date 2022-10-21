@@ -1,7 +1,7 @@
 """Submodel for character.py"""
 from pydantic import BaseModel
 
-from shikithon.models.image import Image
+from .image import Image
 
 
 class Seyu(BaseModel):

@@ -1,4 +1,4 @@
-"""Custom decorators for API class."""
+"""Decorator for protected methods"""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
@@ -58,23 +58,3 @@ def protected_method(scope: Optional[str] = None):
         return protected_method_wrapper
 
     return protected_method_decorator
-
-
-def method_endpoint(method_endpoint_name: str):
-    """
-    Decorator for logging method endpoint.
-    """
-
-    def endpoint_logger_decorator(function):
-
-        def endpoint_logger_wrapper(*args, **kwargs):
-            """
-            Decorator's wrapper function.
-            Logs endpoint of method
-            """
-            logger.debug(f'Executing "{method_endpoint_name}" method')
-            return function(*args, **kwargs)
-
-        return endpoint_logger_wrapper
-
-    return endpoint_logger_decorator

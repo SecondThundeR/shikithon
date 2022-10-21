@@ -4,10 +4,10 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.anime import Anime
-from shikithon.models.image import Image
-from shikithon.models.manga import Manga
-from shikithon.models.seyu import Seyu
+from .anime import Anime
+from .image import Image
+from .manga import Manga
+from .seyu import Seyu
 
 
 class Character(BaseModel):

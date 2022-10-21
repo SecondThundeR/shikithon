@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.favourite import Favourite
+from .favourite import Favourite
 
 
 class Favourites(BaseModel):

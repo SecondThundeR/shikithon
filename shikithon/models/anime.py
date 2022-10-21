@@ -4,14 +4,14 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.genre import Genre
-from shikithon.models.image import Image
-from shikithon.models.screenshot import Screenshot
-from shikithon.models.studio import Studio
-from shikithon.models.user_rate import UserRate
-from shikithon.models.user_rate_score import UserRateScore
-from shikithon.models.user_rate_status import UserRateStatus
-from shikithon.models.video import Video
+from .genre import Genre
+from .image import Image
+from .screenshot import Screenshot
+from .studio import Studio
+from .user_rate import UserRate
+from .user_rate_score import UserRateScore
+from .user_rate_status import UserRateStatus
+from .video import Video
 
 
 class Anime(BaseModel):

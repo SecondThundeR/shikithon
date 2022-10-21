@@ -9,6 +9,7 @@ from io import BytesIO
 from time import time
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
+import requests.exceptions
 from loguru import logger
 from requests import get
 from validators import url as is_url
@@ -89,8 +90,13 @@ class Utils:
         :rtype: Dict[str, Tuple[str, Union[BytesIO, bytes], str]]
         """
         if isinstance(is_url(image_path), bool):
-            image_response = get(image_path)
-            image_data = BytesIO(image_response.content)
+            try:
+                image_response = get(image_path, timeout=5)
+                image_data = BytesIO(image_response.content)
+            except requests.exceptions.Timeout as e:
+                logger.error(
+                    f'Timeout while fetching image from link\nDetails: {e}')
+                return {}
         else:
             with open(image_path, 'rb') as image_file:
                 image_data = image_file.read()

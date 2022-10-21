@@ -1,5 +1,5 @@
 """Enums for /api/users/:id/history"""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class TargetType(EnhancedEnum):

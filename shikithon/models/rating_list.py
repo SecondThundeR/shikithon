@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.rating import Rating
+from .rating import Rating
 
 
 class RatingList(BaseModel):

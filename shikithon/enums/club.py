@@ -1,5 +1,5 @@
 """Enums for /api/clubs."""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class JoinPolicy(EnhancedEnum):

@@ -3,8 +3,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.character import Character
-from shikithon.models.people import People
+from .character import Character
+from .people import People
 
 
 class Creator(BaseModel):

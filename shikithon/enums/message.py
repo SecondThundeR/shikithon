@@ -1,5 +1,5 @@
 """Enums for /api/users/:id/messages"""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class MessageType(EnhancedEnum):

@@ -4,9 +4,9 @@ from typing import List, Optional, Tuple
 
 from pydantic import BaseModel
 
-from shikithon.models.image import Image
-from shikithon.models.people_roles import PeopleRoles
-from shikithon.models.people_works import PeopleWorks
+from .image import Image
+from .people_roles import PeopleRoles
+from .people_works import PeopleWorks
 
 
 class People(BaseModel):
