@@ -14,8 +14,8 @@ from loguru import logger
 from requests import get
 from validators import url as is_url
 
-from shikithon.enums.enhanced_enum import EnhancedEnum
-from shikithon.enums.response import ResponseCode
+from ..enums.enhanced_enum import EnhancedEnum
+from ..enums.response import ResponseCode
 
 LOWER_LIMIT_NUMBER = 1
 

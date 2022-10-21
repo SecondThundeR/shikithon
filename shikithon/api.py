@@ -100,7 +100,8 @@ from shikithon.models.constants import (
     SmileyConstants,
     UserRateConstants,
 )
-from shikithon.utils import ConfigCache, Utils
+from shikithon.store import ConfigStore
+from shikithon.utils import Utils
 
 SHIKIMORI_API_URL = 'https://shikimori.one/api'
 SHIKIMORI_API_URL_V2 = 'https://shikimori.one/api/v2'
@@ -357,7 +358,7 @@ class API:
 
         try:
             logger.debug('Checking for cached config')
-            cached_config, config_cached = ConfigCache.cache_config_validation(
+            cached_config, config_cached = ConfigStore.config_validation(
                 config['app_name'], config['auth_code'])
 
             if config_cached:
@@ -515,7 +516,7 @@ class API:
     def _cache_config(self):
         """Updates token expire time and caches new config."""
         self._token_expire = Utils.get_new_expire_time(TOKEN_EXPIRE_TIME)
-        ConfigCache.save_config(self.config)
+        ConfigStore.save_config(self.config)
         logger.debug('New expiration time has been set '
                      'and cached configuration has been updated')
 

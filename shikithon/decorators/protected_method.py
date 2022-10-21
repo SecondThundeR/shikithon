@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional
 from loguru import logger
 
 if TYPE_CHECKING:
-    from shikithon.api import API
+    from ..api import API
 
 
 def protected_method(scope: Optional[str] = None):
