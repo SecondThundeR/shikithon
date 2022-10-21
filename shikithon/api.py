@@ -663,6 +663,10 @@ class API:
         :return: List of achievements
         :rtype: Optional[List[Achievement]]
         """
+        if not isinstance(user_id, int):
+            logger.error('/api/achievements accept only user_id as int')
+            return None
+
         response: List[Dict[str, Any]] = self._request(
             self._endpoints.achievements,
             query=Utils.generate_query_dict(user_id=user_id))
