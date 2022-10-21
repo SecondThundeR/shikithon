@@ -34,24 +34,24 @@ class Animes(BaseResource):
     """
 
     @method_endpoint('/api/animes')
-    def get_all(self,
-                page: Optional[int] = None,
-                limit: Optional[int] = None,
-                order: Optional[str] = None,
-                kind: Optional[Union[str, List[str]]] = None,
-                status: Optional[Union[str, List[str]]] = None,
-                season: Optional[Union[str, List[str]]] = None,
-                score: Optional[int] = None,
-                duration: Optional[Union[str, List[str]]] = None,
-                rating: Optional[Union[str, List[str]]] = None,
-                genre: Optional[Union[int, List[int]]] = None,
-                studio: Optional[Union[int, List[int]]] = None,
-                franchise: Optional[Union[int, List[int]]] = None,
-                censored: Optional[str] = None,
-                my_list: Optional[Union[str, List[str]]] = None,
-                ids: Optional[Union[int, List[int]]] = None,
-                exclude_ids: Optional[Union[int, List[int]]] = None,
-                search: Optional[str] = None) -> Optional[List[Anime]]:
+    async def get_all(self,
+                      page: Optional[int] = None,
+                      limit: Optional[int] = None,
+                      order: Optional[str] = None,
+                      kind: Optional[Union[str, List[str]]] = None,
+                      status: Optional[Union[str, List[str]]] = None,
+                      season: Optional[Union[str, List[str]]] = None,
+                      score: Optional[int] = None,
+                      duration: Optional[Union[str, List[str]]] = None,
+                      rating: Optional[Union[str, List[str]]] = None,
+                      genre: Optional[Union[int, List[int]]] = None,
+                      studio: Optional[Union[int, List[int]]] = None,
+                      franchise: Optional[Union[int, List[int]]] = None,
+                      censored: Optional[str] = None,
+                      my_list: Optional[Union[str, List[str]]] = None,
+                      ids: Optional[Union[int, List[int]]] = None,
+                      exclude_ids: Optional[Union[int, List[int]]] = None,
+                      search: Optional[str] = None) -> Optional[List[Anime]]:
         """
         Returns animes list.
 
@@ -131,7 +131,7 @@ class Animes(BaseResource):
         if my_list:
             headers = self._client.semi_protected_method('/api/animes')
 
-        response: List[Dict[str, Any]] = self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.animes,
             headers=headers,
             query=Utils.generate_query_dict(page=validated_numbers['page'],
@@ -154,7 +154,7 @@ class Animes(BaseResource):
         return Utils.validate_return_data(response, data_model=Anime)
 
     @method_endpoint('/api/animes/:id')
-    def get_one(self, anime_id: int) -> Optional[Anime]:
+    async def get_one(self, anime_id: int) -> Optional[Anime]:
         """
         Returns info about certain anime.
 
@@ -164,12 +164,12 @@ class Animes(BaseResource):
         :return: Anime info
         :rtype: Optional[Anime]
         """
-        response: Dict[str, Any] = self._client.request(
+        response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime(anime_id))
         return Utils.validate_return_data(response, data_model=Anime)
 
     @method_endpoint('/api/animes/:id/roles')
-    def creators(self, anime_id: int) -> Optional[List[Creator]]:
+    async def creators(self, anime_id: int) -> Optional[List[Creator]]:
         """
         Returns creators info of certain anime.
 
@@ -179,12 +179,12 @@ class Animes(BaseResource):
         :return: List of anime creators
         :rtype: Optional[List[Creator]]
         """
-        response: List[Dict[str, Any]] = self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_roles(anime_id))
         return Utils.validate_return_data(response, data_model=Creator)
 
     @method_endpoint('/api/animes/:id/similar')
-    def similar(self, anime_id: int) -> Optional[List[Anime]]:
+    async def similar(self, anime_id: int) -> Optional[List[Anime]]:
         """
         Returns list of similar animes for certain anime.
 
@@ -194,12 +194,12 @@ class Animes(BaseResource):
         :return: List of similar animes
         :rtype: Optional[List[Anime]]
         """
-        response: List[Dict[str, Any]] = self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.similar_animes(anime_id))
         return Utils.validate_return_data(response, data_model=Anime)
 
     @method_endpoint('/api/animes/:id/related')
-    def related_content(self, anime_id: int) -> Optional[List[Relation]]:
+    async def related_content(self, anime_id: int) -> Optional[List[Relation]]:
         """
         Returns list of related content of certain anime.
 
@@ -209,12 +209,13 @@ class Animes(BaseResource):
         :return: List of relations
         :rtype: Optional[List[Relation]]
         """
-        response: List[Dict[str, Any]] = self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_related_content(anime_id))
         return Utils.validate_return_data(response, data_model=Relation)
 
     @method_endpoint('/api/animes/:id/screenshots')
-    def anime_screenshots(self, anime_id: int) -> Optional[List[Screenshot]]:
+    async def anime_screenshots(self,
+                                anime_id: int) -> Optional[List[Screenshot]]:
         """
         Returns list of screenshot links of certain anime.
 
@@ -224,12 +225,13 @@ class Animes(BaseResource):
         :return: List of screenshot links
         :rtype: Optional[List[Screenshot]]
         """
-        response: List[Dict[str, Any]] = self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_screenshots(anime_id))
         return Utils.validate_return_data(response, data_model=Screenshot)
 
     @method_endpoint('/api/animes/:id/franchise')
-    def anime_franchise_tree(self, anime_id: int) -> Optional[FranchiseTree]:
+    async def anime_franchise_tree(self,
+                                   anime_id: int) -> Optional[FranchiseTree]:
         """
         Returns franchise tree of certain anime.
 
@@ -239,12 +241,12 @@ class Animes(BaseResource):
         :return: Franchise tree of certain anime
         :rtype: Optional[FranchiseTree]
         """
-        response: Dict[str, Any] = self._client.request(
+        response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_franchise_tree(anime_id))
         return Utils.validate_return_data(response, data_model=FranchiseTree)
 
     @method_endpoint('/api/animes/:id/external_links')
-    def anime_external_links(self, anime_id: int) -> Optional[List[Link]]:
+    async def anime_external_links(self, anime_id: int) -> Optional[List[Link]]:
         """
         Returns list of external links of certain anime.
 
@@ -254,21 +256,21 @@ class Animes(BaseResource):
         :return: List of external links
         :rtype: Optional[List[Link]]
         """
-        response: List[Dict[str, Any]] = self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_external_links(anime_id))
         return Utils.validate_return_data(response, data_model=Link)
 
     @method_endpoint('/api/animes/:id/topics')
-    def topics(self,
-               anime_id: int,
-               page: Optional[int] = None,
-               limit: Optional[int] = None,
-               kind: Optional[str] = None,
-               episode: Optional[int] = None) -> Optional[List[Topic]]:
+    async def topics(self,
+                     anime_id: int,
+                     page: Optional[int] = None,
+                     limit: Optional[int] = None,
+                     kind: Optional[str] = None,
+                     episode: Optional[int] = None) -> Optional[List[Topic]]:
         """
         Returns list of topics of certain anime.
 
-        If some data are not provided, using default values.
+        If some data are not provided, using async default values.
 
         :param anime_id: Anime ID to get topics
         :type anime_id: int
@@ -294,7 +296,7 @@ class Animes(BaseResource):
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 30])
 
-        response: List[Dict[str, Any]] = self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_topics(anime_id),
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
@@ -303,7 +305,7 @@ class Animes(BaseResource):
         return Utils.validate_return_data(response, data_model=Topic)
 
     @method_endpoint('/api/animes/:anime_id/videos')
-    def videos(self, anime_id: int) -> Optional[List[Video]]:
+    async def videos(self, anime_id: int) -> Optional[List[Video]]:
         """
         Returns anime videso.
 
@@ -313,14 +315,14 @@ class Animes(BaseResource):
         :return: Anime videos list
         :rtype: Optional[List[Video]]
         """
-        response: List[Dict[str, Any]] = self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_videos(anime_id))
         return Utils.validate_return_data(response, data_model=Video)
 
     @method_endpoint('/api/animes/:anime_id/videos')
     @protected_method('content')
-    def create_video(self, anime_id: int, kind: str, name: str,
-                     url: str) -> Optional[Video]:
+    async def create_video(self, anime_id: int, kind: str, name: str,
+                           url: str) -> Optional[Video]:
         """
         Creates anime video.
 
@@ -346,7 +348,7 @@ class Animes(BaseResource):
                                                              kind=kind,
                                                              name=name,
                                                              url=url)
-        response: Dict[str, Any] = self._client.request(
+        response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_videos(anime_id),
             headers=self._client.authorization_header,
             data=data_dict,
@@ -355,7 +357,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:anime_id/videos/:id')
     @protected_method('content')
-    def delete_video(self, anime_id: int, video_id: int) -> bool:
+    async def delete_video(self, anime_id: int, video_id: int) -> bool:
         """
         Deletes anime video.
 
@@ -368,7 +370,7 @@ class Animes(BaseResource):
         :return: Status of video deletion
         :rtype: bool
         """
-        response: Dict[str, Any] = self._client.request(
+        response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_video(anime_id, video_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
