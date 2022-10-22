@@ -470,7 +470,6 @@ class Client:
         self,
         url: str,
         data: Optional[Dict[str, str]] = None,
-        files: Optional[Dict[str, Tuple[str, bytes, str]]] = None,
         headers: Optional[Dict[str, str]] = None,
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
@@ -492,9 +491,6 @@ class Client:
         :param data: Request body data
         :type data: Optional[Dict[str, str]]
 
-        :param files: Binary data for request
-        :type files: Optional[Dict[str, Tuple[str, bytes, str]]]
-
         :param headers: Custom headers for request
         :type headers: Optional[Dict[str, str]]
 
@@ -515,9 +511,7 @@ class Client:
 
         logger.info(f'{request_type.value} {url}')
         if output_logging:
-            logger.debug(
-                f'Request info details: {data=}, {files=}, {headers=}, {query=}'
-            )
+            logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
 
         if request_type == RequestType.GET:
             response = await self._session.get(url,
@@ -525,27 +519,24 @@ class Client:
                                                params=query)
         elif request_type == RequestType.POST:
             response = await self._session.post(url,
-                                                data=files,
+                                                data=data,
                                                 headers=headers,
-                                                params=query,
-                                                json=data)
+                                                params=query)
         elif request_type == RequestType.PUT:
             response = await self._session.put(url,
-                                               data=files,
+                                               data=data,
                                                headers=headers,
-                                               params=query,
-                                               json=data)
+                                               params=query)
         elif request_type == RequestType.PATCH:
             response = await self._session.patch(url,
-                                                 data=files,
+                                                 data=data,
                                                  headers=headers,
-                                                 params=query,
-                                                 json=data)
+                                                 params=query)
         elif request_type == RequestType.DELETE:
             response = await self._session.delete(url,
+                                                  data=data,
                                                   headers=headers,
-                                                  params=query,
-                                                  json=data)
+                                                  params=query)
         else:
             logger.debug('Unknown request_type. Returning None')
             return None
