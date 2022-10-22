@@ -39,11 +39,10 @@ pydantic = "^1.10.1"
 ratelimit = "^2.2.1"
 loguru = "^0.6.0"
 validators = "^0.20.0"
-asyncio = "^3.4.3"
 aiohttp = "^3.8.3"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.15.0"
+pylint = "^2.15.5"
 pre-commit = "^2.20.0"
 yapf = "^0.32.0"
 isort = "^5.10.1"
