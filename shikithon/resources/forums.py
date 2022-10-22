@@ -1,5 +1,5 @@
 """Represents /api/forums resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from ..decorators import method_endpoint
 from ..models import Forum
@@ -14,12 +14,12 @@ class Forums(BaseResource):
     """
 
     @method_endpoint('/api/forums')
-    async def get(self) -> Optional[List[Forum]]:
+    async def get(self) -> List[Forum]:
         """
         Returns list of forums.
 
         :returns: List of forums
-        :rtype: Optional[List[Forum]]
+        :rtype: List[Forum]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.forums)

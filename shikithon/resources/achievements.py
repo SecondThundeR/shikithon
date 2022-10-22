@@ -1,6 +1,6 @@
 """Represents /api/achievements resource."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from loguru import logger
 
@@ -17,7 +17,7 @@ class Achievements(BaseResource):
     """
 
     @method_endpoint('/api/achievements')
-    async def get(self, user_id: int) -> Optional[List[Achievement]]:
+    async def get(self, user_id: int) -> List[Achievement]:
         """
         Returns achievements of user by ID.
 
@@ -25,11 +25,11 @@ class Achievements(BaseResource):
         :type user_id: int
 
         :return: List of achievements
-        :rtype: Optional[List[Achievement]]
+        :rtype: List[Achievement]
         """
         if not isinstance(user_id, int):
             logger.error('/api/achievements accept only user_id as int')
-            return None
+            return []
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.achievements,

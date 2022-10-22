@@ -28,7 +28,7 @@ class UserRates(BaseResource):
                       target_type: Optional[str] = None,
                       status: Optional[str] = None,
                       page: Optional[int] = None,
-                      limit: Optional[int] = None) -> Optional[List[UserRate]]:
+                      limit: Optional[int] = None) -> List[UserRate]:
         """
         Returns list of user rates.
 
@@ -59,7 +59,7 @@ class UserRates(BaseResource):
 
         :return: List with info about user rates
         (This field is ignored when user_id is set)
-        :rtype: Optional[List[UserRate]]
+        :rtype: List[UserRate]
         """
         if target_id is not None and target_type is None:
             logger.warning('target_type is required when passing target_id')

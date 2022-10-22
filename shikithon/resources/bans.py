@@ -16,7 +16,7 @@ class Bans(BaseResource):
     @method_endpoint('/api/bans')
     async def get(self,
                   page: Optional[int] = None,
-                  limit: Optional[int] = None) -> Optional[List[Ban]]:
+                  limit: Optional[int] = None) -> List[Ban]:
         """
         Returns list of recent bans on Shikimori.
 
@@ -27,7 +27,7 @@ class Bans(BaseResource):
         :type limit: Optional[int]
 
         :return: List of recent bans
-        :rtype: Optional[List[Ban]]
+        :rtype: List[Ban]
         """
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],

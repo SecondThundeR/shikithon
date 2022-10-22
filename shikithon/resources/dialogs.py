@@ -1,5 +1,5 @@
 """Represents /api/dialogs resource."""
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 from ..decorators import method_endpoint
 from ..decorators import protected_method
@@ -18,12 +18,12 @@ class Dialogs(BaseResource):
 
     @method_endpoint('/api/dialogs')
     @protected_method('_client', 'messages')
-    async def get_all(self) -> Optional[List[Dialog]]:
+    async def get_all(self) -> List[Dialog]:
         """
         Returns list of current user's dialogs.
 
         :return: List of dialogs
-        :rtype: Optional[List[Dialog]]
+        :rtype: List[Dialog]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.dialogs,
@@ -32,7 +32,7 @@ class Dialogs(BaseResource):
 
     @method_endpoint('/api/dialogs/:id')
     @protected_method('_client', 'messages')
-    async def get(self, user_id: Union[int, str]) -> Optional[List[Message]]:
+    async def get(self, user_id: Union[int, str]) -> List[Message]:
         """
         Returns list of current user's messages with certain user.
 
@@ -40,7 +40,7 @@ class Dialogs(BaseResource):
         :type user_id: Union[int, str]
 
         :return: List of messages
-        :rtype: Optional[List[Message]]
+        :rtype: List[Message]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.dialog(user_id),

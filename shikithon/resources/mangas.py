@@ -39,7 +39,7 @@ class Mangas(BaseResource):
                       my_list: Optional[Union[str, List[str]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
-                      search: Optional[str] = None) -> Optional[List[Manga]]:
+                      search: Optional[str] = None) -> List[Manga]:
         """
         Returns mangas list.
 
@@ -91,7 +91,7 @@ class Mangas(BaseResource):
         :type search: Optional[str]
 
         :return: List of Mangas
-        :rtype: Optional[List[Manga]]
+        :rtype: List[Manga]
         """
         if not Utils.validate_enum_params({
                 MangaOrder: order,
@@ -147,7 +147,7 @@ class Mangas(BaseResource):
         return Utils.validate_return_data(response, data_model=Manga)
 
     @method_endpoint('/api/mangas/:id/roles')
-    async def creators(self, manga_id: int) -> Optional[List[Creator]]:
+    async def creators(self, manga_id: int) -> List[Creator]:
         """
         Returns creators info of certain manga.
 
@@ -155,14 +155,14 @@ class Mangas(BaseResource):
         :type manga_id: int
 
         :return: List of manga creators
-        :rtype: Optional[List[Creator]]
+        :rtype: List[Creator]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_roles(manga_id))
         return Utils.validate_return_data(response, data_model=Creator)
 
     @method_endpoint('/api/mangas/:id/similar')
-    async def similar(self, manga_id: int) -> Optional[List[Manga]]:
+    async def similar(self, manga_id: int) -> List[Manga]:
         """
         Returns list of similar mangas for certain manga.
 
@@ -170,14 +170,14 @@ class Mangas(BaseResource):
         :type manga_id: int
 
         :return: List of similar mangas
-        :rtype: Optional[List[Manga]]
+        :rtype: List[Manga]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.similar_mangas(manga_id))
         return Utils.validate_return_data(response, data_model=Manga)
 
     @method_endpoint('/api/mangas/:id/related')
-    async def related_content(self, manga_id: int) -> Optional[List[Relation]]:
+    async def related_content(self, manga_id: int) -> List[Relation]:
         """
         Returns list of related content of certain manga.
 
@@ -185,7 +185,7 @@ class Mangas(BaseResource):
         :type manga_id: int
 
         :return: List of relations
-        :rtype: Optional[List[Relation]]
+        :rtype: List[Relation]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_related_content(manga_id))
@@ -207,7 +207,7 @@ class Mangas(BaseResource):
         return Utils.validate_return_data(response, data_model=FranchiseTree)
 
     @method_endpoint('/api/mangas/:id/external_links')
-    async def external_links(self, manga_id: int) -> Optional[List[Link]]:
+    async def external_links(self, manga_id: int) -> List[Link]:
         """
         Returns list of external links of certain manga.
 
@@ -215,7 +215,7 @@ class Mangas(BaseResource):
         :type manga_id: int
 
         :return: List of external links
-        :rtype: Optional[List[Link]]
+        :rtype: List[Link]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_external_links(manga_id))
@@ -225,7 +225,7 @@ class Mangas(BaseResource):
     async def topics(self,
                      manga_id: int,
                      page: Optional[int] = None,
-                     limit: Optional[int] = None) -> Optional[List[Topic]]:
+                     limit: Optional[int] = None) -> List[Topic]:
         """
         Returns list of topics of certain manga.
 
@@ -241,7 +241,7 @@ class Mangas(BaseResource):
         :type limit: Optional[int]
 
         :return: List of topics
-        :rtype: Optional[List[Topic]]
+        :rtype: List[Topic]
         """
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],

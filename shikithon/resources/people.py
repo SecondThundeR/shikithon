@@ -30,10 +30,9 @@ class People(BaseResource):
         return Utils.validate_return_data(response, data_model=Person)
 
     @method_endpoint('/api/people/search')
-    async def search(
-            self,
-            search: Optional[str] = None,
-            people_kind: Optional[str] = None) -> Optional[List[Person]]:
+    async def search(self,
+                     search: Optional[str] = None,
+                     people_kind: Optional[str] = None) -> List[Person]:
         """
         Returns list of found persons.
 
@@ -47,7 +46,7 @@ class People(BaseResource):
         :type people_kind: Optional[str]
 
         :return: List of found persons
-        :rtype: Optional[List[Person]]
+        :rtype: List[Person]
         """
         if not Utils.validate_enum_params({PersonKind: people_kind}):
             return None

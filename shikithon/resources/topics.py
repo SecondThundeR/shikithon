@@ -19,14 +19,13 @@ class Topics(BaseResource):
     """
 
     @method_endpoint('/api/topics')
-    async def get_all(
-            self,
-            page: Optional[int] = None,
-            limit: Optional[int] = None,
-            forum: Optional[str] = None,
-            linked_id: Optional[int] = None,
-            linked_type: Optional[str] = None,
-            topic_type: Optional[str] = None) -> Optional[List[Topic]]:
+    async def get_all(self,
+                      page: Optional[int] = None,
+                      limit: Optional[int] = None,
+                      forum: Optional[str] = None,
+                      linked_id: Optional[int] = None,
+                      linked_type: Optional[str] = None,
+                      topic_type: Optional[str] = None) -> List[Topic]:
         """
         Returns list of topics.
 
@@ -49,7 +48,7 @@ class Topics(BaseResource):
         :type topic_type: Optional[str]
 
         :return: List of topics
-        :rtype: Optional[List[Topic]]
+        :rtype: List[Topic]
         """
         if not Utils.validate_enum_params({
                 ForumType: forum,
@@ -76,7 +75,7 @@ class Topics(BaseResource):
     @method_endpoint('/api/topics/updates')
     async def updates(self,
                       page: Optional[int] = None,
-                      limit: Optional[int] = None) -> Optional[List[Topic]]:
+                      limit: Optional[int] = None) -> List[Topic]:
         """
         Returns list of NewsTopics about database updates.
 
@@ -87,7 +86,7 @@ class Topics(BaseResource):
         :type limit: Optional[int]
 
         :return: List of topics
-        :rtype: Optional[List[Topic]]
+        :rtype: List[Topic]
         """
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -103,7 +102,7 @@ class Topics(BaseResource):
         return Utils.validate_return_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/hot')
-    async def hot(self, limit: Optional[int] = None) -> Optional[List[Topic]]:
+    async def hot(self, limit: Optional[int] = None) -> List[Topic]:
         """
         Returns list of hot topics.
 
@@ -111,7 +110,7 @@ class Topics(BaseResource):
         :type limit: Optional[int]
 
         :return: List of topics
-        :rtype: Optional[List[Topic]]
+        :rtype: List[Topic]
         """
         validated_numbers = Utils.query_numbers_validator(limit=[limit, 10])
 

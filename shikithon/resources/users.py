@@ -29,7 +29,7 @@ class Users(BaseResource):
     @method_endpoint('/api/users')
     async def get_all(self,
                       page: Optional[int] = None,
-                      limit: Optional[int] = None) -> Optional[List[User]]:
+                      limit: Optional[int] = None) -> List[User]:
         """
         Returns list of users.
 
@@ -40,7 +40,7 @@ class Users(BaseResource):
         :type limit: Optional[int]
 
         :return: List of users
-        :rtype: Optional[List[User]]
+        :rtype: List[User]
         """
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -121,10 +121,9 @@ class Users(BaseResource):
                                    headers=self._client.authorization_header)
 
     @method_endpoint('/api/users/:id/friends')
-    async def friends(
-            self,
-            user_id: Union[str, int],
-            is_nickname: Optional[bool] = None) -> Optional[List[User]]:
+    async def friends(self,
+                      user_id: Union[str, int],
+                      is_nickname: Optional[bool] = None) -> List[User]:
         """
         Returns user's friends.
 
@@ -135,7 +134,7 @@ class Users(BaseResource):
         :type is_nickname: Optional[bool]
 
         :return: List of user's friends
-        :rtype: Optional[List[User]]
+        :rtype: List[User]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_friends(user_id),
@@ -145,7 +144,7 @@ class Users(BaseResource):
     @method_endpoint('/api/users/:id/clubs')
     async def clubs(self,
                     user_id: Union[int, str],
-                    is_nickname: Optional[bool] = None) -> Optional[List[Club]]:
+                    is_nickname: Optional[bool] = None) -> List[Club]:
         """
         Returns user's clubs.
 
@@ -156,7 +155,7 @@ class Users(BaseResource):
         :type is_nickname: Optional[bool]
 
         :return: List of user's clubs
-        :rtype: Optional[List[Club]]
+        :rtype: List[Club]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_clubs(user_id),
@@ -164,14 +163,13 @@ class Users(BaseResource):
         return Utils.validate_return_data(response, data_model=Club)
 
     @method_endpoint('/api/users/:id/anime_rates')
-    async def anime_rates(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Optional[bool] = None,
-            page: Optional[int] = None,
-            limit: Optional[int] = None,
-            status: Optional[str] = None,
-            censored: Optional[str] = None) -> Optional[List[UserList]]:
+    async def anime_rates(self,
+                          user_id: Union[int, str],
+                          is_nickname: Optional[bool] = None,
+                          page: Optional[int] = None,
+                          limit: Optional[int] = None,
+                          status: Optional[str] = None,
+                          censored: Optional[str] = None) -> List[UserList]:
         """
         Returns user's anime list.
 
@@ -194,7 +192,7 @@ class Users(BaseResource):
         :type censored: Optional[str]
 
         :return: User's anime list
-        :rtype: Optional[List[UserList]]
+        :rtype: List[UserList]
         """
         if not Utils.validate_enum_params({
                 AnimeList: status,
@@ -217,13 +215,12 @@ class Users(BaseResource):
         return Utils.validate_return_data(response, data_model=UserList)
 
     @method_endpoint('/api/users/:id/manga_rates')
-    async def manga_rates(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Optional[bool] = None,
-            page: Optional[int] = None,
-            limit: Optional[int] = None,
-            censored: Optional[str] = None) -> Optional[List[UserList]]:
+    async def manga_rates(self,
+                          user_id: Union[int, str],
+                          is_nickname: Optional[bool] = None,
+                          page: Optional[int] = None,
+                          limit: Optional[int] = None,
+                          censored: Optional[str] = None) -> List[UserList]:
         """
         Returns user's manga list.
 
@@ -243,7 +240,7 @@ class Users(BaseResource):
         :type censored: Optional[str]
 
         :return: User's manga list
-        :rtype: Optional[List[UserList]]
+        :rtype: List[UserList]
         """
         if not Utils.validate_enum_params({AnimeCensorship: censored}):
             return None
@@ -291,8 +288,7 @@ class Users(BaseResource):
             is_nickname: Optional[bool] = None,
             page: Optional[int] = None,
             limit: Optional[int] = None,
-            message_type: str = MessageType.NEWS.value
-    ) -> Optional[List[Message]]:
+            message_type: str = MessageType.NEWS.value) -> List[Message]:
         """
         Returns current user's messages by type.
 
@@ -312,7 +308,7 @@ class Users(BaseResource):
         :type message_type: str
 
         :return: Current user's messages
-        :rtype: Optional[List[Message]]
+        :rtype: List[Message]
         """
         if not Utils.validate_enum_params({MessageType: message_type}):
             return None
@@ -356,14 +352,13 @@ class Users(BaseResource):
         return Utils.validate_return_data(response, data_model=UnreadMessages)
 
     @method_endpoint('/api/users/:id/history')
-    async def history(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Optional[bool] = None,
-            page: Optional[int] = None,
-            limit: Optional[int] = None,
-            target_id: Optional[int] = None,
-            target_type: Optional[str] = None) -> Optional[List[History]]:
+    async def history(self,
+                      user_id: Union[int, str],
+                      is_nickname: Optional[bool] = None,
+                      page: Optional[int] = None,
+                      limit: Optional[int] = None,
+                      target_id: Optional[int] = None,
+                      target_type: Optional[str] = None) -> List[History]:
         """
         Returns history of user.
 
@@ -386,7 +381,7 @@ class Users(BaseResource):
         :type target_type: Optional[str]
 
         :return: User's history
-        :rtype: Optional[List[History]]
+        :rtype: List[History]
         """
         if not Utils.validate_enum_params({TargetType: target_type}):
             return None
@@ -408,7 +403,7 @@ class Users(BaseResource):
     @method_endpoint('/api/users/:id/bans')
     async def bans(self,
                    user_id: Union[int, str],
-                   is_nickname: Optional[bool] = None) -> Optional[List[Ban]]:
+                   is_nickname: Optional[bool] = None) -> List[Ban]:
         """
         Returns list of bans of user.
 
@@ -419,7 +414,7 @@ class Users(BaseResource):
         :type is_nickname: Optional[bool]
 
         :return: User's bans
-        :rtype: Optional[List[Ban]]
+        :rtype: List[Ban]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_bans(user_id),

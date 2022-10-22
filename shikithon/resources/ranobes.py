@@ -37,7 +37,7 @@ class Ranobes(BaseResource):
                       my_list: Optional[Union[str, List[str]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
-                      search: Optional[str] = None) -> Optional[List[Ranobe]]:
+                      search: Optional[str] = None) -> List[Ranobe]:
         """
         Returns ranobe list.
 
@@ -86,7 +86,7 @@ class Ranobes(BaseResource):
         :type search: Optional[str]
 
         :return: List of Ranobe
-        :rtype: Optional[List[Ranobe]]
+        :rtype: List[Ranobe]
         """
         if not Utils.validate_enum_params({
                 RanobeOrder: order,
@@ -140,7 +140,7 @@ class Ranobes(BaseResource):
         return Utils.validate_return_data(response, data_model=Ranobe)
 
     @method_endpoint('/api/ranobe/:id/roles')
-    async def creators(self, ranobe_id: int) -> Optional[List[Creator]]:
+    async def creators(self, ranobe_id: int) -> List[Creator]:
         """
         Returns creators info of certain ranobe.
 
@@ -148,14 +148,14 @@ class Ranobes(BaseResource):
         :type ranobe_id: int
 
         :return: List of ranobe creators
-        :rtype: Optional[List[Creator]]
+        :rtype: List[Creator]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.ranobe_roles(ranobe_id))
         return Utils.validate_return_data(response, data_model=Creator)
 
     @method_endpoint('/api/ranobe/:id/similar')
-    async def similar(self, ranobe_id: int) -> Optional[List[Ranobe]]:
+    async def similar(self, ranobe_id: int) -> List[Ranobe]:
         """
         Returns list of similar ranobes for certain ranobe.
 
@@ -163,14 +163,14 @@ class Ranobes(BaseResource):
         :type ranobe_id: int
 
         :return: List of similar ranobes
-        :rtype: Optional[List[Ranobe]]
+        :rtype: List[Ranobe]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.similar_ranobes(ranobe_id))
         return Utils.validate_return_data(response, data_model=Ranobe)
 
     @method_endpoint('/api/ranobe/:id/related')
-    async def related_content(self, ranobe_id: int) -> Optional[List[Relation]]:
+    async def related_content(self, ranobe_id: int) -> List[Relation]:
         """
         Returns list of related content of certain ranobe.
 
@@ -178,7 +178,7 @@ class Ranobes(BaseResource):
         :type ranobe_id: int
 
         :return: List of relations
-        :rtype: Optional[List[Relation]]
+        :rtype: List[Relation]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.ranobe_related_content(ranobe_id))
@@ -200,7 +200,7 @@ class Ranobes(BaseResource):
         return Utils.validate_return_data(response, data_model=FranchiseTree)
 
     @method_endpoint('/api/ranobe/:id/external_links')
-    async def external_links(self, ranobe_id: int) -> Optional[List[Link]]:
+    async def external_links(self, ranobe_id: int) -> List[Link]:
         """
         Returns list of external links of certain ranobe.
 
@@ -208,7 +208,7 @@ class Ranobes(BaseResource):
         :type ranobe_id: int
 
         :return: List of external links
-        :rtype: Optional[List[Link]]
+        :rtype: List[Link]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.ranobe_external_links(ranobe_id))
@@ -218,7 +218,7 @@ class Ranobes(BaseResource):
     async def topics(self,
                      ranobe_id: int,
                      page: Optional[int] = None,
-                     limit: Optional[int] = None) -> Optional[List[Topic]]:
+                     limit: Optional[int] = None) -> List[Topic]:
         """
         Returns list of topics of certain ranobe.
 
@@ -234,7 +234,7 @@ class Ranobes(BaseResource):
         :type limit: Optional[int]
 
         :return: List of topics
-        :rtype: Optional[List[Topic]]
+        :rtype: List[Topic]
         """
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],

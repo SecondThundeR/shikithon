@@ -24,7 +24,7 @@ class Comments(BaseResource):
                       commentable_type: str,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      desc: Optional[int] = None) -> Optional[List[Comment]]:
+                      desc: Optional[int] = None) -> List[Comment]:
         """
         Returns list of comments.
 
@@ -44,7 +44,7 @@ class Comments(BaseResource):
         :type desc: Optional[int]
 
         :return: List of comments
-        :rtype: Optional[List[Comment]]
+        :rtype: List[Comment]
         """
         if not Utils.validate_enum_params({CommentableType: commentable_type}):
             return None

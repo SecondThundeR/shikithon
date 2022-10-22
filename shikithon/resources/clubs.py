@@ -30,7 +30,7 @@ class Clubs(BaseResource):
     async def get_all(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      search: Optional[str] = None) -> Optional[List[Club]]:
+                      search: Optional[str] = None) -> List[Club]:
         """
         Returns clubs list.
 
@@ -44,7 +44,7 @@ class Clubs(BaseResource):
         :type search: Optional[str]
 
         :return: Clubs list
-        :rtype: Optional[List[Club]]
+        :rtype: List[Club]
         """
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -190,7 +190,7 @@ class Clubs(BaseResource):
         return Utils.validate_return_data(response, data_model=Club)
 
     @method_endpoint('/api/clubs/:id/animes')
-    async def animes(self, club_id: int) -> Optional[List[Anime]]:
+    async def animes(self, club_id: int) -> List[Anime]:
         """
         Returns anime list of club.
 
@@ -198,14 +198,14 @@ class Clubs(BaseResource):
         :type club_id: int
 
         :return: Club anime list
-        :rtype: Optional[List[Anime]]
+        :rtype: List[Anime]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_animes(club_id))
         return Utils.validate_return_data(response, data_model=Anime)
 
     @method_endpoint('/api/clubs/:id/mangas')
-    async def mangas(self, club_id: int) -> Optional[List[Manga]]:
+    async def mangas(self, club_id: int) -> List[Manga]:
         """
         Returns manga list of club.
 
@@ -213,14 +213,14 @@ class Clubs(BaseResource):
         :type club_id: int
 
         :return: Club manga list
-        :rtype: Optional[List[Manga]]
+        :rtype: List[Manga]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_mangas(club_id))
         return Utils.validate_return_data(response, data_model=Manga)
 
     @method_endpoint('/api/clubs/:id/ranobe')
-    async def ranobe(self, club_id: int) -> Optional[List[Ranobe]]:
+    async def ranobe(self, club_id: int) -> List[Ranobe]:
         """
         Returns ranobe list of club.
 
@@ -228,14 +228,14 @@ class Clubs(BaseResource):
         :type club_id: int
 
         :return: Club ranobe list
-        :rtype: Optional[List[Ranobe]]
+        :rtype: List[Ranobe]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_ranobe(club_id))
         return Utils.validate_return_data(response, data_model=Ranobe)
 
     @method_endpoint('/api/clubs/:id/characters')
-    async def characters(self, club_id: int) -> Optional[List[Character]]:
+    async def characters(self, club_id: int) -> List[Character]:
         """
         Returns character list of club.
 
@@ -243,14 +243,14 @@ class Clubs(BaseResource):
         :type club_id: int
 
         :return: Club character list
-        :rtype: Optional[List[Character]]
+        :rtype: List[Character]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_characters(club_id))
         return Utils.validate_return_data(response, data_model=Character)
 
     @method_endpoint('/api/clubs/:id/members')
-    async def members(self, club_id: int) -> Optional[List[User]]:
+    async def members(self, club_id: int) -> List[User]:
         """
         Returns member list of club.
 
@@ -258,14 +258,14 @@ class Clubs(BaseResource):
         :type club_id: int
 
         :return: Club member list
-        :rtype: Optional[List[User]]
+        :rtype: List[User]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_members(club_id))
         return Utils.validate_return_data(response, data_model=User)
 
     @method_endpoint('/api/clubs/:id/images')
-    async def images(self, club_id: int) -> Optional[List[ClubImage]]:
+    async def images(self, club_id: int) -> List[ClubImage]:
         """
         Returns images of club.
 
@@ -273,7 +273,7 @@ class Clubs(BaseResource):
         :type club_id: int
 
         :return: Club's images
-        :rtype: Optional[List[ClubImage]]
+        :rtype: List[ClubImage]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_images(club_id))

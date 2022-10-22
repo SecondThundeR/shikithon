@@ -1,5 +1,5 @@
 """Represents /api/genres resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from ..decorators import method_endpoint
 from ..models import Genre
@@ -14,12 +14,12 @@ class Genres(BaseResource):
     """
 
     @method_endpoint('/api/genres')
-    async def get(self) -> Optional[List[Genre]]:
+    async def get(self) -> List[Genre]:
         """
         Returns list of genres.
 
         :return: List of genres
-        :rtype: Optional[List[Genre]]
+        :rtype: List[Genre]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.genres)

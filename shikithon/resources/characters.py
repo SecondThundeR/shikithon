@@ -29,8 +29,7 @@ class Characters(BaseResource):
         return Utils.validate_return_data(response, data_model=Character)
 
     @method_endpoint('/api/characters/search')
-    async def search(self,
-                     search: Optional[str] = None) -> Optional[List[Character]]:
+    async def search(self, search: Optional[str] = None) -> List[Character]:
         """
         Returns list of found characters.
 
@@ -38,7 +37,7 @@ class Characters(BaseResource):
         :type search: Optional[str]
 
         :return: List of found characters
-        :rtype: Optional[List[Character]]
+        :rtype: List[Character]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.character_search,

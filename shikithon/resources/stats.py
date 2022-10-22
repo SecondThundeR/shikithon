@@ -1,5 +1,5 @@
 """Represents /api/stats resource."""
-from typing import List, Optional
+from typing import List
 
 from ..decorators import method_endpoint
 from ..utils import Utils
@@ -13,12 +13,12 @@ class Stats(BaseResource):
     """
 
     @method_endpoint('/api/stats/active_users')
-    async def active_users(self) -> Optional[List[int]]:
+    async def active_users(self) -> List[int]:
         """
         Returns list of IDs of active users.
 
         :return: List of IDs of active users
-        :rtype: Optional[List[int]]
+        :rtype: List[int]
         """
         response: List[int] = await self._client.request(
             self._client.endpoints.active_users)

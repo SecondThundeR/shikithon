@@ -67,12 +67,12 @@ class Constants(BaseResource):
         return Utils.validate_return_data(response, data_model=ClubConstants)
 
     @method_endpoint('/api/constants/smileys')
-    async def smileys(self) -> Optional[List[SmileyConstants]]:
+    async def smileys(self) -> List[SmileyConstants]:
         """
         Returns list of smileys constants values.
 
         :return: List of smileys constants values
-        :rtype: Optional[List[SmileyConstants]]
+        :rtype: List[SmileyConstants]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.smileys_constants)
