@@ -1,4 +1,4 @@
-"""Represents /api/animes resource."""
+"""Represents /api/animes and /api/animes/:anime_id/videos resource."""
 from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import method_endpoint, protected_method
@@ -30,7 +30,7 @@ from .base_resource import BaseResource
 class Animes(BaseResource):
     """Anime resource class.
 
-    Used to represent /api/animes resource.
+    Used to represent /api/animes and /api/animes/:anime_id/videos resource.
     """
 
     @method_endpoint('/api/animes')
@@ -214,8 +214,7 @@ class Animes(BaseResource):
         return Utils.validate_return_data(response, data_model=Relation)
 
     @method_endpoint('/api/animes/:id/screenshots')
-    async def anime_screenshots(self,
-                                anime_id: int) -> Optional[List[Screenshot]]:
+    async def screenshots(self, anime_id: int) -> Optional[List[Screenshot]]:
         """
         Returns list of screenshot links of certain anime.
 
@@ -230,8 +229,7 @@ class Animes(BaseResource):
         return Utils.validate_return_data(response, data_model=Screenshot)
 
     @method_endpoint('/api/animes/:id/franchise')
-    async def anime_franchise_tree(self,
-                                   anime_id: int) -> Optional[FranchiseTree]:
+    async def franchise_tree(self, anime_id: int) -> Optional[FranchiseTree]:
         """
         Returns franchise tree of certain anime.
 
@@ -246,7 +244,7 @@ class Animes(BaseResource):
         return Utils.validate_return_data(response, data_model=FranchiseTree)
 
     @method_endpoint('/api/animes/:id/external_links')
-    async def anime_external_links(self, anime_id: int) -> Optional[List[Link]]:
+    async def external_links(self, anime_id: int) -> Optional[List[Link]]:
         """
         Returns list of external links of certain anime.
 
@@ -320,7 +318,7 @@ class Animes(BaseResource):
         return Utils.validate_return_data(response, data_model=Video)
 
     @method_endpoint('/api/animes/:anime_id/videos')
-    @protected_method('content')
+    @protected_method('_client', 'content')
     async def create_video(self, anime_id: int, kind: str, name: str,
                            url: str) -> Optional[Video]:
         """
@@ -356,7 +354,7 @@ class Animes(BaseResource):
         return Utils.validate_return_data(response, data_model=Video)
 
     @method_endpoint('/api/animes/:anime_id/videos/:id')
-    @protected_method('content')
+    @protected_method('_client', 'content')
     async def delete_video(self, anime_id: int, video_id: int) -> bool:
         """
         Deletes anime video.

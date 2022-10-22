@@ -4,7 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from .character import Character
-from .people import People
+from .person import Person
 
 
 class Creator(BaseModel):
@@ -12,4 +12,4 @@ class Creator(BaseModel):
     roles: List[str]
     roles_russian: List[str]
     character: Optional[Character]
-    person: Optional[People]
+    person: Optional[Person]

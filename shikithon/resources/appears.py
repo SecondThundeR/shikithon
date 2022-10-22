@@ -15,7 +15,7 @@ class Appears(BaseResource):
     """
 
     @method_endpoint('/api/appears')
-    @protected_method()
+    @protected_method('_client')
     async def mark(self, comment_ids: List[str]) -> bool:
         """
         Marks comments or topics as read.
