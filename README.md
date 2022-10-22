@@ -9,19 +9,19 @@
 
 > **Состояние библиотеки:** завершена основная разработка
 >
-> На данный момент, библиотека поддерживает лишь синхронное взаимодействие с API,
-> асинхронное взаимодействие и прочие улучшения будут добавлены в будущем
+> На данный момент, библиотека находится в статусе поддержки (новые функции будут добавляться только по необходимости)
+>
+> Начиная с версии 2.0.0, библиотека поддерживает асинхронные запросы
 
-## Преимущество библиотеки
+## Описание
 
 Данный враппер предоставляет базовую абстракцию, которая позволяет удобнее работать с методами API и их ответами.
 
-Для каждого метода API существует свой метод класса, который благодаря библиотеке Pydantic,
-возвращает удобную модель данных для работы.
+Для каждого эндпоинта API существует свой объект с методами, которые благодаря библиотеке Pydantic,
+возвращают удобную модель данных.
 
 Все данные, возвращаемые API Shikimori, валидируются и парсятся в модели, со всеми необходимыми полями,
 а также дополнительными, которые могут вернуть некоторые методы API _(Например /users/whoami и /users/:id/info)_.
-
 Это позволяет не задумываться об обработке очередного ответа от сервера и сосредоточиться над реализацией своей идеи.
 
 Также, данная библиотека поддерживает ранние версии Python, начиная с 3.8.10.
@@ -39,11 +39,13 @@
 С использованием полного конфига:
 
 ```py
+import asyncio
+
 from typing import Dict
 
 from json import loads
 
-from shikithon import API
+from shikithon import ShikimoriAPI
 
 # Можно установить данные конфигурации в коде
 config = {
@@ -59,19 +61,29 @@ config = {
 with open("config.json", "r", encoding="utf-8") as config_file:
     config_2: Dict[str, str] = loads(config_file.read())
 
-# Инициализация объекта API
-shikimori = API(config)
+async def main():
+    # Инициализация объекта API
+    shikimori = ShikimoriAPI(config)
 
-# Получение данных текущего пользователя через /users/whoami
-user = shikimori.current_user()
-print(f"Current user is {user.nickname}")
+    # Запуск сессии
+    await shikimori.open()
 
-# Получение достижений пользователя через /achievements
-# и вывод первого достижения
-user_achievements = shikimori.achievements(user.id)
-print(user_achievements[0])
+    # Получение данных текущего пользователя через /users/whoami
+    user = await shikimori.users.current()
+    print(f"Current user is {user.nickname}")
+
+    # Получение достижений пользователя через /achievements
+    # и вывод первого достижения
+    user_achievements = await shikimori.achievements.get(user.id)
+    print(user_achievements[0])
+
+    # Закрытие сессии
+    await shikimori.close()
+
+asyncio.run(main())
 
 # >> Current user is SecondThundeR
+
 # >> id=719972946
 # >> neko_id='animelist'
 # >> level=1
@@ -87,7 +99,9 @@ print(user_achievements[0])
 С использованием имени приложения:
 
 ```py
-from shikithon import API
+import asyncio
+
+from shikithon import ShikimoriAPI
 
 # Можно установить имя приложения в коде
 app_name = "..."
@@ -96,19 +110,21 @@ app_name = "..."
 with open("config.txt", "r", encoding="utf-8") as config_file:
     app_name_2 = config_file.readline().strip()
 
-# Инициализация объекта API
-shikimori = API(app_name)
+async def main():
+    # Инициализация объекта API
+    async with ShikimoriAPI(app_name) as shikimori:
+        # Попытка получения данных текущего пользователя через /users/whoami
+        # При попытке доступа к защищенному методу, возвращает всегда None
+        user = await shikimori.users.current()
+        print(user)
 
-# Попытка получения данных текущего пользователя через /users/whoami
-# При попытке доступа к защищенному методу, возвращает всегда None
-user = shikimori.current_user()
-print(user)
+        # Получение достижений пользователя через /achievements
+        # и вывод первого достижения
+        # Можно получать достижения любого пользователя через ID
+        user_achievements = await shikimori.achievements.get(1)
+        print(user_achievements[0])
 
-# Получение достижений пользователя через /achievements
-# и вывод первого достижения
-# Можно получать достижения любого пользователя через ID
-user_achievements = shikimori.achievements(1)
-print(user_achievements[0])
+asyncio.run(main())
 
 # >> None
 
@@ -126,12 +142,12 @@ print(user_achievements[0])
 
 > **Пара уточнений по использованию:**
 >
-> - Не обязательно импортировать модели, если вы не используете функцию аннотации типов
+> - Возможно вам придется импортировать модели для ручной аннотации возвращаемых моделей в PyCharm
+> _(в нем немного некорретно работает наследование типа от функции)_
 > - Поле `scopes` является строкой и разделяется "+", если значений несколько.
 >
 >   Пример: `user_rates+messages+comments+topics+...`
 > - При отсутствии каких-либо полей в данных конфигурации, библиотека выдает исключение
-> - Посмотреть список поддерживаемых методов API вместе с названиями для них в библиотеке, можно [здесь](https://github.com/SecondThundeR/shikithon/projects/1#column-18695394)
 
 ### Получение данных для конфигурации
 
@@ -165,8 +181,8 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 
 Данный проект использует пять библиотек:
 
-- [requests](https://github.com/psf/requests) для запросов к API
-[(Лицензия)](https://github.com/psf/requests/blob/main/LICENSE)
+- [aiohttp](https://github.com/aio-libs/aiohttp) для асинхронных запросов к API
+[(Лицензия)](https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt)
 - [pydantic](https://github.com/samuelcolvin/pydantic/) для валидации данных JSON и преобразования в модели
 [(Лицензия)](https://github.com/samuelcolvin/pydantic/blob/master/LICENSE)
 - [ratelimit](https://github.com/tomasbasham/ratelimit) для огранчений количества запросов в минуту
@@ -194,3 +210,8 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 
 Проект использует логотип сайта [Shikimori](https://shikimori.org) для логотипа в этом README.md.
 Все права принадлежат правообладателям и используются по принципу _fair use_.
+
+## Благодарности
+
+- [shiki4py](https://github.com/ren3104/Shiki4py) - взяты некоторые идеи по рефакторингу и добавлению поддержки асинхронных запросов
+[(Лицензия)](https://github.com/ren3104/Shiki4py/blob/main/LICENSE)
