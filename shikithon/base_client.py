@@ -447,15 +447,18 @@ class Client:
 
     @property
     def closed(self) -> bool:
+        """Check if session is closed."""
         return self._session is None
 
     async def open(self) -> Client:
+        """Open session and return self."""
         if self.closed:
             self._session = ClientSession()
             await self.init_config(self._passed_config)
         return self
 
     async def close(self) -> None:
+        """Close session."""
         if not self.closed:
             await self._session.close()
             self._session = None
