@@ -12,7 +12,8 @@ RT = TypeVar('RT')
 
 def protected_method(
     client_attr: str,
-    scope: Optional[str] = None
+    scope: Optional[str] = None,
+    fallback: Optional[Any] = None
 ) -> Callable[[Callable[..., RT]], Callable[..., RT]]:
     """
     Decorator for protected API methods.
@@ -32,6 +33,9 @@ def protected_method(
 
     :param scope: Scope of app
     :type scope: Optional[str]
+
+    :param fallback: Fallback value
+    :type fallback: Optional[Any]
 
     :return: Decorator function
     :rtype: Callable[[Callable[..., RT]], Callable[..., RT]]
@@ -69,21 +73,18 @@ def protected_method(
                 or if required scope is missing
             :rtype: RT
             """
-            kwargs['restricted_mode'] = False
             client = getattr(self, client_attr)
             logger.debug('Checking the possibility of using a protected method')
 
             if client.restricted_mode:
                 logger.debug('It is not possible to use the protected method '
                              'due to the restricted mode')
-                kwargs['restricted_mode'] = True
-                return function(self, *args, **kwargs)
+                return fallback
 
             if scope and scope not in client.scopes_list:
                 logger.debug(f'Protected method cannot be used due to the '
                              f'absence of "{scope}" scope')
-                kwargs['restricted_mode'] = True
-                return function(self, *args, **kwargs)
+                return fallback
 
             if client.token_expired():
                 logger.debug('Token has expired. Refreshing...')
