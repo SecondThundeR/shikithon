@@ -548,6 +548,13 @@ class Client:
                 logger.debug(
                     'Successful extraction. '
                     f'Here are the details of the response: {json_response}')
+                if json_response is None and response.status == 200:
+                    logger.debug(
+                        'Response is empty. Returning status_code/text')
+                    response_text = await response.text()
+                    response_status = response.status
+                    return response_status \
+                        if not response_text else response_text
             return json_response
         except JSONDecodeError:
             logger.debug('Can\'t extract JSON. Returning status_code/text')
