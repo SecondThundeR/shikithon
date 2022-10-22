@@ -9,7 +9,7 @@ from .people_roles import PeopleRoles
 from .people_works import PeopleWorks
 
 
-class People(BaseModel):
+class Person(BaseModel):
     """Represents person entity."""
     id: int
     name: str
