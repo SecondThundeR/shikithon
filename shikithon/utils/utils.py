@@ -332,8 +332,8 @@ class Utils:
         logger.debug(f'Validating return data: {response_data=}, '
                      f'{data_model=}, {response_code=}')
         if not response_data:
-            logger.debug('Response data is empty. Returning None')
-            return None
+            logger.debug('Response data is empty. Returning it...')
+            return response_data
 
         if isinstance(response_data, int):
             logger.debug('Response data is int. Returning value '
