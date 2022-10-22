@@ -29,9 +29,9 @@ class Appears(BaseResource):
         :return: Status of mark
         :rtype: bool
         """
-        response: Union[Dict[str, Any], int] = await self._client.request(
-            self._client.endpoints.appears,
-            headers=self._client.authorization_header,
+        response: Union[Dict[str, Any], int] = await self.client.request(
+            self.client.endpoints.appears,
+            headers=self.client.authorization_header,
             data=Utils.generate_query_dict(ids=comment_ids),
             request_type=RequestType.POST)
         return Utils.validate_return_data(response,

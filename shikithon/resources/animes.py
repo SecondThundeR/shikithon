@@ -126,13 +126,13 @@ class Animes(BaseResource):
                                                           limit=[limit, 50],
                                                           score=[score, 9])
 
-        headers = self._client.user_agent
+        headers = self.client.user_agent
 
         if my_list:
-            headers = self._client.semi_protected_method('/api/animes')
+            headers = self.client.semi_protected_method('/api/animes')
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.animes,
+        response: List[Dict[str, Any]] = await self.client.request(
+            self.client.endpoints.animes,
             headers=headers,
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
@@ -164,8 +164,8 @@ class Animes(BaseResource):
         :return: Anime info
         :rtype: Optional[Anime]
         """
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.anime(anime_id))
+        response: Dict[str, Any] = await self.client.request(
+            self.client.endpoints.anime(anime_id))
         return Utils.validate_return_data(response, data_model=Anime)
 
     @method_endpoint('/api/animes/:id/roles')
@@ -179,8 +179,8 @@ class Animes(BaseResource):
         :return: List of anime creators
         :rtype: Optional[List[Creator]]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.anime_roles(anime_id))
+        response: List[Dict[str, Any]] = await self.client.request(
+            self.client.endpoints.anime_roles(anime_id))
         return Utils.validate_return_data(response, data_model=Creator)
 
     @method_endpoint('/api/animes/:id/similar')
@@ -194,8 +194,8 @@ class Animes(BaseResource):
         :return: List of similar animes
         :rtype: Optional[List[Anime]]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.similar_animes(anime_id))
+        response: List[Dict[str, Any]] = await self.client.request(
+            self.client.endpoints.similar_animes(anime_id))
         return Utils.validate_return_data(response, data_model=Anime)
 
     @method_endpoint('/api/animes/:id/related')
@@ -209,8 +209,8 @@ class Animes(BaseResource):
         :return: List of relations
         :rtype: Optional[List[Relation]]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.anime_related_content(anime_id))
+        response: List[Dict[str, Any]] = await self.client.request(
+            self.client.endpoints.anime_related_content(anime_id))
         return Utils.validate_return_data(response, data_model=Relation)
 
     @method_endpoint('/api/animes/:id/screenshots')
@@ -225,8 +225,8 @@ class Animes(BaseResource):
         :return: List of screenshot links
         :rtype: Optional[List[Screenshot]]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.anime_screenshots(anime_id))
+        response: List[Dict[str, Any]] = await self.client.request(
+            self.client.endpoints.anime_screenshots(anime_id))
         return Utils.validate_return_data(response, data_model=Screenshot)
 
     @method_endpoint('/api/animes/:id/franchise')
@@ -241,8 +241,8 @@ class Animes(BaseResource):
         :return: Franchise tree of certain anime
         :rtype: Optional[FranchiseTree]
         """
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.anime_franchise_tree(anime_id))
+        response: Dict[str, Any] = await self.client.request(
+            self.client.endpoints.anime_franchise_tree(anime_id))
         return Utils.validate_return_data(response, data_model=FranchiseTree)
 
     @method_endpoint('/api/animes/:id/external_links')
@@ -256,8 +256,8 @@ class Animes(BaseResource):
         :return: List of external links
         :rtype: Optional[List[Link]]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.anime_external_links(anime_id))
+        response: List[Dict[str, Any]] = await self.client.request(
+            self.client.endpoints.anime_external_links(anime_id))
         return Utils.validate_return_data(response, data_model=Link)
 
     @method_endpoint('/api/animes/:id/topics')
@@ -296,8 +296,8 @@ class Animes(BaseResource):
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 30])
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.anime_topics(anime_id),
+        response: List[Dict[str, Any]] = await self.client.request(
+            self.client.endpoints.anime_topics(anime_id),
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             kind=kind,
@@ -315,8 +315,8 @@ class Animes(BaseResource):
         :return: Anime videos list
         :rtype: Optional[List[Video]]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.anime_videos(anime_id))
+        response: List[Dict[str, Any]] = await self.client.request(
+            self.client.endpoints.anime_videos(anime_id))
         return Utils.validate_return_data(response, data_model=Video)
 
     @method_endpoint('/api/animes/:anime_id/videos')
@@ -348,9 +348,9 @@ class Animes(BaseResource):
                                                              kind=kind,
                                                              name=name,
                                                              url=url)
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.anime_videos(anime_id),
-            headers=self._client.authorization_header,
+        response: Dict[str, Any] = await self.client.request(
+            self.client.endpoints.anime_videos(anime_id),
+            headers=self.client.authorization_header,
             data=data_dict,
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=Video)
@@ -370,8 +370,8 @@ class Animes(BaseResource):
         :return: Status of video deletion
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.anime_video(anime_id, video_id),
-            headers=self._client.authorization_header,
+        response: Dict[str, Any] = await self.client.request(
+            self.client.endpoints.anime_video(anime_id, video_id),
+            headers=self.client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_return_data(response)
