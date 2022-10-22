@@ -75,7 +75,8 @@ async def main():
     # Получение достижений пользователя через /achievements
     # и вывод первого достижения
     user_achievements = await shikimori.achievements.get(user.id)
-    print(user_achievements[0])
+    if user_achievements:
+            print(user_achievements[0])
 
     # Закрытие сессии
     await shikimori.close()
@@ -122,7 +123,8 @@ async def main():
         # и вывод первого достижения
         # Можно получать достижения любого пользователя через ID
         user_achievements = await shikimori.achievements.get(1)
-        print(user_achievements[0])
+        if user_achievements:
+            print(user_achievements[0])
 
 asyncio.run(main())
 
