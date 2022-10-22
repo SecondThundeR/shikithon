@@ -10,16 +10,16 @@ from aiohttp import ClientSession
 from loguru import logger
 from ratelimit import limits, sleep_and_retry
 
-from shikithon.endpoints import Endpoints
-from shikithon.enums import RequestType
-from shikithon.exceptions import (
+from .endpoints import Endpoints
+from .enums import RequestType
+from .exceptions import (
     AccessTokenException,
     MissingAppVariable,
     MissingAuthCode,
     MissingConfigData,
 )
-from shikithon.store import ConfigStore
-from shikithon.utils import Utils
+from .store import ConfigStore
+from .utils import Utils
 
 ONE_MINUTE = 60
 MAX_CALLS_PER_MINUTE = 90
