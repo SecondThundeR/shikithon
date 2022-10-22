@@ -1,14 +1,19 @@
 """Decorator for protected methods"""
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Callable, Optional, Tuple, TypeVar
 
 from loguru import logger
 
 from ..resources.base_resource import BaseResource
 
+RT = TypeVar('RT')
 
-def protected_method(client_attr: str, scope: Optional[str] = None):
+
+def protected_method(
+    client_attr: str,
+    scope: Optional[str] = None
+) -> Callable[[Callable[..., RT]], Callable[..., RT]]:
     """
     Decorator for protected API methods.
 
@@ -29,35 +34,56 @@ def protected_method(client_attr: str, scope: Optional[str] = None):
     :type scope: Optional[str]
 
     :return: Decorator function
-    :rtype: Callable
+    :rtype: Callable[[Callable[..., RT]], Callable[..., RT]]
     """
 
-    def protected_method_decorator(function):
+    def protected_method_decorator(
+            function: Callable[..., RT]) -> Callable[..., RT]:
+        """Protected method decorator.
 
-        def protected_method_wrapper(self, resource: BaseResource, *args,
-                                     **kwargs):
+        :param function: Function to decorate
+        :type function: Callable[..., RT]
+
+        :return: Decorated function
+        :rtype: Callable[..., RT]
+        """
+
+        def protected_method_wrapper(self: BaseResource, *args: Tuple[Any],
+                                     **kwargs: Any) -> RT:
             """
             Decorator's wrapper function.
 
             Check for token expire time.
             If needed, triggers token refresh function.
 
+            :param self: Resource instance
+            :type self: BaseResource
+
+            :param args: Positional arguments
+            :type args: Tuple[Any]
+
+            :param kwargs: Keyword arguments
+            :type kwargs: Any
+
             :return: None if API object is in restricted mode
                 or if required scope is missing
-            :rtype: None or Callable
+            :rtype: RT
             """
+            kwargs['restricted_mode'] = False
             client = getattr(self, client_attr)
             logger.debug('Checking the possibility of using a protected method')
 
             if client.restricted_mode:
                 logger.debug('It is not possible to use the protected method '
                              'due to the restricted mode')
-                return None
+                kwargs['restricted_mode'] = True
+                return function(self, *args, **kwargs)
 
             if scope and scope not in client.scopes_list:
                 logger.debug(f'Protected method cannot be used due to the '
                              f'absence of "{scope}" scope')
-                return None
+                kwargs['restricted_mode'] = True
+                return function(self, *args, **kwargs)
 
             if client.token_expired():
                 logger.debug('Token has expired. Refreshing...')
@@ -65,7 +91,7 @@ def protected_method(client_attr: str, scope: Optional[str] = None):
 
             logger.debug('All checks for use of the protected '
                          'method have been passed')
-            return function(self, resource, *args, **kwargs)
+            return function(self, *args, **kwargs)
 
         return protected_method_wrapper
 
