@@ -31,7 +31,7 @@ class Achievements(BaseResource):
             logger.error('/api/achievements accept only user_id as int')
             return None
 
-        response: List[Dict[str, Any]] = await self.client.request(
-            self.client.endpoints.achievements,
+        response: List[Dict[str, Any]] = await self._client.request(
+            self._client.endpoints.achievements,
             query=Utils.generate_query_dict(user_id=user_id))
         return Utils.validate_return_data(response, data_model=Achievement)
