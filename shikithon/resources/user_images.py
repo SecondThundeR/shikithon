@@ -32,10 +32,13 @@ class UserImages(BaseResource):
         :return: Created image info
         :rtype: Optional[CreatedUserImage]
         """
+        image_data = await Utils.get_image_data(image_path)
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.user_images,
             headers=self._client.authorization_header,
-            files=Utils.get_image_data(image_path),
-            data=Utils.generate_data_dict(linked_type=linked_type),
+            data={
+                **Utils.generate_data_dict(linked_type=linked_type),
+                **image_data
+            },
             request_type=RequestType.POST)
         return Utils.validate_return_data(response, data_model=CreatedUserImage)
