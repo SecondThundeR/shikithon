@@ -5,13 +5,11 @@ This file contains the Utils class
 with all the necessary utility methods
 to work with the library
 """
-from io import BytesIO
 from time import time
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
-import requests.exceptions
+from aiohttp import ClientSession
 from loguru import logger
-from requests import get
 from validators import url as is_url
 
 from ..enums.enhanced_enum import EnhancedEnum
@@ -76,9 +74,7 @@ class Utils:
         return int(time()) + time_expire_constant
 
     @staticmethod
-    def get_image_data(
-            image_path: str
-    ) -> Dict[str, Tuple[str, Union[BytesIO, bytes], str]]:
+    async def get_image_data(image_path: str) -> Dict[str, bytes]:
         """
         Extract image data from image path.
         If image_path is a link, fetch the image data from the link.
@@ -87,21 +83,17 @@ class Utils:
         :type image_path: str
 
         :return: Image data
-        :rtype: Dict[str, Tuple[str, Union[BytesIO, bytes], str]]
+        :rtype: Dict[str, bytes]
         """
         if isinstance(is_url(image_path), bool):
-            try:
-                image_response = get(image_path, timeout=5)
-                image_data = BytesIO(image_response.content)
-            except requests.exceptions.Timeout as e:
-                logger.error(
-                    f'Timeout while fetching image from link\nDetails: {e}')
-                return {}
+            async with ClientSession() as session:
+                async with session.get(image_path) as image_response:
+                    image_data = await image_response.read()
         else:
             with open(image_path, 'rb') as image_file:
                 image_data = image_file.read()
 
-        return {'image': (image_path, image_data, 'multipart/form-data')}
+        return {'image': image_data}
 
     @staticmethod
     def generate_query_dict(
