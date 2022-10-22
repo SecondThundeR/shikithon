@@ -352,14 +352,20 @@ class Utils:
                          'of response code comparison')
             return response_data == response_code.value
 
-        if isinstance(response_data, list) \
-                and len(response_data) == 1 \
-                and isinstance(response_data[0], str) \
-                and response_data[0].find('Invalid') != -1:
-            logger.debug('Response data contains info about invalid data. '
-                         'Returning fallback value')
-            logger.warning(response_data[0])
+        if isinstance(response_data, dict) and response_data.get('errors'):
+            logger.debug('Response data contains unexpected errors. '
+                         'Returning fallback value...')
+            logger.warning(f'Errors list: {response_data.get("errors")}')
             return fallback
+
+        if isinstance(response_data, list) \
+                and len(response_data) == 1:
+            if isinstance(response_data[0], str) \
+                    and response_data[0].find('Invalid') != -1:
+                logger.debug('Response data contains info about invalid data. '
+                             'Returning fallback value')
+                logger.warning(response_data[0])
+                return fallback
 
         if 'errors' in response_data or 'code' in response_data:
             logger.debug(
@@ -373,7 +379,7 @@ class Utils:
         if 'is_ignored' in response_data:
             logger.debug('Response data contains is_ignored. '
                          'Returning status of is_ignored')
-            return response_data['is_ignored']
+            return response_data.get('is_ignored')
 
         if data_model is None:
             logger.debug("Data model isn't passed. Returning response data")
