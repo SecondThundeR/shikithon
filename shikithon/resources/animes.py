@@ -10,6 +10,7 @@ from ..enums import AnimeList
 from ..enums import AnimeOrder
 from ..enums import AnimeRating
 from ..enums import AnimeStatus
+from ..enums import AnimeTopicKind
 from ..enums import RequestType
 from ..enums import VideoKind
 from ..models import Anime
@@ -148,7 +149,9 @@ class Animes(BaseResource):
                                             ids=ids,
                                             exclude_ids=exclude_ids,
                                             search=search))
-        return Utils.validate_return_data(response, data_model=Anime)
+        return Utils.validate_return_data(response,
+                                          data_model=Anime,
+                                          fallback=[])
 
     @method_endpoint('/api/animes/:id')
     async def get(self, anime_id: int) -> Optional[Anime]:
@@ -178,7 +181,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_roles(anime_id))
-        return Utils.validate_return_data(response, data_model=Creator)
+        return Utils.validate_return_data(response,
+                                          data_model=Creator,
+                                          fallback=[])
 
     @method_endpoint('/api/animes/:id/similar')
     async def similar(self, anime_id: int) -> List[Anime]:
@@ -193,7 +198,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.similar_animes(anime_id))
-        return Utils.validate_return_data(response, data_model=Anime)
+        return Utils.validate_return_data(response,
+                                          data_model=Anime,
+                                          fallback=[])
 
     @method_endpoint('/api/animes/:id/related')
     async def related_content(self, anime_id: int) -> List[Relation]:
@@ -208,7 +215,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_related_content(anime_id))
-        return Utils.validate_return_data(response, data_model=Relation)
+        return Utils.validate_return_data(response,
+                                          data_model=Relation,
+                                          fallback=[])
 
     @method_endpoint('/api/animes/:id/screenshots')
     async def screenshots(self, anime_id: int) -> List[Screenshot]:
@@ -223,7 +232,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_screenshots(anime_id))
-        return Utils.validate_return_data(response, data_model=Screenshot)
+        return Utils.validate_return_data(response,
+                                          data_model=Screenshot,
+                                          fallback=[])
 
     @method_endpoint('/api/animes/:id/franchise')
     async def franchise_tree(self, anime_id: int) -> Optional[FranchiseTree]:
@@ -253,7 +264,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_external_links(anime_id))
-        return Utils.validate_return_data(response, data_model=Link)
+        return Utils.validate_return_data(response,
+                                          data_model=Link,
+                                          fallback=[])
 
     @method_endpoint('/api/animes/:id/topics')
     async def topics(self,
@@ -285,7 +298,7 @@ class Animes(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        if not Utils.validate_enum_params({AnimeKind: kind}):
+        if not Utils.validate_enum_params({AnimeTopicKind: kind}):
             return []
 
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
@@ -297,12 +310,14 @@ class Animes(BaseResource):
                                             limit=validated_numbers['limit'],
                                             kind=kind,
                                             episode=episode))
-        return Utils.validate_return_data(response, data_model=Topic)
+        return Utils.validate_return_data(response,
+                                          data_model=Topic,
+                                          fallback=[])
 
     @method_endpoint('/api/animes/:anime_id/videos')
     async def videos(self, anime_id: int) -> List[Video]:
         """
-        Returns anime videso.
+        Returns list of anime videos.
 
         :param anime_id: Anime ID to get videos
         :type anime_id: int
@@ -312,7 +327,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_videos(anime_id))
-        return Utils.validate_return_data(response, data_model=Video)
+        return Utils.validate_return_data(response,
+                                          data_model=Video,
+                                          fallback=[])
 
     @method_endpoint('/api/animes/:anime_id/videos')
     @protected_method('_client', 'content')
