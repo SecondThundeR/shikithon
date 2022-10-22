@@ -11,34 +11,32 @@ from typing import Dict, Union
 from loguru import logger
 
 from .base_client import Client
-from .resources import (
-    AbuseRequests,
-    Achievements,
-    Animes,
-    Appears,
-    Bans,
-    Calendar,
-    Characters,
-    Clubs,
-    Comments,
-    Constants,
-    Dialogs,
-    Favorites,
-    Forums,
-    Friends,
-    Genres,
-    Mangas,
-    Messages,
-    Publishers,
-    Ranobes,
-    Stats,
-    Studios,
-    Styles,
-    Topics,
-    UserImages,
-    UserRates,
-    Users,
-)
+from .resources import AbuseRequests
+from .resources import Achievements
+from .resources import Animes
+from .resources import Appears
+from .resources import Bans
+from .resources import Calendar
+from .resources import Characters
+from .resources import Clubs
+from .resources import Comments
+from .resources import Constants
+from .resources import Dialogs
+from .resources import Favorites
+from .resources import Forums
+from .resources import Friends
+from .resources import Genres
+from .resources import Mangas
+from .resources import Messages
+from .resources import Publishers
+from .resources import Ranobes
+from .resources import Stats
+from .resources import Studios
+from .resources import Styles
+from .resources import Topics
+from .resources import UserImages
+from .resources import UserRates
+from .resources import Users
 from .resources.people import People
 
 

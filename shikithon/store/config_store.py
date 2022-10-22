@@ -5,7 +5,8 @@ This module handles saving API config to own file
 to use on next object initializaion
 """
 
-from json import dumps, loads
+from json import dumps
+from json import loads
 from os import remove
 from os.path import exists
 from typing import Any, Dict, Optional, Tuple

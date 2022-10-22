@@ -1,28 +1,25 @@
 """Represents /api/animes and /api/animes/:anime_id/videos resource."""
 from typing import Any, Dict, List, Optional, Union
 
-from ..decorators import method_endpoint, protected_method
-from ..enums import (
-    AnimeCensorship,
-    AnimeDuration,
-    AnimeKind,
-    AnimeList,
-    AnimeOrder,
-    AnimeRating,
-    AnimeStatus,
-    RequestType,
-    VideoKind,
-)
-from ..models import (
-    Anime,
-    Creator,
-    FranchiseTree,
-    Link,
-    Relation,
-    Screenshot,
-    Topic,
-    Video,
-)
+from ..decorators import method_endpoint
+from ..decorators import protected_method
+from ..enums import AnimeCensorship
+from ..enums import AnimeDuration
+from ..enums import AnimeKind
+from ..enums import AnimeList
+from ..enums import AnimeOrder
+from ..enums import AnimeRating
+from ..enums import AnimeStatus
+from ..enums import RequestType
+from ..enums import VideoKind
+from ..models import Anime
+from ..models import Creator
+from ..models import FranchiseTree
+from ..models import Link
+from ..models import Relation
+from ..models import Screenshot
+from ..models import Topic
+from ..models import Video
 from ..utils import Utils
 from .base_resource import BaseResource
 

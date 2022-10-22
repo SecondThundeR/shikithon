@@ -2,14 +2,17 @@
 from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import method_endpoint
-from ..enums import (
-    MangaCensorship,
-    MangaKind,
-    MangaList,
-    MangaOrder,
-    MangaStatus,
-)
-from ..models import Creator, FranchiseTree, Link, Manga, Relation, Topic
+from ..enums import MangaCensorship
+from ..enums import MangaKind
+from ..enums import MangaList
+from ..enums import MangaOrder
+from ..enums import MangaStatus
+from ..models import Creator
+from ..models import FranchiseTree
+from ..models import Link
+from ..models import Manga
+from ..models import Relation
+from ..models import Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 

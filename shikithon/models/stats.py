@@ -1,7 +1,8 @@
 """Submodel for user.py"""
 from typing import Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from pydantic import Field
 
 from .activity import Activity
 from .rating_list import RatingList

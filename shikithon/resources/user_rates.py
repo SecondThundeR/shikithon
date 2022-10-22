@@ -3,14 +3,13 @@ from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
 
-from ..decorators import method_endpoint, protected_method
-from ..enums import (
-    RequestType,
-    ResponseCode,
-    UserRateStatus,
-    UserRateTarget,
-    UserRateType,
-)
+from ..decorators import method_endpoint
+from ..decorators import protected_method
+from ..enums import RequestType
+from ..enums import ResponseCode
+from ..enums import UserRateStatus
+from ..enums import UserRateTarget
+from ..enums import UserRateType
 from ..models import UserRate
 from ..utils import Utils
 from .base_resource import BaseResource

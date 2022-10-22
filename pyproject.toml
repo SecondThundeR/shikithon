@@ -29,8 +29,7 @@ generate-setup-file = false
 based_on_style = "google"
 
 [tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
+profile = "google"
 
 [tool.poetry.dependencies]
 python = "^3.8.10"

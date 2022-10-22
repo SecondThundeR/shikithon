@@ -2,8 +2,16 @@
 from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import method_endpoint
-from ..enums import RanobeCensorship, RanobeList, RanobeOrder, RanobeStatus
-from ..models import Creator, FranchiseTree, Link, Ranobe, Relation, Topic
+from ..enums import RanobeCensorship
+from ..enums import RanobeList
+from ..enums import RanobeOrder
+from ..enums import RanobeStatus
+from ..models import Creator
+from ..models import FranchiseTree
+from ..models import Link
+from ..models import Ranobe
+from ..models import Relation
+from ..models import Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 

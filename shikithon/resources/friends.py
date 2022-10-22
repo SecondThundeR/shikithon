@@ -1,7 +1,8 @@
 """Represents /api/friends resource."""
 from typing import Any, Dict, Union
 
-from ..decorators import method_endpoint, protected_method
+from ..decorators import method_endpoint
+from ..decorators import protected_method
 from ..enums import RequestType
 from ..utils import Utils
 from .base_resource import BaseResource

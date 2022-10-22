@@ -1,8 +1,12 @@
 """Represents /api/favorites resource."""
 from typing import Any, Dict, Optional, Union
 
-from ..decorators import method_endpoint, protected_method
-from ..enums import FavoriteLinkedType, PersonKind, RequestType, ResponseCode
+from ..decorators import method_endpoint
+from ..decorators import protected_method
+from ..enums import FavoriteLinkedType
+from ..enums import PersonKind
+from ..enums import RequestType
+from ..enums import ResponseCode
 from ..utils import Utils
 from .base_resource import BaseResource
 

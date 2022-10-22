@@ -1,8 +1,10 @@
 """Represents /api/styles resource."""
 from typing import Any, Dict, Optional
 
-from ..decorators import method_endpoint, protected_method
-from ..enums import OwnerType, RequestType
+from ..decorators import method_endpoint
+from ..decorators import protected_method
+from ..enums import OwnerType
+from ..enums import RequestType
 from ..models import Style
 from ..utils import Utils
 from .base_resource import BaseResource

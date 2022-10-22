@@ -1,16 +1,21 @@
 """Represents /api/clubs resource."""
 from typing import Any, Dict, List, Optional, Union
 
-from ..decorators import method_endpoint, protected_method
-from ..enums import (
-    CommentPolicy,
-    ImageUploadPolicy,
-    JoinPolicy,
-    PagePolicy,
-    RequestType,
-    TopicPolicy,
-)
-from ..models import Anime, Character, Club, ClubImage, Manga, Ranobe, User
+from ..decorators import method_endpoint
+from ..decorators import protected_method
+from ..enums import CommentPolicy
+from ..enums import ImageUploadPolicy
+from ..enums import JoinPolicy
+from ..enums import PagePolicy
+from ..enums import RequestType
+from ..enums import TopicPolicy
+from ..models import Anime
+from ..models import Character
+from ..models import Club
+from ..models import ClubImage
+from ..models import Manga
+from ..models import Ranobe
+from ..models import User
 from ..utils import Utils
 from .base_resource import BaseResource
 

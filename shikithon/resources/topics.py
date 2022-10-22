@@ -1,8 +1,12 @@
 """Represents /api/topics and /api/v2/topics resource."""
 from typing import Any, Dict, List, Optional, Union
 
-from ..decorators import method_endpoint, protected_method
-from ..enums import ForumType, RequestType, TopicLinkedType, TopicType
+from ..decorators import method_endpoint
+from ..decorators import protected_method
+from ..enums import ForumType
+from ..enums import RequestType
+from ..enums import TopicLinkedType
+from ..enums import TopicType
 from ..models import Topic
 from ..utils import Utils
 from .base_resource import BaseResource

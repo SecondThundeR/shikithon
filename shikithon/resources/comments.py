@@ -3,8 +3,10 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
-from ..decorators import method_endpoint, protected_method
-from ..enums import CommentableType, RequestType
+from ..decorators import method_endpoint
+from ..decorators import protected_method
+from ..enums import CommentableType
+from ..enums import RequestType
 from ..models import Comment
 from ..utils import Utils
 from .base_resource import BaseResource

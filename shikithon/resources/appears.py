@@ -2,8 +2,10 @@
 
 from typing import Any, Dict, List, Union
 
-from ..decorators import method_endpoint, protected_method
-from ..enums import RequestType, ResponseCode
+from ..decorators import method_endpoint
+from ..decorators import protected_method
+from ..enums import RequestType
+from ..enums import ResponseCode
 from ..utils import Utils
 from .base_resource import BaseResource
 

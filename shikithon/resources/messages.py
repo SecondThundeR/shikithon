@@ -1,8 +1,11 @@
 """Represents /api/messages resource."""
 from typing import Any, Dict, List, Optional, Union
 
-from ..decorators import method_endpoint, protected_method
-from ..enums import MessageType, RequestType, ResponseCode
+from ..decorators import method_endpoint
+from ..decorators import protected_method
+from ..enums import MessageType
+from ..enums import RequestType
+from ..enums import ResponseCode
 from ..models import Message
 from ..utils import Utils
 from .base_resource import BaseResource

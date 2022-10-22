@@ -1,39 +1,40 @@
 """Enums for shikithon API class."""
 
-from .anime import (
-    AnimeCensorship,
-    AnimeDuration,
-    AnimeKind,
-    AnimeList,
-    AnimeOrder,
-    AnimeRating,
-    AnimeStatus,
-)
-from .club import (
-    CommentPolicy,
-    ImageUploadPolicy,
-    JoinPolicy,
-    PagePolicy,
-    TopicPolicy,
-)
+from .anime import AnimeCensorship
+from .anime import AnimeDuration
+from .anime import AnimeKind
+from .anime import AnimeList
+from .anime import AnimeOrder
+from .anime import AnimeRating
+from .anime import AnimeStatus
+from .club import CommentPolicy
+from .club import ImageUploadPolicy
+from .club import JoinPolicy
+from .club import PagePolicy
+from .club import TopicPolicy
 from .comment import CommentableType
 from .favorite import FavoriteLinkedType
 from .history import TargetType
-from .manga import (
-    MangaCensorship,
-    MangaKind,
-    MangaList,
-    MangaOrder,
-    MangaStatus,
-)
+from .manga import MangaCensorship
+from .manga import MangaKind
+from .manga import MangaList
+from .manga import MangaOrder
+from .manga import MangaStatus
 from .message import MessageType
 from .person import PersonKind
-from .ranobe import RanobeCensorship, RanobeList, RanobeOrder, RanobeStatus
+from .ranobe import RanobeCensorship
+from .ranobe import RanobeList
+from .ranobe import RanobeOrder
+from .ranobe import RanobeStatus
 from .request import RequestType
 from .response import ResponseCode
 from .style import OwnerType
-from .topic import ForumType, TopicLinkedType, TopicType
-from .user_rate import UserRateStatus, UserRateTarget, UserRateType
+from .topic import ForumType
+from .topic import TopicLinkedType
+from .topic import TopicType
+from .user_rate import UserRateStatus
+from .user_rate import UserRateTarget
+from .user_rate import UserRateType
 from .video import VideoKind
 
 __all__ = [

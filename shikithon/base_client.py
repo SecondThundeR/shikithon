@@ -1,23 +1,23 @@
 """Base class for shikithon API class."""
 from __future__ import annotations
 
+from json import dumps
+from json import JSONDecodeError
 import sys
-from json import JSONDecodeError, dumps
 from time import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from aiohttp import ClientSession
 from loguru import logger
-from ratelimit import limits, sleep_and_retry
+from ratelimit import limits
+from ratelimit import sleep_and_retry
 
 from .endpoints import Endpoints
 from .enums import RequestType
-from .exceptions import (
-    AccessTokenException,
-    MissingAppVariable,
-    MissingAuthCode,
-    MissingConfigData,
-)
+from .exceptions import AccessTokenException
+from .exceptions import MissingAppVariable
+from .exceptions import MissingAuthCode
+from .exceptions import MissingConfigData
 from .store import ConfigStore
 from .utils import Utils
 

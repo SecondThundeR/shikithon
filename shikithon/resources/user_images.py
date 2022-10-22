@@ -1,7 +1,8 @@
 """Represents /api/user_images resource."""
 from typing import Any, Dict, Optional, Union
 
-from ..decorators import method_endpoint, protected_method
+from ..decorators import method_endpoint
+from ..decorators import protected_method
 from ..enums import RequestType
 from ..models import CreatedUserImage
 from ..utils import Utils

@@ -1,9 +1,11 @@
 """Represents /api/dialogs resource."""
 from typing import Any, Dict, List, Optional, Union
 
-from ..decorators import method_endpoint, protected_method
+from ..decorators import method_endpoint
+from ..decorators import protected_method
 from ..enums import RequestType
-from ..models import Dialog, Message
+from ..models import Dialog
+from ..models import Message
 from ..utils import Utils
 from .base_resource import BaseResource
 
