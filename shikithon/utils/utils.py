@@ -267,6 +267,11 @@ class Utils:
                          f'Returning {upper_limit=}')
             return upper_limit
 
+        if isinstance(query_number, float):
+            logger.debug(f'Query number ("{query_number}") is float. '
+                         f'Converting to int')
+            query_number = int(query_number)
+
         logger.debug(f'Returning passed query number ("{query_number}")')
         return query_number
 
@@ -349,15 +354,17 @@ class Utils:
 
         if isinstance(response_data, list) \
                 and len(response_data) == 1 \
-                and response_data[0].find('Invalid parameter') != -1:
-            logger.debug('Response data contains invalid parameter info. '
+                and isinstance(response_data[0], str) \
+                and response_data[0].find('Invalid') != -1:
+            logger.debug('Response data contains info about invalid data. '
                          'Returning fallback value')
             logger.warning(response_data[0])
             return fallback
 
         if 'errors' in response_data or 'code' in response_data:
-            logger.debug('Response data contains errors info. Returning None')
-            return None
+            logger.debug(
+                'Response data contains errors info. Returning fallback value')
+            return fallback
 
         if 'notice' in response_data or 'success' in response_data:
             logger.debug('Response data contains success info. Returning True')
