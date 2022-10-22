@@ -185,7 +185,7 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 [(Лицензия)](https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt)
 - [pydantic](https://github.com/samuelcolvin/pydantic/) для валидации данных JSON и преобразования в модели
 [(Лицензия)](https://github.com/samuelcolvin/pydantic/blob/master/LICENSE)
-- [ratelimit](https://github.com/tomasbasham/ratelimit) для огранчений количества запросов в минуту
+- [ratelimit](https://github.com/tomasbasham/ratelimit) для огранчений количества запросов к API
 [(Лицензия)](https://github.com/tomasbasham/ratelimit/blob/master/LICENSE.txt)
 - [loguru](https://github.com/Delgan/loguru) для удобного логгирования
 [(Лицензия)](https://github.com/Delgan/loguru/blob/master/LICENSE)
