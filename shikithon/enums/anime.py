@@ -50,6 +50,13 @@ class AnimeStatus(EnhancedEnum):
     NOT_RELEASED = '!released'
 
 
+class AnimeTopicKind(EnhancedEnum):
+    """Contains constants related for getting certain kind of anime topic."""
+    ANONS = 'anons'
+    ONGOING = 'ongoing'
+    RELEASED = 'released'
+
+
 class AnimeDuration(EnhancedEnum):
     """Contains constants related for getting certain duration of anime."""
     SHORT = 'S'
