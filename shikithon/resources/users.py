@@ -51,7 +51,9 @@ class Users(BaseResource):
             self._client.endpoints.users,
             query=Utils.generate_query_dict(page=validated_numbers['page'],
                                             limit=validated_numbers['limit']))
-        return Utils.validate_return_data(response, data_model=User)
+        return Utils.validate_return_data(response,
+                                          data_model=User,
+                                          fallback=[])
 
     @method_endpoint('/api/users/:id')
     async def get(self,
@@ -96,8 +98,7 @@ class Users(BaseResource):
         return Utils.validate_return_data(response, data_model=User)
 
     @method_endpoint('/api/users/whoami')
-    @protected_method(
-        '_client',)
+    @protected_method('_client')
     async def current(self) -> Optional[User]:
         """
         Returns brief info about current user.
@@ -113,8 +114,7 @@ class Users(BaseResource):
         return Utils.validate_return_data(response, data_model=User)
 
     @method_endpoint('/api/users/sign_out')
-    @protected_method(
-        '_client',)
+    @protected_method('_client')
     async def sign_out(self):
         """Sends sign out request to API."""
         await self._client.request(self._client.endpoints.sign_out,
@@ -139,7 +139,9 @@ class Users(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_friends(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        return Utils.validate_return_data(response, data_model=User)
+        return Utils.validate_return_data(response,
+                                          data_model=User,
+                                          fallback=[])
 
     @method_endpoint('/api/users/:id/clubs')
     async def clubs(self,
@@ -160,7 +162,9 @@ class Users(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_clubs(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        return Utils.validate_return_data(response, data_model=Club)
+        return Utils.validate_return_data(response,
+                                          data_model=Club,
+                                          fallback=[])
 
     @method_endpoint('/api/users/:id/anime_rates')
     async def anime_rates(self,
@@ -198,7 +202,7 @@ class Users(BaseResource):
                 AnimeList: status,
                 AnimeCensorship: censored
         }):
-            return None
+            return []
 
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -212,7 +216,9 @@ class Users(BaseResource):
                                             limit=validated_numbers['limit'],
                                             status=status,
                                             censored=censored))
-        return Utils.validate_return_data(response, data_model=UserList)
+        return Utils.validate_return_data(response,
+                                          data_model=UserList,
+                                          fallback=[])
 
     @method_endpoint('/api/users/:id/manga_rates')
     async def manga_rates(self,
@@ -243,7 +249,7 @@ class Users(BaseResource):
         :rtype: List[UserList]
         """
         if not Utils.validate_enum_params({AnimeCensorship: censored}):
-            return None
+            return []
 
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -256,7 +262,9 @@ class Users(BaseResource):
                                             page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             censored=censored))
-        return Utils.validate_return_data(response, data_model=UserList)
+        return Utils.validate_return_data(response,
+                                          data_model=UserList,
+                                          fallback=[])
 
     @method_endpoint('/api/users/:id/favourites')
     async def favourites(
@@ -311,7 +319,7 @@ class Users(BaseResource):
         :rtype: List[Message]
         """
         if not Utils.validate_enum_params({MessageType: message_type}):
-            return None
+            return []
 
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -325,7 +333,9 @@ class Users(BaseResource):
                                             page=validated_numbers['page'],
                                             limit=validated_numbers['limit'],
                                             type=message_type))
-        return Utils.validate_return_data(response, data_model=Message)
+        return Utils.validate_return_data(response,
+                                          data_model=Message,
+                                          fallback=[])
 
     @method_endpoint('/api/users/:id/unread_messages')
     @protected_method('_client', 'messages')
@@ -384,7 +394,7 @@ class Users(BaseResource):
         :rtype: List[History]
         """
         if not Utils.validate_enum_params({TargetType: target_type}):
-            return None
+            return []
 
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -398,7 +408,9 @@ class Users(BaseResource):
                                             limit=validated_numbers['limit'],
                                             target_id=target_id,
                                             target_type=target_type))
-        return Utils.validate_return_data(response, data_model=History)
+        return Utils.validate_return_data(response,
+                                          data_model=History,
+                                          fallback=[])
 
     @method_endpoint('/api/users/:id/bans')
     async def bans(self,
@@ -419,7 +431,7 @@ class Users(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_bans(user_id),
             query=Utils.generate_query_dict(is_nickname=is_nickname))
-        return Utils.validate_return_data(response, data_model=Ban)
+        return Utils.validate_return_data(response, data_model=Ban, fallback=[])
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
     @protected_method('_client', 'ignores')
