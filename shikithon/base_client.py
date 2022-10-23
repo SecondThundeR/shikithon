@@ -470,6 +470,7 @@ class Client:
         self,
         url: str,
         data: Optional[Dict[str, str]] = None,
+        bytes_data: Optional[bytes] = None,
         headers: Optional[Dict[str, str]] = None,
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
@@ -490,6 +491,9 @@ class Client:
 
         :param data: Request body data
         :type data: Optional[Dict[str, str]]
+
+        :param bytes_data: Request body data in bytes
+        :type bytes_data: Optional[bytes]
 
         :param headers: Custom headers for request
         :type headers: Optional[Dict[str, str]]
@@ -513,28 +517,39 @@ class Client:
         if output_logging:
             logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
 
+        if data is not None and bytes_data is not None:
+            logger.debug(
+                'Request body data and bytes data are sent at the same time. '
+                'Splitting into one...')
+            bytes_data = {**bytes_data, **data}
+            data = None
+
         if request_type == RequestType.GET:
             response = await self._session.get(url,
                                                headers=headers,
                                                params=query)
         elif request_type == RequestType.POST:
             response = await self._session.post(url,
-                                                data=data,
+                                                data=bytes_data,
+                                                json=data,
                                                 headers=headers,
                                                 params=query)
         elif request_type == RequestType.PUT:
             response = await self._session.put(url,
-                                               data=data,
+                                               data=bytes_data,
+                                               json=data,
                                                headers=headers,
                                                params=query)
         elif request_type == RequestType.PATCH:
             response = await self._session.patch(url,
-                                                 data=data,
+                                                 data=bytes_data,
+                                                 json=data,
                                                  headers=headers,
                                                  params=query)
         elif request_type == RequestType.DELETE:
             response = await self._session.delete(url,
-                                                  data=data,
+                                                  data=bytes_data,
+                                                  json=data,
                                                   headers=headers,
                                                   params=query)
         else:
