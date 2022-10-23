@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from json import dumps
-from json import JSONDecodeError
 import sys
 from time import time
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -556,26 +555,19 @@ class Client:
             logger.debug('Unknown request_type. Returning None')
             return None
 
-        try:
-            logger.debug('Extracting JSON from response')
-            json_response = await response.json()
-            if output_logging:
-                logger.debug(
-                    'Successful extraction. '
-                    f'Here are the details of the response: {json_response}')
-                if json_response is None and response.status == 200:
-                    logger.debug(
-                        'Response is empty. Returning status_code/text')
-                    response_text = await response.text()
-                    response_status = response.status
-                    return response_status \
-                        if not response_text else response_text
-            return json_response
-        except JSONDecodeError:
-            logger.debug('Can\'t extract JSON. Returning status_code/text')
-            response_text = await response.text()
-            response_status = response.status
-            return response_status if not response_text else response_text
+        logger.debug('Extracting JSON from response')
+        json_response = await response.json()
+        if output_logging:
+            logger.debug(
+                'Successful extraction. '
+                f'Here are the details of the response: {json_response}')
+            if json_response is None and response.status == 200:
+                logger.debug('Response is empty. Returning status_code/text')
+                response_text = await response.text()
+                response_status = response.status
+                return response_status \
+                    if not response_text else response_text
+        return json_response
 
     async def __aenter__(self) -> Client:
         """Async context manager entry point."""
