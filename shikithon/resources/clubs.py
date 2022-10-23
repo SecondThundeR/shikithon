@@ -295,8 +295,8 @@ class Clubs(BaseResource):
                                           fallback=[])
 
     @method_endpoint('/api/clubs/:id/join')
-    @protected_method('_client', 'clubs')
-    async def join(self, club_id: int):
+    @protected_method('_client', 'clubs', fallback=False)
+    async def join(self, club_id: int) -> bool:
         """
         Joins club by ID.
 
@@ -315,7 +315,7 @@ class Clubs(BaseResource):
                                           fallback=False)
 
     @method_endpoint('/api/clubs/:id/leave')
-    @protected_method('_client', 'clubs')
+    @protected_method('_client', 'clubs', fallback=False)
     async def leave(self, club_id: int) -> bool:
         """
         Leaves club by ID.
