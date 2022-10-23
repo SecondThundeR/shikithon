@@ -69,7 +69,7 @@ def protected_method(
             :param kwargs: Keyword arguments
             :type kwargs: Any
 
-            :return: None if API object is in restricted mode
+            :return: Fallback value if API object is in restricted mode
                 or if required scope is missing
             :rtype: RT
             """
