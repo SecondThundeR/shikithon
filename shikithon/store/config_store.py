@@ -24,7 +24,7 @@ class ConfigStore:
     saving/restoring config from a file.
 
     In addition, there is a method
-    to check if config cache file is exists.
+    to check if config file is exists.
 
     On saving, class takes ".shikithon_" and
     combining with the current app_name
@@ -50,7 +50,7 @@ class ConfigStore:
         :return: Config filename
         :rtype: str
         """
-        logger.debug('Generating config cache filename')
+        logger.debug('Generating config filename')
         return '.shikithon_' + Utils.convert_app_name(app_name)
 
     @staticmethod
@@ -70,21 +70,21 @@ class ConfigStore:
             otherwise, empty dictionary and False
         :rtype: Tuple[Dict[str, Any], bool]
         """
-        cache_config = ConfigStore.get_config(app_name)
-        if cache_config is None:
+        store_config = ConfigStore.get_config(app_name)
+        if store_config is None:
             logger.debug('There are no stored config')
             return {}, False
 
         logger.debug('Found stored config. Checking...')
 
-        if auth_code and cache_config['auth_code'] != auth_code:
-            logger.debug('Mismatch of provided and cached auth codes. '
+        if auth_code and store_config['auth_code'] != auth_code:
+            logger.debug('Mismatch of provided and stored auth codes. '
                          'Deleting old stored config')
             ConfigStore.delete_config(app_name)
             return {}, False
 
         logger.debug('Stored config is valid')
-        return cache_config, True
+        return store_config, True
 
     @staticmethod
     def get_config(app_name: str) -> Optional[Dict[str, str]]:
