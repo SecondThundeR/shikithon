@@ -51,7 +51,7 @@ class ConfigStore:
         :rtype: str
         """
         logger.debug('Generating config filename')
-        return '.shikithon_' + Utils.convert_app_name(app_name)
+        return '.shikithon_' + Utils.convert_app_name_to_filename(app_name)
 
     @staticmethod
     def config_validation(app_name: str,

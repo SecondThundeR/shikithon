@@ -138,7 +138,7 @@ class Endpoints:
         :return: Link for getting authorization code
         :rtype: str
         """
-        query_str = Utils.prepare_query_dict({
+        query_str = Utils.convert_to_query_string({
             'client_id': client_id,
             'redirect_uri': redirect_uri,
             'response_type': 'code',
