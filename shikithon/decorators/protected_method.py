@@ -69,22 +69,25 @@ def protected_method(
             :param kwargs: Keyword arguments
             :type kwargs: Any
 
-            :return: Fallback value if API object is in restricted mode
+            :return: Fallback function if API object is in restricted mode
                 or if required scope is missing
             :rtype: RT
             """
             client = getattr(self, client_attr)
             logger.debug('Checking the possibility of using a protected method')
 
+            async def fallback_function() -> RT:
+                return fallback
+
             if client.restricted_mode:
                 logger.debug('It is not possible to use the protected method '
                              'due to the restricted mode')
-                return fallback
+                return fallback_function()
 
             if scope and scope not in client.scopes_list:
                 logger.debug(f'Protected method cannot be used due to the '
                              f'absence of "{scope}" scope')
-                return fallback
+                return fallback_function()
 
             if client.token_expired():
                 logger.debug('Token has expired. Refreshing...')
