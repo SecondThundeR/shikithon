@@ -37,7 +37,8 @@ class UserImages(BaseResource):
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.user_images,
             headers=self._client.authorization_header,
-            data=Utils.generate_data_dict(linked_type=linked_type),
+            data=Utils.create_data_dict(linked_type=linked_type),
             bytes_data=image_data,
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=CreatedUserImage)
+        return Utils.validate_response_data(response,
+                                            data_model=CreatedUserImage)

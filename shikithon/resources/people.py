@@ -27,7 +27,7 @@ class People(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.people(people_id))
-        return Utils.validate_return_data(response, data_model=Person)
+        return Utils.validate_response_data(response, data_model=Person)
 
     @method_endpoint('/api/people/search')
     async def search(self,
@@ -49,9 +49,11 @@ class People(BaseResource):
         :rtype: List[Person]
         """
         if not Utils.validate_enum_params({PersonKind: people_kind}):
-            return None
+            return []
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.people_search,
-            query=Utils.generate_query_dict(search=search, kind=people_kind))
-        return Utils.validate_return_data(response, data_model=Person)
+            query=Utils.create_query_dict(search=search, kind=people_kind))
+        return Utils.validate_response_data(response,
+                                            data_model=Person,
+                                            fallback=[])

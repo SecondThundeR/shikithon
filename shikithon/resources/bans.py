@@ -36,6 +36,6 @@ class Bans(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.bans_list,
-            query=Utils.generate_query_dict(page=validated_numbers['page'],
-                                            limit=validated_numbers['limit']))
-        return Utils.validate_return_data(response, data_model=Ban)
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit']))
+        return Utils.validate_response_data(response, data_model=Ban)

@@ -28,9 +28,9 @@ class AbuseRequests(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.abuse_offtopic,
-            data=Utils.generate_data_dict(comment_id=comment_id),
+            data=Utils.create_data_dict(comment_id=comment_id),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=AbuseResponse)
+        return Utils.validate_response_data(response, data_model=AbuseResponse)
 
     @method_endpoint('/api/v2/abuse_requests/review')
     async def comment_review(self, comment_id: int) -> Optional[AbuseResponse]:
@@ -45,9 +45,9 @@ class AbuseRequests(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.abuse_review,
-            data=Utils.generate_data_dict(comment_id=comment_id),
+            data=Utils.create_data_dict(comment_id=comment_id),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=AbuseResponse)
+        return Utils.validate_response_data(response, data_model=AbuseResponse)
 
     @method_endpoint('/api/v2/abuse_requests/abuse')
     async def violation_request(self, comment_id: int,
@@ -66,9 +66,9 @@ class AbuseRequests(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.abuse_violation,
-            data=Utils.generate_data_dict(comment_id=comment_id, reason=reason),
+            data=Utils.create_data_dict(comment_id=comment_id, reason=reason),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=AbuseResponse)
+        return Utils.validate_response_data(response, data_model=AbuseResponse)
 
     @method_endpoint('/api/v2/abuse_requests/spoiler')
     async def spoiler_abuse_request(self, comment_id: int,
@@ -87,6 +87,6 @@ class AbuseRequests(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.abuse_spoiler,
-            data=Utils.generate_data_dict(comment_id=comment_id, reason=reason),
+            data=Utils.create_data_dict(comment_id=comment_id, reason=reason),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=AbuseResponse)
+        return Utils.validate_response_data(response, data_model=AbuseResponse)

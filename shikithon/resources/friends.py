@@ -30,7 +30,7 @@ class Friends(BaseResource):
             self._client.endpoints.friend(friend_id),
             headers=self._client.authorization_header,
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response)
 
     @method_endpoint('/api/friends/:id')
     @protected_method('_client', 'friends')
@@ -48,4 +48,4 @@ class Friends(BaseResource):
             self._client.endpoints.friend(friend_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response)

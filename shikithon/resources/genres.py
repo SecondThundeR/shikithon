@@ -23,4 +23,4 @@ class Genres(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.genres)
-        return Utils.validate_return_data(response, data_model=Genre)
+        return Utils.validate_response_data(response, data_model=Genre)

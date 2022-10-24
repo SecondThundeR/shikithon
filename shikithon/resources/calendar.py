@@ -30,7 +30,7 @@ class Calendar(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.calendar,
-            query=Utils.generate_query_dict(censored=censored))
-        return Utils.validate_return_data(response,
-                                          data_model=CalendarEvent,
-                                          fallback=[])
+            query=Utils.create_query_dict(censored=censored))
+        return Utils.validate_response_data(response,
+                                            data_model=CalendarEvent,
+                                            fallback=[])

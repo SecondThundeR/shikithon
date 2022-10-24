@@ -92,8 +92,8 @@ class Animes(BaseResource):
         :param censored: Type of anime censorship
         :type censored: Optional[str]
 
-        :param my_list: Status(-es) of anime in current user list
-            **Note:** If app is in restricted mode,
+        :param my_list: Status(-es) of anime in current user list.
+            If app is in restricted mode,
             this parameter won't affect on response.
         :type my_list: Optional[Union[str, List[str]]]
 
@@ -132,26 +132,26 @@ class Animes(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.animes,
             headers=headers,
-            query=Utils.generate_query_dict(page=validated_numbers['page'],
-                                            limit=validated_numbers['limit'],
-                                            order=order,
-                                            kind=kind,
-                                            status=status,
-                                            season=season,
-                                            score=validated_numbers['score'],
-                                            duration=duration,
-                                            rating=rating,
-                                            genre=genre,
-                                            studio=studio,
-                                            franchise=franchise,
-                                            censored=censored,
-                                            mylist=my_list,
-                                            ids=ids,
-                                            exclude_ids=exclude_ids,
-                                            search=search))
-        return Utils.validate_return_data(response,
-                                          data_model=Anime,
-                                          fallback=[])
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit'],
+                                          order=order,
+                                          kind=kind,
+                                          status=status,
+                                          season=season,
+                                          score=validated_numbers['score'],
+                                          duration=duration,
+                                          rating=rating,
+                                          genre=genre,
+                                          studio=studio,
+                                          franchise=franchise,
+                                          censored=censored,
+                                          mylist=my_list,
+                                          ids=ids,
+                                          exclude_ids=exclude_ids,
+                                          search=search))
+        return Utils.validate_response_data(response,
+                                            data_model=Anime,
+                                            fallback=[])
 
     @method_endpoint('/api/animes/:id')
     async def get(self, anime_id: int) -> Optional[Anime]:
@@ -166,7 +166,7 @@ class Animes(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime(anime_id))
-        return Utils.validate_return_data(response, data_model=Anime)
+        return Utils.validate_response_data(response, data_model=Anime)
 
     @method_endpoint('/api/animes/:id/roles')
     async def creators(self, anime_id: int) -> List[Creator]:
@@ -181,9 +181,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_roles(anime_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Creator,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Creator,
+                                            fallback=[])
 
     @method_endpoint('/api/animes/:id/similar')
     async def similar(self, anime_id: int) -> List[Anime]:
@@ -198,9 +198,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.similar_animes(anime_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Anime,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Anime,
+                                            fallback=[])
 
     @method_endpoint('/api/animes/:id/related')
     async def related_content(self, anime_id: int) -> List[Relation]:
@@ -215,9 +215,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_related_content(anime_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Relation,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Relation,
+                                            fallback=[])
 
     @method_endpoint('/api/animes/:id/screenshots')
     async def screenshots(self, anime_id: int) -> List[Screenshot]:
@@ -232,9 +232,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_screenshots(anime_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Screenshot,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Screenshot,
+                                            fallback=[])
 
     @method_endpoint('/api/animes/:id/franchise')
     async def franchise_tree(self, anime_id: int) -> Optional[FranchiseTree]:
@@ -249,7 +249,7 @@ class Animes(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_franchise_tree(anime_id))
-        return Utils.validate_return_data(response, data_model=FranchiseTree)
+        return Utils.validate_response_data(response, data_model=FranchiseTree)
 
     @method_endpoint('/api/animes/:id/external_links')
     async def external_links(self, anime_id: int) -> List[Link]:
@@ -264,9 +264,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_external_links(anime_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Link,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Link,
+                                            fallback=[])
 
     @method_endpoint('/api/animes/:id/topics')
     async def topics(self,
@@ -306,13 +306,13 @@ class Animes(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_topics(anime_id),
-            query=Utils.generate_query_dict(page=validated_numbers['page'],
-                                            limit=validated_numbers['limit'],
-                                            kind=kind,
-                                            episode=episode))
-        return Utils.validate_return_data(response,
-                                          data_model=Topic,
-                                          fallback=[])
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit'],
+                                          kind=kind,
+                                          episode=episode))
+        return Utils.validate_response_data(response,
+                                            data_model=Topic,
+                                            fallback=[])
 
     @method_endpoint('/api/animes/:anime_id/videos')
     async def videos(self, anime_id: int) -> List[Video]:
@@ -327,9 +327,9 @@ class Animes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_videos(anime_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Video,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Video,
+                                            fallback=[])
 
     @method_endpoint('/api/animes/:anime_id/videos')
     @protected_method('_client', 'content')
@@ -356,16 +356,16 @@ class Animes(BaseResource):
         if not Utils.validate_enum_params({VideoKind: kind}):
             return None
 
-        data_dict: Dict[str, Any] = Utils.generate_data_dict(dict_name='video',
-                                                             kind=kind,
-                                                             name=name,
-                                                             url=url)
+        data_dict: Dict[str, Any] = Utils.create_data_dict(dict_name='video',
+                                                           kind=kind,
+                                                           name=name,
+                                                           url=url)
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_videos(anime_id),
             headers=self._client.authorization_header,
             data=data_dict,
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=Video)
+        return Utils.validate_response_data(response, data_model=Video)
 
     @method_endpoint('/api/animes/:anime_id/videos/:id')
     @protected_method('_client', 'content')
@@ -386,4 +386,4 @@ class Animes(BaseResource):
             self._client.endpoints.anime_video(anime_id, video_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response)

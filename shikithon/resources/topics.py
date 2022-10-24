@@ -64,13 +64,13 @@ class Topics(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.topics,
-            query=Utils.generate_query_dict(page=validated_numbers['page'],
-                                            limit=validated_numbers['limit'],
-                                            forum=forum,
-                                            linked_id=linked_id,
-                                            linked_type=linked_type,
-                                            type=topic_type))
-        return Utils.validate_return_data(response, data_model=Topic)
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit'],
+                                          forum=forum,
+                                          linked_id=linked_id,
+                                          linked_type=linked_type,
+                                          type=topic_type))
+        return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/updates')
     async def updates(self,
@@ -95,11 +95,11 @@ class Topics(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.updates_topics,
-            query=Utils.generate_query_dict(
+            query=Utils.create_query_dict(
                 page=validated_numbers['page'],
                 limit=validated_numbers['limit'],
             ))
-        return Utils.validate_return_data(response, data_model=Topic)
+        return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/hot')
     async def hot(self, limit: Optional[int] = None) -> List[Topic]:
@@ -116,8 +116,8 @@ class Topics(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.hot_topics,
-            query=Utils.generate_query_dict(limit=validated_numbers['limit'],))
-        return Utils.validate_return_data(response, data_model=Topic)
+            query=Utils.create_query_dict(limit=validated_numbers['limit'],))
+        return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
     async def get(self, topic_id: int) -> Optional[Topic]:
@@ -132,7 +132,7 @@ class Topics(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.topic(topic_id))
-        return Utils.validate_return_data(response, data_model=Topic)
+        return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics')
     @protected_method('_client', 'topics')
@@ -173,17 +173,16 @@ class Topics(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.topics,
             headers=self._client.authorization_header,
-            data=Utils.generate_data_dict(dict_name='topic',
-                                          body=body,
-                                          forum_id=forum_id,
-                                          linked_id=linked_id,
-                                          linked_type=linked_type,
-                                          title=title,
-                                          type=str(
-                                              TopicType.REGULAR_TOPIC.value),
-                                          user_id=user_id),
+            data=Utils.create_data_dict(dict_name='topic',
+                                        body=body,
+                                        forum_id=forum_id,
+                                        linked_id=linked_id,
+                                        linked_type=linked_type,
+                                        title=title,
+                                        type=str(TopicType.REGULAR_TOPIC.value),
+                                        user_id=user_id),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=Topic)
+        return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
     @protected_method('_client', 'topics')
@@ -220,13 +219,13 @@ class Topics(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.topic(topic_id),
             headers=self._client.authorization_header,
-            data=Utils.generate_data_dict(dict_name='topic',
-                                          body=body,
-                                          linked_id=linked_id,
-                                          linked_type=linked_type,
-                                          title=title),
+            data=Utils.create_data_dict(dict_name='topic',
+                                        body=body,
+                                        linked_id=linked_id,
+                                        linked_type=linked_type,
+                                        title=title),
             request_type=RequestType.PATCH)
-        return Utils.validate_return_data(response, data_model=Topic)
+        return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
     @protected_method('_client', 'topics')
@@ -244,7 +243,7 @@ class Topics(BaseResource):
             self._client.endpoints.topic(topic_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response)
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
     @protected_method('_client', 'topics')
@@ -262,7 +261,7 @@ class Topics(BaseResource):
             self._client.endpoints.topic_ignore(topic_id),
             headers=self._client.authorization_header,
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response) is True
+        return Utils.validate_response_data(response) is True
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
     @protected_method('_client', 'topics')
@@ -280,4 +279,4 @@ class Topics(BaseResource):
             self._client.endpoints.topic_ignore(topic_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response) is False
+        return Utils.validate_response_data(response) is False

@@ -17,7 +17,7 @@ class Dialogs(BaseResource):
     """
 
     @method_endpoint('/api/dialogs')
-    @protected_method('_client', 'messages')
+    @protected_method('_client', 'messages', fallback=[])
     async def get_all(self) -> List[Dialog]:
         """
         Returns list of current user's dialogs.
@@ -28,10 +28,12 @@ class Dialogs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.dialogs,
             headers=self._client.authorization_header)
-        return Utils.validate_return_data(response, data_model=Dialog)
+        return Utils.validate_response_data(response,
+                                            data_model=Dialog,
+                                            fallback=[])
 
     @method_endpoint('/api/dialogs/:id')
-    @protected_method('_client', 'messages')
+    @protected_method('_client', 'messages', fallback=[])
     async def get(self, user_id: Union[int, str]) -> List[Message]:
         """
         Returns list of current user's messages with certain user.
@@ -45,10 +47,12 @@ class Dialogs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.dialog(user_id),
             headers=self._client.authorization_header)
-        return Utils.validate_return_data(response, data_model=Message)
+        return Utils.validate_response_data(response,
+                                            data_model=Message,
+                                            fallback=[])
 
     @method_endpoint('/api/dialogs/:id')
-    @protected_method('_client', 'messages')
+    @protected_method('_client', 'messages', fallback=False)
     async def delete(self, user_id: Union[int, str]) -> bool:
         """
         Deletes dialog of current user with certain user.
@@ -63,4 +67,4 @@ class Dialogs(BaseResource):
             self._client.endpoints.dialog(user_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response, fallback=False)

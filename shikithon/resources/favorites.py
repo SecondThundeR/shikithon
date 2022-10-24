@@ -18,7 +18,7 @@ class Favorites(BaseResource):
     """
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id(/:kind)')
-    @protected_method('_client')
+    @protected_method('_client', fallback=False)
     async def create(self,
                      linked_type: str,
                      linked_id: int,
@@ -50,10 +50,10 @@ class Favorites(BaseResource):
                                                     kind),
             headers=self._client.authorization_header,
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id')
-    @protected_method('_client')
+    @protected_method('_client', fallback=False)
     async def destroy(self, linked_type: str, linked_id: int) -> bool:
         """
         Destroys a favorite.
@@ -74,10 +74,10 @@ class Favorites(BaseResource):
             self._client.endpoints.favorites_destroy(linked_type, linked_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/favorites/:id/reorder')
-    @protected_method('_client')
+    @protected_method('_client', fallback=False)
     async def reorder(self,
                       favorite_id: int,
                       new_index: Optional[int] = None) -> bool:
@@ -87,7 +87,8 @@ class Favorites(BaseResource):
         :param favorite_id: ID of a favorite to reorder
         :type favorite_id: int
 
-        :param new_index: Index of a new position of favorite
+        :param new_index: Index of a new position of favorite.
+            If skipped, sets favorite to the first position
         :type new_index: Optional[int]
 
         :return: Status of reorder
@@ -96,7 +97,8 @@ class Favorites(BaseResource):
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.favorites_reorder(favorite_id),
             headers=self._client.authorization_header,
-            query=Utils.generate_query_dict(new_index=new_index),
+            query=Utils.create_query_dict(new_index=new_index),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response,
-                                          response_code=ResponseCode.SUCCESS)
+        return Utils.validate_response_data(response,
+                                            response_code=ResponseCode.SUCCESS,
+                                            fallback=False)

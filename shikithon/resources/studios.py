@@ -23,4 +23,4 @@ class Studios(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.studios)
-        return Utils.validate_return_data(response, data_model=Studio)
+        return Utils.validate_response_data(response, data_model=Studio)

@@ -22,4 +22,4 @@ class Stats(BaseResource):
         """
         response: List[int] = await self._client.request(
             self._client.endpoints.active_users)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response)

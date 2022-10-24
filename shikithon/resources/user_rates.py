@@ -78,13 +78,13 @@ class UserRates(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_rates,
-            query=Utils.generate_query_dict(user_id=user_id,
-                                            target_id=target_id,
-                                            target_type=target_type,
-                                            status=status,
-                                            page=validated_numbers['page'],
-                                            limit=validated_numbers['limit']))
-        return Utils.validate_return_data(response, data_model=UserRate)
+            query=Utils.create_query_dict(user_id=user_id,
+                                          target_id=target_id,
+                                          target_type=target_type,
+                                          status=status,
+                                          page=validated_numbers['page'],
+                                          limit=validated_numbers['limit']))
+        return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
     async def get(self, rate_id: int) -> Optional[UserRate]:
@@ -99,7 +99,7 @@ class UserRates(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rate(rate_id))
-        return Utils.validate_return_data(response, data_model=UserRate)
+        return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates')
     @protected_method('_client', 'user_rates')
@@ -162,19 +162,19 @@ class UserRates(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rates,
             headers=self._client.authorization_header,
-            data=Utils.generate_data_dict(dict_name='user_rate',
-                                          user_id=user_id,
-                                          target_id=target_id,
-                                          target_type=target_type,
-                                          status=status,
-                                          score=validated_numbers['score'],
-                                          chapters=chapters,
-                                          episodes=episodes,
-                                          volumes=volumes,
-                                          rewatches=rewatches,
-                                          text=text),
+            data=Utils.create_data_dict(dict_name='user_rate',
+                                        user_id=user_id,
+                                        target_id=target_id,
+                                        target_type=target_type,
+                                        status=status,
+                                        score=validated_numbers['score'],
+                                        chapters=chapters,
+                                        episodes=episodes,
+                                        volumes=volumes,
+                                        rewatches=rewatches,
+                                        text=text),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=UserRate)
+        return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
     @protected_method('_client', 'user_rates')
@@ -225,16 +225,16 @@ class UserRates(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rate(rate_id),
             headers=self._client.authorization_header,
-            data=Utils.generate_data_dict(dict_name='user_rate',
-                                          status=status,
-                                          score=validated_numbers['score'],
-                                          chapters=chapters,
-                                          episodes=episodes,
-                                          volumes=volumes,
-                                          rewatches=rewatches,
-                                          text=text),
+            data=Utils.create_data_dict(dict_name='user_rate',
+                                        status=status,
+                                        score=validated_numbers['score'],
+                                        chapters=chapters,
+                                        episodes=episodes,
+                                        volumes=volumes,
+                                        rewatches=rewatches,
+                                        text=text),
             request_type=RequestType.PATCH)
-        return Utils.validate_return_data(response, data_model=UserRate)
+        return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id/increment')
     @protected_method('_client', 'user_rates')
@@ -252,7 +252,7 @@ class UserRates(BaseResource):
             self._client.endpoints.user_rate_increment(rate_id),
             headers=self._client.authorization_header,
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=UserRate)
+        return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
     @protected_method('_client', 'user_rates')
@@ -270,8 +270,8 @@ class UserRates(BaseResource):
             self._client.endpoints.user_rate(rate_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response,
-                                          response_code=ResponseCode.NO_CONTENT)
+        return Utils.validate_response_data(
+            response, response_code=ResponseCode.NO_CONTENT)
 
     @method_endpoint('/api/users_rates/:type/cleanup')
     @protected_method('_client', 'user_rates')
@@ -292,7 +292,7 @@ class UserRates(BaseResource):
             self._client.endpoints.user_rates_cleanup(user_rate_type),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response)
 
     @method_endpoint('/api/user_rates/:type/reset')
     @protected_method('_client', 'user_rates')
@@ -313,4 +313,4 @@ class UserRates(BaseResource):
             self._client.endpoints.user_rates_reset(user_rate_type),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response)

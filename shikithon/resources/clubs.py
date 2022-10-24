@@ -54,12 +54,12 @@ class Clubs(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.clubs,
-            query=Utils.generate_query_dict(page=validated_numbers['page'],
-                                            limit=validated_numbers['limit'],
-                                            search=search))
-        return Utils.validate_return_data(response,
-                                          data_model=Club,
-                                          fallback=[])
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit'],
+                                          search=search))
+        return Utils.validate_response_data(response,
+                                            data_model=Club,
+                                            fallback=[])
 
     @method_endpoint('/api/clubs/:id')
     async def get(self, club_id: int) -> Optional[Club]:
@@ -74,7 +74,7 @@ class Clubs(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.club(club_id))
-        return Utils.validate_return_data(response, data_model=Club)
+        return Utils.validate_response_data(response, data_model=Club)
 
     @method_endpoint('/api/clubs/:id')
     @protected_method('_client', 'clubs')
@@ -170,27 +170,26 @@ class Clubs(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.club(club_id),
             headers=self._client.authorization_header,
-            data=Utils.generate_data_dict(
-                dict_name='club',
-                name=name,
-                join_policy=join_policy,
-                description=description,
-                display_images=display_images,
-                comment_policy=comment_policy,
-                topic_policy=topic_policy,
-                page_policy=page_policy,
-                image_upload_policy=image_upload_policy,
-                is_censored=is_censored,
-                anime_ids=anime_ids,
-                manga_ids=manga_ids,
-                ranobe_ids=ranobe_ids,
-                character_ids=character_ids,
-                club_ids=club_ids,
-                admin_ids=admin_ids,
-                collection_ids=collection_ids,
-                banned_user_ids=banned_user_ids),
+            data=Utils.create_data_dict(dict_name='club',
+                                        name=name,
+                                        join_policy=join_policy,
+                                        description=description,
+                                        display_images=display_images,
+                                        comment_policy=comment_policy,
+                                        topic_policy=topic_policy,
+                                        page_policy=page_policy,
+                                        image_upload_policy=image_upload_policy,
+                                        is_censored=is_censored,
+                                        anime_ids=anime_ids,
+                                        manga_ids=manga_ids,
+                                        ranobe_ids=ranobe_ids,
+                                        character_ids=character_ids,
+                                        club_ids=club_ids,
+                                        admin_ids=admin_ids,
+                                        collection_ids=collection_ids,
+                                        banned_user_ids=banned_user_ids),
             request_type=RequestType.PATCH)
-        return Utils.validate_return_data(response, data_model=Club)
+        return Utils.validate_response_data(response, data_model=Club)
 
     @method_endpoint('/api/clubs/:id/animes')
     async def animes(self, club_id: int) -> List[Anime]:
@@ -205,9 +204,9 @@ class Clubs(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_animes(club_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Anime,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Anime,
+                                            fallback=[])
 
     @method_endpoint('/api/clubs/:id/mangas')
     async def mangas(self, club_id: int) -> List[Manga]:
@@ -222,9 +221,9 @@ class Clubs(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_mangas(club_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Manga,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Manga,
+                                            fallback=[])
 
     @method_endpoint('/api/clubs/:id/ranobe')
     async def ranobe(self, club_id: int) -> List[Ranobe]:
@@ -239,9 +238,9 @@ class Clubs(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_ranobe(club_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Ranobe,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Ranobe,
+                                            fallback=[])
 
     @method_endpoint('/api/clubs/:id/characters')
     async def characters(self, club_id: int) -> List[Character]:
@@ -256,9 +255,9 @@ class Clubs(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_characters(club_id))
-        return Utils.validate_return_data(response,
-                                          data_model=Character,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=Character,
+                                            fallback=[])
 
     @method_endpoint('/api/clubs/:id/members')
     async def members(self, club_id: int) -> List[User]:
@@ -273,9 +272,9 @@ class Clubs(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_members(club_id))
-        return Utils.validate_return_data(response,
-                                          data_model=User,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=User,
+                                            fallback=[])
 
     @method_endpoint('/api/clubs/:id/images')
     async def images(self, club_id: int) -> List[ClubImage]:
@@ -290,9 +289,9 @@ class Clubs(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_images(club_id))
-        return Utils.validate_return_data(response,
-                                          data_model=ClubImage,
-                                          fallback=[])
+        return Utils.validate_response_data(response,
+                                            data_model=ClubImage,
+                                            fallback=[])
 
     @method_endpoint('/api/clubs/:id/join')
     @protected_method('_client', 'clubs', fallback=False)
@@ -310,9 +309,9 @@ class Clubs(BaseResource):
             self._client.endpoints.club_join(club_id),
             headers=self._client.authorization_header,
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response,
-                                          response_code=ResponseCode.SUCCESS,
-                                          fallback=False)
+        return Utils.validate_response_data(response,
+                                            response_code=ResponseCode.SUCCESS,
+                                            fallback=False)
 
     @method_endpoint('/api/clubs/:id/leave')
     @protected_method('_client', 'clubs', fallback=False)
@@ -330,6 +329,6 @@ class Clubs(BaseResource):
             self._client.endpoints.club_leave(club_id),
             headers=self._client.authorization_header,
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response,
-                                          response_code=ResponseCode.SUCCESS,
-                                          fallback=False)
+        return Utils.validate_response_data(response,
+                                            response_code=ResponseCode.SUCCESS,
+                                            fallback=False)

@@ -47,7 +47,7 @@ class Comments(BaseResource):
         :rtype: List[Comment]
         """
         if not Utils.validate_enum_params({CommentableType: commentable_type}):
-            return None
+            return []
 
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -56,12 +56,14 @@ class Comments(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.comments,
-            query=Utils.generate_query_dict(page=validated_numbers['page'],
-                                            limit=validated_numbers['limit'],
-                                            commentable_id=commentable_id,
-                                            commentable_type=commentable_type,
-                                            desc=desc))
-        return Utils.validate_return_data(response, data_model=Comment)
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit'],
+                                          commentable_id=commentable_id,
+                                          commentable_type=commentable_type,
+                                          desc=desc))
+        return Utils.validate_response_data(response,
+                                            data_model=Comment,
+                                            fallback=[])
 
     @method_endpoint('/api/comments/:id')
     async def get(self, comment_id: int) -> Optional[Comment]:
@@ -76,7 +78,7 @@ class Comments(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id))
-        return Utils.validate_return_data(response, data_model=Comment)
+        return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments')
     @protected_method('_client', 'comments')
@@ -113,7 +115,7 @@ class Comments(BaseResource):
         if not Utils.validate_enum_params({CommentableType: commentable_type}):
             return None
 
-        data_dict: Dict[str, Any] = Utils.generate_data_dict(
+        data_dict: Dict[str, Any] = Utils.create_data_dict(
             dict_name='comment',
             body=body,
             commentable_id=commentable_id,
@@ -129,7 +131,7 @@ class Comments(BaseResource):
             headers=self._client.authorization_header,
             data=data_dict,
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=Comment)
+        return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
     @protected_method('_client', 'comments')
@@ -149,12 +151,12 @@ class Comments(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),
             headers=self._client.authorization_header,
-            data=Utils.generate_data_dict(dict_name='comment', body=body),
+            data=Utils.create_data_dict(dict_name='comment', body=body),
             request_type=RequestType.PATCH)
-        return Utils.validate_return_data(response, data_model=Comment)
+        return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
-    @protected_method('_client', 'comments')
+    @protected_method('_client', 'comments', fallback=False)
     async def delete(self, comment_id: int) -> bool:
         """
         Deletes comment.
@@ -169,4 +171,4 @@ class Comments(BaseResource):
             self._client.endpoints.comment(comment_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response)
+        return Utils.validate_response_data(response, fallback=False)

@@ -114,22 +114,22 @@ class Mangas(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.mangas,
             headers=headers,
-            query=Utils.generate_query_dict(page=validated_numbers['page'],
-                                            limit=validated_numbers['limit'],
-                                            order=order,
-                                            kind=kind,
-                                            status=status,
-                                            season=season,
-                                            score=validated_numbers['score'],
-                                            genre=genre,
-                                            publisher=publisher,
-                                            franchise=franchise,
-                                            censored=censored,
-                                            mylist=my_list,
-                                            ids=ids,
-                                            exclude_ids=exclude_ids,
-                                            search=search))
-        return Utils.validate_return_data(response, data_model=Manga)
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit'],
+                                          order=order,
+                                          kind=kind,
+                                          status=status,
+                                          season=season,
+                                          score=validated_numbers['score'],
+                                          genre=genre,
+                                          publisher=publisher,
+                                          franchise=franchise,
+                                          censored=censored,
+                                          mylist=my_list,
+                                          ids=ids,
+                                          exclude_ids=exclude_ids,
+                                          search=search))
+        return Utils.validate_response_data(response, data_model=Manga)
 
     @method_endpoint('/api/mangas/:id')
     async def get(self, manga_id: int) -> Optional[Manga]:
@@ -144,7 +144,7 @@ class Mangas(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.manga(manga_id))
-        return Utils.validate_return_data(response, data_model=Manga)
+        return Utils.validate_response_data(response, data_model=Manga)
 
     @method_endpoint('/api/mangas/:id/roles')
     async def creators(self, manga_id: int) -> List[Creator]:
@@ -159,7 +159,7 @@ class Mangas(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_roles(manga_id))
-        return Utils.validate_return_data(response, data_model=Creator)
+        return Utils.validate_response_data(response, data_model=Creator)
 
     @method_endpoint('/api/mangas/:id/similar')
     async def similar(self, manga_id: int) -> List[Manga]:
@@ -174,7 +174,7 @@ class Mangas(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.similar_mangas(manga_id))
-        return Utils.validate_return_data(response, data_model=Manga)
+        return Utils.validate_response_data(response, data_model=Manga)
 
     @method_endpoint('/api/mangas/:id/related')
     async def related_content(self, manga_id: int) -> List[Relation]:
@@ -189,7 +189,7 @@ class Mangas(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_related_content(manga_id))
-        return Utils.validate_return_data(response, data_model=Relation)
+        return Utils.validate_response_data(response, data_model=Relation)
 
     @method_endpoint('/api/mangas/:id/franchise')
     async def franchise_tree(self, manga_id: int) -> Optional[FranchiseTree]:
@@ -204,7 +204,7 @@ class Mangas(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.manga_franchise_tree(manga_id))
-        return Utils.validate_return_data(response, data_model=FranchiseTree)
+        return Utils.validate_response_data(response, data_model=FranchiseTree)
 
     @method_endpoint('/api/mangas/:id/external_links')
     async def external_links(self, manga_id: int) -> List[Link]:
@@ -219,7 +219,7 @@ class Mangas(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_external_links(manga_id))
-        return Utils.validate_return_data(response, data_model=Link)
+        return Utils.validate_response_data(response, data_model=Link)
 
     @method_endpoint('/api/mangas/:id/topics')
     async def topics(self,
@@ -250,6 +250,6 @@ class Mangas(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_topics(manga_id),
-            query=Utils.generate_query_dict(page=validated_numbers['page'],
-                                            limit=validated_numbers['limit']))
-        return Utils.validate_return_data(response, data_model=Topic)
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit']))
+        return Utils.validate_response_data(response, data_model=Topic)

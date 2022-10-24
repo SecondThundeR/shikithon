@@ -32,7 +32,7 @@ class Messages(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.message(message_id),
             headers=self._client.authorization_header)
-        return Utils.validate_return_data(response, data_model=Message)
+        return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/messages')
     @protected_method('_client', 'messages')
@@ -56,13 +56,13 @@ class Messages(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.messages,
             headers=self._client.authorization_header,
-            data=Utils.generate_data_dict(dict_name='message',
-                                          body=body,
-                                          from_id=from_id,
-                                          kind='Private',
-                                          to_id=to_id),
+            data=Utils.create_data_dict(dict_name='message',
+                                        body=body,
+                                        from_id=from_id,
+                                        kind='Private',
+                                        to_id=to_id),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response, data_model=Message)
+        return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/messages/:id')
     @protected_method('_client', 'messages')
@@ -82,9 +82,9 @@ class Messages(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.message(message_id),
             headers=self._client.authorization_header,
-            data=Utils.generate_data_dict(dict_name='message', body=body),
+            data=Utils.create_data_dict(dict_name='message', body=body),
             request_type=RequestType.PATCH)
-        return Utils.validate_return_data(response, data_model=Message)
+        return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/messages/:id')
     @protected_method('_client', 'messages')
@@ -102,8 +102,8 @@ class Messages(BaseResource):
             self._client.endpoints.message(message_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_return_data(response,
-                                          response_code=ResponseCode.NO_CONTENT)
+        return Utils.validate_response_data(
+            response, response_code=ResponseCode.NO_CONTENT)
 
     @method_endpoint('/api/messages/mark_read')
     @protected_method('_client', 'messages')
@@ -128,10 +128,10 @@ class Messages(BaseResource):
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.messages_mark_read,
             headers=self._client.authorization_header,
-            data=Utils.generate_query_dict(ids=message_ids, is_read=is_read),
+            data=Utils.create_query_dict(ids=message_ids, is_read=is_read),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response,
-                                          response_code=ResponseCode.SUCCESS)
+        return Utils.validate_response_data(response,
+                                            response_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/messages/read_all')
     @protected_method('_client', 'messages')
@@ -157,10 +157,10 @@ class Messages(BaseResource):
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.messages_read_all,
             headers=self._client.authorization_header,
-            data=Utils.generate_query_dict(type=message_type),
+            data=Utils.create_query_dict(type=message_type),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response,
-                                          response_code=ResponseCode.SUCCESS)
+        return Utils.validate_response_data(response,
+                                            response_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/messages/delete_all')
     @protected_method('_client', 'messages')
@@ -186,7 +186,7 @@ class Messages(BaseResource):
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.messages_delete_all,
             headers=self._client.authorization_header,
-            data=Utils.generate_query_dict(type=message_type),
+            data=Utils.create_query_dict(type=message_type),
             request_type=RequestType.POST)
-        return Utils.validate_return_data(response,
-                                          response_code=ResponseCode.SUCCESS)
+        return Utils.validate_response_data(response,
+                                            response_code=ResponseCode.SUCCESS)

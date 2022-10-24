@@ -27,7 +27,7 @@ class Constants(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_constants)
-        return Utils.validate_return_data(response, data_model=AnimeConstants)
+        return Utils.validate_response_data(response, data_model=AnimeConstants)
 
     @method_endpoint('/api/constants/manga')
     async def manga(self) -> Optional[MangaConstants]:
@@ -39,7 +39,7 @@ class Constants(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.manga_constants)
-        return Utils.validate_return_data(response, data_model=MangaConstants)
+        return Utils.validate_response_data(response, data_model=MangaConstants)
 
     @method_endpoint('/api/constants/user_rate')
     async def user_rate(self) -> Optional[UserRateConstants]:
@@ -51,8 +51,8 @@ class Constants(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rate_constants)
-        return Utils.validate_return_data(response,
-                                          data_model=UserRateConstants)
+        return Utils.validate_response_data(response,
+                                            data_model=UserRateConstants)
 
     @method_endpoint('/api/constants/club')
     async def club(self) -> Optional[ClubConstants]:
@@ -64,7 +64,7 @@ class Constants(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.club_constants)
-        return Utils.validate_return_data(response, data_model=ClubConstants)
+        return Utils.validate_response_data(response, data_model=ClubConstants)
 
     @method_endpoint('/api/constants/smileys')
     async def smileys(self) -> List[SmileyConstants]:
@@ -76,4 +76,5 @@ class Constants(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.smileys_constants)
-        return Utils.validate_return_data(response, data_model=SmileyConstants)
+        return Utils.validate_response_data(response,
+                                            data_model=SmileyConstants)

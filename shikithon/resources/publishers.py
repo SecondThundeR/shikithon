@@ -23,4 +23,4 @@ class Publishers(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.publishers)
-        return Utils.validate_return_data(response, data_model=Publisher)
+        return Utils.validate_response_data(response, data_model=Publisher)
