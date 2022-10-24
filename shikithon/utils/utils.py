@@ -27,7 +27,7 @@ class Utils:
     """
 
     @staticmethod
-    def prepare_query_dict(query_dict: Dict[str, str]) -> str:
+    def convert_to_query_string(query_dict: Dict[str, str]) -> str:
         """
         Convert query dict to query string for endpoint link.
 
@@ -44,10 +44,10 @@ class Utils:
         return f'?{query_dict_str}'
 
     @staticmethod
-    def convert_app_name(app_name: str) -> str:
+    def convert_app_name_to_filename(app_name: str) -> str:
         """
         Converts app name to snake case for use in
-        config cache filename.
+        config store filename.
 
         :param app_name: Current OAuth app name
         :type app_name: str
@@ -55,13 +55,13 @@ class Utils:
         :return: Converted app name for filename
         :rtype: str
         """
-        logger.debug(f'Converting {app_name=} for cached config')
+        logger.debug(f'Converting {app_name=} for stored config')
         return '_'.join(app_name.lower().split(' '))
 
     @staticmethod
     def get_new_expire_time(time_expire_constant: int) -> int:
         """
-        Generates new token expire time.
+        Gets new token expire time.
 
         :param time_expire_constant: Token lifetime value
         :type time_expire_constant: int
@@ -96,19 +96,19 @@ class Utils:
         return {'image': image_data}
 
     @staticmethod
-    def generate_query_dict(
+    def create_query_dict(
         **params_data: Optional[Union[str, bool, int, List[Union[int, str]]]]
     ) -> Dict[str, str]:
         """
-        Returns valid query dict for API requests.
+        Creates query dict for API requests.
 
-        This methods checks for data type and converts to valid one.
+        This methods checks for data types and converts to valid one.
 
         :param params_data: API methods parameters data
         :type params_data:
             Optional[Union[str, bool, int, List[Union[int, str]]]]
 
-        :return: Valid query dictionary
+        :return: Query dictionary
         :rtype: Dict[str, str]
         """
         logger.debug(
@@ -122,31 +122,25 @@ class Utils:
             elif isinstance(data, int):
                 query_dict[key] = str(data)
             elif isinstance(data, list):
-                formatted_data: List[str] = []
-                for item in data:
-                    if isinstance(item, int):
-                        formatted_data.append(str(item))
-                    elif isinstance(item, str) and item.isdigit():
-                        formatted_data.append(item)
-                query_dict[key] = ','.join(formatted_data)
+                query_dict[key] = ','.join(data)
             else:
                 query_dict[key] = data
         logger.debug(f'Generated query dictionary: {query_dict=}')
         return query_dict
 
     @staticmethod
-    def generate_data_dict(
+    def create_data_dict(
         **dict_data: Optional[Union[str, bool, int, List[int]]]
     ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:
         """
-        Returns valid data dict for API requests.
+        Creates data dict for API requests.
 
-        This methods checks for data type and converts to valid one.
+        This methods checks for data types and converts to valid one.
 
         :param dict_data: API methods body data
         :type dict_data: Optional[Union[str, bool, int, List[int]]]
 
-        :return: Valid data dictionary
+        :return: Data dictionary
         :rtype: Optional[Union[str, bool, int, List[int]]]
         """
         logger.debug(
@@ -171,13 +165,7 @@ class Utils:
             elif isinstance(data, int):
                 new_data_dict[data_dict_name][key] = str(data)
             elif isinstance(data, list):
-                formatted_data: List[str] = []
-                for item in data:
-                    if isinstance(item, int):
-                        formatted_data.append(str(item))
-                    elif isinstance(item, str) and item.isdigit():
-                        formatted_data.append(item)
-                new_data_dict[data_dict_name][key] = ','.join(formatted_data)
+                new_data_dict[data_dict_name][key] = ','.join(data)
             else:
                 new_data_dict[data_dict_name][key] = data
         logger.debug(f'Generated data dictionary: {new_data_dict=}')
@@ -189,15 +177,15 @@ class Utils:
                                                         List[str]]]) -> bool:
         """
         Validates string parameter with enum values.
-
         Function gets dictionary with enum and string values.
-        If string value is in enum values, function returns True.
-        If not, throws logger.warning() and returns False
+
+        If string value is in enum values, function returns True,
+        otherwise False
 
         :param enum_params: Dictionary with values to validate.
         :type enum_params: Dict[Type[EnhancedEnum], Union[str, List[str]]])
 
-        :return: Result of validation
+        :return: Validator result
         :rtype: bool
         """
         enums_counter = 0
@@ -224,16 +212,15 @@ class Utils:
                     f'\nAccepted values: {enum_values}')
                 return False
 
-        if enums_counter > 0:
-            logger.debug(f'All ({enums_counter}) enum parameters are valid')
-        else:
-            logger.debug('There are no enum parameters to check')
+        logger.debug(
+            f'All ({enums_counter}) enum parameters are valid'
+            if enums_counter > 0 else 'There are no enum parameters to check')
 
         return True
 
     @staticmethod
-    def validate_query_number(query_number: Optional[int],
-                              upper_limit: int) -> Optional[int]:
+    def get_validated_query_number(query_number: Optional[int],
+                                   upper_limit: int) -> Optional[int]:
         """
         Validates query number.
 
@@ -305,12 +292,12 @@ class Utils:
         validated_numbers: Dict[str, Optional[int]] = {}
         for name, data in query_numbers.items():
             logger.debug(f'Checking "{name}" parameter')
-            validated_numbers[name] = (Utils.validate_query_number(
+            validated_numbers[name] = (Utils.get_validated_query_number(
                 data[0], data[1]))
         return validated_numbers
 
     @staticmethod
-    def validate_return_data(
+    def validate_response_data(
         response_data: Union[List[Dict[str, Any]], Dict[str, Any], List[Any],
                              int],
         data_model: Optional[Type[Any]] = None,
