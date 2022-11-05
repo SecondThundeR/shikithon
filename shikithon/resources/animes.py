@@ -278,8 +278,6 @@ class Animes(BaseResource):
         """
         Returns list of topics of certain anime.
 
-        If some data are not provided, using async default values.
-
         :param anime_id: Anime ID to get topics
         :type anime_id: int
 

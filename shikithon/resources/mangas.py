@@ -193,7 +193,9 @@ class Mangas(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_related_content(manga_id))
-        return Utils.validate_response_data(response, data_model=Relation)
+        return Utils.validate_response_data(response,
+                                            data_model=Relation,
+                                            fallback=[])
 
     @method_endpoint('/api/mangas/:id/franchise')
     async def franchise_tree(self, manga_id: int) -> Optional[FranchiseTree]:
@@ -223,7 +225,9 @@ class Mangas(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_external_links(manga_id))
-        return Utils.validate_response_data(response, data_model=Link)
+        return Utils.validate_response_data(response,
+                                            data_model=Link,
+                                            fallback=[])
 
     @method_endpoint('/api/mangas/:id/topics')
     async def topics(self,
@@ -232,8 +236,6 @@ class Mangas(BaseResource):
                      limit: Optional[int] = None) -> List[Topic]:
         """
         Returns list of topics of certain manga.
-
-        If some data are not provided, using async default values.
 
         :param manga_id: Manga ID to get topics
         :type manga_id: int
@@ -256,4 +258,6 @@ class Mangas(BaseResource):
             self._client.endpoints.manga_topics(manga_id),
             query=Utils.create_query_dict(page=validated_numbers['page'],
                                           limit=validated_numbers['limit']))
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(response,
+                                            data_model=Topic,
+                                            fallback=[])
