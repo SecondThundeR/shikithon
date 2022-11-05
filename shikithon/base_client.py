@@ -7,6 +7,7 @@ from time import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from aiohttp import ClientSession
+from aiohttp import ContentTypeError
 from loguru import logger
 from ratelimit import limits
 from ratelimit import sleep_and_retry
@@ -560,17 +561,20 @@ class Client:
             return None
 
         logger.debug('Extracting JSON from response')
-        json_response = await response.json()
+        try:
+            json_response = await response.json()
+        except ContentTypeError:
+            logger.debug('Response is not JSON. Returning status code/text')
+            return await Utils.extract_empty_response_data(response)
+
         if output_logging:
             logger.debug(
                 'Successful extraction. '
                 f'Here are the details of the response: {json_response}')
             if json_response is None and response.status == 200:
-                logger.debug('Response is empty. Returning status_code/text')
-                response_text = await response.text()
-                response_status = response.status
-                return response_status \
-                    if not response_text else response_text
+                logger.debug('Response is empty. Returning status code/text')
+                return await Utils.extract_empty_response_data(response)
+
         return json_response
 
     async def __aenter__(self) -> Client:
