@@ -23,4 +23,6 @@ class Forums(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.forums)
-        return Utils.validate_response_data(response, data_model=Forum)
+        return Utils.validate_response_data(response,
+                                            data_model=Forum,
+                                            fallback=[])
