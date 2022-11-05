@@ -71,9 +71,9 @@ class Ranobes(BaseResource):
         :param censored: Type of ranobe censorship
         :type censored: Optional[str]
 
-        :param my_list: Status(-es) of ranobe in current user list
-            **Note:** If app in restricted mode,
-            this won't affect on response.
+        :param my_list: Status(-es) of ranobe in current user list.
+            If app is in restricted mode,
+            this parameter won't affect on response.
         :type my_list: Optional[Union[str, List[str]]]
 
         :param ids: Ranobe(s) ID to include

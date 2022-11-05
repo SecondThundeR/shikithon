@@ -76,9 +76,9 @@ class Mangas(BaseResource):
         :param censored: Type of manga censorship
         :type censored: Optional[str]
 
-        :param my_list: Status(-es) of manga in current user list
-            **Note:** If app in restricted mode,
-            this won't affect on response.
+        :param my_list: Status(-es) of manga in current user list.
+            If app is in restricted mode,
+            this parameter won't affect on response.
         :type my_list: Optional[Union[str, List[str]]]
 
         :param ids: Manga(s) ID to include
@@ -100,7 +100,7 @@ class Mangas(BaseResource):
                 MangaCensorship: censored,
                 MangaList: my_list
         }):
-            return None
+            return []
 
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 50],
@@ -129,7 +129,9 @@ class Mangas(BaseResource):
                                           ids=ids,
                                           exclude_ids=exclude_ids,
                                           search=search))
-        return Utils.validate_response_data(response, data_model=Manga)
+        return Utils.validate_response_data(response,
+                                            data_model=Manga,
+                                            fallback=[])
 
     @method_endpoint('/api/mangas/:id')
     async def get(self, manga_id: int) -> Optional[Manga]:
@@ -159,7 +161,9 @@ class Mangas(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_roles(manga_id))
-        return Utils.validate_response_data(response, data_model=Creator)
+        return Utils.validate_response_data(response,
+                                            data_model=Creator,
+                                            fallback=[])
 
     @method_endpoint('/api/mangas/:id/similar')
     async def similar(self, manga_id: int) -> List[Manga]:
