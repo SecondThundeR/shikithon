@@ -109,7 +109,7 @@ class Mangas(BaseResource):
         headers: Dict[str, str] = self._client.user_agent
 
         if my_list:
-            headers = self._client.semi_protected_method('/api/mangas')
+            headers = self._client.protected_method_headers('/api/mangas')
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.mangas,

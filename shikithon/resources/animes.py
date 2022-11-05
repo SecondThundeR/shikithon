@@ -127,7 +127,7 @@ class Animes(BaseResource):
         headers = self._client.user_agent
 
         if my_list:
-            headers = self._client.semi_protected_method('/api/animes')
+            headers = self._client.protected_method_headers('/api/animes')
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.animes,

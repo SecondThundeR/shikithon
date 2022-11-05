@@ -415,11 +415,15 @@ class Client:
         logger.debug('Expiration time and stored config file have been updated')
 
     @logger.catch
-    def semi_protected_method(self,
-                              endpoint_name: str) -> Optional[Dict[str, str]]:
+    def protected_method_headers(
+            self, endpoint_name: str) -> Optional[Dict[str, str]]:
         """
         This method utilizes protected method decoration logic
         for such methods, which uses access tokens in some situations.
+
+        Example: Calling animes.get_all(my_list=...),
+        mangas.get_all(my_list=...) and ranobes.get_all(my_list=...)
+        requires access token.
 
         :param endpoint_name: Name of API endpoint for calling as protected
         :type endpoint_name: str
