@@ -184,3 +184,4 @@ Temporary Items
 # Other rules
 .idea
 .shikithon_*
+*.log.zip
