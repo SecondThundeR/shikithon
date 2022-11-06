@@ -1,8 +1,9 @@
 """Represents /api/styles resource."""
 from typing import Any, Dict, Optional
 
+from loguru import logger
+
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import OwnerType
 from ..enums import RequestType
 from ..models import Style
@@ -32,7 +33,6 @@ class Styles(BaseResource):
         return Utils.validate_response_data(response, data_model=Style)
 
     @method_endpoint('/api/styles/preview')
-    @protected_method('_client')
     async def preview(self, css: str) -> Optional[Style]:
         """
         Previews style with passed CSS code.
@@ -43,6 +43,10 @@ class Styles(BaseResource):
         :return: Info about previewed style
         :rtype: Optional[Style]
         """
+        if not css:
+            logger.warning('No CSS code passed to preview')
+            return None
+
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.style_preview,
             headers=self._client.authorization_header,
@@ -51,7 +55,6 @@ class Styles(BaseResource):
         return Utils.validate_response_data(response, data_model=Style)
 
     @method_endpoint('/api/styles')
-    @protected_method('_client')
     async def create(self, css: str, name: str, owner_id: int,
                      owner_type: str) -> Optional[Style]:
         """
@@ -87,9 +90,10 @@ class Styles(BaseResource):
         return Utils.validate_response_data(response, data_model=Style)
 
     @method_endpoint('/api/styles/:id')
-    @protected_method('_client')
-    async def update(self, style_id: int, css: Optional[str],
-                     name: Optional[str]) -> Optional[Style]:
+    async def update(self,
+                     style_id: int,
+                     css: Optional[str] = None,
+                     name: Optional[str] = None) -> Optional[Style]:
         """
         Updates existing style.
 
