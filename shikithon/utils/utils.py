@@ -364,7 +364,7 @@ class Utils:
             logger.debug('Response data contains success info. Returning True')
             return True
 
-        if 'is_ignored' in response_data:
+        if 'is_ignored' in response_data and data_model is None:
             logger.debug('Response data contains is_ignored. '
                          'Returning status of is_ignored')
             return response_data.get('is_ignored')
