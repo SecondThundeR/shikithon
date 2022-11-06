@@ -1,10 +1,11 @@
 """Base class for shikithon API class."""
 from __future__ import annotations
 
+import asyncio
 from json import dumps
 import sys
 from time import time
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 from aiohttp import ClientSession
 from aiohttp import ContentTypeError
@@ -31,6 +32,7 @@ SHIKIMORI_API_URL_V2 = 'https://shikimori.one/api/v2'
 SHIKIMORI_OAUTH_URL = 'https://shikimori.one/oauth'
 DEFAULT_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
+RT = TypeVar('RT')
 TOKEN_EXPIRE_TIME = 86400
 
 
@@ -576,6 +578,21 @@ class Client:
                 return await Utils.extract_empty_response_data(response)
 
         return json_response
+
+    async def multiple_requests(self, requests: List[Callable[..., RT]]):
+        """
+        Make multiple requests to API at the same time.
+
+        :param requests: List of requests
+        :type requests: List[Callable[..., RT]]
+
+        :return: List of responses
+        :rtype: List[Union[BaseException, RT]]
+        """
+        if self.closed:
+            return []
+
+        return await asyncio.gather(*requests, return_exceptions=True)
 
     async def __aenter__(self) -> Client:
         """Async context manager entry point."""
