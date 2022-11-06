@@ -94,7 +94,7 @@ class Ranobes(BaseResource):
                 RanobeList: my_list,
                 RanobeCensorship: censored
         }):
-            return None
+            return []
 
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
                                                           limit=[limit, 50],
@@ -122,7 +122,9 @@ class Ranobes(BaseResource):
                                           ids=ids,
                                           exclude_ids=exclude_ids,
                                           search=search))
-        return Utils.validate_response_data(response, data_model=Ranobe)
+        return Utils.validate_response_data(response,
+                                            data_model=Ranobe,
+                                            fallback=[])
 
     @method_endpoint('/api/ranobe/:id')
     async def get(self, ranobe_id: int) -> Optional[Ranobe]:
@@ -152,7 +154,9 @@ class Ranobes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.ranobe_roles(ranobe_id))
-        return Utils.validate_response_data(response, data_model=Creator)
+        return Utils.validate_response_data(response,
+                                            data_model=Creator,
+                                            fallback=[])
 
     @method_endpoint('/api/ranobe/:id/similar')
     async def similar(self, ranobe_id: int) -> List[Ranobe]:
@@ -167,7 +171,9 @@ class Ranobes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.similar_ranobes(ranobe_id))
-        return Utils.validate_response_data(response, data_model=Ranobe)
+        return Utils.validate_response_data(response,
+                                            data_model=Ranobe,
+                                            fallback=[])
 
     @method_endpoint('/api/ranobe/:id/related')
     async def related_content(self, ranobe_id: int) -> List[Relation]:
@@ -182,7 +188,9 @@ class Ranobes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.ranobe_related_content(ranobe_id))
-        return Utils.validate_response_data(response, data_model=Relation)
+        return Utils.validate_response_data(response,
+                                            data_model=Relation,
+                                            fallback=[])
 
     @method_endpoint('/api/ranobe/:id/franchise')
     async def franchise_tree(self, ranobe_id: int) -> Optional[FranchiseTree]:
@@ -212,7 +220,9 @@ class Ranobes(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.ranobe_external_links(ranobe_id))
-        return Utils.validate_response_data(response, data_model=Link)
+        return Utils.validate_response_data(response,
+                                            data_model=Link,
+                                            fallback=[])
 
     @method_endpoint('/api/ranobe/:id/topics')
     async def topics(self,
@@ -221,8 +231,6 @@ class Ranobes(BaseResource):
                      limit: Optional[int] = None) -> List[Topic]:
         """
         Returns list of topics of certain ranobe.
-
-        If some data are not provided, using default values.
 
         :param ranobe_id: Ranobe ID to get topics
         :type ranobe_id: int
@@ -245,4 +253,6 @@ class Ranobes(BaseResource):
             self._client.endpoints.ranobe_topics(ranobe_id),
             query=Utils.create_query_dict(page=validated_numbers['page'],
                                           limit=validated_numbers['limit']))
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(response,
+                                            data_model=Topic,
+                                            fallback=[])
