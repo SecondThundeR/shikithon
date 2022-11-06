@@ -142,6 +142,44 @@ asyncio.run(main())
 # Для удобства она показана здесь раздельно
 ```
 
+Выполнение нескольких запросов одновременно с помощью метода multiple_requests:
+```py
+# В этом примере используется распаковка, но можно также получать весь массив с данными ответов
+# в одной переменнной (chainsaw, lycoris_anime, ... -> data = await ...)
+from shikithon import ShikimoriAPI
+
+config = ...
+
+shikimori = ShikimoriAPI(config)
+await shikimori.open()
+
+chainsaw, lycoris_anime, lycoris_ranobe = await shikimori.multiple_requests([
+    shikimori.animes.get_all(search="Бензопила"),
+    shikimori.animes.get_all(search="Ликорис"),
+    shikimori.ranobes.get_all(search="Ликорис"),
+])
+print(chainsaw)
+print(lycoris_anime)
+print(lycoris_ranobe)
+
+await shikimori.close()
+
+# [Anime(id=44511, name='Chainsaw Man', russian='Человек-бензопила', ...]
+# [Anime(id=50709, name='Lycoris Recoil', russian='Ликорис Рикоил', ...]
+# [Ranobe(id=151431, name='Lycoris Recoil: Ordinary Days', russian='Ликорис Рикоил: Повседневность', ...]
+
+# Также возможно использовать этот метод в "ограниченном режиме":
+app_name = ...
+
+async with ShikimoriAPI(app_name) as shikimori:
+    lycoris_ranobe = await shikimori.multiple_requests([
+        shikimori.ranobes.get_all(search="Ликорис"),
+    ])
+    print(lycoris_ranobe)
+
+# [Ranobe(id=151431, name='Lycoris Recoil: Ordinary Days', russian='Ликорис Рикоил: Повседневность', ...]
+```
+
 > **Пара уточнений по использованию:**
 >
 > - Возможно вам придется импортировать модели для ручной аннотации возвращаемых моделей в PyCharm
