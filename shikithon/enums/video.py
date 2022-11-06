@@ -1,5 +1,5 @@
 """Enums for /api/animes/:anime_id/videos."""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class VideoKind(EnhancedEnum):

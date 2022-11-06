@@ -5,16 +5,16 @@ This file contains the Utils class
 with all the necessary utility methods
 to work with the library
 """
-from io import BytesIO
 from time import time
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
+from aiohttp import ClientResponse
+from aiohttp import ClientSession
 from loguru import logger
-from requests import get
 from validators import url as is_url
 
-from shikithon.enums.enhanced_enum import EnhancedEnum
-from shikithon.enums.response import ResponseCode
+from ..enums.enhanced_enum import EnhancedEnum
+from ..enums.response import ResponseCode
 
 LOWER_LIMIT_NUMBER = 1
 
@@ -28,7 +28,7 @@ class Utils:
     """
 
     @staticmethod
-    def prepare_query_dict(query_dict: Dict[str, str]) -> str:
+    def convert_to_query_string(query_dict: Dict[str, str]) -> str:
         """
         Convert query dict to query string for endpoint link.
 
@@ -45,10 +45,10 @@ class Utils:
         return f'?{query_dict_str}'
 
     @staticmethod
-    def convert_app_name(app_name: str) -> str:
+    def convert_app_name_to_filename(app_name: str) -> str:
         """
         Converts app name to snake case for use in
-        config cache filename.
+        config store filename.
 
         :param app_name: Current OAuth app name
         :type app_name: str
@@ -56,13 +56,13 @@ class Utils:
         :return: Converted app name for filename
         :rtype: str
         """
-        logger.debug(f'Converting {app_name=} for cached config')
+        logger.debug(f'Converting {app_name=} for stored config')
         return '_'.join(app_name.lower().split(' '))
 
     @staticmethod
     def get_new_expire_time(time_expire_constant: int) -> int:
         """
-        Generates new token expire time.
+        Gets new token expire time.
 
         :param time_expire_constant: Token lifetime value
         :type time_expire_constant: int
@@ -75,9 +75,7 @@ class Utils:
         return int(time()) + time_expire_constant
 
     @staticmethod
-    def get_image_data(
-            image_path: str
-    ) -> Dict[str, Tuple[str, Union[BytesIO, bytes], str]]:
+    async def get_image_data(image_path: str) -> Dict[str, bytes]:
         """
         Extract image data from image path.
         If image_path is a link, fetch the image data from the link.
@@ -86,31 +84,32 @@ class Utils:
         :type image_path: str
 
         :return: Image data
-        :rtype: Dict[str, Tuple[str, Union[BytesIO, bytes], str]]
+        :rtype: Dict[str, bytes]
         """
         if isinstance(is_url(image_path), bool):
-            image_response = get(image_path)
-            image_data = BytesIO(image_response.content)
+            async with ClientSession() as session:
+                async with session.get(image_path) as image_response:
+                    image_data = await image_response.read()
         else:
             with open(image_path, 'rb') as image_file:
                 image_data = image_file.read()
 
-        return {'image': (image_path, image_data, 'multipart/form-data')}
+        return {'image': image_data}
 
     @staticmethod
-    def generate_query_dict(
+    def create_query_dict(
         **params_data: Optional[Union[str, bool, int, List[Union[int, str]]]]
     ) -> Dict[str, str]:
         """
-        Returns valid query dict for API requests.
+        Creates query dict for API requests.
 
-        This methods checks for data type and converts to valid one.
+        This methods checks for data types and converts to valid one.
 
         :param params_data: API methods parameters data
         :type params_data:
             Optional[Union[str, bool, int, List[Union[int, str]]]]
 
-        :return: Valid query dictionary
+        :return: Query dictionary
         :rtype: Dict[str, str]
         """
         logger.debug(
@@ -124,31 +123,25 @@ class Utils:
             elif isinstance(data, int):
                 query_dict[key] = str(data)
             elif isinstance(data, list):
-                formatted_data: List[str] = []
-                for item in data:
-                    if isinstance(item, int):
-                        formatted_data.append(str(item))
-                    elif isinstance(item, str) and item.isdigit():
-                        formatted_data.append(item)
-                query_dict[key] = ','.join(formatted_data)
+                query_dict[key] = ','.join(data)
             else:
                 query_dict[key] = data
         logger.debug(f'Generated query dictionary: {query_dict=}')
         return query_dict
 
     @staticmethod
-    def generate_data_dict(
+    def create_data_dict(
         **dict_data: Optional[Union[str, bool, int, List[int]]]
     ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:
         """
-        Returns valid data dict for API requests.
+        Creates data dict for API requests.
 
-        This methods checks for data type and converts to valid one.
+        This methods checks for data types and converts to valid one.
 
         :param dict_data: API methods body data
         :type dict_data: Optional[Union[str, bool, int, List[int]]]
 
-        :return: Valid data dictionary
+        :return: Data dictionary
         :rtype: Optional[Union[str, bool, int, List[int]]]
         """
         logger.debug(
@@ -173,13 +166,7 @@ class Utils:
             elif isinstance(data, int):
                 new_data_dict[data_dict_name][key] = str(data)
             elif isinstance(data, list):
-                formatted_data: List[str] = []
-                for item in data:
-                    if isinstance(item, int):
-                        formatted_data.append(str(item))
-                    elif isinstance(item, str) and item.isdigit():
-                        formatted_data.append(item)
-                new_data_dict[data_dict_name][key] = ','.join(formatted_data)
+                new_data_dict[data_dict_name][key] = ','.join(data)
             else:
                 new_data_dict[data_dict_name][key] = data
         logger.debug(f'Generated data dictionary: {new_data_dict=}')
@@ -191,15 +178,15 @@ class Utils:
                                                         List[str]]]) -> bool:
         """
         Validates string parameter with enum values.
-
         Function gets dictionary with enum and string values.
-        If string value is in enum values, function returns True.
-        If not, throws logger.warning() and returns False
+
+        If string value is in enum values, function returns True,
+        otherwise False
 
         :param enum_params: Dictionary with values to validate.
         :type enum_params: Dict[Type[EnhancedEnum], Union[str, List[str]]])
 
-        :return: Result of validation
+        :return: Validator result
         :rtype: bool
         """
         enums_counter = 0
@@ -226,16 +213,15 @@ class Utils:
                     f'\nAccepted values: {enum_values}')
                 return False
 
-        if enums_counter > 0:
-            logger.debug(f'All ({enums_counter}) enum parameters are valid')
-        else:
-            logger.debug('There are no enum parameters to check')
+        logger.debug(
+            f'All ({enums_counter}) enum parameters are valid'
+            if enums_counter > 0 else 'There are no enum parameters to check')
 
         return True
 
     @staticmethod
-    def validate_query_number(query_number: Optional[int],
-                              upper_limit: int) -> Optional[int]:
+    def get_validated_query_number(query_number: Optional[int],
+                                   upper_limit: int) -> Optional[int]:
         """
         Validates query number.
 
@@ -268,6 +254,11 @@ class Utils:
                          f'than upper limit ("{upper_limit}"). '
                          f'Returning {upper_limit=}')
             return upper_limit
+
+        if isinstance(query_number, float):
+            logger.debug(f'Query number ("{query_number}") is float. '
+                         f'Converting to int')
+            query_number = int(query_number)
 
         logger.debug(f'Returning passed query number ("{query_number}")')
         return query_number
@@ -302,17 +293,19 @@ class Utils:
         validated_numbers: Dict[str, Optional[int]] = {}
         for name, data in query_numbers.items():
             logger.debug(f'Checking "{name}" parameter')
-            validated_numbers[name] = (Utils.validate_query_number(
+            validated_numbers[name] = (Utils.get_validated_query_number(
                 data[0], data[1]))
         return validated_numbers
 
     @staticmethod
-    def validate_return_data(
+    def validate_response_data(
         response_data: Union[List[Dict[str, Any]], Dict[str, Any], List[Any],
                              int],
         data_model: Optional[Type[Any]] = None,
-        response_code: Optional[ResponseCode] = None
-    ) -> Optional[Union[Type[Any], List[Type[Any]], List[Any], bool]]:
+        response_code: Optional[ResponseCode] = None,
+        fallback: Optional[Any] = None
+    ) -> Optional[Union[Type[Any], List[Type[Any]], List[Any], Dict[str, Any],
+                        bool]]:
         """
         Validates passed response data and returns
         parsed models.
@@ -328,32 +321,53 @@ class Utils:
             (Used only when response_data is int)
         :type response_code: Optional[ResponseCode]
 
+        :param fallback: Fallback value to return
+        :type fallback: Optional[Any]
+
         :return: Parsed response data
-        :rtype: Optional[Union[Type[Any], List[Type[Any]], bool]]
+        :rtype: Optional[Union[Type[Any], List[Type[Any]],
+            List[Any], Dict[str, Any], bool]]
         """
         logger.debug(f'Validating return data: {response_data=}, '
                      f'{data_model=}, {response_code=}')
+
         if not response_data:
-            logger.debug('Response data is empty. Returning None')
-            return None
+            logger.debug('Response data is empty. Returning it...')
+            return response_data
 
         if isinstance(response_data, int):
             logger.debug('Response data is int. Returning value '
                          'of response code comparison')
             return response_data == response_code.value
 
+        if isinstance(response_data, dict) and response_data.get('errors'):
+            logger.debug('Response data contains unexpected errors. '
+                         'Returning fallback value...')
+            logger.warning(f'Errors list: {response_data.get("errors")}')
+            return fallback
+
+        if isinstance(response_data, list) \
+                and len(response_data) == 1:
+            if isinstance(response_data[0], str) \
+                    and response_data[0].find('Invalid') != -1:
+                logger.debug('Response data contains info about invalid data. '
+                             'Returning fallback value')
+                logger.warning(response_data[0])
+                return fallback
+
         if 'errors' in response_data or 'code' in response_data:
-            logger.debug('Response data contains errors info. Returning None')
-            return None
+            logger.debug(
+                'Response data contains errors info. Returning fallback value')
+            return fallback
 
         if 'notice' in response_data or 'success' in response_data:
             logger.debug('Response data contains success info. Returning True')
             return True
 
-        if 'is_ignored' in response_data:
+        if 'is_ignored' in response_data and data_model is None:
             logger.debug('Response data contains is_ignored. '
                          'Returning status of is_ignored')
-            return response_data['is_ignored']
+            return response_data.get('is_ignored')
 
         if data_model is None:
             logger.debug("Data model isn't passed. Returning response data")
@@ -362,3 +376,11 @@ class Utils:
         logger.debug('Data model is passed. Returning parsed data')
         return [data_model(**item) for item in response_data] if isinstance(
             response_data, list) else data_model(**response_data)
+
+    @staticmethod
+    async def extract_empty_response_data(
+            response: ClientResponse) -> Union[str, int]:
+        response_text = await response.text()
+        response_status = response.status
+        return response_status \
+            if not response_text else response_text

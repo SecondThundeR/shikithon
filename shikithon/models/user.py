@@ -4,8 +4,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.stats import Stats
-from shikithon.models.user_image import UserImage
+from .stats import Stats
+from .user_image import UserImage
 
 
 class User(BaseModel):

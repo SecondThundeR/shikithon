@@ -1,5 +1,5 @@
 """Enums for /api/animes."""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class AnimeOrder(EnhancedEnum):
@@ -48,6 +48,13 @@ class AnimeStatus(EnhancedEnum):
     NOT_ONGOING = '!ongoing'
     RELEASED = 'released'
     NOT_RELEASED = '!released'
+
+
+class AnimeTopicKind(EnhancedEnum):
+    """Contains constants related for getting certain kind of anime topic."""
+    ANONS = 'anons'
+    ONGOING = 'ongoing'
+    RELEASED = 'released'
 
 
 class AnimeDuration(EnhancedEnum):

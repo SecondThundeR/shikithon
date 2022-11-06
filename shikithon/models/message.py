@@ -2,10 +2,11 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from pydantic import Field
 
-from shikithon.models.linked_topic import LinkedTopic
-from shikithon.models.user import User
+from .linked_topic import LinkedTopic
+from .user import User
 
 
 class Message(BaseModel):

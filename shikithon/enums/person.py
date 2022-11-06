@@ -4,7 +4,7 @@ Enums for /api/person.
 Also PersonKind enum is use in /api/favorites,
 when linked_type is Person
 """
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class PersonKind(EnhancedEnum):

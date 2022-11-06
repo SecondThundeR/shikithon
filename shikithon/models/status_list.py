@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.status import Status
+from .status import Status
 
 
 class StatusList(BaseModel):

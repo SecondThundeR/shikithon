@@ -1,8 +1,8 @@
 """Model for api/dialogs"""
 from pydantic import BaseModel
 
-from shikithon.models.message import Message
-from shikithon.models.user import User
+from .message import Message
+from .user import User
 
 
 class Dialog(BaseModel):

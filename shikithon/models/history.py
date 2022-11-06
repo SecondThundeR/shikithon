@@ -4,8 +4,8 @@ from typing import Union
 
 from pydantic import BaseModel
 
-from shikithon.models.anime import Anime
-from shikithon.models.manga import Manga
+from .anime import Anime
+from .manga import Manga
 
 
 class History(BaseModel):

@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.score import Score
+from .score import Score
 
 
 class ScoreList(BaseModel):

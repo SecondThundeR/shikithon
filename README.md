@@ -9,27 +9,27 @@
 
 > **Состояние библиотеки:** завершена основная разработка
 >
-> На данный момент, библиотека поддерживает лишь синхронное взаимодействие с API,
-> асинхронное взаимодействие и прочие улучшения будут добавлены в будущем
+> На данный момент, библиотека находится в статусе поддержки (новые функции будут добавляться только по необходимости)
+>
+> Начиная с версии 2.0.0, библиотека поддерживает асинхронные запросы, отдельные пути к ресурсам API и многое другое
 
-## Преимущество библиотеки
+## Описание
 
 Данный враппер предоставляет базовую абстракцию, которая позволяет удобнее работать с методами API и их ответами.
 
-Для каждого метода API существует свой метод класса, который благодаря библиотеке Pydantic,
-возвращает удобную модель данных для работы.
+Для каждого эндпоинта API существует свой объект с методами, которые благодаря библиотеке Pydantic,
+возвращают удобную модель данных.
 
 Все данные, возвращаемые API Shikimori, валидируются и парсятся в модели, со всеми необходимыми полями,
-а также дополнительными, которые могут вернуть некоторые методы API _(Например /users/whoami и /users/:id/info)_.
-
+а также дополнительными, которые могут вернуть некоторые методы API _(Например /users/whoami и /users/:id/info возвращают разные поля)_.
 Это позволяет не задумываться об обработке очередного ответа от сервера и сосредоточиться над реализацией своей идеи.
 
-Также, данная библиотека поддерживает ранние версии Python, начиная с 3.8.10.
+Также благодаря многочисленным проверкам при взамодействии с запросами, библиотека старается добиться максимально
+безопасной работы с API: все ошибки API, переданных параметров, данных и т.д. обратываются и логируются и
+возвращаются значения по умолчанию
 
-> Поддержка Python 3.6.x не имеет смысла, так как она не является актуальной на момент разработки, а Python 3.7.x
-> не поддерживается на Apple Silicon _(Основная платформа, на которой разрабатывается данная библиотека)_.
->
-> Поэтому в качестве минимальной версии был выбран Python 3.8.10
+> Данная библиотека начинают свою поддержку с Python 3.8.10.
+
 ## Установка
 
  ```pip install shikithon```
@@ -39,11 +39,13 @@
 С использованием полного конфига:
 
 ```py
+import asyncio
+
 from typing import Dict
 
 from json import loads
 
-from shikithon import API
+from shikithon import ShikimoriAPI
 
 # Можно установить данные конфигурации в коде
 config = {
@@ -59,19 +61,30 @@ config = {
 with open("config.json", "r", encoding="utf-8") as config_file:
     config_2: Dict[str, str] = loads(config_file.read())
 
-# Инициализация объекта API
-shikimori = API(config)
+async def main():
+    # Инициализация объекта API
+    shikimori = ShikimoriAPI(config)
 
-# Получение данных текущего пользователя через /users/whoami
-user = shikimori.current_user()
-print(f"Current user is {user.nickname}")
+    # Запуск сессии
+    await shikimori.open()
 
-# Получение достижений пользователя через /achievements
-# и вывод первого достижения
-user_achievements = shikimori.achievements(user.id)
-print(user_achievements[0])
+    # Получение данных текущего пользователя через /users/whoami
+    user = await shikimori.users.current()
+    print(f"Current user is {user.nickname}")
+
+    # Получение достижений пользователя через /achievements
+    # и вывод первого достижения
+    user_achievements = await shikimori.achievements.get(user.id)
+    if user_achievements:
+            print(user_achievements[0])
+
+    # Закрытие сессии
+    await shikimori.close()
+
+asyncio.run(main())
 
 # >> Current user is SecondThundeR
+
 # >> id=719972946
 # >> neko_id='animelist'
 # >> level=1
@@ -87,7 +100,9 @@ print(user_achievements[0])
 С использованием имени приложения:
 
 ```py
-from shikithon import API
+import asyncio
+
+from shikithon import ShikimoriAPI
 
 # Можно установить имя приложения в коде
 app_name = "..."
@@ -96,19 +111,22 @@ app_name = "..."
 with open("config.txt", "r", encoding="utf-8") as config_file:
     app_name_2 = config_file.readline().strip()
 
-# Инициализация объекта API
-shikimori = API(app_name)
+async def main():
+    # Инициализация объекта API
+    async with ShikimoriAPI(app_name) as shikimori:
+        # Попытка получения данных текущего пользователя через /users/whoami
+        # При попытке доступа к защищенному методу, возвращает всегда None
+        user = await shikimori.users.current()
+        print(user)
 
-# Попытка получения данных текущего пользователя через /users/whoami
-# При попытке доступа к защищенному методу, возвращает всегда None
-user = shikimori.current_user()
-print(user)
+        # Получение достижений пользователя через /achievements
+        # и вывод первого достижения
+        # Можно получать достижения любого пользователя через ID
+        user_achievements = await shikimori.achievements.get(1)
+        if user_achievements:
+            print(user_achievements[0])
 
-# Получение достижений пользователя через /achievements
-# и вывод первого достижения
-# Можно получать достижения любого пользователя через ID
-user_achievements = shikimori.achievements(1)
-print(user_achievements[0])
+asyncio.run(main())
 
 # >> None
 
@@ -124,14 +142,61 @@ print(user_achievements[0])
 # Для удобства она показана здесь раздельно
 ```
 
+Выполнение нескольких запросов одновременно с помощью метода multiple_requests:
+```py
+# В этом примере используется распаковка, но можно также получать весь массив с данными ответов
+# в одной переменнной (chainsaw, lycoris_anime, ... -> data = await ...)
+from shikithon import ShikimoriAPI
+
+config = ...
+
+shikimori = ShikimoriAPI(config)
+await shikimori.open()
+
+chainsaw, lycoris_anime, lycoris_ranobe = await shikimori.multiple_requests([
+    shikimori.animes.get_all(search="Бензопила"),
+    shikimori.animes.get_all(search="Ликорис"),
+    shikimori.ranobes.get_all(search="Ликорис")
+])
+print(chainsaw)
+print(lycoris_anime)
+print(lycoris_ranobe)
+
+await shikimori.close()
+
+# [Anime(id=44511, name='Chainsaw Man', russian='Человек-бензопила', ...]
+# [Anime(id=50709, name='Lycoris Recoil', russian='Ликорис Рикоил', ...]
+# [Ranobe(id=151431, name='Lycoris Recoil: Ordinary Days', russian='Ликорис Рикоил: Повседневность', ...]
+
+# Также возможно использовать этот метод в "ограниченном режиме":
+app_name = ...
+
+async with ShikimoriAPI(app_name) as shikimori:
+    lycoris_ranobe = await shikimori.multiple_requests([
+        shikimori.ranobes.get_all(search="Ликорис")
+    ])
+    print(lycoris_ranobe)
+
+# [Ranobe(id=151431, name='Lycoris Recoil: Ordinary Days', russian='Ликорис Рикоил: Повседневность', ...]
+```
+
 > **Пара уточнений по использованию:**
 >
-> - Не обязательно импортировать модели, если вы не используете функцию аннотации типов
+> - Возможно вам придется импортировать модели для ручной аннотации возвращаемых моделей в PyCharm
+> _(в нем немного некорретно работает наследование типа от функции)_
+>
+>
 > - Поле `scopes` является строкой и разделяется "+", если значений несколько.
 >
 >   Пример: `user_rates+messages+comments+topics+...`
+>
+>
 > - При отсутствии каких-либо полей в данных конфигурации, библиотека выдает исключение
-> - Посмотреть список поддерживаемых методов API вместе с названиями для них в библиотеке, можно [здесь](https://github.com/SecondThundeR/shikithon/projects/1#column-18695394)
+>
+>
+> - Если вы не хотите использовать логгирование библиотеки, передайте флаг logging=False в объект API.
+>
+>  Пример: `shikithon = await ShikimoriAPI(config, logging=False)`
 
 ### Получение данных для конфигурации
 
@@ -143,8 +208,8 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 
 **Теперь ваш файл конфигурации готов!**
 
-> На первой инициализации, библиотека создаст кэш конфигурации в скрытом файле для дальнейших запросов.
-> Если токены станут недоступны, библиотека автоматически обновит токены и кэшированный файл конфигурации
+> На первой инициализации, библиотека создаст и сохранит собственный файл конфигурации для дальнейших запросов.
+> Если токены станут недоступны, библиотека автоматически обновит токены и сохранненый файл конфигурации
 
 Также возможно использование библиотеки в "ограниченном режиме",
 используя только имя приложения для доступа к публичным методам API.
@@ -165,11 +230,11 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 
 Данный проект использует пять библиотек:
 
-- [requests](https://github.com/psf/requests) для запросов к API
-[(Лицензия)](https://github.com/psf/requests/blob/main/LICENSE)
+- [aiohttp](https://github.com/aio-libs/aiohttp) для асинхронных запросов к API
+[(Лицензия)](https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt)
 - [pydantic](https://github.com/samuelcolvin/pydantic/) для валидации данных JSON и преобразования в модели
 [(Лицензия)](https://github.com/samuelcolvin/pydantic/blob/master/LICENSE)
-- [ratelimit](https://github.com/tomasbasham/ratelimit) для огранчений количества запросов в минуту
+- [ratelimit](https://github.com/tomasbasham/ratelimit) для огранчений количества запросов к API
 [(Лицензия)](https://github.com/tomasbasham/ratelimit/blob/master/LICENSE.txt)
 - [loguru](https://github.com/Delgan/loguru) для удобного логгирования
 [(Лицензия)](https://github.com/Delgan/loguru/blob/master/LICENSE)
@@ -194,3 +259,8 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 
 Проект использует логотип сайта [Shikimori](https://shikimori.org) для логотипа в этом README.md.
 Все права принадлежат правообладателям и используются по принципу _fair use_.
+
+## Благодарности
+
+- [shiki4py](https://github.com/ren3104/Shiki4py) - взяты некоторые идеи по рефакторингу и добавлению поддержки асинхронных запросов
+[(Лицензия)](https://github.com/ren3104/Shiki4py/blob/main/LICENSE)

@@ -3,8 +3,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.anime import Anime
-from shikithon.models.character import Character
+from .anime import Anime
+from .character import Character
 
 
 class PeopleRoles(BaseModel):

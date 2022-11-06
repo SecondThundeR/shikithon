@@ -1,5 +1,5 @@
 """Enums for response status codes."""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class ResponseCode(EnhancedEnum):

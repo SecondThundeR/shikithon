@@ -1,5 +1,5 @@
 """Enums for /api/styles."""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class OwnerType(EnhancedEnum):

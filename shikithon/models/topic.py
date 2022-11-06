@@ -4,10 +4,11 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from shikithon.models.anime import Anime
-from shikithon.models.forum import Forum
-from shikithon.models.manga import Manga
-from shikithon.models.user import User
+from .anime import Anime
+from .club import Club
+from .forum import Forum
+from .manga import Manga
+from .user import User
 
 
 class Topic(BaseModel):
@@ -24,7 +25,7 @@ class Topic(BaseModel):
     type: Optional[str]
     linked_id: Optional[int]
     linked_type: Optional[str]
-    linked: Union[Anime, Manga]
+    linked: Optional[Union[Club, Anime, Manga]]
     viewed: Optional[bool]
     last_comment_viewed: Optional[bool]
     event: Optional[str]

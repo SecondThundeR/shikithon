@@ -3,11 +3,11 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.genre import Genre
-from shikithon.models.image import Image
-from shikithon.models.user_rate import UserRate
-from shikithon.models.user_rate_score import UserRateScore
-from shikithon.models.user_rate_status import UserRateStatus
+from .genre import Genre
+from .image import Image
+from .user_rate import UserRate
+from .user_rate_score import UserRateScore
+from .user_rate_status import UserRateStatus
 
 
 class Ranobe(BaseModel):

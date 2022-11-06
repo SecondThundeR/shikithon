@@ -1,5 +1,5 @@
 """Contains package version and some magic for importing API object."""
-from shikithon.api import API
+from .api import ShikimoriAPI
 
-__version__ = '1.0.2'
-__all__ = ['API']
+__version__ = '2.0.0'
+__all__ = ['ShikimoriAPI']

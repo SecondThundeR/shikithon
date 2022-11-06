@@ -4,12 +4,13 @@ from typing import List, Optional, Tuple
 
 from pydantic import BaseModel
 
-from shikithon.models.image import Image
-from shikithon.models.people_roles import PeopleRoles
-from shikithon.models.people_works import PeopleWorks
+from .birthday import Birthday
+from .image import Image
+from .people_roles import PeopleRoles
+from .people_works import PeopleWorks
 
 
-class People(BaseModel):
+class Person(BaseModel):
     """Represents person entity."""
     id: int
     name: str
@@ -18,7 +19,7 @@ class People(BaseModel):
     url: str
     japanese: Optional[str]
     job_title: Optional[str]
-    birthday: Optional[str]
+    birthday: Optional[Birthday]
     website: Optional[str]
     groupped_roles: Optional[List[Tuple[str, int]]]
     roles: Optional[List[PeopleRoles]]

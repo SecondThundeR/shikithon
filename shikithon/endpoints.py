@@ -6,7 +6,7 @@ customized endpoints via input parameters.
 """
 from typing import Union
 
-from shikithon.utils import Utils
+from .utils import Utils
 
 
 class Endpoints:
@@ -138,7 +138,7 @@ class Endpoints:
         :return: Link for getting authorization code
         :rtype: str
         """
-        query_str = Utils.prepare_query_dict({
+        query_str = Utils.convert_to_query_string({
             'client_id': client_id,
             'redirect_uri': redirect_uri,
             'response_type': 'code',
@@ -913,7 +913,7 @@ class Endpoints:
         :return: Ranobes list endpoint link
         :rtype: str
         """
-        return f'{self.base_url}/ranobes'
+        return f'{self.base_url}/ranobe'
 
     def ranobe(self, ranobe_id: int) -> str:
         """

@@ -1,5 +1,5 @@
 """Enums for /api/mangas."""
-from shikithon.enums.enhanced_enum import EnhancedEnum
+from .enhanced_enum import EnhancedEnum
 
 
 class MangaOrder(EnhancedEnum):

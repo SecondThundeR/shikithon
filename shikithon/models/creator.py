@@ -3,8 +3,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from shikithon.models.character import Character
-from shikithon.models.people import People
+from .character import Character
+from .person import Person
 
 
 class Creator(BaseModel):
@@ -12,4 +12,4 @@ class Creator(BaseModel):
     roles: List[str]
     roles_russian: List[str]
     character: Optional[Character]
-    person: Optional[People]
+    person: Optional[Person]

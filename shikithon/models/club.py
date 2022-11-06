@@ -1,7 +1,7 @@
 """Model for /api/clubs"""
 from pydantic import BaseModel
 
-from shikithon.models.logo import Logo
+from .logo import Logo
 
 
 class Club(BaseModel):
