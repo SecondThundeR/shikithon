@@ -58,18 +58,17 @@ class UserRates(BaseResource):
         :type limit: Optional[int]
 
         :return: List with info about user rates
-        (This field is ignored when user_id is set)
         :rtype: List[UserRate]
         """
         if target_id is not None and target_type is None:
             logger.warning('target_type is required when passing target_id')
-            return None
+            return []
 
         if not Utils.validate_enum_params({
                 UserRateTarget: target_type,
                 UserRateStatus: status
         }):
-            return None
+            return []
 
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -84,7 +83,9 @@ class UserRates(BaseResource):
                                           status=status,
                                           page=validated_numbers['page'],
                                           limit=validated_numbers['limit']))
-        return Utils.validate_response_data(response, data_model=UserRate)
+        return Utils.validate_response_data(response,
+                                            data_model=UserRate,
+                                            fallback=[])
 
     @method_endpoint('/api/v2/user_rates/:id')
     async def get(self, rate_id: int) -> Optional[UserRate]:
@@ -255,7 +256,7 @@ class UserRates(BaseResource):
         return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
-    @protected_method('_client', 'user_rates')
+    @protected_method('_client', 'user_rates', fallback=False)
     async def delete(self, rate_id: int) -> bool:
         """
         Deletes user rate.
@@ -271,10 +272,10 @@ class UserRates(BaseResource):
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(
-            response, response_code=ResponseCode.NO_CONTENT)
+            response, response_code=ResponseCode.NO_CONTENT, fallback=False)
 
     @method_endpoint('/api/users_rates/:type/cleanup')
-    @protected_method('_client', 'user_rates')
+    @protected_method('_client', 'user_rates', fallback=False)
     async def delete_all(self, user_rate_type: str) -> bool:
         """
         Deletes all user rates.
@@ -292,10 +293,10 @@ class UserRates(BaseResource):
             self._client.endpoints.user_rates_cleanup(user_rate_type),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response)
+        return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/user_rates/:type/reset')
-    @protected_method('_client', 'user_rates')
+    @protected_method('_client', 'user_rates', fallback=False)
     async def reset_all(self, user_rate_type: str) -> bool:
         """
         Resets all user rates.
@@ -313,4 +314,4 @@ class UserRates(BaseResource):
             self._client.endpoints.user_rates_reset(user_rate_type),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response)
+        return Utils.validate_response_data(response, fallback=False)
