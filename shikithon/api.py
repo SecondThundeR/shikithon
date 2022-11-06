@@ -6,7 +6,7 @@ for interacting with the Shikimori API.
 from __future__ import annotations
 
 import sys
-from typing import Callable, Dict, List, TypeVar, Union
+from typing import Callable, Dict, List, Optional, TypeVar, Union
 
 from loguru import logger
 
@@ -49,7 +49,9 @@ class ShikimoriAPI:
     Also, all API methods splitted up to resources for convinient usage.
     """
 
-    def __init__(self, config: Union[str, Dict[str, str]]):
+    def __init__(self,
+                 config: Union[str, Dict[str, str]],
+                 logging: Optional[bool] = True):
         """
         Shikimori API class initialization.
 
@@ -58,21 +60,29 @@ class ShikimoriAPI:
 
         :param config: Config file for API class or app name
         :type config: Union[str, Dict[str, str]]
+
+        :param logging: Logging flag
+        :type logging: Optional[bool]
         """
-        logger.configure(handlers=[
-            {
-                'sink': sys.stderr,
-                'level': 'INFO',
-                'format': '{time} | {level} | {message}'
-            },
-            {
-                'sink': 'shikithon_{time}.log',
-                'level': 'DEBUG',
-                'format': '{time} | {level} | {file}.{function}: {message}',
-                'rotation': '1 MB',
-                'compression': 'zip'
-            },
-        ])
+        if logging:
+            logger.configure(handlers=[
+                {
+                    'sink': sys.stderr,
+                    'level': 'INFO',
+                    'format': '{time} | {level} | {message}'
+                },
+                {
+                    'sink': 'shikithon_{time}.log',
+                    'level': 'DEBUG',
+                    'format': '{time} | {level} | '
+                              '{file}.{function}: {message}',
+                    'rotation': '1 MB',
+                    'compression': 'zip'
+                },
+            ])
+        if not logging:
+            logger.disable('shikithon')
+
         logger.info('Initializing API object')
 
         self._client = Client(config)
