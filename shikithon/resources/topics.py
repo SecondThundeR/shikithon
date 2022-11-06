@@ -5,6 +5,7 @@ from ..decorators import method_endpoint
 from ..decorators import protected_method
 from ..enums import ForumType
 from ..enums import RequestType
+from ..enums import ResponseCode
 from ..enums import TopicLinkedType
 from ..enums import TopicType
 from ..models import Topic
@@ -55,7 +56,7 @@ class Topics(BaseResource):
                 TopicLinkedType: linked_type,
                 TopicType: topic_type
         }):
-            return None
+            return []
 
         validated_numbers = Utils.query_numbers_validator(
             page=[page, 100000],
@@ -70,7 +71,9 @@ class Topics(BaseResource):
                                           linked_id=linked_id,
                                           linked_type=linked_type,
                                           type=topic_type))
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(response,
+                                            data_model=Topic,
+                                            fallback=[])
 
     @method_endpoint('/api/topics/updates')
     async def updates(self,
@@ -95,11 +98,11 @@ class Topics(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.updates_topics,
-            query=Utils.create_query_dict(
-                page=validated_numbers['page'],
-                limit=validated_numbers['limit'],
-            ))
-        return Utils.validate_response_data(response, data_model=Topic)
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit']))
+        return Utils.validate_response_data(response,
+                                            data_model=Topic,
+                                            fallback=[])
 
     @method_endpoint('/api/topics/hot')
     async def hot(self, limit: Optional[int] = None) -> List[Topic]:
@@ -116,8 +119,10 @@ class Topics(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.hot_topics,
-            query=Utils.create_query_dict(limit=validated_numbers['limit'],))
-        return Utils.validate_response_data(response, data_model=Topic)
+            query=Utils.create_query_dict(limit=validated_numbers['limit']))
+        return Utils.validate_response_data(response,
+                                            data_model=Topic,
+                                            fallback=[])
 
     @method_endpoint('/api/topics/:id')
     async def get(self, topic_id: int) -> Optional[Topic]:
@@ -188,21 +193,21 @@ class Topics(BaseResource):
     @protected_method('_client', 'topics')
     async def update(self,
                      topic_id: int,
-                     body: str,
-                     title: str,
+                     body: Optional[str] = None,
+                     title: Optional[str] = None,
                      linked_id: Optional[int] = None,
                      linked_type: Optional[str] = None) -> Optional[Topic]:
         """
-        Updated topic.
+        Updates topic.
 
         :param topic_id: ID of topic to update
         :type topic_id: int
 
         :param body: Body of topic
-        :type body: str
+        :type body: Optional[str]
 
         :param title: Title of topic
-        :type title: str
+        :type title: Optional[str]
 
         :param linked_id: ID of linked topic (Used together with linked_type)
         :type linked_type: Optional[int]
@@ -225,11 +230,13 @@ class Topics(BaseResource):
                                         linked_type=linked_type,
                                         title=title),
             request_type=RequestType.PATCH)
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(response,
+                                            response_code=ResponseCode.SUCCESS,
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
-    @protected_method('_client', 'topics')
-    async def delete(self, topic_id: int) -> Optional[bool]:
+    @protected_method('_client', 'topics', fallback=False)
+    async def delete(self, topic_id: int) -> bool:
         """
         Deletes topic.
 
@@ -243,10 +250,10 @@ class Topics(BaseResource):
             self._client.endpoints.topic(topic_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response)
+        return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
-    @protected_method('_client', 'topics')
+    @protected_method('_client', 'topics', fallback=False)
     async def ignore(self, topic_id: int) -> bool:
         """
         Set topic as ignored.
@@ -261,10 +268,10 @@ class Topics(BaseResource):
             self._client.endpoints.topic_ignore(topic_id),
             headers=self._client.authorization_header,
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response) is True
+        return Utils.validate_response_data(response, fallback=False) is True
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
-    @protected_method('_client', 'topics')
+    @protected_method('_client', 'topics', fallback=True)
     async def unignore(self, topic_id: int) -> bool:
         """
         Set topic as unignored.
@@ -279,4 +286,4 @@ class Topics(BaseResource):
             self._client.endpoints.topic_ignore(topic_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response) is False
+        return Utils.validate_response_data(response, fallback=True) is False
