@@ -156,7 +156,7 @@ await shikimori.open()
 chainsaw, lycoris_anime, lycoris_ranobe = await shikimori.multiple_requests([
     shikimori.animes.get_all(search="Бензопила"),
     shikimori.animes.get_all(search="Ликорис"),
-    shikimori.ranobes.get_all(search="Ликорис"),
+    shikimori.ranobes.get_all(search="Ликорис")
 ])
 print(chainsaw)
 print(lycoris_anime)
@@ -173,7 +173,7 @@ app_name = ...
 
 async with ShikimoriAPI(app_name) as shikimori:
     lycoris_ranobe = await shikimori.multiple_requests([
-        shikimori.ranobes.get_all(search="Ликорис"),
+        shikimori.ranobes.get_all(search="Ликорис")
     ])
     print(lycoris_ranobe)
 
