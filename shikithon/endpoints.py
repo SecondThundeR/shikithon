@@ -913,7 +913,7 @@ class Endpoints:
         :return: Ranobes list endpoint link
         :rtype: str
         """
-        return f'{self.base_url}/ranobes'
+        return f'{self.base_url}/ranobe'
 
     def ranobe(self, ranobe_id: int) -> str:
         """
