@@ -116,7 +116,12 @@ class Users(BaseResource):
     @method_endpoint('/api/users/sign_out')
     @protected_method('_client', fallback=False)
     async def sign_out(self) -> bool:
-        """Sends sign out request to API."""
+        """
+        Sends sign out request to API.
+
+        :return: True if request was successful, False otherwise
+        :rtype: bool
+        """
         response: str = await self._client.request(
             self._client.endpoints.sign_out,
             headers=self._client.authorization_header)
