@@ -196,7 +196,7 @@ async with ShikimoriAPI(app_name) as shikimori:
 >
 > - Если вы не хотите использовать логгирование библиотеки, передайте флаг logging=False в объект API.
 >
->  Пример: `shikithon = await ShikimoriAPI(config, logging=False)`
+>  Пример: `shikithon = ShikimoriAPI(config, logging=False)`
 
 ### Получение данных для конфигурации
 
