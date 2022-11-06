@@ -6,7 +6,7 @@ for interacting with the Shikimori API.
 from __future__ import annotations
 
 import sys
-from typing import Dict, Union
+from typing import Callable, Dict, List, TypeVar, Union
 
 from loguru import logger
 
@@ -38,6 +38,8 @@ from .resources import UserImages
 from .resources import UserRates
 from .resources import Users
 from .resources.people import People
+
+RT = TypeVar('RT')
 
 
 class ShikimoriAPI:
@@ -109,6 +111,20 @@ class ShikimoriAPI:
     def closed(self) -> bool:
         """Check if client is closed."""
         return self._client.closed
+
+    async def multiple_requests(
+            self,
+            *requests: List[Callable[...,
+                                     RT]]) -> List[Union[BaseException, RT]]:
+        """Make multiple requests.
+
+        :param requests: List of requests
+        :type requests: List[Callable[..., RT]]
+
+        :return: List of results
+        :rtype: List[Union[BaseException, RT]]
+        """
+        return await self._client.multiple_requests(*requests)
 
     async def open(self) -> ShikimoriAPI:
         """Open client and return self."""
