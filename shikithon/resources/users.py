@@ -114,11 +114,13 @@ class Users(BaseResource):
         return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/sign_out')
-    @protected_method('_client')
-    async def sign_out(self):
+    @protected_method('_client', fallback=False)
+    async def sign_out(self) -> bool:
         """Sends sign out request to API."""
-        await self._client.request(self._client.endpoints.sign_out,
-                                   headers=self._client.authorization_header)
+        response: str = await self._client.request(
+            self._client.endpoints.sign_out,
+            headers=self._client.authorization_header)
+        return response == 'signed out'
 
     @method_endpoint('/api/users/:id/friends')
     async def friends(self,
@@ -436,7 +438,7 @@ class Users(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
-    @protected_method('_client', 'ignores')
+    @protected_method('_client', 'ignores', fallback=False)
     async def ignore(self, user_id: int) -> bool:
         """
         Set user as ignored.
@@ -451,10 +453,10 @@ class Users(BaseResource):
             self._client.endpoints.user_ignore(user_id),
             headers=self._client.authorization_header,
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response) is True
+        return Utils.validate_response_data(response, fallback=False) is True
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
-    @protected_method('_client', 'ignores')
+    @protected_method('_client', 'ignores', fallback=True)
     async def unignore(self, user_id: int) -> bool:
         """
         Set user as unignored.
@@ -469,4 +471,4 @@ class Users(BaseResource):
             self._client.endpoints.user_ignore(user_id),
             headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response) is False
+        return Utils.validate_response_data(response, fallback=True) is False
