@@ -12,6 +12,7 @@
 > На данный момент, библиотека находится в статусе поддержки (новые функции будут добавляться только по необходимости)
 >
 > Начиная с версии 2.0.0, библиотека поддерживает асинхронные запросы, отдельные пути к ресурсам API и многое другое
+> _[(Инструкция по миграции с версии 1.x.x)](https://github.com/SecondThundeR/shikithon/wiki/%D0%9C%D0%B8%D0%B3%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81-v1-%D0%BD%D0%B0-v2)_
 
 ## Описание
 
@@ -172,7 +173,7 @@ await shikimori.close()
 app_name = ...
 
 async with ShikimoriAPI(app_name) as shikimori:
-    lycoris_ranobe = await shikimori.multiple_requests([
+    lycoris_ranobe, = await shikimori.multiple_requests([
         shikimori.ranobes.get_all(search="Ликорис")
     ])
     print(lycoris_ranobe)
