@@ -154,19 +154,19 @@ config = ...
 shikimori = ShikimoriAPI(config)
 await shikimori.open()
 
-chainsaw, lycoris_anime, lycoris_ranobe = await shikimori.multiple_requests([
+chainsaw, lycoris_chisato, lycoris_ranobe = await shikimori.multiple_requests([
     shikimori.animes.get_all(search="Бензопила"),
-    shikimori.animes.get_all(search="Ликорис"),
-    shikimori.ranobes.get_all(search="Ликорис")
+    shikimori.characters.search("Тисато Нисикиги"),
+    shikimori.ranobes.get_all(search="Ликорис"),
 ])
 print(chainsaw)
-print(lycoris_anime)
+print(lycoris_chisato[:1])
 print(lycoris_ranobe)
 
 await shikimori.close()
 
 # [Anime(id=44511, name='Chainsaw Man', russian='Человек-бензопила', ...]
-# [Anime(id=50709, name='Lycoris Recoil', russian='Ликорис Рикоил', ...]
+# [Character(id=204621, name='Chisato Nishikigi', russian='Тисато Нисикиги', ...]
 # [Ranobe(id=151431, name='Lycoris Recoil: Ordinary Days', russian='Ликорис Рикоил: Повседневность', ...]
 
 # Также возможно использовать этот метод в "ограниченном режиме":
