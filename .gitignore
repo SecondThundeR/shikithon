@@ -185,3 +185,4 @@ Temporary Items
 .idea
 .shikithon_*
 *.log.zip
+/*.py
