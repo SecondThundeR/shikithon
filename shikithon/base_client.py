@@ -592,6 +592,7 @@ class Client:
         if self.closed:
             return []
 
+        logger.info(f'Gathering {len(requests)} requests')
         return await asyncio.gather(*requests, return_exceptions=True)
 
     async def __aenter__(self) -> Client:
