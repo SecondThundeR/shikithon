@@ -1,7 +1,7 @@
 """Exception for raising on missing authorization cade."""
 
 
-class MissingAuthCode(Exception):
+class MissingAuthCodeException(Exception):
 
     def __init__(self, auth_link: str):
         super().__init__('It is impossible to initialize an API object'
