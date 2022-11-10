@@ -18,6 +18,5 @@ class Comment(BaseModel):
     created_at: datetime
     updated_at: datetime
     is_offtopic: bool
-    is_summary: Optional[bool]
     can_be_edited: Optional[bool]
     user: Optional[User]
