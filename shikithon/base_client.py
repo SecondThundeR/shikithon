@@ -9,23 +9,26 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 from aiohttp import ClientSession
 from aiohttp import ContentTypeError
+import backoff
 from loguru import logger
-from ratelimit import limits
-from ratelimit import sleep_and_retry
+from pyrate_limiter import Duration
+from pyrate_limiter import Limiter
+from pyrate_limiter import RequestRate
 
 from .endpoints import Endpoints
 from .enums import RequestType
+from .enums import ResponseCode
 from .exceptions import AccessTokenException
-from .exceptions import MissingAppVariable
-from .exceptions import MissingAuthCode
-from .exceptions import MissingConfigData
+from .exceptions import MissingAppVariableException
+from .exceptions import MissingAuthCodeException
+from .exceptions import MissingConfigDataException
+from .exceptions import RetryLaterException
 from .store import ConfigStore
 from .utils import Utils
 
-ONE_MINUTE = 60
-MAX_CALLS_PER_MINUTE = 90
-ONE_SECOND = 1
 MAX_CALLS_PER_SECOND = 5
+MAX_CALLS_PER_MINUTE = 90
+TOKEN_EXPIRE_TIME = 86400
 
 SHIKIMORI_API_URL = 'https://shikimori.one/api'
 SHIKIMORI_API_URL_V2 = 'https://shikimori.one/api/v2'
@@ -33,7 +36,10 @@ SHIKIMORI_OAUTH_URL = 'https://shikimori.one/oauth'
 DEFAULT_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 RT = TypeVar('RT')
-TOKEN_EXPIRE_TIME = 86400
+
+second_rate = RequestRate(MAX_CALLS_PER_SECOND, Duration.SECOND)
+minute_rate = RequestRate(MAX_CALLS_PER_MINUTE, Duration.MINUTE)
+request_limiter = Limiter(second_rate, minute_rate)
 
 
 class Client:
@@ -243,7 +249,7 @@ class Client:
         :param config: Config dictionary or app name for validation
         :type config: Union[str, Dict[str, str]]
 
-        :raises MissingConfigData: If any field is missing
+        :raises MissingConfigDataException: If any field is missing
             (Not raises if there is a stored config)
         """
         logger.debug('Validating client config')
@@ -275,7 +281,7 @@ class Client:
             self._scopes = config['scopes']
             self._auth_code = config['auth_code']
         except KeyError as err:
-            raise MissingConfigData() from err
+            raise MissingConfigDataException() from err
 
     @logger.catch(onerror=lambda _: sys.exit(1))
     def validate_vars(self):
@@ -298,26 +304,28 @@ class Client:
         returns URL for getting auth code.
         - If restricted mode is True, stops validation after app name check.
 
-        :raises MissingAppVariable: If app variable in config is missing
-        :raises MissingAuthCode: If auth code is set to empty string
+        :raises MissingAppVariableException:
+            If app variable in config is missing
+        :raises MissingAuthCodeException:
+            If auth code is set to empty string
         """
         if not self._app_name:
-            raise MissingAppVariable('name')
+            raise MissingAppVariableException('name')
 
         if self.restricted_mode:
             return
 
         if not self._client_id:
-            raise MissingAppVariable('Client ID')
+            raise MissingAppVariableException('Client ID')
 
         if not self._client_secret:
-            raise MissingAppVariable('Client Secret')
+            raise MissingAppVariableException('Client Secret')
 
         if not self._redirect_uri:
             self._redirect_uri = DEFAULT_REDIRECT_URI
 
         if not self._scopes:
-            raise MissingAppVariable('scopes')
+            raise MissingAppVariableException('scopes')
 
         if self._auth_code:
             return
@@ -325,7 +333,7 @@ class Client:
         auth_link = self.endpoints.authorization_link(self._client_id,
                                                       self._redirect_uri,
                                                       self._scopes)
-        raise MissingAuthCode(auth_link)
+        raise MissingAuthCodeException(auth_link)
 
     @logger.catch(onerror=lambda _: sys.exit(1))
     async def get_access_token(self,
@@ -469,9 +477,12 @@ class Client:
             await self._session.close()
             self._session = None
 
-    @sleep_and_retry
-    @limits(calls=MAX_CALLS_PER_SECOND, period=ONE_SECOND)
-    @limits(calls=MAX_CALLS_PER_MINUTE, period=ONE_MINUTE)
+    @backoff.on_exception(backoff.expo,
+                          RetryLaterException,
+                          max_time=5,
+                          max_tries=10,
+                          jitter=None)
+    @request_limiter.ratelimit('shikithon_request', delay=True)
     async def request(
         self,
         url: str,
@@ -515,6 +526,8 @@ class Client:
 
         :return: Response JSON, text or status code
         :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]
+
+        :raises RetryLaterException: If Shikimori API returns 429 status code
         """
         if self.closed:
             return
@@ -561,6 +574,10 @@ class Client:
         else:
             logger.debug('Unknown request_type. Returning None')
             return None
+
+        if response.status == ResponseCode.RETRY_LATER.value:
+            logger.warning('Hit retry later code. Retrying backoff...')
+            raise RetryLaterException
 
         logger.debug('Extracting JSON from response')
         try:
