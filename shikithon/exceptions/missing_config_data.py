@@ -1,7 +1,7 @@
 """Exception for raising on missing config data."""
 
 
-class MissingConfigData(Exception):
+class MissingConfigDataException(Exception):
 
     def __init__(self):
         super().__init__('It is impossible to initialize an API object'
