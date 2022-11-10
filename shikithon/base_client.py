@@ -532,7 +532,8 @@ class Client:
         if self.closed:
             return
 
-        logger.info(f'{request_type.value} {url}')
+        logger.info(
+            f'{request_type.value} {url}{Utils.convert_to_query_string(query)}')
         if output_logging:
             logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
 
