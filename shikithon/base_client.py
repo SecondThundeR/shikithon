@@ -477,12 +477,12 @@ class Client:
             await self._session.close()
             self._session = None
 
+    @request_limiter.ratelimit('shikithon_request', delay=True)
     @backoff.on_exception(backoff.expo,
                           RetryLaterException,
                           max_time=5,
                           max_tries=10,
                           jitter=None)
-    @request_limiter.ratelimit('shikithon_request', delay=True)
     async def request(
         self,
         url: str,
