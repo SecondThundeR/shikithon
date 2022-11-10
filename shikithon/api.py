@@ -76,7 +76,7 @@ class ShikimoriAPI:
                     'level': 'DEBUG',
                     'format': '{time} | {level} | '
                               '{file}.{function}: {message}',
-                    'rotation': '1 MB',
+                    'rotation': '5 MB',
                     'compression': 'zip'
                 },
             ])
