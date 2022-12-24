@@ -35,10 +35,13 @@ class Utils:
         :param query_dict: Query dictionary
         :type query_dict: Dict[str, str]
 
-        :return: Query string
+        :return: Query string (Empty if query_dict is empty)
         :rtype: str
         """
         logger.debug(f'Converting {query_dict=} to string')
+        if not query_dict:
+            logger.debug('Query dictionary is empty. Returning empty string...')
+            return ''
         query_dict_str = '&'.join(
             f'{key}={val}' for (key, val) in query_dict.items())
         logger.debug(f'Formed {query_dict_str=}')
