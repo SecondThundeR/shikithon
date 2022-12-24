@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from .genre import Genre
 from .image import Image
+from .publisher import Publisher
 from .user_rate import UserRate
 from .user_rate_score import UserRateScore
 from .user_rate_status import UserRateStatus
@@ -42,5 +43,5 @@ class Ranobe(BaseModel):
     rates_statuses_stats: Optional[List[UserRateStatus]]
     licensors: Optional[List[str]]
     genres: Optional[List[Genre]]
-    publishers: Optional[List[str]]
+    publishers: Optional[List[Publisher]]
     user_rate: Optional[UserRate]
