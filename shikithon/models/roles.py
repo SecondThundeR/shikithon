@@ -7,7 +7,7 @@ from .anime import Anime
 from .character import Character
 
 
-class PeopleRoles(BaseModel):
+class Roles(BaseModel):
     """Represents roles entity of person."""
     characters: Optional[List[Character]]
     anime: Optional[List[Anime]]

@@ -7,7 +7,7 @@ from .anime import Anime
 from .manga import Manga
 
 
-class PeopleWorks(BaseModel):
+class Works(BaseModel):
     """Represents works entity of person."""
     anime: Optional[Anime]
     manga: Optional[Manga]

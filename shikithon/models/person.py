@@ -6,8 +6,8 @@ from pydantic import BaseModel
 
 from .birthday import Birthday
 from .image import Image
-from .people_roles import PeopleRoles
-from .people_works import PeopleWorks
+from .roles import Roles
+from .works import Works
 
 
 class Person(BaseModel):
@@ -22,8 +22,8 @@ class Person(BaseModel):
     birthday: Optional[Birthday]
     website: Optional[str]
     groupped_roles: Optional[List[Tuple[str, int]]]
-    roles: Optional[List[PeopleRoles]]
-    works: Optional[List[PeopleWorks]]
+    roles: Optional[List[Roles]]
+    works: Optional[List[Works]]
     thread_id: Optional[int]
     topic_id: Optional[int]
     person_favoured: Optional[bool]

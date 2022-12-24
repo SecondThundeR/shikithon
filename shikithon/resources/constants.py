@@ -2,11 +2,11 @@
 from typing import Any, Dict, List, Optional
 
 from ..decorators import method_endpoint
-from ..models.constants import AnimeConstants
-from ..models.constants import ClubConstants
-from ..models.constants import MangaConstants
-from ..models.constants import SmileyConstants
-from ..models.constants import UserRateConstants
+from ..models import AnimeConstants
+from ..models import ClubConstants
+from ..models import MangaConstants
+from ..models import SmileyConstants
+from ..models import UserRateConstants
 from ..utils import Utils
 from .base_resource import BaseResource
 
