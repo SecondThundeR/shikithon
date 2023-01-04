@@ -1,16 +1,17 @@
 """Decorator for method endpoint logging"""
-from __future__ import annotations
-
-from typing import Any, Callable, Dict, Tuple, TypeVar
+from functools import wraps
+from typing import Callable, TypeVar
 
 from loguru import logger
+from typing_extensions import ParamSpec
 
-RT = TypeVar('RT')
+P = ParamSpec('P')
+R = TypeVar('R')
 
 
 def method_endpoint(
-    method_endpoint_name: str
-) -> Callable[[Callable[..., RT]], Callable[..., RT]]:
+        method_endpoint_name: str
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator for logging method endpoint.
 
@@ -18,34 +19,33 @@ def method_endpoint(
     :type method_endpoint_name: str
 
     :return: Decorator function
-    :rtype: Callable[[Callable[..., RT]], Callable[..., RT]]
+    :rtype: Callable[[Callable[P, R]], Callable[P, R]]
     """
 
-    def endpoint_logger_decorator(
-            function: Callable[..., RT]) -> Callable[..., RT]:
+    def endpoint_logger_decorator(function: Callable[P, R]) -> Callable[P, R]:
         """Endpoint logger decorator.
 
         :param function: Function to decorate
-        :type function: Callable[..., RT]
+        :type function: Callable[P, R]
 
         :return: Decorated function
-        :rtype: Callable[..., RT]
+        :rtype: Callable[P, R]
         """
 
-        def endpoint_logger_wrapper(*args: Tuple[Any],
-                                    **kwargs: Dict[str, Any]) -> RT:
+        @wraps(function)
+        def endpoint_logger_wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             """
             Decorator's wrapper function.
             Logs endpoint of method
 
             :param args: Positional arguments
-            :type args: Tuple[Any]
+            :type args: P.args
 
             :param kwargs: Keyword arguments
-            :type kwargs: Dict[str, Any]
+            :type kwargs: P.kwargs
 
             :return: Result of decorated function
-            :rtype: RT
+            :rtype: R
             """
             logger.debug(f'Executing "{method_endpoint_name}" method')
             return function(*args, **kwargs)
