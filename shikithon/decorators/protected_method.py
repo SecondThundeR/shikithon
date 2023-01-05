@@ -1,20 +1,21 @@
 """Decorator for protected methods"""
-from __future__ import annotations
-
-from typing import Any, Callable, Optional, Tuple, TypeVar
+from functools import wraps
+from typing import Any, Callable, Optional, TypeVar
 
 from loguru import logger
+from typing_extensions import ParamSpec
 
 from ..resources.base_resource import BaseResource
 
-RT = TypeVar('RT')
+P = ParamSpec('P')
+R = TypeVar('R')
 
 
 def protected_method(
     client_attr: str,
     scope: Optional[str] = None,
     fallback: Optional[Any] = None
-) -> Callable[[Callable[..., RT]], Callable[..., RT]]:
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator for protected API methods.
 
@@ -38,22 +39,22 @@ def protected_method(
     :type fallback: Optional[Any]
 
     :return: Decorator function
-    :rtype: Callable[[Callable[..., RT]], Callable[..., RT]]
+    :rtype: Callable[[Callable[P, R]], Callable[P, R]]
     """
 
-    def protected_method_decorator(
-            function: Callable[..., RT]) -> Callable[..., RT]:
+    def protected_method_decorator(function: Callable[P, R]) -> Callable[P, R]:
         """Protected method decorator.
 
         :param function: Function to decorate
-        :type function: Callable[..., RT]
+        :type function: Callable[P, R]
 
         :return: Decorated function
-        :rtype: Callable[..., RT]
+        :rtype: Callable[P, R]
         """
 
-        def protected_method_wrapper(self: BaseResource, *args: Tuple[Any],
-                                     **kwargs: Any) -> RT:
+        @wraps(function)
+        def protected_method_wrapper(self: BaseResource, *args: P.args,
+                                     **kwargs: P.kwargs) -> R:
             """
             Decorator's wrapper function.
 
@@ -64,19 +65,19 @@ def protected_method(
             :type self: BaseResource
 
             :param args: Positional arguments
-            :type args: Tuple[Any]
+            :type args: P.args
 
             :param kwargs: Keyword arguments
-            :type kwargs: Any
+            :type kwargs: P.kwargs
 
             :return: Fallback function if API object is in restricted mode
                 or if required scope is missing
-            :rtype: RT
+            :rtype: R
             """
             client = getattr(self, client_attr)
             logger.debug('Checking the possibility of using a protected method')
 
-            async def fallback_function() -> RT:
+            async def fallback_function() -> R:
                 return fallback
 
             if client.restricted_mode:
