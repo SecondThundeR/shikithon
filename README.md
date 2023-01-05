@@ -229,18 +229,22 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 
 ## Зависимости проекта
 
-Данный проект использует пять библиотек:
+Данный проект использует семь библиотек:
 
 - [aiohttp](https://github.com/aio-libs/aiohttp) для асинхронных запросов к API
 [(Лицензия)](https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt)
 - [pydantic](https://github.com/samuelcolvin/pydantic/) для валидации данных JSON и преобразования в модели
 [(Лицензия)](https://github.com/samuelcolvin/pydantic/blob/master/LICENSE)
-- [ratelimit](https://github.com/tomasbasham/ratelimit) для огранчений количества запросов к API
-[(Лицензия)](https://github.com/tomasbasham/ratelimit/blob/master/LICENSE.txt)
+- [pyrate-limiter](https://github.com/vutran1710/PyrateLimiter) для огранчений количества запросов к API
+[(Лицензия)](https://github.com/vutran1710/PyrateLimiter/blob/master/LICENSE)
+- [backoff](https://github.com/litl/backoff) для повторения запросов при их ограничении
+[(Лицензия)](https://github.com/litl/backoff/blob/master/LICENSE)
 - [loguru](https://github.com/Delgan/loguru) для удобного логгирования
 [(Лицензия)](https://github.com/Delgan/loguru/blob/master/LICENSE)
 - [validators](https://github.com/kvesteri/validators) для проверки строк на наличие ссылки в ней
 [(Лицензия)](https://github.com/kvesteri/validators/blob/master/LICENSE)
+- [typing-extensions](https://github.com/python/typing_extensions) для корректной типизации декораторов
+[(Лицензия)](https://github.com/python/typing_extensions/blob/main/LICENSE)
 
 В качестве зависимостей для разработки, проект использует четыре библиотеки:
 
