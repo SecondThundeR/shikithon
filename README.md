@@ -246,15 +246,8 @@ _(После этого, сохраните `app_name`, `client_id`, `client_sec
 - [typing-extensions](https://github.com/python/typing_extensions) для корректной типизации декораторов
 [(Лицензия)](https://github.com/python/typing_extensions/blob/main/LICENSE)
 
-В качестве зависимостей для разработки, проект использует четыре библиотеки:
-
-- [pylint](https://github.com/PyCQA/pylint) для статической проверки кода
-[(Лицензия)](https://github.com/PyCQA/pylint/blob/main/LICENSE)
-- [yapf](https://github.com/google/yapf) для форматирования кода
-[(Лицензия)](https://github.com/google/yapf/blob/main/LICENSE)
-- [isort](https://github.com/PyCQA/isort) для сортировки импортов
-[(Лицензия)](https://github.com/PyCQA/isort/blob/main/LICENSE)
-- [pre-commit](https://github.com/pre-commit/pre-commit) для автоматизации проверки с использованием библиотек выше :)
+В качестве зависимости для разработки, проект использует
+[pre-commit](https://github.com/pre-commit/pre-commit) для автоматизации форматирования и проверки кода
 [(Лицензия)](https://github.com/pre-commit/pre-commit/blob/main/LICENSE)
 
 ## Лицензия проекта
