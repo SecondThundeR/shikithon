@@ -2,7 +2,6 @@
 from typing import Any, Dict, Optional, Union
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import RequestType
 from ..models import CreatedUserImage
 from ..utils import Utils
@@ -16,7 +15,6 @@ class UserImages(BaseResource):
     """
 
     @method_endpoint('/api/user_images')
-    @protected_method('_client', 'comments')
     async def create(
             self,
             image_path: str,

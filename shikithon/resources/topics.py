@@ -2,7 +2,6 @@
 from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import ForumType
 from ..enums import RequestType
 from ..enums import ResponseCode
@@ -140,7 +139,6 @@ class Topics(BaseResource):
         return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics')
-    @protected_method('_client', 'topics')
     async def create(self,
                      body: str,
                      forum_id: int,
@@ -190,7 +188,6 @@ class Topics(BaseResource):
         return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
-    @protected_method('_client', 'topics')
     async def update(self,
                      topic_id: int,
                      body: Optional[str] = None,
@@ -235,7 +232,6 @@ class Topics(BaseResource):
                                             data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
-    @protected_method('_client', 'topics', fallback=False)
     async def delete(self, topic_id: int) -> bool:
         """
         Deletes topic.
@@ -253,7 +249,6 @@ class Topics(BaseResource):
         return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
-    @protected_method('_client', 'topics', fallback=False)
     async def ignore(self, topic_id: int) -> bool:
         """
         Set topic as ignored.
@@ -271,7 +266,6 @@ class Topics(BaseResource):
         return Utils.validate_response_data(response, fallback=False) is True
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
-    @protected_method('_client', 'topics', fallback=True)
     async def unignore(self, topic_id: int) -> bool:
         """
         Set topic as unignored.

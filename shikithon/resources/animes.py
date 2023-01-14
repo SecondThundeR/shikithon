@@ -2,7 +2,6 @@
 from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import AnimeCensorship
 from ..enums import AnimeDuration
 from ..enums import AnimeKind
@@ -330,7 +329,6 @@ class Animes(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/animes/:anime_id/videos')
-    @protected_method('_client', 'content')
     async def create_video(self, anime_id: int, kind: str, name: str,
                            url: str) -> Optional[Video]:
         """
@@ -366,7 +364,6 @@ class Animes(BaseResource):
         return Utils.validate_response_data(response, data_model=Video)
 
     @method_endpoint('/api/animes/:anime_id/videos/:id')
-    @protected_method('_client', 'content')
     async def delete_video(self, anime_id: int, video_id: int) -> bool:
         """
         Deletes anime video.

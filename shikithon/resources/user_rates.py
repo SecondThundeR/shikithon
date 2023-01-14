@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional, Union
 from loguru import logger
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import RequestType
 from ..enums import ResponseCode
 from ..enums import UserRateStatus
@@ -103,7 +102,6 @@ class UserRates(BaseResource):
         return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates')
-    @protected_method('_client', 'user_rates')
     async def create(self,
                      user_id: int,
                      target_id: int,
@@ -178,7 +176,6 @@ class UserRates(BaseResource):
         return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
-    @protected_method('_client', 'user_rates')
     async def update(self,
                      rate_id: int,
                      status: Optional[str] = None,
@@ -238,7 +235,6 @@ class UserRates(BaseResource):
         return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id/increment')
-    @protected_method('_client', 'user_rates')
     async def increment(self, rate_id: int) -> Optional[UserRate]:
         """
         Increments user rate episode/chapters and return updated info.
@@ -256,7 +252,6 @@ class UserRates(BaseResource):
         return Utils.validate_response_data(response, data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
-    @protected_method('_client', 'user_rates', fallback=False)
     async def delete(self, rate_id: int) -> bool:
         """
         Deletes user rate.
@@ -275,7 +270,6 @@ class UserRates(BaseResource):
             response, response_code=ResponseCode.NO_CONTENT, fallback=False)
 
     @method_endpoint('/api/users_rates/:type/cleanup')
-    @protected_method('_client', 'user_rates', fallback=False)
     async def delete_all(self, user_rate_type: str) -> bool:
         """
         Deletes all user rates.
@@ -296,7 +290,6 @@ class UserRates(BaseResource):
         return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/user_rates/:type/reset')
-    @protected_method('_client', 'user_rates', fallback=False)
     async def reset_all(self, user_rate_type: str) -> bool:
         """
         Resets all user rates.

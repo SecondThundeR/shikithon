@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Union
 from loguru import logger
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import RequestType
 from ..enums import ResponseCode
 from ..utils import Utils
@@ -19,7 +18,6 @@ class Appears(BaseResource):
     """
 
     @method_endpoint('/api/appears')
-    @protected_method('_client', fallback=False)
     async def mark(self, ids: List[str]) -> bool:
         """
         Marks comments or topics as read.

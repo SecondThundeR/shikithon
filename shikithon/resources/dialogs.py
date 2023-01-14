@@ -2,7 +2,6 @@
 from typing import Any, Dict, List, Union
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import RequestType
 from ..models import Dialog
 from ..models import Message
@@ -17,7 +16,6 @@ class Dialogs(BaseResource):
     """
 
     @method_endpoint('/api/dialogs')
-    @protected_method('_client', 'messages', fallback=[])
     async def get_all(self) -> List[Dialog]:
         """
         Returns list of current user's dialogs.
@@ -33,7 +31,6 @@ class Dialogs(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/dialogs/:id')
-    @protected_method('_client', 'messages', fallback=[])
     async def get(self, user_id: Union[int, str]) -> List[Message]:
         """
         Returns list of current user's messages with certain user.
@@ -52,7 +49,6 @@ class Dialogs(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/dialogs/:id')
-    @protected_method('_client', 'messages', fallback=False)
     async def delete(self, user_id: Union[int, str]) -> bool:
         """
         Deletes dialog of current user with certain user.

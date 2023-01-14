@@ -2,7 +2,6 @@
 from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import MessageType
 from ..enums import RequestType
 from ..enums import ResponseCode
@@ -18,7 +17,6 @@ class Messages(BaseResource):
     """
 
     @method_endpoint('/api/messages/:id')
-    @protected_method('_client', 'messages')
     async def get(self, message_id: int) -> Optional[Message]:
         """
         Returns message info.
@@ -35,7 +33,6 @@ class Messages(BaseResource):
         return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/messages')
-    @protected_method('_client', 'messages')
     async def create(self, body: str, from_id: int,
                      to_id: int) -> Optional[Message]:
         """
@@ -65,7 +62,6 @@ class Messages(BaseResource):
         return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/messages/:id')
-    @protected_method('_client', 'messages')
     async def update(self, message_id: int, body: str) -> Optional[Message]:
         """
         Updates message.
@@ -87,7 +83,6 @@ class Messages(BaseResource):
         return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/messages/:id')
-    @protected_method('_client', 'messages', fallback=False)
     async def delete(self, message_id: int) -> bool:
         """
         Deletes message.
@@ -106,7 +101,6 @@ class Messages(BaseResource):
             response, response_code=ResponseCode.NO_CONTENT, fallback=False)
 
     @method_endpoint('/api/messages/mark_read')
-    @protected_method('_client', 'messages', fallback=False)
     async def mark_read(self,
                         message_ids: Optional[Union[int, List[int]]] = None,
                         is_read: Optional[bool] = None) -> bool:
@@ -132,7 +126,6 @@ class Messages(BaseResource):
                                             fallback=False)
 
     @method_endpoint('/api/messages/read_all')
-    @protected_method('_client', 'messages', fallback=False)
     async def read_all(self, message_type: str) -> bool:
         """
         Reads all messages on current user's account.
@@ -159,7 +152,6 @@ class Messages(BaseResource):
                                             fallback=False)
 
     @method_endpoint('/api/messages/delete_all')
-    @protected_method('_client', 'messages', fallback=False)
     async def delete_all(self, message_type: str) -> bool:
         """
         Deletes all messages on current user's account.

@@ -2,7 +2,6 @@
 from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import CommentPolicy
 from ..enums import ImageUploadPolicy
 from ..enums import JoinPolicy
@@ -77,7 +76,6 @@ class Clubs(BaseResource):
         return Utils.validate_response_data(response, data_model=Club)
 
     @method_endpoint('/api/clubs/:id')
-    @protected_method('_client', 'clubs')
     async def update(
             self,
             club_id: int,
@@ -294,7 +292,6 @@ class Clubs(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/clubs/:id/join')
-    @protected_method('_client', 'clubs', fallback=False)
     async def join(self, club_id: int) -> bool:
         """
         Joins club by ID.
@@ -314,7 +311,6 @@ class Clubs(BaseResource):
                                             fallback=False)
 
     @method_endpoint('/api/clubs/:id/leave')
-    @protected_method('_client', 'clubs', fallback=False)
     async def leave(self, club_id: int) -> bool:
         """
         Leaves club by ID.
