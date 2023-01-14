@@ -1,7 +1,7 @@
 """..."""
 from typing import Any, Dict, Optional
 
-from shikithon.store.base import Store
+from .base import Store
 
 
 class MemoryStore(Store):
@@ -11,6 +11,10 @@ class MemoryStore(Store):
 
     def __init__(self, configs: Optional[Dict[str, Any]] = None) -> None:
         self._configs = configs or {}
+
+    @property
+    def configs(self) -> Dict[str, Any]:
+        return self._configs
 
     async def save_config(self,
                           app_name: str,
