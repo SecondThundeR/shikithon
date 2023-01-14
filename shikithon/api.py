@@ -38,6 +38,7 @@ from .resources import UserImages
 from .resources import UserRates
 from .resources import Users
 from .resources.people import People
+from .store import NullStore
 from .store import Store
 
 RT = TypeVar('RT')
@@ -59,7 +60,7 @@ class ShikimoriAPI(Client):
 
     def __init__(self,
                  app_name: str = 'Api Test',
-                 store: Optional[Store] = None,
+                 store: Store = NullStore(),
                  logging: Optional[bool] = True):
         """
         Shikimori API class initialization.

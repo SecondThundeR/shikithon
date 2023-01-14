@@ -18,6 +18,7 @@ from .endpoints import Endpoints
 from .enums import RequestType
 from .enums import ResponseCode
 from .exceptions import RetryLaterException
+from .store import NullStore
 from .store import Store
 from .utils import Utils
 
@@ -47,7 +48,7 @@ class Client:
 
     def __init__(self,
                  app_name: str = 'Api Test',
-                 store: Optional[Store] = None) -> None:
+                 store: Store = NullStore()) -> None:
         self._app_name = app_name
         self._store = store
         self.endpoints = Endpoints(SHIKIMORI_API_URL, SHIKIMORI_API_URL_V2,
@@ -124,13 +125,12 @@ class Client:
             app_name = self._app_name
 
         async with self:
-            if self._store is not None:
-                if access_token is not None:
-                    self._config = await self._store.fetch_by_access_token(
-                        app_name, access_token)
-                elif auth_code is not None:
-                    self._config = await self._store.fetch_by_auth_code(
-                        app_name, auth_code)
+            if access_token is not None:
+                self._config = await self._store.fetch_by_access_token(
+                    app_name, access_token)
+            elif auth_code is not None:
+                self._config = await self._store.fetch_by_auth_code(
+                    app_name, auth_code)
 
             if self._config is None:
                 if client_id is None or client_secret is None:
@@ -175,8 +175,7 @@ class Client:
                 else:
                     raise Exception('Auth_code or access_token must be defined')
 
-                if self._store is not None:
-                    await self._store.save_config(**self._config)
+                await self._store.save_config(**self._config)
 
             self.user_agent = self._config['app_name']
             self.authorization_header = self._config['access_token']
@@ -295,8 +294,7 @@ class Client:
                     token_expire_at=token_data['created_at'] +
                     token_data['expires_in'],
                 )
-                if self._store is not None:
-                    await self._store.save_config(**self._config)
+                await self._store.save_config(**self._config)
 
         logger.info(
             f'{request_type.value} {url}{Utils.convert_to_query_string(query)}')
@@ -355,8 +353,7 @@ class Client:
                 token_expire_at=token_data['created_at'] +
                 token_data['expires_in'],
             )
-            if self._store is not None:
-                await self._store.save_config(**self._config)
+            await self._store.save_config(**self._config)
 
         logger.debug('Extracting JSON from response')
         try:
@@ -396,8 +393,7 @@ class Client:
         if self.closed:
             self._session = ClientSession()
             self.user_agent = self._app_name
-            if self._store is not None:
-                await self._store.open()
+            await self._store.open()
         return self
 
     async def close(self) -> None:
@@ -406,8 +402,7 @@ class Client:
             await self._session.close()
             self._session = None
             self._config = None
-            if self._store is not None:
-                await self._store.close()
+            await self._store.close()
 
     async def __aenter__(self) -> Client:
         """Async context manager entry point."""
