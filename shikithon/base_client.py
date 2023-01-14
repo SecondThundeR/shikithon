@@ -118,7 +118,7 @@ class Client:
                    redirect_uri: str = 'urn:ietf:wg:oauth:2.0:oob',
                    scopes: str = '') -> Client:
         if not self.closed:
-            raise Exception('Клиент уже работает')
+            raise Exception('Client is already running')
 
         if app_name is None:
             app_name = self._app_name
@@ -133,9 +133,9 @@ class Client:
                         app_name, auth_code)
 
             if self._config is None:
-                if (client_id is None or client_secret is None):
+                if client_id is None or client_secret is None:
                     raise Exception(
-                        'Сlient_id и client_secret не могут быть None')
+                        'Client_id and client_secret must be defined')
 
                 if access_token is not None:
                     self._config = {
@@ -173,8 +173,7 @@ class Client:
                             token_data['created_at'] + token_data['expires_in']
                     }
                 else:
-                    raise Exception(
-                        'Auth_code либо access_token должен быть указан')
+                    raise Exception('Auth_code or access_token must be defined')
 
                 if self._store is not None:
                     await self._store.save_config(**self._config)
