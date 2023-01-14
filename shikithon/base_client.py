@@ -193,6 +193,7 @@ class Client:
         """
         ...
         """
+        logger.info('Getting new tokens')
         return await self.request(self.endpoints.oauth_token,
                                   data={
                                       'grant_type': 'authorization_code',
@@ -209,6 +210,7 @@ class Client:
         """
         ...
         """
+        logger.info('Refreshing current tokens')
         return await self.request(self.endpoints.oauth_token,
                                   data={
                                       'grant_type': 'refresh_token',
@@ -348,6 +350,18 @@ class Client:
             logger.warning('Hit retry later code. Retrying backoff...')
             raise RetryLaterException
 
+        if response.status == 401 and not self.restricted_mode:
+            token_data = await self.refresh_access_token(
+                self._config['client_id'], self._config['client_secret'],
+                self._config['refresh_token'])
+            self._config.update(
+                refresh_token=token_data['refresh_token'],
+                token_expire_at=token_data['created_at'] +
+                token_data['expires_in'],
+            )
+            if self._store is not None:
+                await self._store.save_config(**self._config)
+
         logger.debug('Extracting JSON from response')
         try:
             json_response = await response.json()
@@ -386,6 +400,8 @@ class Client:
         if self.closed:
             self._session = ClientSession()
             self.user_agent = self._app_name
+            if self._store is not None:
+                await self._store.open()
         return self
 
     async def close(self) -> None:
@@ -394,6 +410,8 @@ class Client:
             await self._session.close()
             self._session = None
             self._config = None
+            if self._store is not None:
+                await self._store.close()
 
     async def __aenter__(self) -> Client:
         """Async context manager entry point."""
