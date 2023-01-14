@@ -41,12 +41,6 @@ class Client:
 
     Contains logic and methods for making requests to the shikimori API
     as well as validating config and etc.
-
-    **Note:** Due to problems with some methods,
-    when the session header contains a User-Agent and authorization,
-    __init__ sets only the User-Agent,
-    and all protected methods independently
-    provide a header with a token
     """
 
     __slots__ = ('endpoints', '_app_name', '_store', '_session', '_config')
@@ -105,6 +99,9 @@ class Client:
 
     @authorization_header.setter
     def authorization_header(self, access_token: str):
+        """
+        ...
+        """
         if not self.closed:
             self._session.headers.update(
                 {'Authorization': 'Bearer ' + access_token})

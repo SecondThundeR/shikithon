@@ -67,8 +67,11 @@ class ShikimoriAPI(Client):
         This magic method inits client and all resources
         for interacting with.
 
-        :param config: Config file for API class or app name
-        :type config: Union[str, Dict[str, str]]
+        :param app_name: OAuth App name
+        :type app_name: str
+
+        :param store: Class instance for store configs
+        :type store: Optional[Store]
 
         :param logging: Logging flag
         :type logging: Optional[bool]
