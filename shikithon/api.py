@@ -38,6 +38,7 @@ from .resources import UserImages
 from .resources import UserRates
 from .resources import Users
 from .resources.people import People
+from .store import Store
 
 RT = TypeVar('RT')
 
@@ -58,6 +59,7 @@ class ShikimoriAPI(Client):
 
     def __init__(self,
                  app_name: str = 'Api Test',
+                 store: Optional[Store] = None,
                  logging: Optional[bool] = True):
         """
         Shikimori API class initialization.
@@ -92,7 +94,7 @@ class ShikimoriAPI(Client):
 
         logger.info('Initializing API object')
 
-        super().__init__(app_name)
+        super().__init__(app_name, store)
 
         self.achievements = Achievements(self)
         self.animes = Animes(self)
