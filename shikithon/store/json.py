@@ -61,8 +61,8 @@ class JsonStore(Store):
     async def fetch_by_auth_code(self, app_name: str,
                                  auth_code: str) -> Optional[Dict[str, Any]]:
         async with MemoryStore(await self._read_from_file()) as ms:
-            return await ms.fetch_by_access_token(app_name=app_name,
-                                                  auth_code=auth_code)
+            return await ms.fetch_by_auth_code(app_name=app_name,
+                                               auth_code=auth_code)
 
     async def delete_token(self, app_name: str, access_token: str) -> None:
         async with MemoryStore(await self._read_from_file()) as ms:

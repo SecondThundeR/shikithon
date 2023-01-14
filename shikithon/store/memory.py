@@ -55,39 +55,33 @@ class MemoryStore(Store):
     async def fetch_by_access_token(
             self, app_name: str, access_token: str) -> Optional[Dict[str, Any]]:
         app_config = self._configs.get(app_name)
-        if app_config is None:
-            raise Exception(f'The "{app_name}" config app does not exist')
-
-        for token in app_config['tokens']:
-            token: Dict[str, Any]
-            if token.get('access_token') == access_token:
-                return {
-                    'app_name': app_name,
-                    'client_id': app_config['client_id'],
-                    'client_secret': app_config['client_secret'],
-                    'redirect_uri': app_config['redirect_uri'],
-                    **token
-                }
-
+        if app_config is not None:
+            for token in app_config['tokens']:
+                token: Dict[str, Any]
+                if token.get('access_token') == access_token:
+                    return {
+                        'app_name': app_name,
+                        'client_id': app_config['client_id'],
+                        'client_secret': app_config['client_secret'],
+                        'redirect_uri': app_config['redirect_uri'],
+                        **token
+                    }
         return None
 
     async def fetch_by_auth_code(self, app_name: str,
                                  auth_code: str) -> Optional[Dict[str, Any]]:
         app_config = self._configs.get(app_name)
-        if app_config is None:
-            raise Exception(f'The "{app_name}" config app does not exist')
-
-        for token in app_config['tokens']:
-            token: Dict[str, Any]
-            if token.get('auth_code') == auth_code:
-                return {
-                    'app_name': app_name,
-                    'client_id': app_config['client_id'],
-                    'client_secret': app_config['client_secret'],
-                    'redirect_uri': app_config['redirect_uri'],
-                    **token
-                }
-
+        if app_config is not None:
+            for token in app_config['tokens']:
+                token: Dict[str, Any]
+                if token.get('auth_code') == auth_code:
+                    return {
+                        'app_name': app_name,
+                        'client_id': app_config['client_id'],
+                        'client_secret': app_config['client_secret'],
+                        'redirect_uri': app_config['redirect_uri'],
+                        **token
+                    }
         return None
 
     async def delete_token(self, app_name: str, access_token: str) -> None:
