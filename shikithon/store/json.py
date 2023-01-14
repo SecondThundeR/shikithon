@@ -7,21 +7,22 @@ from typing import Any, Dict, Optional
 from .base import Store
 from .memory import MemoryStore
 
-STORE_FILE_NAME = '.shikithon'
-
 
 class JsonStore(Store):
     """..."""
 
+    def __init__(self, file_path: str = '.shikithon') -> None:
+        self._file_path = file_path
+
     async def _read_from_file(self) -> Optional[Dict[str, Any]]:
-        if exists(STORE_FILE_NAME):
-            with open(STORE_FILE_NAME, 'r', encoding='utf-8') as file:
+        if exists(self._file_path):
+            with open(self._file_path, 'r', encoding='utf-8') as file:
                 return loads(file.read())
         return None
 
     async def _write_to_file(self, configs: Dict[str, Any]) -> bool:
         try:
-            with open(STORE_FILE_NAME, 'w', encoding='utf-8') as file:
+            with open(self._file_path, 'w', encoding='utf-8') as file:
                 file.write(dumps(configs, indent=4))
             return True
         except IOError:
