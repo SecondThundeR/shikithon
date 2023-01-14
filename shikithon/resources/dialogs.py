@@ -24,8 +24,7 @@ class Dialogs(BaseResource):
         :rtype: List[Dialog]
         """
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.dialogs,
-            headers=self._client.authorization_header)
+            self._client.endpoints.dialogs)
         return Utils.validate_response_data(response,
                                             data_model=Dialog,
                                             fallback=[])
@@ -42,8 +41,7 @@ class Dialogs(BaseResource):
         :rtype: List[Message]
         """
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.dialog(user_id),
-            headers=self._client.authorization_header)
+            self._client.endpoints.dialog(user_id))
         return Utils.validate_response_data(response,
                                             data_model=Message,
                                             fallback=[])
@@ -61,6 +59,5 @@ class Dialogs(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.dialog(user_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=False)

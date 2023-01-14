@@ -26,7 +26,6 @@ class Friends(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.friend(user_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, fallback=False)
 
@@ -43,6 +42,5 @@ class Friends(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.friend(user_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=False)

@@ -34,7 +34,6 @@ class UserImages(BaseResource):
         image_data = await Utils.get_image_data(image_path)
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.user_images,
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(linked_type=linked_type),
             bytes_data=image_data,
             request_type=RequestType.POST)

@@ -41,7 +41,6 @@ class Appears(BaseResource):
 
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.appears,
-            headers=self._client.authorization_header,
             data=Utils.create_query_dict(ids=ids),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,

@@ -49,7 +49,6 @@ class Styles(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.style_preview,
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='style', css=css),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Style)
@@ -80,7 +79,6 @@ class Styles(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.styles,
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='style',
                                         css=css,
                                         name=name,
@@ -111,7 +109,6 @@ class Styles(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.style(style_id),
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='style', css=css, name=name),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response, data_model=Style)

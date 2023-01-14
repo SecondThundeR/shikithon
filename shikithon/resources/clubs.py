@@ -167,7 +167,6 @@ class Clubs(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.club(club_id),
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='club',
                                         name=name,
                                         join_policy=join_policy,
@@ -304,7 +303,6 @@ class Clubs(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.club_join(club_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,
@@ -323,7 +321,6 @@ class Clubs(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.club_leave(club_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,

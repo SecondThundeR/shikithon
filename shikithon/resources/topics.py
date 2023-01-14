@@ -175,7 +175,6 @@ class Topics(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.topics,
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='topic',
                                         body=body,
                                         forum_id=forum_id,
@@ -220,7 +219,6 @@ class Topics(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.topic(topic_id),
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='topic',
                                         body=body,
                                         linked_id=linked_id,
@@ -244,7 +242,6 @@ class Topics(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.topic(topic_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=False)
 
@@ -261,7 +258,6 @@ class Topics(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.topic_ignore(topic_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, fallback=False) is True
 
@@ -278,6 +274,5 @@ class Topics(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.topic_ignore(topic_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=True) is False

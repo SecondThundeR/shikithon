@@ -126,7 +126,6 @@ class Comments(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comments,
-            headers=self._client.authorization_header,
             data=data_dict,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Comment)
@@ -147,7 +146,6 @@ class Comments(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='comment', body=body),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response, data_model=Comment)
@@ -165,6 +163,5 @@ class Comments(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=False)

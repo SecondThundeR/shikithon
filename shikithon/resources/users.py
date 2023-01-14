@@ -119,8 +119,7 @@ class Users(BaseResource):
         :rtype: bool
         """
         response: str = await self._client.request(
-            self._client.endpoints.sign_out,
-            headers=self._client.authorization_header)
+            self._client.endpoints.sign_out)
         return response == 'signed out'
 
     @method_endpoint('/api/users/:id/friends')
@@ -330,7 +329,6 @@ class Users(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_messages(user_id),
-            headers=self._client.authorization_header,
             query=Utils.create_query_dict(is_nickname=is_nickname,
                                           page=validated_numbers['page'],
                                           limit=validated_numbers['limit'],
@@ -358,7 +356,6 @@ class Users(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_unread_messages(user_id),
-            headers=self._client.authorization_header,
             query=Utils.create_query_dict(is_nickname=is_nickname))
         return Utils.validate_response_data(response, data_model=UnreadMessages)
 
@@ -449,7 +446,6 @@ class Users(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_ignore(user_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, fallback=False) is True
 
@@ -466,6 +462,5 @@ class Users(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_ignore(user_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=True) is False

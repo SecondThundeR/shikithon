@@ -160,7 +160,6 @@ class UserRates(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rates,
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='user_rate',
                                         user_id=user_id,
                                         target_id=target_id,
@@ -222,7 +221,6 @@ class UserRates(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rate(rate_id),
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='user_rate',
                                         status=status,
                                         score=validated_numbers['score'],
@@ -247,7 +245,6 @@ class UserRates(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rate_increment(rate_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=UserRate)
 
@@ -264,7 +261,6 @@ class UserRates(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.user_rate(rate_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(
             response, response_code=ResponseCode.NO_CONTENT, fallback=False)
@@ -285,7 +281,6 @@ class UserRates(BaseResource):
 
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.user_rates_cleanup(user_rate_type),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=False)
 
@@ -305,6 +300,5 @@ class UserRates(BaseResource):
 
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.user_rates_reset(user_rate_type),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=False)

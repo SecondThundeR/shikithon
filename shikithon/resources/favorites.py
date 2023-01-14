@@ -46,7 +46,6 @@ class Favorites(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.favorites_create(linked_type, linked_id,
                                                     kind),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, fallback=False)
 
@@ -69,7 +68,6 @@ class Favorites(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.favorites_destroy(linked_type, linked_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=False)
 
@@ -92,7 +90,6 @@ class Favorites(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.favorites_reorder(favorite_id),
-            headers=self._client.authorization_header,
             query=Utils.create_query_dict(new_index=new_index),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,

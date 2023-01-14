@@ -123,14 +123,8 @@ class Animes(BaseResource):
                                                           limit=[limit, 50],
                                                           score=[score, 9])
 
-        headers = self._client.user_agent
-
-        if my_list:
-            headers = self._client.protected_method_headers('/api/animes')
-
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.animes,
-            headers=headers,
             query=Utils.create_query_dict(page=validated_numbers['page'],
                                           limit=validated_numbers['limit'],
                                           order=order,
@@ -358,7 +352,6 @@ class Animes(BaseResource):
                                                            url=url)
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_videos(anime_id),
-            headers=self._client.authorization_header,
             data=data_dict,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Video)
@@ -379,6 +372,5 @@ class Animes(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_video(anime_id, video_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response)
