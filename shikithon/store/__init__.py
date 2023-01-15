@@ -2,7 +2,7 @@
 
 from .base import NullStore
 from .base import Store
-from .json import JsonStore
+from .json import JSONStore
 from .memory import MemoryStore
 
-__all__ = ['Store', 'NullStore', 'MemoryStore', 'JsonStore']
+__all__ = ['Store', 'NullStore', 'MemoryStore', 'JSONStore']

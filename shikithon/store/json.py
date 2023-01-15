@@ -8,7 +8,7 @@ from .base import Store
 from .memory import MemoryStore
 
 
-class JsonStore(Store):
+class JSONStore(Store):
     """JSON config store class.
 
     This class is used for storing configs in JSON file.
@@ -21,10 +21,11 @@ class JsonStore(Store):
         self._file_path = file_path
 
     async def _read_from_file(self) -> Optional[Dict[str, Any]]:
-        if exists(self._file_path):
-            with open(self._file_path, 'r', encoding='utf-8') as file:
-                return loads(file.read())
-        return None
+        if not exists(self._file_path):
+            return None
+
+        with open(self._file_path, 'r', encoding='utf-8') as file:
+            return loads(file.read())
 
     async def _write_to_file(self, configs: Dict[str, Any]) -> bool:
         try:

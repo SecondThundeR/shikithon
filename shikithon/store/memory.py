@@ -1,6 +1,7 @@
 """Memory based config store class"""
 from typing import Any, Dict, Optional
 
+from ..exceptions import StoreException
 from .base import Store
 
 
@@ -59,56 +60,58 @@ class MemoryStore(Store):
     async def fetch_by_access_token(
             self, app_name: str, access_token: str) -> Optional[Dict[str, Any]]:
         app_config = self._configs.get(app_name)
-        if app_config is not None:
-            for token in app_config['tokens']:
-                token: Dict[str, Any]
-                if token.get('access_token') == access_token:
-                    return {
-                        'app_name': app_name,
-                        'client_id': app_config['client_id'],
-                        'client_secret': app_config['client_secret'],
-                        'redirect_uri': app_config['redirect_uri'],
-                        **token
-                    }
-        return None
+
+        if app_config is None:
+            return None
+
+        for token in app_config['tokens']:
+            token: Dict[str, Any]
+            if token.get('access_token') == access_token:
+                return {
+                    'app_name': app_name,
+                    'client_id': app_config['client_id'],
+                    'client_secret': app_config['client_secret'],
+                    'redirect_uri': app_config['redirect_uri'],
+                    **token
+                }
 
     async def fetch_by_auth_code(self, app_name: str,
                                  auth_code: str) -> Optional[Dict[str, Any]]:
         app_config = self._configs.get(app_name)
-        if app_config is not None:
-            for token in app_config['tokens']:
-                token: Dict[str, Any]
-                if token.get('auth_code') == auth_code:
-                    return {
-                        'app_name': app_name,
-                        'client_id': app_config['client_id'],
-                        'client_secret': app_config['client_secret'],
-                        'redirect_uri': app_config['redirect_uri'],
-                        **token
-                    }
-        return None
+        if app_config is None:
+            return None
+
+        for token in app_config['tokens']:
+            token: Dict[str, Any]
+            if token.get('auth_code') == auth_code:
+                return {
+                    'app_name': app_name,
+                    'client_id': app_config['client_id'],
+                    'client_secret': app_config['client_secret'],
+                    'redirect_uri': app_config['redirect_uri'],
+                    **token
+                }
 
     async def delete_token(self, app_name: str, access_token: str) -> None:
         app_config = self._configs.get(app_name)
 
-        if app_config is not None:
-            if len(app_config['tokens']) < 2:
-                await self.delete_all_tokens(app_name)
-            else:
-                for idx, token in enumerate(app_config['tokens']):
-                    token: Dict[str, Any]
-                    if token.get('access_token') == access_token:
-                        del app_config['tokens'][idx]
-            return
+        if app_config is None:
+            raise StoreException(f'The access token {access_token} \
+                            of the "{app_name}" app does not exist')
 
-        raise Exception(f'The access token {access_token} \
-              of the "{app_name}" app does not exist')
+        if len(app_config['tokens']) < 2:
+            return await self.delete_all_tokens(app_name)
+
+        for idx, token in enumerate(app_config['tokens']):
+            token: Dict[str, Any]
+            if token.get('access_token') == access_token:
+                del app_config['tokens'][idx]
 
     async def delete_all_tokens(self, app_name: str) -> None:
         try:
             self._configs.pop(app_name)
         except KeyError as exc:
-            raise Exception(
+            raise StoreException(
                 f'The "{app_name}" config app does not exist') from exc
 
     async def close(self) -> None:
