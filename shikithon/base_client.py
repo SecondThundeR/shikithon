@@ -45,11 +45,13 @@ class Client:
     as well as validating config and etc.
     """
 
-    __slots__ = ('endpoints', '_app_name', '_store', '_session', '_config')
+    __slots__ = ('endpoints', '_app_name', '_store', '_auto_close_store',
+                 '_session', '_config')
 
     def __init__(self,
                  app_name: str = 'Api Test',
-                 store: Store = NullStore()) -> None:
+                 store: Store = NullStore(),
+                 auto_close_store: bool = True) -> None:
         self._app_name = app_name
         self._store = store
         self.endpoints = Endpoints(SHIKIMORI_API_URL, SHIKIMORI_API_URL_V2,
@@ -57,6 +59,7 @@ class Client:
 
         self._session = None
         self._config = None
+        self._auto_close_store = auto_close_store
 
     @property
     def closed(self) -> bool:
@@ -72,6 +75,16 @@ class Client:
         :rtype: bool
         """
         return self._config is None
+
+    @property
+    def store(self) -> Store:
+        return self._store
+
+    @store.setter
+    def store(self, store: Store):
+        if self._auto_close_store and not self.store.status:
+            asyncio.ensure_future(self.store.close())
+        self._store = store
 
     @property
     def user_agent(self) -> Dict[str, str]:
@@ -334,6 +347,7 @@ class Client:
         :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]
 
         :raises RetryLaterException: If Shikimori API returns 429 status code
+        :raises Exception: If tokens not refreshed
         """
         if self.closed:
             return
@@ -347,6 +361,8 @@ class Client:
                 token_data = await self.refresh_access_token(
                     self.config['client_id'], self.config['client_secret'],
                     self.config['refresh_token'])
+                if token_data.get('error'):
+                    raise Exception(f'Tokens not refreshed: {token_data}')
                 self._config.update(
                     refresh_token=token_data['refresh_token'],
                     token_expire_at=token_data['created_at'] +
@@ -403,8 +419,11 @@ class Client:
             logger.warning('Hit retry later code. Retrying backoff...')
             raise RetryLaterException
 
-        if response.status == 401 and not self.restricted_mode and self.config[
-                'refresh_token'] is not None:
+        if response.status == 401 and \
+           cast(dict, await response.json()).get('error_description') \
+           == 'The access token expired' and \
+           not self.restricted_mode and \
+           self.config['refresh_token'] is not None:
             token_data = await self.refresh_access_token(
                 self.config['client_id'], self.config['client_secret'],
                 self.config['refresh_token'])
@@ -454,7 +473,8 @@ class Client:
         if self.closed:
             self._session = ClientSession()
             self.user_agent = self._app_name
-            await self._store.open()
+            if not self.store.status:
+                await self._store.open()
         return self
 
     async def close(self) -> None:
@@ -463,7 +483,8 @@ class Client:
             await self._session.close()
             self._session = None
             self._config = None
-            await self._store.close()
+            if self._auto_close_store:
+                await self._store.close()
 
     async def __aenter__(self) -> Client:
         """Async context manager entry point."""

@@ -61,6 +61,7 @@ class ShikimoriAPI(Client):
     def __init__(self,
                  app_name: str = 'Api Test',
                  store: Store = NullStore(),
+                 auto_close_store: bool = True,
                  logging: Optional[bool] = True):
         """
         Shikimori API class initialization.
@@ -98,7 +99,7 @@ class ShikimoriAPI(Client):
 
         logger.info('Initializing API object')
 
-        super().__init__(app_name, store)
+        super().__init__(app_name, store, auto_close_store)
 
         self.achievements = Achievements(self)
         self.animes = Animes(self)
