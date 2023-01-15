@@ -10,13 +10,10 @@ from .missing_app_variable import MissingAppVariable
 from .missing_auth_code import MissingAuthCode
 from .missing_config_data import MissingConfigData
 from .retry_later import RetryLater
+from .store_exception import StoreException
 
 __all__ = [
-    'AccessTokenError',
-    'AlreadyRunningClient',
-    'ExpiredAccessToken',
-    'MissingAuthCode',
-    'MissingAppVariable',
-    'MissingConfigData',
-    'RetryLater',
+    'AccessTokenError', 'AlreadyRunningClient', 'ExpiredAccessToken',
+    'MissingAuthCode', 'MissingAppVariable', 'MissingConfigData', 'RetryLater',
+    'StoreException'
 ]
