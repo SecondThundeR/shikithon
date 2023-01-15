@@ -17,8 +17,10 @@ from pyrate_limiter import RequestRate
 from .endpoints import Endpoints
 from .enums import RequestType
 from .enums import ResponseCode
-from .exceptions import MissingAppVariableException
-from .exceptions import RetryLaterException
+from .exceptions import AlreadyRunningClient
+from .exceptions import ExpiredAccessToken
+from .exceptions import MissingAppVariable
+from .exceptions import RetryLater
 from .store import NullStore
 from .store import Store
 from .utils import Utils
@@ -189,25 +191,27 @@ class Client:
 
         :return: True if config is valid, False otherwise
         :rtype: bool
+
+        :raises MissingAppVariable: If config is invalid and raises is True
         """
         if not config.get('app_name'):
             if raises:
-                raise MissingAppVariableException('app_name')
+                raise MissingAppVariable('app_name')
             return False
 
         if not config.get('client_id'):
             if raises:
-                raise MissingAppVariableException('client_id')
+                raise MissingAppVariable('client_id')
             return False
 
         if not config.get('client_secret'):
             if raises:
-                raise MissingAppVariableException('client_secret')
+                raise MissingAppVariable('client_secret')
             return False
 
         if not config.get('auth_code') and not config.get('access_token'):
             if raises:
-                raise MissingAppVariableException('auth_code or access_token')
+                raise MissingAppVariable('auth_code or access_token')
             return False
 
         if not config.get('redirect_uri'):
@@ -230,8 +234,6 @@ class Client:
                    redirect_uri: str = DEFAULT_REDIRECT_URI,
                    scopes: str = '') -> Client:
         """Async context manager for authentification.
-
-        If client is already authentificated, raises Exception.
 
         :param app_name: OAuth App name
         :type app_name: Optional[str]
@@ -262,9 +264,12 @@ class Client:
 
         :return: Client object
         :rtype: Client
+
+        :raises AlreadyRunningClient: If client is already running
+        :raises MissingAppVariable: If some of required variables is missing
         """
         if not self.closed:
-            raise Exception('Client is already running')
+            raise AlreadyRunningClient()
 
         if app_name is None:
             app_name = self._app_name
@@ -279,8 +284,7 @@ class Client:
 
             if self.config is None:
                 if client_id is None or client_secret is None:
-                    raise Exception(
-                        'Client_id and client_secret must be defined')
+                    raise MissingAppVariable(['client_id', 'client_secret'])
 
                 if access_token is not None:
                     self.config = {
@@ -318,7 +322,7 @@ class Client:
                             token_data['created_at'] + token_data['expires_in']
                     }
                 else:
-                    raise Exception('Auth_code or access_token must be defined')
+                    raise MissingAppVariable(['auth_code', 'access_token'])
 
                 await self._store.save_config(**self.config)
 
@@ -398,7 +402,7 @@ class Client:
 
     @request_limiter.ratelimit('shikithon_request', delay=True)
     @backoff.on_exception(backoff.expo,
-                          RetryLaterException,
+                          RetryLater,
                           max_time=5,
                           max_tries=10,
                           jitter=None)
@@ -445,8 +449,8 @@ class Client:
         :return: Response JSON, text or status code
         :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]
 
-        :raises RetryLaterException: If Shikimori API returns 429 status code
-        :raises Exception: If tokens not refreshed
+        :raises RetryLater: If Shikimori API returns 429 status code
+        :raises ExpiredAccessToken: If tokens aren't refreshed
         """
         if self.closed:
             return
@@ -461,7 +465,7 @@ class Client:
                     self.config['client_id'], self.config['client_secret'],
                     self.config['refresh_token'])
                 if token_data.get('error'):
-                    raise Exception(f'Tokens not refreshed: {token_data}')
+                    raise ExpiredAccessToken(token_data)
                 self._config.update(
                     refresh_token=token_data['refresh_token'],
                     token_expire_at=token_data['created_at'] +
@@ -516,7 +520,7 @@ class Client:
 
         if response.status == ResponseCode.RETRY_LATER.value:
             logger.warning('Hit retry later code. Retrying backoff...')
-            raise RetryLaterException
+            raise RetryLater
 
         if response.status == 401 and \
            cast(dict, await response.json()).get('error_description') \
