@@ -82,7 +82,7 @@ class Client:
 
     @store.setter
     def store(self, store: Store):
-        if self._auto_close_store and not self.store.status:
+        if self._auto_close_store and self.store.status:
             asyncio.ensure_future(self.store.close())
         self._store = store
 
