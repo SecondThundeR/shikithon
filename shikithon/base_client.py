@@ -282,7 +282,8 @@ class Client:
         if self.closed:
             return
 
-        if not self.restricted_mode:
+        if not self.restricted_mode and self._config[
+                'refresh_token'] is not None:
             token_expire_at = self._config['token_expire_at']
             if isinstance(token_expire_at,
                           int) and self.token_expired(token_expire_at):
@@ -344,7 +345,8 @@ class Client:
             logger.warning('Hit retry later code. Retrying backoff...')
             raise RetryLaterException
 
-        if response.status == 401 and not self.restricted_mode:
+        if response.status == 401 and not self.restricted_mode and self._config[
+                'refresh_token'] is not None:
             token_data = await self.refresh_access_token(
                 self._config['client_id'], self._config['client_secret'],
                 self._config['refresh_token'])
