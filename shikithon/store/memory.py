@@ -115,5 +115,5 @@ class MemoryStore(Store):
                 f'The "{app_name}" config app does not exist') from exc
 
     async def close(self) -> None:
-        self._is_open = False
         self._configs.clear()
+        return await super().close()
