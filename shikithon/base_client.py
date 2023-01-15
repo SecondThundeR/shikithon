@@ -339,6 +339,7 @@ class Client:
             return
 
         if not self.restricted_mode and \
+           url != self.endpoints.oauth_token and \
            self.config['refresh_token'] is not None:
             token_expire_at = self.config['token_expire_at']
             if isinstance(token_expire_at,
