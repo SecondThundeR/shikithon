@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 from time import time
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+from typing import Any, Callable, cast, Dict, List, Optional, TypeVar, Union
 
 from aiohttp import ClientSession
 from aiohttp import ContentTypeError
@@ -17,6 +17,7 @@ from pyrate_limiter import RequestRate
 from .endpoints import Endpoints
 from .enums import RequestType
 from .enums import ResponseCode
+from .exceptions import MissingAppVariableException
 from .exceptions import RetryLaterException
 from .store import NullStore
 from .store import Store
@@ -107,6 +108,61 @@ class Client:
             self._session.headers.update(
                 {'Authorization': 'Bearer ' + access_token})
 
+    @property
+    def config(self) -> Optional[Dict[str, Any]]:
+        """
+        ...
+        """
+        return self._config
+
+    @config.setter
+    def config(self, config: Dict[str, Any]):
+        """
+        ...
+        """
+        if self.is_valid_config(config):
+            self._config = config
+
+    @property
+    def scopes(self) -> Optional[List[str]]:
+        """
+        ...
+        """
+        if not self.restricted_mode:
+            return cast(str, self._config['scopes']).split()
+        return None
+
+    def is_valid_config(self,
+                        config: Dict[str, Any],
+                        raises: bool = True) -> bool:
+        if not config.get('app_name'):
+            if raises:
+                raise MissingAppVariableException('app_name')
+            return False
+
+        if not config.get('client_id'):
+            if raises:
+                raise MissingAppVariableException('client_id')
+            return False
+
+        if not config.get('client_secret'):
+            if raises:
+                raise MissingAppVariableException('client_secret')
+            return False
+
+        if not config.get('auth_code') and not config.get('access_token'):
+            if raises:
+                raise MissingAppVariableException('auth_code or access_token')
+            return False
+
+        if not config.get('redirect_uri'):
+            config['redirect_uri'] = DEFAULT_REDIRECT_URI
+
+        if not config.get('scopes'):
+            config['scopes'] = ''
+
+        return True
+
     @asynccontextmanager
     async def auth(self,
                    app_name: Optional[str] = None,
@@ -116,7 +172,7 @@ class Client:
                    access_token: Optional[str] = None,
                    refresh_token: Optional[str] = None,
                    token_expire_at: Optional[int] = None,
-                   redirect_uri: str = 'urn:ietf:wg:oauth:2.0:oob',
+                   redirect_uri: str = DEFAULT_REDIRECT_URI,
                    scopes: str = '') -> Client:
         if not self.closed:
             raise Exception('Client is already running')
@@ -126,19 +182,19 @@ class Client:
 
         async with self:
             if access_token is not None:
-                self._config = await self._store.fetch_by_access_token(
+                self.config = await self._store.fetch_by_access_token(
                     app_name, access_token)
             elif auth_code is not None:
-                self._config = await self._store.fetch_by_auth_code(
+                self.config = await self._store.fetch_by_auth_code(
                     app_name, auth_code)
 
-            if self._config is None:
+            if self.config is None:
                 if client_id is None or client_secret is None:
                     raise Exception(
                         'Client_id and client_secret must be defined')
 
                 if access_token is not None:
-                    self._config = {
+                    self.config = {
                         'app_name': app_name,
                         'client_id': client_id,
                         'client_secret': client_secret,
@@ -152,7 +208,7 @@ class Client:
                 elif auth_code is not None:
                     token_data = await self.get_access_token(
                         client_id, client_secret, auth_code, redirect_uri)
-                    self._config = {
+                    self.config = {
                         'app_name':
                             app_name,
                         'client_id':
@@ -175,10 +231,10 @@ class Client:
                 else:
                     raise Exception('Auth_code or access_token must be defined')
 
-                await self._store.save_config(**self._config)
+                await self._store.save_config(**self.config)
 
-            self.user_agent = self._config['app_name']
-            self.authorization_header = self._config['access_token']
+            self.user_agent = self.config['app_name']
+            self.authorization_header = self.config['access_token']
 
             yield self
 
@@ -282,20 +338,21 @@ class Client:
         if self.closed:
             return
 
-        if not self.restricted_mode and self._config[
-                'refresh_token'] is not None:
-            token_expire_at = self._config['token_expire_at']
+        if not self.restricted_mode and \
+           self.config['refresh_token'] is not None:
+            token_expire_at = self.config['token_expire_at']
             if isinstance(token_expire_at,
                           int) and self.token_expired(token_expire_at):
                 token_data = await self.refresh_access_token(
-                    self._config['client_id'], self._config['client_secret'],
-                    self._config['refresh_token'])
+                    self.config['client_id'], self.config['client_secret'],
+                    self.config['refresh_token'])
                 self._config.update(
                     refresh_token=token_data['refresh_token'],
                     token_expire_at=token_data['created_at'] +
                     token_data['expires_in'],
                 )
-                await self._store.save_config(**self._config)
+                self.is_valid_config(self.config)
+                await self._store.save_config(**self.config)
 
         logger.info(
             f'{request_type.value} {url}{Utils.convert_to_query_string(query)}')
@@ -345,17 +402,18 @@ class Client:
             logger.warning('Hit retry later code. Retrying backoff...')
             raise RetryLaterException
 
-        if response.status == 401 and not self.restricted_mode and self._config[
+        if response.status == 401 and not self.restricted_mode and self.config[
                 'refresh_token'] is not None:
             token_data = await self.refresh_access_token(
-                self._config['client_id'], self._config['client_secret'],
-                self._config['refresh_token'])
+                self.config['client_id'], self.config['client_secret'],
+                self.config['refresh_token'])
             self._config.update(
                 refresh_token=token_data['refresh_token'],
                 token_expire_at=token_data['created_at'] +
                 token_data['expires_in'],
             )
-            await self._store.save_config(**self._config)
+            self.is_valid_config(self.config)
+            await self._store.save_config(**self.config)
 
         logger.debug('Extracting JSON from response')
         try:
