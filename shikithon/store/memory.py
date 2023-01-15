@@ -1,11 +1,14 @@
-"""..."""
+"""Memory based config store class"""
 from typing import Any, Dict, Optional
 
 from .base import Store
 
 
 class MemoryStore(Store):
-    """..."""
+    """Memory config store class.
+
+    This class is used for storing configs in RAM for faster access.
+    """
 
     __slots__ = ('_configs',)
 

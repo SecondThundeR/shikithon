@@ -1,4 +1,4 @@
-"""..."""
+"""JSON based config store class."""
 from json import dumps
 from json import loads
 from os.path import exists
@@ -9,7 +9,10 @@ from .memory import MemoryStore
 
 
 class JsonStore(Store):
-    """..."""
+    """JSON config store class.
+
+    This class is used for storing configs in JSON file.
+    """
 
     __slots__ = ('_file_path',)
 
