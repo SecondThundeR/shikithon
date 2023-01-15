@@ -11,7 +11,10 @@ from .memory import MemoryStore
 class JsonStore(Store):
     """..."""
 
+    __slots__ = ('_file_path',)
+
     def __init__(self, file_path: str = '.shikithon') -> None:
+        super().__init__()
         self._file_path = file_path
 
     async def _read_from_file(self) -> Optional[Dict[str, Any]]:

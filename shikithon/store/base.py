@@ -7,6 +7,15 @@ from typing import Any, Dict, Optional
 class Store:
     """..."""
 
+    __slots__ = ('_is_open',)
+
+    def __init__(self) -> None:
+        self._is_open = False
+
+    @property
+    def status(self) -> bool:
+        return self._is_open
+
     async def save_config(self,
                           app_name: str,
                           client_id: str,
@@ -35,11 +44,12 @@ class Store:
 
     async def open(self) -> Store:
         """Open store and return self."""
+        self._is_open = True
         return self
 
     async def close(self) -> None:
         """Close store."""
-        pass
+        self._is_open = False
 
     async def __aenter__(self) -> Store:
         """Async context manager entry point."""

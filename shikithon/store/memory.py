@@ -10,6 +10,7 @@ class MemoryStore(Store):
     __slots__ = ('_configs',)
 
     def __init__(self, configs: Optional[Dict[str, Any]] = None) -> None:
+        super().__init__()
         self._configs = configs or {}
 
     @property
