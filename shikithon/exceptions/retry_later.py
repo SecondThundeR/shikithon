@@ -1,5 +1,5 @@
 """Dummy exception for raising on too many requests."""
 
 
-class RetryLaterException(Exception):
+class RetryLater(Exception):
     pass

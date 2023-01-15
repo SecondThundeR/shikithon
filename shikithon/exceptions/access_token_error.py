@@ -1,7 +1,7 @@
 """Exception for raising on access token errors."""
 
 
-class AccessTokenException(Exception):
+class AccessTokenError(Exception):
 
     def __init__(self, error_message: str):
         super().__init__(

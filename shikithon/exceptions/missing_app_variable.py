@@ -1,7 +1,7 @@
 """Exception for raising on missing app variable."""
 
 
-class MissingAppVariableException(Exception):
+class MissingAppVariable(Exception):
 
     def __init__(self, variable_name: str):
         super().__init__(f'It is impossible to initialize an API object'
