@@ -68,9 +68,10 @@ class Client:
 
     @property
     def restricted_mode(self) -> bool:
-        """
-        Returns current restrict mode of client object.
+        """Returns current restrict mode of client object.
+
         If true, client object can access only public methods
+
         :return: Current restrict mode
         :rtype: bool
         """
@@ -78,18 +79,28 @@ class Client:
 
     @property
     def store(self) -> Store:
+        """Gets store object.
+
+        :return: Store object
+        :rtype: Store
+        """
         return self._store
 
     @store.setter
     def store(self, store: Store):
+        """Sets store object.
+
+        :param store: Store object
+        :type store: Store
+        """
         if self._auto_close_store and self.store.status:
             asyncio.ensure_future(self.store.close())
         self._store = store
 
     @property
     def user_agent(self) -> Dict[str, str]:
-        """
-        Returns current session User-Agent.
+        """Returns current session User-Agent.
+
         :return: Session User-Agent
         :rtype: Dict[str, str]
         """
@@ -97,8 +108,8 @@ class Client:
 
     @user_agent.setter
     def user_agent(self, app_name: str):
-        """
-        Update session headers and set user agent.
+        """Update session headers and set user agent.
+
         :param app_name: OAuth App name
         :type app_name: str
         """
@@ -107,15 +118,19 @@ class Client:
 
     @property
     def authorization_header(self) -> Dict[str, str]:
-        """
-        ...
+        """Gets authorization header for current session.
+
+        :return: Authorization header
+        :rtype: Dict[str, str]
         """
         return {'Authorization': self._session.headers['Authorization']}
 
     @authorization_header.setter
     def authorization_header(self, access_token: str):
-        """
-        ...
+        """Sets authorization header to current session.
+
+        :param access_token: Access token
+        :type access_token: str
         """
         if not self.closed:
             self._session.headers.update(
@@ -123,23 +138,35 @@ class Client:
 
     @property
     def config(self) -> Optional[Dict[str, Any]]:
-        """
-        ...
+        """Gets current config.
+
+        If config is not availble, returns None.
+
+        :return: Current config
+        :rtype: Optional[Dict[str, Any]]
         """
         return self._config
 
     @config.setter
     def config(self, config: Dict[str, Any]):
-        """
-        ...
+        """Sets new config.
+
+        If passed config isn't valid, raises Exception.
+
+        :param config: New config data
+        :type config: Dict[str, Any]
         """
         if self.is_valid_config(config):
             self._config = config
 
     @property
     def scopes(self) -> Optional[List[str]]:
-        """
-        ...
+        """Gets current app scopes.
+
+        If app is in restricted mode, returns None.
+
+        :return: Current scopes
+        :rtype: Optional[List[str]]
         """
         if not self.restricted_mode:
             return cast(str, self._config['scopes']).split()
@@ -148,6 +175,21 @@ class Client:
     def is_valid_config(self,
                         config: Dict[str, Any],
                         raises: bool = True) -> bool:
+        """Validates passed config.
+
+        Method checks config for required dict keys.
+        If some of keys are missing, returns False or raises Exception
+        if raises parameter is True.
+
+        :param config: Config to validate
+        :type config: Dict[str, Any]
+
+        :param raises: If True, raises Exception if config is invalid
+        :type raises: bool
+
+        :return: True if config is valid, False otherwise
+        :rtype: bool
+        """
         if not config.get('app_name'):
             if raises:
                 raise MissingAppVariableException('app_name')
@@ -187,6 +229,40 @@ class Client:
                    token_expire_at: Optional[int] = None,
                    redirect_uri: str = DEFAULT_REDIRECT_URI,
                    scopes: str = '') -> Client:
+        """Async context manager for authentification.
+
+        If client is already authentificated, raises Exception.
+
+        :param app_name: OAuth App name
+        :type app_name: Optional[str]
+
+        :param client_id: OAuth App client id
+        :type client_id: Optional[str]
+
+        :param client_secret: OAuth App client secret
+        :type client_secret: Optional[str]
+
+        :param auth_code: OAuth App auth code
+        :type auth_code: Optional[str]
+
+        :param access_token: OAuth App access token
+        :type access_token: Optional[str]
+
+        :param refresh_token: OAuth App refresh token
+        :type refresh_token: Optional[str]
+
+        :param token_expire_at: OAuth App token expire time
+        :type token_expire_at: Optional[int]
+
+        :param redirect_uri: OAuth App redirect uri
+        :type redirect_uri: str
+
+        :param scopes: OAuth App scopes
+        :type scopes: str
+
+        :return: Client object
+        :rtype: Client
+        """
         if not self.closed:
             raise Exception('Client is already running')
 
@@ -254,10 +330,24 @@ class Client:
     async def get_access_token(self, client_id: str, client_secret: str,
                                auth_code: str,
                                redirect_uri: str) -> Dict[str, Any]:
+        """Gets new access token.
+
+        :param client_id: Client ID
+        :type client_id: str
+
+        :param client_secret: Client secret
+        :type client_secret: str
+
+        :param auth_code: Authorization code
+        :type auth_code: str
+
+        :param redirect_uri: Redirect URI
+        :type redirect_uri: str
+
+        :return: New access token
+        :rtype: Dict[str, Any]
         """
-        ...
-        """
-        logger.info('Getting new tokens')
+        logger.info('Getting new access token')
         return await self.request(self.endpoints.oauth_token,
                                   data={
                                       'grant_type': 'authorization_code',
@@ -271,10 +361,21 @@ class Client:
 
     async def refresh_access_token(self, client_id: str, client_secret: str,
                                    refresh_token: str) -> Dict[str, Any]:
+        """Refreshes expired access token.
+
+        :param client_id: Client ID
+        :type client_id: str
+
+        :param client_secret: Client secret
+        :type client_secret: str
+
+        :param refresh_token: Refresh token
+        :type refresh_token: str
+
+        :return: Refreshed access token
+        :rtype: Dict[str, Any]
         """
-        ...
-        """
-        logger.info('Refreshing current tokens')
+        logger.info('Refreshing current access token')
         return await self.request(self.endpoints.oauth_token,
                                   data={
                                       'grant_type': 'refresh_token',
@@ -286,8 +387,7 @@ class Client:
                                   output_logging=False)
 
     def token_expired(self, token_expire_at: int):
-        """
-        Checks if current access token is expired.
+        """Checks if current access token is expired.
 
         :return: Result of token expiration check
         :rtype: bool
@@ -312,8 +412,7 @@ class Client:
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
     ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]:
-        """
-        Create request and return response JSON.
+        """Create request and return response JSON.
 
         This method uses ratelimit library for rate limiting
         requests (Shikimori API limit: 90rpm and 5rps)
@@ -453,8 +552,7 @@ class Client:
         return json_response
 
     async def multiple_requests(self, requests: List[Callable[..., RT]]):
-        """
-        Make multiple requests to API at the same time.
+        """Make multiple requests to API at the same time.
 
         :param requests: List of requests
         :type requests: List[Callable[..., RT]]
@@ -469,7 +567,11 @@ class Client:
         return await asyncio.gather(*requests, return_exceptions=True)
 
     async def open(self) -> Client:
-        """Open session and return self."""
+        """Open session and return self.
+
+        :return: Client instance
+        :rtype: Client
+        """
         if self.closed:
             self._session = ClientSession()
             self.user_agent = self._app_name
@@ -487,7 +589,11 @@ class Client:
                 await self._store.close()
 
     async def __aenter__(self) -> Client:
-        """Async context manager entry point."""
+        """Async context manager entry point.
+
+        :return: Client instance
+        :rtype: Client
+        """
         return await self.open()
 
     async def __aexit__(self, *args) -> None:
