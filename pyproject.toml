@@ -41,8 +41,8 @@ pyrate-limiter = "^2.8.4"
 backoff = "^2.2.1"
 typing-extensions = "^4.4.0"
 
-[tool.poetry.dev-dependencies]
-pylint = "^2.15.9"
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.15.10"
 pre-commit = "^2.20.0"
 yapf = "^0.32.0"
 isort = "^5.11.4"
