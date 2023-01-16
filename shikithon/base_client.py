@@ -4,8 +4,9 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 from time import time
-from typing import Any, Callable, cast, Dict, List, Optional, TypeVar, Union
+from typing import Any, Callable, cast, Dict, List, Optional, TypeVar
 
+from aiohttp import ClientResponse
 from aiohttp import ClientSession
 from aiohttp import ContentTypeError
 import backoff
@@ -18,7 +19,6 @@ from .endpoints import Endpoints
 from .enums import RequestType
 from .enums import ResponseCode
 from .exceptions import AlreadyRunningClient
-from .exceptions import ExpiredAccessToken
 from .exceptions import MissingAppVariable
 from .exceptions import RetryLater
 from .store import NullStore
@@ -139,15 +139,15 @@ class Client:
         return self._config
 
     @config.setter
-    def config(self, config: Dict[str, Any]):
+    def config(self, config: Optional[Dict[str, Any]]):
         """Sets new config.
 
         If passed config isn't valid, raises Exception.
 
         :param config: New config data
-        :type config: Dict[str, Any]
+        :type config: Optional[Dict[str, Any]]
         """
-        if self.is_valid_config(config):
+        if config is None or self.is_valid_config(config):
             self._config = config
 
     @property
@@ -404,45 +404,14 @@ class Client:
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
-    ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]:
-        """Create request and return response JSON.
-
-        This method uses ratelimit library for rate limiting
-        requests (Shikimori API limit: 90rpm and 5rps)
-
-        **Note:** To address duplication of methods
-        for different request methods, this method
-        uses RequestType enum
-
-        :param url: URL for making request
-        :type url: str
-
-        :param data: Request body data
-        :type data: Optional[Dict[str, str]]
-
-        :param bytes_data: Request body data in bytes
-        :type bytes_data: Optional[bytes]
-
-        :param headers: Custom headers for request
-        :type headers: Optional[Dict[str, str]]
-
-        :param query: Query data for request
-        :type query: Optional[Dict[str, str]]
-
-        :param request_type: Type of current request
-        :type request_type: RequestType
-
-        :param output_logging: Parameter for logging JSON response
-        :type output_logging: bool
-
-        :return: Response JSON, text or status code
-        :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]
-
-        :raises RetryLater: If Shikimori API returns 429 status code
-        :raises ExpiredAccessToken: If tokens aren't refreshed
-        """
+    ) -> Any:
         if self.closed:
             return
+
+        logger.info(
+            f'{request_type.value} {url}{Utils.convert_to_query_string(query)}')
+        if output_logging:
+            logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
 
         if not self.restricted_mode and \
            url != self.endpoints.oauth_token and \
@@ -453,20 +422,13 @@ class Client:
                 token_data = await self.refresh_access_token(
                     self.config['client_id'], self.config['client_secret'],
                     self.config['refresh_token'])
-                if token_data.get('error'):
-                    raise ExpiredAccessToken(token_data)
                 self._config.update(
                     refresh_token=token_data['refresh_token'],
                     token_expire_at=token_data['created_at'] +
                     token_data['expires_in'],
                 )
-                self.is_valid_config(self.config)
-                await self.store.save_config(**self.config)
-
-        logger.info(
-            f'{request_type.value} {url}{Utils.convert_to_query_string(query)}')
-        if output_logging:
-            logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
+                if self.is_valid_config(self.config):
+                    await self.store.save_config(**self.config)
 
         if data is not None and bytes_data is not None:
             logger.debug(
@@ -505,44 +467,51 @@ class Client:
                                                   params=query)
         else:
             logger.debug('Unknown request_type. Returning None')
-            return None
+            return
 
-        if response.status == ResponseCode.RETRY_LATER.value:
-            logger.warning('Hit retry later code. Retrying backoff...')
-            raise RetryLater
-
-        if response.status == 401 and \
-           cast(dict, await response.json()).get('error_description') \
-           == 'The access token expired' and \
-           not self.restricted_mode and \
-           self.config['refresh_token'] is not None:
-            token_data = await self.refresh_access_token(
-                self.config['client_id'], self.config['client_secret'],
-                self.config['refresh_token'])
-            self._config.update(
-                refresh_token=token_data['refresh_token'],
-                token_expire_at=token_data['created_at'] +
-                token_data['expires_in'],
-            )
-            self.is_valid_config(self.config)
-            await self.store.save_config(**self.config)
-
-        logger.debug('Extracting JSON from response')
         try:
-            json_response = await response.json()
-        except ContentTypeError:
-            logger.debug('Response is not JSON. Returning status code/text')
-            return await Utils.extract_empty_response_data(response)
+            response: ClientResponse
 
-        if output_logging:
-            logger.debug(
-                'Successful extraction. '
-                f'Here are the details of the response: {json_response}')
-            if json_response is None and response.status == 200:
-                logger.debug('Response is empty. Returning status code/text')
-                return await Utils.extract_empty_response_data(response)
+            if response.status == 401 and \
+                url != self.endpoints.oauth_token and \
+                not self.restricted_mode and \
+                self.config['refresh_token'] is not None:
+                token_data = await self.refresh_access_token(
+                    self.config['client_id'], self.config['client_secret'],
+                    self.config['refresh_token'])
+                self._config.update(
+                    refresh_token=token_data['refresh_token'],
+                    token_expire_at=token_data['created_at'] +
+                    token_data['expires_in'],
+                )
+                if self.is_valid_config(self.config):
+                    await self.store.save_config(**self.config)
+                return await self.request(url, data, bytes_data, headers, query,
+                                          request_type, output_logging)
+            elif response.status == ResponseCode.RETRY_LATER.value:
+                logger.warning('Hit retry later code. Retrying backoff...')
+                raise RetryLater
+            elif not response.ok:
+                raise Exception(f'{response.method} {response.status} ' +
+                                f'{repr(response.request_info.real_url)}\n' +
+                                f'{await response.text()}')
 
-        return json_response
+            logger.debug('Extracting JSON from response')
+            try:
+                json_response = await response.json()
+            except ContentTypeError:
+                raise Exception(
+                    f'Invalid response content type: {response.content_type}'
+                ) from None
+
+            if output_logging:
+                logger.debug(
+                    'Successful extraction. '
+                    f'Here are the details of the response: {json_response}')
+
+            return json_response
+        finally:
+            response.release()
 
     async def multiple_requests(self, requests: List[Callable[..., RT]]):
         """Make multiple requests to API at the same time.
