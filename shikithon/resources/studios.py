@@ -15,8 +15,7 @@ class Studios(BaseResource):
 
     @method_endpoint('/api/studios')
     async def get(self) -> List[Studio]:
-        """
-        Returns list of studios.
+        """Returns list of studios.
 
         :return: List of studios
         :rtype: List[Studio]

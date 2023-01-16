@@ -19,8 +19,7 @@ class Constants(BaseResource):
 
     @method_endpoint('/api/constants/anime')
     async def anime(self) -> Optional[AnimeConstants]:
-        """
-        Returns anime constants values.
+        """Returns anime constants values.
 
         :return: Anime constants values
         :rtype: Optional[AnimeConstants]
@@ -31,8 +30,7 @@ class Constants(BaseResource):
 
     @method_endpoint('/api/constants/manga')
     async def manga(self) -> Optional[MangaConstants]:
-        """
-        Returns manga constants values.
+        """Returns manga constants values.
 
         :return: Manga constants values
         :rtype: Optional[MangaConstants]
@@ -43,8 +41,7 @@ class Constants(BaseResource):
 
     @method_endpoint('/api/constants/user_rate')
     async def user_rate(self) -> Optional[UserRateConstants]:
-        """
-        Returns user rate constants values.
+        """Returns user rate constants values.
 
         :return: User rate constants values
         :rtype: Optional[UserRateConstants]
@@ -56,8 +53,7 @@ class Constants(BaseResource):
 
     @method_endpoint('/api/constants/club')
     async def club(self) -> Optional[ClubConstants]:
-        """
-        Returns club constants values.
+        """Returns club constants values.
 
         :return: Club constants values
         :rtype: Optional[ClubConstants]
@@ -68,8 +64,7 @@ class Constants(BaseResource):
 
     @method_endpoint('/api/constants/smileys')
     async def smileys(self) -> List[SmileyConstants]:
-        """
-        Returns list of smileys constants values.
+        """Returns list of smileys constants values.
 
         :return: List of smileys constants values
         :rtype: List[SmileyConstants]

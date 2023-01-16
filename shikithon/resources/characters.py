@@ -15,8 +15,7 @@ class Characters(BaseResource):
 
     @method_endpoint('/api/characters/:id')
     async def get(self, character_id: int) -> Optional[Character]:
-        """
-        Returns character info by ID.
+        """Returns character info by ID.
 
         :param character_id: ID of character to get info
         :type character_id: int
@@ -30,8 +29,7 @@ class Characters(BaseResource):
 
     @method_endpoint('/api/characters/search')
     async def search(self, search: Optional[str] = None) -> List[Character]:
-        """
-        Returns list of found characters.
+        """Returns list of found characters.
 
         :param search: Search query for characters
         :type search: Optional[str]

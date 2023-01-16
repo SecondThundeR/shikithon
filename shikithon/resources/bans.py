@@ -17,8 +17,7 @@ class Bans(BaseResource):
     async def get(self,
                   page: Optional[int] = None,
                   limit: Optional[int] = None) -> List[Ban]:
-        """
-        Returns list of recent bans on Shikimori.
+        """Returns list of recent bans on Shikimori.
 
         :param page: Number of page
         :type page: Optional[int]

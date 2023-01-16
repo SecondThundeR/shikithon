@@ -18,8 +18,7 @@ class Messages(BaseResource):
 
     @method_endpoint('/api/messages/:id')
     async def get(self, message_id: int) -> Optional[Message]:
-        """
-        Returns message info.
+        """Returns message info.
 
         :param message_id: ID of message to get info
         :type message_id: int
@@ -34,8 +33,7 @@ class Messages(BaseResource):
     @method_endpoint('/api/messages')
     async def create(self, body: str, from_id: int,
                      to_id: int) -> Optional[Message]:
-        """
-        Creates message.
+        """Creates message.
 
         :param body: Body of message
         :type body: str
@@ -61,8 +59,7 @@ class Messages(BaseResource):
 
     @method_endpoint('/api/messages/:id')
     async def update(self, message_id: int, body: str) -> Optional[Message]:
-        """
-        Updates message.
+        """Updates message.
 
         :param message_id: ID of message to update
         :type message_id: int
@@ -81,8 +78,7 @@ class Messages(BaseResource):
 
     @method_endpoint('/api/messages/:id')
     async def delete(self, message_id: int) -> bool:
-        """
-        Deletes message.
+        """Deletes message.
 
         :param message_id: ID of message to delete
         :type message_id: int
@@ -100,8 +96,7 @@ class Messages(BaseResource):
     async def mark_read(self,
                         message_ids: Optional[Union[int, List[int]]] = None,
                         is_read: Optional[bool] = None) -> bool:
-        """
-        Marks read/unread selected messages.
+        """Marks read/unread selected messages.
 
         :param message_ids: ID(s) of messages to mark read/unread
         :type message_ids: Optional[Union[int, List[int]]]
@@ -122,8 +117,7 @@ class Messages(BaseResource):
 
     @method_endpoint('/api/messages/read_all')
     async def read_all(self, message_type: str) -> bool:
-        """
-        Reads all messages on current user's account.
+        """Reads all messages on current user's account.
 
         **Note:** This methods accepts as type only 'news' and
         'notifications'
@@ -147,8 +141,7 @@ class Messages(BaseResource):
 
     @method_endpoint('/api/messages/delete_all')
     async def delete_all(self, message_type: str) -> bool:
-        """
-        Deletes all messages on current user's account.
+        """Deletes all messages on current user's account.
 
         **Note:** This methods accepts as type only 'news' and
         'notifications'

@@ -45,8 +45,8 @@ RT = TypeVar('RT')
 
 
 class ShikimoriAPI(Client):
-    """
-    Main class for interacting with the API.
+    """Main class for interacting with the API.
+
     Current API class uses base client for interacting with API.
     Also, all API methods splitted up to resources for convinient usage.
     """
@@ -63,8 +63,7 @@ class ShikimoriAPI(Client):
                  store: Store = NullStore(),
                  auto_close_store: bool = True,
                  logging: Optional[bool] = True):
-        """
-        Shikimori API class initialization.
+        """Shikimori API class initialization.
 
         This magic method inits client and all resources
         for interacting with.

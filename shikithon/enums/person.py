@@ -1,5 +1,4 @@
-"""
-Enums for /api/person.
+"""Enums for /api/person.
 
 Also PersonKind enum is use in /api/favorites,
 when linked_type is Person

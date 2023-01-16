@@ -19,8 +19,7 @@ class UserImages(BaseResource):
             self,
             image_path: str,
             linked_type: Optional[str] = None) -> Optional[CreatedUserImage]:
-        """
-        Creates an user image.
+        """Creates an user image.
 
         :param image_path: Path or URL to image to create on server
         :type image_path: str

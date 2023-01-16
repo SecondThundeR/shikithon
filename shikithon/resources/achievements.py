@@ -18,8 +18,7 @@ class Achievements(BaseResource):
 
     @method_endpoint('/api/achievements')
     async def get(self, user_id: int) -> List[Achievement]:
-        """
-        Returns achievements of user by ID.
+        """Returns achievements of user by ID.
 
         :param user_id: User ID for getting achievements
         :type user_id: int

@@ -29,8 +29,7 @@ class Users(BaseResource):
     async def get_all(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None) -> List[User]:
-        """
-        Returns list of users.
+        """Returns list of users.
 
         :param page: Number of page
         :type page: Optional[int]
@@ -58,8 +57,7 @@ class Users(BaseResource):
     async def get(self,
                   user_id: Union[str, int],
                   is_nickname: Optional[bool] = None) -> Optional[User]:
-        """
-        Returns info about user.
+        """Returns info about user.
 
         :param user_id: User ID/Nickname to get info
         :type user_id: Union[str, int]
@@ -79,8 +77,7 @@ class Users(BaseResource):
     async def info(self,
                    user_id: Union[str, int],
                    is_nickname: Optional[bool] = None) -> Optional[User]:
-        """
-        Returns user's brief info.
+        """Returns user's brief info.
 
         :param user_id: User ID/Nickname to get brief info
         :type user_id: Union[int, str]
@@ -98,8 +95,7 @@ class Users(BaseResource):
 
     @method_endpoint('/api/users/whoami')
     async def current(self) -> Optional[User]:
-        """
-        Returns brief info about current user.
+        """Returns brief info about current user.
 
         Current user evaluated depending on authorization code.
 
@@ -126,8 +122,7 @@ class Users(BaseResource):
     async def friends(self,
                       user_id: Union[str, int],
                       is_nickname: Optional[bool] = None) -> List[User]:
-        """
-        Returns user's friends.
+        """Returns user's friends.
 
         :param user_id: User ID/Nickname to get friends
         :type user_id: Union[int, str]
@@ -149,8 +144,7 @@ class Users(BaseResource):
     async def clubs(self,
                     user_id: Union[int, str],
                     is_nickname: Optional[bool] = None) -> List[Club]:
-        """
-        Returns user's clubs.
+        """Returns user's clubs.
 
         :param user_id: User ID/Nickname to get clubs
         :type user_id: Union[int, str]
@@ -176,8 +170,7 @@ class Users(BaseResource):
                           limit: Optional[int] = None,
                           status: Optional[str] = None,
                           censored: Optional[str] = None) -> List[UserList]:
-        """
-        Returns user's anime list.
+        """Returns user's anime list.
 
         :param user_id: User ID/Nickname to get anime list
         :type user_id: Optional[int, str]
@@ -229,8 +222,7 @@ class Users(BaseResource):
                           page: Optional[int] = None,
                           limit: Optional[int] = None,
                           censored: Optional[str] = None) -> List[UserList]:
-        """
-        Returns user's manga list.
+        """Returns user's manga list.
 
         :param user_id: User ID/Nickname to get manga list
         :type user_id: Union[int, str]
@@ -273,8 +265,7 @@ class Users(BaseResource):
             self,
             user_id: Union[int, str],
             is_nickname: Optional[bool] = None) -> Optional[Favourites]:
-        """
-        Returns user's favourites.
+        """Returns user's favourites.
 
         :param user_id: User ID/Nickname to get favourites
         :type user_id: Union[int, str]
@@ -298,8 +289,7 @@ class Users(BaseResource):
             page: Optional[int] = None,
             limit: Optional[int] = None,
             message_type: str = MessageType.NEWS.value) -> List[Message]:
-        """
-        Returns current user's messages by type.
+        """Returns current user's messages by type.
 
         :param user_id: Current user ID/Nickname to get messages
         :type user_id: Union[int, str]
@@ -342,8 +332,7 @@ class Users(BaseResource):
             self,
             user_id: Union[int, str],
             is_nickname: Optional[bool] = None) -> Optional[UnreadMessages]:
-        """
-        Returns current user's unread messages counter.
+        """Returns current user's unread messages counter.
 
         :param user_id: Current user ID/Nickname to get unread messages
         :type user_id: Union[int, str]
@@ -367,8 +356,7 @@ class Users(BaseResource):
                       limit: Optional[int] = None,
                       target_id: Optional[int] = None,
                       target_type: Optional[str] = None) -> List[History]:
-        """
-        Returns history of user.
+        """Returns history of user.
 
         :param user_id: User ID/Nickname to get history
         :type user_id: Union[int, str]
@@ -414,8 +402,7 @@ class Users(BaseResource):
     async def bans(self,
                    user_id: Union[int, str],
                    is_nickname: Optional[bool] = None) -> List[Ban]:
-        """
-        Returns list of bans of user.
+        """Returns list of bans of user.
 
         :param user_id: User ID/Nickname to get list of bans
         :type user_id: Union[int, str]
@@ -435,8 +422,7 @@ class Users(BaseResource):
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
     async def ignore(self, user_id: int) -> bool:
-        """
-        Set user as ignored.
+        """Sets user as ignored.
 
         :param user_id: ID of topic to ignore
         :type user_id: int
@@ -451,8 +437,7 @@ class Users(BaseResource):
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
     async def unignore(self, user_id: int) -> bool:
-        """
-        Set user as unignored.
+        """Sets user as unignored.
 
         :param user_id: ID of user to unignore
         :type user_id: int

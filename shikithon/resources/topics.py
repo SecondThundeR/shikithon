@@ -26,8 +26,7 @@ class Topics(BaseResource):
                       linked_id: Optional[int] = None,
                       linked_type: Optional[str] = None,
                       topic_type: Optional[str] = None) -> List[Topic]:
-        """
-        Returns list of topics.
+        """Returns list of topics.
 
         :param page: Number of page
         :type page: Optional[int]
@@ -78,8 +77,7 @@ class Topics(BaseResource):
     async def updates(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None) -> List[Topic]:
-        """
-        Returns list of NewsTopics about database updates.
+        """Returns list of NewsTopics about database updates.
 
         :param page: Number of page
         :type page: Optional[int]
@@ -105,8 +103,7 @@ class Topics(BaseResource):
 
     @method_endpoint('/api/topics/hot')
     async def hot(self, limit: Optional[int] = None) -> List[Topic]:
-        """
-        Returns list of hot topics.
+        """Returns list of hot topics.
 
         :param limit: Number of results limit
         :type limit: Optional[int]
@@ -125,8 +122,7 @@ class Topics(BaseResource):
 
     @method_endpoint('/api/topics/:id')
     async def get(self, topic_id: int) -> Optional[Topic]:
-        """
-        Returns info about topic.
+        """Returns info about topic.
 
         :param topic_id: ID of topic to get
         :type topic_id: int
@@ -146,8 +142,7 @@ class Topics(BaseResource):
                      user_id: int,
                      linked_id: Optional[int] = None,
                      linked_type: Optional[str] = None) -> Optional[Topic]:
-        """
-        Creates topic.
+        """Creates topic.
 
         :param body: Body of topic
         :type body: str
@@ -193,8 +188,7 @@ class Topics(BaseResource):
                      title: Optional[str] = None,
                      linked_id: Optional[int] = None,
                      linked_type: Optional[str] = None) -> Optional[Topic]:
-        """
-        Updates topic.
+        """Updates topic.
 
         :param topic_id: ID of topic to update
         :type topic_id: int
@@ -231,8 +225,7 @@ class Topics(BaseResource):
 
     @method_endpoint('/api/topics/:id')
     async def delete(self, topic_id: int) -> bool:
-        """
-        Deletes topic.
+        """Deletes topic.
 
         :param topic_id: ID of topic to delete
         :type topic_id: int
@@ -247,8 +240,7 @@ class Topics(BaseResource):
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
     async def ignore(self, topic_id: int) -> bool:
-        """
-        Set topic as ignored.
+        """Sets topic as ignored.
 
         :param topic_id: ID of topic to ignore
         :type topic_id: int
@@ -263,8 +255,7 @@ class Topics(BaseResource):
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
     async def unignore(self, topic_id: int) -> bool:
-        """
-        Set topic as unignored.
+        """Sets topic as unignored.
 
         :param topic_id: ID of topic to unignore
         :type topic_id: int

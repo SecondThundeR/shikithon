@@ -15,8 +15,7 @@ class Friends(BaseResource):
 
     @method_endpoint('/api/friends/:id')
     async def create(self, user_id: int) -> bool:
-        """
-        Creates (adds) new friend by ID.
+        """Creates (adds) new friend by ID.
 
         :param user_id: ID of a user to create (add)
         :type user_id: int
@@ -31,8 +30,7 @@ class Friends(BaseResource):
 
     @method_endpoint('/api/friends/:id')
     async def destroy(self, user_id: int) -> bool:
-        """
-        Destroys (removes) current friend by ID.
+        """Destroys (removes) current friend by ID.
 
         :param user_id: ID of a user to destroy (remove)
         :type user_id: int

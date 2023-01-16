@@ -87,7 +87,7 @@ class Client:
 
     @property
     def store(self) -> Store:
-        """Gets store object.
+        """Returns store object.
 
         :return: Store object
         :rtype: Store
@@ -115,7 +115,7 @@ class Client:
 
     @property
     def authorization_header(self) -> Dict[str, str]:
-        """Gets authorization header for current session.
+        """Returns authorization header for current session.
 
         :return: Authorization header
         :rtype: Dict[str, str]
@@ -135,7 +135,7 @@ class Client:
 
     @property
     def config(self) -> Optional[Dict[str, Any]]:
-        """Gets current config.
+        """Returns current config.
 
         If config is not availble, returns None.
 
@@ -158,7 +158,7 @@ class Client:
 
     @property
     def scopes(self) -> Optional[List[str]]:
-        """Gets current app scopes.
+        """Returns current app scopes.
 
         If app is in restricted mode, returns None.
 
@@ -338,7 +338,7 @@ class Client:
     async def get_access_token(self, client_id: str, client_secret: str,
                                auth_code: str,
                                redirect_uri: str) -> Dict[str, Any]:
-        """Gets new access token.
+        """Returns new access token.
 
         :param client_id: Client ID
         :type client_id: str

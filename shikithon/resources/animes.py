@@ -49,8 +49,7 @@ class Animes(BaseResource):
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None) -> List[Anime]:
-        """
-        Returns animes list.
+        """Returns animes list.
 
         :param page: Number of page
         :type page: Optional[int]
@@ -148,8 +147,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id')
     async def get(self, anime_id: int) -> Optional[Anime]:
-        """
-        Returns info about certain anime.
+        """Returns info about certain anime.
 
         :param anime_id: Anime ID to get info
         :type anime_id: int
@@ -163,8 +161,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/roles')
     async def creators(self, anime_id: int) -> List[Creator]:
-        """
-        Returns creators info of certain anime.
+        """Returns creators info of certain anime.
 
         :param anime_id: Anime ID to get creators
         :type anime_id: int
@@ -180,8 +177,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/similar')
     async def similar(self, anime_id: int) -> List[Anime]:
-        """
-        Returns list of similar animes for certain anime.
+        """Returns list of similar animes for certain anime.
 
         :param anime_id: Anime ID to get similar animes
         :type anime_id: int
@@ -197,8 +193,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/related')
     async def related_content(self, anime_id: int) -> List[Relation]:
-        """
-        Returns list of related content of certain anime.
+        """Returns list of related content of certain anime.
 
         :param anime_id: Anime ID to get related content
         :type anime_id: int
@@ -214,8 +209,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/screenshots')
     async def screenshots(self, anime_id: int) -> List[Screenshot]:
-        """
-        Returns list of screenshot links of certain anime.
+        """Returns list of screenshot links of certain anime.
 
         :param anime_id: Anime ID to get screenshot links
         :type anime_id: int
@@ -231,8 +225,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/franchise')
     async def franchise_tree(self, anime_id: int) -> Optional[FranchiseTree]:
-        """
-        Returns franchise tree of certain anime.
+        """Returns franchise tree of certain anime.
 
         :param anime_id: Anime ID to get franchise tree
         :type anime_id: int
@@ -246,8 +239,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/external_links')
     async def external_links(self, anime_id: int) -> List[Link]:
-        """
-        Returns list of external links of certain anime.
+        """Returns list of external links of certain anime.
 
         :param anime_id: Anime ID to get external links
         :type anime_id: int
@@ -268,8 +260,7 @@ class Animes(BaseResource):
                      limit: Optional[int] = None,
                      kind: Optional[str] = None,
                      episode: Optional[int] = None) -> List[Topic]:
-        """
-        Returns list of topics of certain anime.
+        """Returns list of topics of certain anime.
 
         :param anime_id: Anime ID to get topics
         :type anime_id: int
@@ -307,8 +298,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:anime_id/videos')
     async def videos(self, anime_id: int) -> List[Video]:
-        """
-        Returns list of anime videos.
+        """Returns list of anime videos.
 
         :param anime_id: Anime ID to get videos
         :type anime_id: int
@@ -325,8 +315,7 @@ class Animes(BaseResource):
     @method_endpoint('/api/animes/:anime_id/videos')
     async def create_video(self, anime_id: int, kind: str, name: str,
                            url: str) -> Optional[Video]:
-        """
-        Creates anime video.
+        """Creates anime video.
 
         :param anime_id: Anime ID to create video
         :type anime_id: int
@@ -358,8 +347,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:anime_id/videos/:id')
     async def delete_video(self, anime_id: int, video_id: int) -> bool:
-        """
-        Deletes anime video.
+        """Deletes anime video.
 
         :param anime_id: Anime ID to delete video
         :type anime_id: int

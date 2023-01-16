@@ -17,8 +17,7 @@ class Dialogs(BaseResource):
 
     @method_endpoint('/api/dialogs')
     async def get_all(self) -> List[Dialog]:
-        """
-        Returns list of current user's dialogs.
+        """Returns list of current user's dialogs.
 
         :return: List of dialogs
         :rtype: List[Dialog]
@@ -31,8 +30,7 @@ class Dialogs(BaseResource):
 
     @method_endpoint('/api/dialogs/:id')
     async def get(self, user_id: Union[int, str]) -> List[Message]:
-        """
-        Returns list of current user's messages with certain user.
+        """Returns list of current user's messages with certain user.
 
         :param user_id: ID/Nickname of the user to get dialog
         :type user_id: Union[int, str]
@@ -48,8 +46,7 @@ class Dialogs(BaseResource):
 
     @method_endpoint('/api/dialogs/:id')
     async def delete(self, user_id: Union[int, str]) -> bool:
-        """
-        Deletes dialog of current user with certain user.
+        """Deletes dialog of current user with certain user.
 
         :param user_id: ID/Nickname of the user to delete dialog
         :type user_id: Union[int, str]

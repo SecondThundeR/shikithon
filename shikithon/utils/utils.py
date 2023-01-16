@@ -27,8 +27,7 @@ class Utils:
 
     @staticmethod
     def convert_to_query_string(query_dict: Dict[str, str]) -> str:
-        """
-        Convert query dict to query string for endpoint link.
+        """Convert query dict to query string for endpoint link.
 
         :param query_dict: Query dictionary
         :type query_dict: Dict[str, str]
@@ -47,8 +46,8 @@ class Utils:
 
     @staticmethod
     async def get_image_data(image_path: str) -> Dict[str, bytes]:
-        """
-        Extract image data from image path.
+        """Extract image data from image path.
+
         If image_path is a link, fetch the image data from the link.
 
         :param image_path: Path to image
@@ -71,8 +70,7 @@ class Utils:
     def create_query_dict(
         **params_data: Optional[Union[str, bool, int, List[Union[int, str]]]]
     ) -> Dict[str, str]:
-        """
-        Creates query dict for API requests.
+        """Creates query dict for API requests.
 
         This methods checks for data types and converts to valid one.
 
@@ -104,8 +102,7 @@ class Utils:
     def create_data_dict(
         **dict_data: Optional[Union[str, bool, int, List[int]]]
     ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:
-        """
-        Creates data dict for API requests.
+        """Creates data dict for API requests.
 
         This methods checks for data types and converts to valid one.
 
@@ -147,9 +144,9 @@ class Utils:
     def validate_enum_params(
             enum_params: Dict[Type[EnhancedEnum], Union[str,
                                                         List[str]]]) -> bool:
-        """
-        Validates string parameter with enum values.
-        Function gets dictionary with enum and string values.
+        """Validates string parameter with enum values.
+
+        This method gets dictionary with enum and string values.
 
         If string value is in enum values, function returns True,
         otherwise False
@@ -193,8 +190,7 @@ class Utils:
     @staticmethod
     def get_validated_query_number(query_number: Optional[int],
                                    upper_limit: int) -> Optional[int]:
-        """
-        Validates query number.
+        """Validates query number.
 
         If number is lower, returns lower limit, else upper limit.
         If number is None, returns or None.
@@ -237,8 +233,7 @@ class Utils:
     @staticmethod
     def query_numbers_validator(**query_numbers: List[Optional[int]]
                                ) -> Dict[str, Optional[int]]:
-        """
-        Gets all query numbers to validate and returns validated numbers.
+        """Gets all query numbers to validate and returns validated numbers.
 
         This method uses validate_query_number method for validating.
 
@@ -277,9 +272,7 @@ class Utils:
         fallback: Optional[Any] = None
     ) -> Optional[Union[Type[Any], List[Type[Any]], List[Any], Dict[str, Any],
                         bool]]:
-        """
-        Validates passed response data and returns
-        parsed models.
+        """Validates passed response data and returns parsed models.
 
         :param response_data: Response data
         :type response_data: Union[List[Dict[str, Any],

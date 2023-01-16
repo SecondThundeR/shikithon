@@ -15,8 +15,7 @@ class Genres(BaseResource):
 
     @method_endpoint('/api/genres')
     async def get(self) -> List[Genre]:
-        """
-        Returns list of genres.
+        """Returns list of genres.
 
         :return: List of genres
         :rtype: List[Genre]

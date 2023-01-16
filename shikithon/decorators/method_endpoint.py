@@ -12,8 +12,7 @@ R = TypeVar('R')
 def method_endpoint(
         method_endpoint_name: str
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
-    """
-    Decorator for logging method endpoint.
+    """Decorator for logging method endpoint.
 
     :param method_endpoint_name: Name of method endpoint
     :type method_endpoint_name: str
@@ -34,9 +33,7 @@ def method_endpoint(
 
         @wraps(function)
         def endpoint_logger_wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-            """
-            Decorator's wrapper function.
-            Logs endpoint of method
+            """Decorator's wrapper function for logging endpoint of method
 
             :param args: Positional arguments
             :type args: P.args

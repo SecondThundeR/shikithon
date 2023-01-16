@@ -19,8 +19,7 @@ class Appears(BaseResource):
 
     @method_endpoint('/api/appears')
     async def mark(self, ids: List[str]) -> bool:
-        """
-        Marks comments or topics as read.
+        """Marks comments or topics as read.
 
         This method uses generate_query_dict for data dict,
         because there is no need for nested dictionary

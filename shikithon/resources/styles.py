@@ -19,8 +19,7 @@ class Styles(BaseResource):
 
     @method_endpoint('/api/styles/:id')
     async def get(self, style_id: int) -> Optional[Style]:
-        """
-        Returns info about style.
+        """Returns info about style.
 
         :param style_id: Style ID to get info
         :type style_id: int
@@ -34,8 +33,7 @@ class Styles(BaseResource):
 
     @method_endpoint('/api/styles/preview')
     async def preview(self, css: str) -> Optional[Style]:
-        """
-        Previews style with passed CSS code.
+        """Previews style with passed CSS code.
 
         :param css: CSS code to preview
         :type css: str
@@ -56,8 +54,7 @@ class Styles(BaseResource):
     @method_endpoint('/api/styles')
     async def create(self, css: str, name: str, owner_id: int,
                      owner_type: str) -> Optional[Style]:
-        """
-        Creates new style.
+        """Creates new style.
 
         :param css: CSS code for style
         :type css: str
@@ -92,8 +89,7 @@ class Styles(BaseResource):
                      style_id: int,
                      css: Optional[str] = None,
                      name: Optional[str] = None) -> Optional[Style]:
-        """
-        Updates existing style.
+        """Updates existing style.
 
         :param style_id: ID of existing style for edit
         :type style_id: int

@@ -16,8 +16,7 @@ class Calendar(BaseResource):
 
     @method_endpoint('/api/calendar')
     async def get(self, censored: Optional[str] = None) -> List[CalendarEvent]:
-        """
-        Returns current calendar events.
+        """Returns current calendar events.
 
         :param censored: Status of censorship for events (true/false)
         :type censored: Optional[str]

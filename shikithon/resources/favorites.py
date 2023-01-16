@@ -21,8 +21,7 @@ class Favorites(BaseResource):
                      linked_type: str,
                      linked_id: int,
                      kind: str = PersonKind.NONE.value) -> bool:
-        """
-        Creates a favorite.
+        """Creates a favorite.
 
         :param linked_type: Type of object for making favorite
         :type linked_type: str
@@ -51,8 +50,7 @@ class Favorites(BaseResource):
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id')
     async def destroy(self, linked_type: str, linked_id: int) -> bool:
-        """
-        Destroys a favorite.
+        """Destroys a favorite.
 
         :param linked_type: Type of object for destroying from favorite
         :type linked_type: str
@@ -75,8 +73,7 @@ class Favorites(BaseResource):
     async def reorder(self,
                       favorite_id: int,
                       new_index: Optional[int] = None) -> bool:
-        """
-        Reorders a favorite to the new index.
+        """Reorders a favorite to the new index.
 
         :param favorite_id: ID of a favorite to reorder
         :type favorite_id: int

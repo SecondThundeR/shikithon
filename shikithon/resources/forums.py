@@ -15,8 +15,7 @@ class Forums(BaseResource):
 
     @method_endpoint('/api/forums')
     async def get(self) -> List[Forum]:
-        """
-        Returns list of forums.
+        """Returns list of forums.
 
         :returns: List of forums
         :rtype: List[Forum]

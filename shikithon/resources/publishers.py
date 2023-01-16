@@ -15,8 +15,7 @@ class Publishers(BaseResource):
 
     @method_endpoint('/api/publishers')
     async def get(self) -> List[Publisher]:
-        """
-        Returns list of publishers.
+        """Returns list of publishers.
 
         :return: List of publishers
         :rtype: List[Publisher]

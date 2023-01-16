@@ -28,8 +28,7 @@ class UserRates(BaseResource):
                       status: Optional[str] = None,
                       page: Optional[int] = None,
                       limit: Optional[int] = None) -> List[UserRate]:
-        """
-        Returns list of user rates.
+        """Returns list of user rates.
 
         **Note:** When passing target_id, target_type is required.
 
@@ -88,8 +87,7 @@ class UserRates(BaseResource):
 
     @method_endpoint('/api/v2/user_rates/:id')
     async def get(self, rate_id: int) -> Optional[UserRate]:
-        """
-        Returns info about user rate.
+        """Returns info about user rate.
 
         :param rate_id: ID of rate to get
         :type rate_id: int
@@ -113,8 +111,7 @@ class UserRates(BaseResource):
                      volumes: Optional[int] = None,
                      rewatches: Optional[int] = None,
                      text: Optional[str] = None) -> Optional[UserRate]:
-        """
-        Creates new user rate and return info about it.
+        """Creates new user rate and return info about it.
 
         :param user_id: ID of user to create user rate for
         :type user_id: int
@@ -184,8 +181,7 @@ class UserRates(BaseResource):
                      volumes: Optional[int] = None,
                      rewatches: Optional[int] = None,
                      text: Optional[str] = None) -> Optional[UserRate]:
-        """
-        Updates user rate and return new info about it.
+        """Updates user rate and return new info about it.
 
         :param rate_id: ID of user rate to edit
         :type rate_id: int
@@ -234,8 +230,7 @@ class UserRates(BaseResource):
 
     @method_endpoint('/api/v2/user_rates/:id/increment')
     async def increment(self, rate_id: int) -> Optional[UserRate]:
-        """
-        Increments user rate episode/chapters and return updated info.
+        """Increments user rate episode/chapters and return updated info.
 
         :param rate_id: ID of user rate to increment episode/chapters
         :type rate_id: int
@@ -250,8 +245,7 @@ class UserRates(BaseResource):
 
     @method_endpoint('/api/v2/user_rates/:id')
     async def delete(self, rate_id: int) -> bool:
-        """
-        Deletes user rate.
+        """Deletes user rate.
 
         :param rate_id: ID of user rate to delete
         :type rate_id: int
@@ -267,8 +261,7 @@ class UserRates(BaseResource):
 
     @method_endpoint('/api/users_rates/:type/cleanup')
     async def delete_all(self, user_rate_type: str) -> bool:
-        """
-        Deletes all user rates.
+        """Deletes all user rates.
 
         :param user_rate_type: Type of user rates to delete
         :type user_rate_type: str
@@ -286,8 +279,7 @@ class UserRates(BaseResource):
 
     @method_endpoint('/api/user_rates/:type/reset')
     async def reset_all(self, user_rate_type: str) -> bool:
-        """
-        Resets all user rates.
+        """Resets all user rates.
 
         :param user_rate_type: Type of user rates to reset
         :type user_rate_type: UserRateType

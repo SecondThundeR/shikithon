@@ -31,8 +31,7 @@ class Clubs(BaseResource):
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
                       search: Optional[str] = None) -> List[Club]:
-        """
-        Returns clubs list.
+        """Returns clubs list.
 
         :param page: Number of page
         :type page: Optional[int]
@@ -62,8 +61,7 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id')
     async def get(self, club_id: int) -> Optional[Club]:
-        """
-        Returns info about club.
+        """Returns info about club.
 
         :param club_id: Club ID to get info
         :type club_id: int
@@ -96,8 +94,7 @@ class Clubs(BaseResource):
             admin_ids: Optional[List[int]] = None,
             collection_ids: Optional[List[int]] = None,
             banned_user_ids: Optional[List[int]] = None) -> Optional[Club]:
-        """
-        Update info/settings about/of club.
+        """Update info/settings about/of club.
 
         :param club_id: Club ID to modify/update
         :type club_id: int
@@ -190,8 +187,7 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/animes')
     async def animes(self, club_id: int) -> List[Anime]:
-        """
-        Returns anime list of club.
+        """Returns anime list of club.
 
         :param club_id: Club ID to get anime list
         :type club_id: int
@@ -207,8 +203,7 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/mangas')
     async def mangas(self, club_id: int) -> List[Manga]:
-        """
-        Returns manga list of club.
+        """Returns manga list of club.
 
         :param club_id: Club ID to get manga list
         :type club_id: int
@@ -224,8 +219,7 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/ranobe')
     async def ranobe(self, club_id: int) -> List[Ranobe]:
-        """
-        Returns ranobe list of club.
+        """Returns ranobe list of club.
 
         :param club_id: Club ID to get ranobe list
         :type club_id: int
@@ -241,8 +235,7 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/characters')
     async def characters(self, club_id: int) -> List[Character]:
-        """
-        Returns character list of club.
+        """Returns character list of club.
 
         :param club_id: Club ID to get character list
         :type club_id: int
@@ -258,8 +251,7 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/members')
     async def members(self, club_id: int) -> List[User]:
-        """
-        Returns member list of club.
+        """Returns member list of club.
 
         :param club_id: Club ID to get member list
         :type club_id: int
@@ -275,8 +267,7 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/images')
     async def images(self, club_id: int) -> List[ClubImage]:
-        """
-        Returns images of club.
+        """Returns images of club.
 
         :param club_id: Club ID to get images
         :type club_id: int
@@ -292,8 +283,7 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/join')
     async def join(self, club_id: int) -> bool:
-        """
-        Joins club by ID.
+        """Joins club by ID.
 
         :param club_id: Club ID to join
         :type club_id: int
@@ -310,8 +300,7 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/leave')
     async def leave(self, club_id: int) -> bool:
-        """
-        Leaves club by ID.
+        """Leaves club by ID.
 
         :param club_id: Club ID to leave
         :type club_id: int

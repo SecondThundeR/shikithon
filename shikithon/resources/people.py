@@ -16,8 +16,7 @@ class People(BaseResource):
 
     @method_endpoint('/api/people/:id')
     async def get(self, people_id: int) -> Optional[Person]:
-        """
-        Returns info about a person.
+        """Returns info about a person.
 
         :param people_id: ID of person to get info
         :type people_id: int
@@ -33,8 +32,7 @@ class People(BaseResource):
     async def search(self,
                      search: Optional[str] = None,
                      people_kind: Optional[str] = None) -> List[Person]:
-        """
-        Returns list of found persons.
+        """Returns list of found persons.
 
         **Note:** This API method only allows 'seyu',
         'mangaka' or 'producer' as kind parameter

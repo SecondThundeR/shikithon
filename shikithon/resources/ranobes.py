@@ -38,8 +38,7 @@ class Ranobes(BaseResource):
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None) -> List[Ranobe]:
-        """
-        Returns ranobe list.
+        """Returns ranobe list.
 
         :param page: Number of page
         :type page: Optional[int]
@@ -122,8 +121,7 @@ class Ranobes(BaseResource):
 
     @method_endpoint('/api/ranobe/:id')
     async def get(self, ranobe_id: int) -> Optional[Ranobe]:
-        """
-        Returns info about certain ranobe.
+        """Returns info about certain ranobe.
 
         :param ranobe_id: Ranobe ID to get info
         :type ranobe_id: int
@@ -137,8 +135,7 @@ class Ranobes(BaseResource):
 
     @method_endpoint('/api/ranobe/:id/roles')
     async def creators(self, ranobe_id: int) -> List[Creator]:
-        """
-        Returns creators info of certain ranobe.
+        """Returns creators info of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get creators
         :type ranobe_id: int
@@ -154,8 +151,7 @@ class Ranobes(BaseResource):
 
     @method_endpoint('/api/ranobe/:id/similar')
     async def similar(self, ranobe_id: int) -> List[Ranobe]:
-        """
-        Returns list of similar ranobes for certain ranobe.
+        """Returns list of similar ranobes for certain ranobe.
 
         :param ranobe_id: Ranobe ID to get similar ranobes
         :type ranobe_id: int
@@ -171,8 +167,7 @@ class Ranobes(BaseResource):
 
     @method_endpoint('/api/ranobe/:id/related')
     async def related_content(self, ranobe_id: int) -> List[Relation]:
-        """
-        Returns list of related content of certain ranobe.
+        """Returns list of related content of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get related content
         :type ranobe_id: int
@@ -188,8 +183,7 @@ class Ranobes(BaseResource):
 
     @method_endpoint('/api/ranobe/:id/franchise')
     async def franchise_tree(self, ranobe_id: int) -> Optional[FranchiseTree]:
-        """
-        Returns franchise tree of certain ranobe.
+        """Returns franchise tree of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get franchise tree
         :type ranobe_id: int
@@ -203,8 +197,7 @@ class Ranobes(BaseResource):
 
     @method_endpoint('/api/ranobe/:id/external_links')
     async def external_links(self, ranobe_id: int) -> List[Link]:
-        """
-        Returns list of external links of certain ranobe.
+        """Returns list of external links of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get external links
         :type ranobe_id: int
@@ -223,8 +216,7 @@ class Ranobes(BaseResource):
                      ranobe_id: int,
                      page: Optional[int] = None,
                      limit: Optional[int] = None) -> List[Topic]:
-        """
-        Returns list of topics of certain ranobe.
+        """Returns list of topics of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get topics
         :type ranobe_id: int

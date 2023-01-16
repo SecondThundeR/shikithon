@@ -40,8 +40,7 @@ class Mangas(BaseResource):
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None) -> List[Manga]:
-        """
-        Returns mangas list.
+        """Returns mangas list.
 
         :param page: Number of page
         :type page: Optional[int]
@@ -129,8 +128,7 @@ class Mangas(BaseResource):
 
     @method_endpoint('/api/mangas/:id')
     async def get(self, manga_id: int) -> Optional[Manga]:
-        """
-        Returns info about certain manga.
+        """Returns info about certain manga.
 
         :param manga_id: Manga ID to get info
         :type manga_id: int
@@ -144,8 +142,7 @@ class Mangas(BaseResource):
 
     @method_endpoint('/api/mangas/:id/roles')
     async def creators(self, manga_id: int) -> List[Creator]:
-        """
-        Returns creators info of certain manga.
+        """Returns creators info of certain manga.
 
         :param manga_id: Manga ID to get creators
         :type manga_id: int
@@ -161,8 +158,7 @@ class Mangas(BaseResource):
 
     @method_endpoint('/api/mangas/:id/similar')
     async def similar(self, manga_id: int) -> List[Manga]:
-        """
-        Returns list of similar mangas for certain manga.
+        """Returns list of similar mangas for certain manga.
 
         :param manga_id: Manga ID to get similar mangas
         :type manga_id: int
@@ -176,8 +172,7 @@ class Mangas(BaseResource):
 
     @method_endpoint('/api/mangas/:id/related')
     async def related_content(self, manga_id: int) -> List[Relation]:
-        """
-        Returns list of related content of certain manga.
+        """Returns list of related content of certain manga.
 
         :param manga_id: Manga ID to get related content
         :type manga_id: int
@@ -193,8 +188,7 @@ class Mangas(BaseResource):
 
     @method_endpoint('/api/mangas/:id/franchise')
     async def franchise_tree(self, manga_id: int) -> Optional[FranchiseTree]:
-        """
-        Returns franchise tree of certain manga.
+        """Returns franchise tree of certain manga.
 
         :param manga_id: Manga ID to get franchise tree
         :type manga_id: int
@@ -208,8 +202,7 @@ class Mangas(BaseResource):
 
     @method_endpoint('/api/mangas/:id/external_links')
     async def external_links(self, manga_id: int) -> List[Link]:
-        """
-        Returns list of external links of certain manga.
+        """Returns list of external links of certain manga.
 
         :param manga_id: Manga ID to get external links
         :type manga_id: int
@@ -228,8 +221,7 @@ class Mangas(BaseResource):
                      manga_id: int,
                      page: Optional[int] = None,
                      limit: Optional[int] = None) -> List[Topic]:
-        """
-        Returns list of topics of certain manga.
+        """Returns list of topics of certain manga.
 
         :param manga_id: Manga ID to get topics
         :type manga_id: int

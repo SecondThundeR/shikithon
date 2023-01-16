@@ -24,8 +24,7 @@ class Comments(BaseResource):
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
                       desc: Optional[int] = None) -> List[Comment]:
-        """
-        Returns list of comments.
+        """Returns list of comments.
 
         :param commentable_id: ID of entity to get comment
         :type commentable_id: int
@@ -66,8 +65,7 @@ class Comments(BaseResource):
 
     @method_endpoint('/api/comments/:id')
     async def get(self, comment_id: int) -> Optional[Comment]:
-        """
-        Returns comment info.
+        """Returns comment info.
 
         :param comment_id: ID of comment
         :type comment_id: int
@@ -86,8 +84,7 @@ class Comments(BaseResource):
                      commentable_type: str,
                      is_offtopic: Optional[bool] = None,
                      broadcast: Optional[bool] = None) -> Optional[Comment]:
-        """
-        Creates comment.
+        """Creates comment.
 
         When commentable_type set to Anime, Manga, Character or Person,
         comment is attached to commentable main topic.
@@ -132,8 +129,7 @@ class Comments(BaseResource):
 
     @method_endpoint('/api/comments/:id')
     async def update(self, comment_id: int, body: str) -> Optional[Comment]:
-        """
-        Updates comment.
+        """Updates comment.
 
         :param comment_id: ID of comment to update
         :type comment_id: int
@@ -152,8 +148,7 @@ class Comments(BaseResource):
 
     @method_endpoint('/api/comments/:id')
     async def delete(self, comment_id: int) -> bool:
-        """
-        Deletes comment.
+        """Deletes comment.
 
         :param comment_id: ID of comment to delete
         :type comment_id: int

@@ -17,8 +17,7 @@ class AbuseRequests(BaseResource):
     @method_endpoint('/api/v2/abuse_requests/offtopic')
     async def comment_offtopic(self,
                                comment_id: int) -> Optional[AbuseResponse]:
-        """
-        Mark comment as offtopic.
+        """Marks comment as offtopic.
 
         :param comment_id: ID of comment to mark as offtopic
         :type comment_id: int
@@ -34,8 +33,7 @@ class AbuseRequests(BaseResource):
 
     @method_endpoint('/api/v2/abuse_requests/review')
     async def comment_review(self, comment_id: int) -> Optional[AbuseResponse]:
-        """
-        Convert comment to review.
+        """Converts comment to review.
 
         :param comment_id: ID of comment to convert to review
         :type comment_id: int
@@ -52,8 +50,7 @@ class AbuseRequests(BaseResource):
     @method_endpoint('/api/v2/abuse_requests/abuse')
     async def violation_request(self, comment_id: int,
                                 reason: str) -> Optional[AbuseResponse]:
-        """
-        Create abuse about violation of site rules
+        """Creates abuse about violation of site rules
 
         :param comment_id: ID of comment to create abuse request
         :type comment_id: int
@@ -73,8 +70,7 @@ class AbuseRequests(BaseResource):
     @method_endpoint('/api/v2/abuse_requests/spoiler')
     async def spoiler_abuse_request(self, comment_id: int,
                                     reason: str) -> Optional[AbuseResponse]:
-        """
-        Create abuse about spoiler in content.
+        """Creates abuse about spoiler in content.
 
         :param comment_id: ID of comment to create abuse request
         :type comment_id: int

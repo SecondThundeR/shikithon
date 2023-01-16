@@ -14,8 +14,7 @@ class Stats(BaseResource):
 
     @method_endpoint('/api/stats/active_users')
     async def active_users(self) -> List[int]:
-        """
-        Returns list of IDs of active users.
+        """Returns list of IDs of active users.
 
         :return: List of IDs of active users
         :rtype: List[int]
