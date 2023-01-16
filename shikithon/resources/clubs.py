@@ -2,7 +2,6 @@
 from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import CommentPolicy
 from ..enums import ImageUploadPolicy
 from ..enums import JoinPolicy
@@ -77,7 +76,6 @@ class Clubs(BaseResource):
         return Utils.validate_response_data(response, data_model=Club)
 
     @method_endpoint('/api/clubs/:id')
-    @protected_method('_client', 'clubs')
     async def update(
             self,
             club_id: int,
@@ -169,7 +167,6 @@ class Clubs(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.club(club_id),
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='club',
                                         name=name,
                                         join_policy=join_policy,
@@ -294,7 +291,6 @@ class Clubs(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/clubs/:id/join')
-    @protected_method('_client', 'clubs', fallback=False)
     async def join(self, club_id: int) -> bool:
         """
         Joins club by ID.
@@ -307,14 +303,12 @@ class Clubs(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.club_join(club_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,
                                             fallback=False)
 
     @method_endpoint('/api/clubs/:id/leave')
-    @protected_method('_client', 'clubs', fallback=False)
     async def leave(self, club_id: int) -> bool:
         """
         Leaves club by ID.
@@ -327,7 +321,6 @@ class Clubs(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.club_leave(club_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,

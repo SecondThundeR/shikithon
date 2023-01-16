@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional
 from loguru import logger
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import CommentableType
 from ..enums import RequestType
 from ..models import Comment
@@ -81,7 +80,6 @@ class Comments(BaseResource):
         return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments')
-    @protected_method('_client', 'comments')
     async def create(self,
                      body: str,
                      commentable_id: int,
@@ -128,13 +126,11 @@ class Comments(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comments,
-            headers=self._client.authorization_header,
             data=data_dict,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
-    @protected_method('_client', 'comments')
     async def update(self, comment_id: int, body: str) -> Optional[Comment]:
         """
         Updates comment.
@@ -150,13 +146,11 @@ class Comments(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),
-            headers=self._client.authorization_header,
             data=Utils.create_data_dict(dict_name='comment', body=body),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
-    @protected_method('_client', 'comments', fallback=False)
     async def delete(self, comment_id: int) -> bool:
         """
         Deletes comment.
@@ -169,6 +163,5 @@ class Comments(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=False)

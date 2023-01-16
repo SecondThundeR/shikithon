@@ -6,7 +6,7 @@ for interacting with the Shikimori API.
 from __future__ import annotations
 
 import sys
-from typing import Callable, Dict, List, Optional, TypeVar, Union
+from typing import Optional, TypeVar
 
 from loguru import logger
 
@@ -38,19 +38,30 @@ from .resources import UserImages
 from .resources import UserRates
 from .resources import Users
 from .resources.people import People
+from .store import NullStore
+from .store import Store
 
 RT = TypeVar('RT')
 
 
-class ShikimoriAPI:
+class ShikimoriAPI(Client):
     """
     Main class for interacting with the API.
     Current API class uses base client for interacting with API.
     Also, all API methods splitted up to resources for convinient usage.
     """
 
+    __slots__ = ('achievements', 'animes', 'appears', 'bans', 'calendar',
+                 'characters', 'clubs', 'comments', 'constants', 'dialogs',
+                 'favorites', 'forums', 'friends', 'genres', 'mangas',
+                 'messages', 'people', 'publishers', 'ranobes', 'stats',
+                 'studios', 'styles', 'topics', 'user_images', 'user_rates',
+                 'users', 'abuse_requests')
+
     def __init__(self,
-                 config: Union[str, Dict[str, str]],
+                 app_name: str = 'Api Test',
+                 store: Store = NullStore(),
+                 auto_close_store: bool = True,
                  logging: Optional[bool] = True):
         """
         Shikimori API class initialization.
@@ -58,8 +69,14 @@ class ShikimoriAPI:
         This magic method inits client and all resources
         for interacting with.
 
-        :param config: Config file for API class or app name
-        :type config: Union[str, Dict[str, str]]
+        :param app_name: OAuth App name
+        :type app_name: str
+
+        :param store: Class instance for store configs
+        :type store: Optional[Store]
+
+        :param auto_close_store: Auto close store option
+        :type auto_close_store: bool
 
         :param logging: Logging flag
         :type logging: Optional[bool]
@@ -85,70 +102,34 @@ class ShikimoriAPI:
 
         logger.info('Initializing API object')
 
-        self._client = Client(config)
+        super().__init__(app_name, store, auto_close_store)
 
-        self.achievements = Achievements(self._client)
-        self.animes = Animes(self._client)
-        self.appears = Appears(self._client)
-        self.bans = Bans(self._client)
-        self.calendar = Calendar(self._client)
-        self.characters = Characters(self._client)
-        self.clubs = Clubs(self._client)
-        self.comments = Comments(self._client)
-        self.constants = Constants(self._client)
-        self.dialogs = Dialogs(self._client)
-        self.favorites = Favorites(self._client)
-        self.forums = Forums(self._client)
-        self.friends = Friends(self._client)
-        self.genres = Genres(self._client)
-        self.mangas = Mangas(self._client)
-        self.messages = Messages(self._client)
-        self.people = People(self._client)
-        self.publishers = Publishers(self._client)
-        self.ranobes = Ranobes(self._client)
-        self.stats = Stats(self._client)
-        self.studios = Studios(self._client)
-        self.styles = Styles(self._client)
-        self.topics = Topics(self._client)
-        self.user_images = UserImages(self._client)
-        self.user_rates = UserRates(self._client)
-        self.users = Users(self._client)
-        self.abuse_requests = AbuseRequests(self._client)
+        self.achievements = Achievements(self)
+        self.animes = Animes(self)
+        self.appears = Appears(self)
+        self.bans = Bans(self)
+        self.calendar = Calendar(self)
+        self.characters = Characters(self)
+        self.clubs = Clubs(self)
+        self.comments = Comments(self)
+        self.constants = Constants(self)
+        self.dialogs = Dialogs(self)
+        self.favorites = Favorites(self)
+        self.forums = Forums(self)
+        self.friends = Friends(self)
+        self.genres = Genres(self)
+        self.mangas = Mangas(self)
+        self.messages = Messages(self)
+        self.people = People(self)
+        self.publishers = Publishers(self)
+        self.ranobes = Ranobes(self)
+        self.stats = Stats(self)
+        self.studios = Studios(self)
+        self.styles = Styles(self)
+        self.topics = Topics(self)
+        self.user_images = UserImages(self)
+        self.user_rates = UserRates(self)
+        self.users = Users(self)
+        self.abuse_requests = AbuseRequests(self)
 
         logger.info('Successfully initialized API object')
-
-    @property
-    def closed(self) -> bool:
-        """Check if client is closed."""
-        return self._client.closed
-
-    async def multiple_requests(
-            self,
-            *requests: List[Callable[...,
-                                     RT]]) -> List[Union[BaseException, RT]]:
-        """Make multiple requests.
-
-        :param requests: List of requests
-        :type requests: List[Callable[..., RT]]
-
-        :return: List of results
-        :rtype: List[Union[BaseException, RT]]
-        """
-        return await self._client.multiple_requests(*requests)
-
-    async def open(self) -> ShikimoriAPI:
-        """Open client and return self."""
-        await self._client.open()
-        return self
-
-    async def close(self) -> None:
-        """Close client."""
-        await self._client.close()
-
-    async def __aenter__(self) -> ShikimoriAPI:
-        """Async context manager entry point."""
-        return await self.open()
-
-    async def __aexit__(self, *args) -> None:
-        """Async context manager exit point."""
-        await self.close()

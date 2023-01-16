@@ -100,14 +100,8 @@ class Ranobes(BaseResource):
                                                           limit=[limit, 50],
                                                           score=[score, 9])
 
-        headers: Dict[str, str] = self._client.user_agent
-
-        if my_list:
-            headers = self._client.protected_method_headers('/api/ranobe')
-
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.ranobes,
-            headers=headers,
             query=Utils.create_query_dict(page=validated_numbers['page'],
                                           limit=validated_numbers['limit'],
                                           order=order,

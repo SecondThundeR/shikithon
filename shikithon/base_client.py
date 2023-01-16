@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import asyncio
-from json import dumps
-import sys
+from contextlib import asynccontextmanager
 from time import time
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, cast, Dict, List, Optional, TypeVar, Union
 
+from aiohttp import ClientResponse
 from aiohttp import ClientSession
 from aiohttp import ContentTypeError
 import backoff
@@ -18,17 +18,17 @@ from pyrate_limiter import RequestRate
 from .endpoints import Endpoints
 from .enums import RequestType
 from .enums import ResponseCode
-from .exceptions import AccessTokenException
-from .exceptions import MissingAppVariableException
-from .exceptions import MissingAuthCodeException
-from .exceptions import MissingConfigDataException
-from .exceptions import RetryLaterException
-from .store import ConfigStore
+from .exceptions import AlreadyRunningClient
+from .exceptions import InvalidContentType
+from .exceptions import MissingAppVariable
+from .exceptions import RetryLater
+from .exceptions import ShikimoriAPIResponseError
+from .store import NullStore
+from .store import Store
 from .utils import Utils
 
 MAX_CALLS_PER_SECOND = 5
 MAX_CALLS_PER_MINUTE = 90
-TOKEN_EXPIRE_TIME = 86400
 
 SHIKIMORI_API_URL = 'https://shikimori.one/api'
 SHIKIMORI_API_URL_V2 = 'https://shikimori.one/api/v2'
@@ -47,123 +47,56 @@ class Client:
 
     Contains logic and methods for making requests to the shikimori API
     as well as validating config and etc.
-
-    **Note:** Due to problems with some methods,
-    when the session header contains a User-Agent and authorization,
-    __init__ sets only the User-Agent,
-    and all protected methods independently
-    provide a header with a token
     """
 
-    def __init__(self, config: Union[str, Dict[str, str]]) -> None:
+    __slots__ = ('endpoints', '_app_name', '_store', '_auto_close_store',
+                 '_session', '_config')
+
+    def __init__(self,
+                 app_name: str = 'Api Test',
+                 store: Store = NullStore(),
+                 auto_close_store: bool = True) -> None:
+        self._app_name = app_name
+        self._store = store
         self.endpoints = Endpoints(SHIKIMORI_API_URL, SHIKIMORI_API_URL_V2,
                                    SHIKIMORI_OAUTH_URL)
-        self._session = None
-        self._passed_config = config
 
-        self._restricted_mode = False
-        self._app_name = ''
-        self._client_id = ''
-        self._client_secret = ''
-        self._redirect_uri = ''
-        self._scopes = ''
-        self._auth_code = ''
-        self._access_token = ''
-        self._refresh_token = ''
-        self._token_expire = -1
+        self._session = None
+        self._config = None
+        self._auto_close_store = auto_close_store
+
+    @property
+    def closed(self) -> bool:
+        """Checks if session is closed.
+
+        :return: True if session is closed, False otherwise
+        :rtype: bool
+        """
+        return self._session is None
 
     @property
     def restricted_mode(self) -> bool:
-        """
-        Returns current restrict mode of client object.
+        """Returns current restrict mode of client object.
 
         If true, client object can access only public methods
 
         :return: Current restrict mode
         :rtype: bool
         """
-        return self._restricted_mode
-
-    @restricted_mode.setter
-    def restricted_mode(self, restricted_mode: bool):
-        """
-        Sets new restrict mode of client object.
-
-        :param restricted_mode: New restrict mode
-        :type restricted_mode: bool
-        """
-        self._restricted_mode = restricted_mode
+        return self._config is None
 
     @property
-    def scopes_list(self) -> List[str]:
-        """
-        Returns list of scopes.
+    def store(self) -> Store:
+        """Gets store object.
 
-        :return: List of scopes
-        :rtype: List[str]
+        :return: Store object
+        :rtype: Store
         """
-        return self._scopes.split('+')
-
-    @property
-    def config(self) -> Dict[str, str]:
-        """
-        Returns current client variables as config dictionary.
-
-        :return: Current client variables as config dictionary
-        :rtype: Dict[str, str]
-        """
-        logger.debug('Exporting current client config')
-        return {
-            'app_name': self._app_name,
-            'client_id': self._client_id,
-            'client_secret': self._client_secret,
-            'redirect_uri': self._redirect_uri,
-            'scopes': self._scopes,
-            'auth_code': self._auth_code,
-            'access_token': self._access_token,
-            'refresh_token': self._refresh_token,
-            'token_expire': str(self._token_expire)
-        }
-
-    @config.setter
-    def config(self, config: Dict[str, str]):
-        """
-        Sets new client variables from config dictionary.
-
-        This method calls init_config
-        to reconfigure the object
-
-        :param config: Config dictionary
-        :type config: Dict[str, str]
-        """
-        logger.info('Setting new client config')
-        self.init_config(config)
-
-    @property
-    def tokens(self) -> Tuple[str, str]:
-        """
-        Returns access/refresh tokens as tuple.
-
-        :return: Access and refresh tokens tuple
-        :rtype: Tuple[str, str]
-        """
-        return self._access_token, self._refresh_token
-
-    @tokens.setter
-    def tokens(self, tokens_data: Tuple[str, str]):
-        """
-        Sets new access/refresh tokens from tuple.
-
-        :param tokens_data: New access and refresh tokens tuple
-        :type tokens_data: Tuple[str, str]
-        """
-        self._access_token = tokens_data[0]
-        self._refresh_token = tokens_data[1]
+        return self._store
 
     @property
     def user_agent(self) -> Dict[str, str]:
-        """
-        Returns current session User-Agent.
+        """Returns current session User-Agent.
 
         :return: Session User-Agent
         :rtype: Dict[str, str]
@@ -172,314 +105,307 @@ class Client:
 
     @user_agent.setter
     def user_agent(self, app_name: str):
-        """
-        Update session headers and set user agent.
+        """Updates session headers and set user agent.
 
         :param app_name: OAuth App name
         :type app_name: str
         """
-        if self._session is not None:
+        if not self.closed:
             self._session.headers.update({'User-Agent': app_name})
 
     @property
     def authorization_header(self) -> Dict[str, str]:
-        """
-        Returns user agent and authorization token headers dictionary.
+        """Gets authorization header for current session.
 
-        Needed for accessing Shikimori protected resources
-
-        :return: Dictionary with proper user agent and autorization token
+        :return: Authorization header
         :rtype: Dict[str, str]
         """
-        header = self.user_agent
-        header['Authorization'] = f'Bearer {self._access_token}'
-        return header
+        return {'Authorization': self._session.headers['Authorization']}
 
-    @logger.catch(onerror=lambda _: sys.exit(1))
-    async def init_config(self, config: Union[str, Dict[str, str]]):
+    @authorization_header.setter
+    def authorization_header(self, access_token: str):
+        """Sets authorization header to current session.
+
+        :param access_token: Access token
+        :type access_token: str
         """
-        Special method for initializing an object.
-
-        This method calls several methods:
-
-        - Validation of config and variables
-        - Customizing the session header user agent
-        - Getting access/refresh tokens if they are missing
-        - Refresh current tokens if they are not valid
-
-        Otherwise, if only app name is provided, setting it
-
-        :param config: Config dictionary or app name
-        :type config: Union[str, Dict[str, str]]
-        """
-        logger.debug('Initializing client config')
-        self.validate_config(config)
-        self.validate_vars()
-        logger.debug('Setting User-Agent with current app name')
-        self.user_agent = self._app_name
-
-        if self._restricted_mode:
-            return
-
-        if isinstance(config, dict) and not self._access_token:
-            logger.debug('No tokens found')
-            tokens_data = await self.get_access_token()
-            self.update_tokens(tokens_data)
-
-        if self.token_expired():
-            logger.debug('Token has expired. Refreshing...')
-            await self.refresh_tokens()
-
-    @logger.catch(onerror=lambda _: sys.exit(1))
-    def validate_config(self, config: Union[str, Dict[str, str]]):
-        """
-        Validates passed config dictionary and sets
-        client variables.
-
-        If config is string, sets only app name and change value
-        of restrict mode of API object.
-
-        Also, if config is dictionary and method detects
-        a stored configuration file, it replaces passed configuration
-        dictionary with the stored one.
-
-        Raises MissingConfigData if some variables
-        are missing in config dictionary
-
-        :param config: Config dictionary or app name for validation
-        :type config: Union[str, Dict[str, str]]
-
-        :raises MissingConfigDataException: If any field is missing
-            (Not raises if there is a stored config)
-        """
-        logger.debug('Validating client config')
-        if isinstance(config, str):
-            logger.debug('Detected app_name only. Activating restricted mode')
-            self._app_name = config
-            self.restricted_mode = True
-            return
-
-        try:
-            logger.debug('Checking for stored config')
-            stored_config, is_config_stored = ConfigStore.config_validation(
-                config['app_name'], config['auth_code'])
-
-            if is_config_stored:
-                logger.debug('Replacing passed config with stored one')
-                config = stored_config
-
-                logger.debug('Extracting access tokens from config')
-                self._access_token = stored_config['access_token']
-                self._refresh_token = stored_config['refresh_token']
-                self._token_expire = int(stored_config['token_expire'])
-
-            logger.debug('Extracting app related variables from config')
-            self._app_name = config['app_name']
-            self._client_id = config['client_id']
-            self._client_secret = config['client_secret']
-            self._redirect_uri = config['redirect_uri']
-            self._scopes = config['scopes']
-            self._auth_code = config['auth_code']
-        except KeyError as err:
-            raise MissingConfigDataException() from err
-
-    @logger.catch(onerror=lambda _: sys.exit(1))
-    def validate_vars(self):
-        """
-        Validates variables and throws exception
-        if some vars are set to empty string.
-
-        **Note:** Why throwing exception without catching it?
-
-        This decision was made in order to prevent
-        future problems with the API due to incorrect variables.
-        Raising exception at the beginning of initialization
-        immediately indicates errors with the configuration dictionary
-        and future unnecessary checks related to this variables
-
-        Also some notes about this method:
-
-        - If redirect URI set to empty string, set to default URI.
-        - If authorization code set to empty string,
-        returns URL for getting auth code.
-        - If restricted mode is True, stops validation after app name check.
-
-        :raises MissingAppVariableException:
-            If app variable in config is missing
-        :raises MissingAuthCodeException:
-            If auth code is set to empty string
-        """
-        if not self._app_name:
-            raise MissingAppVariableException('name')
-
-        if self.restricted_mode:
-            return
-
-        if not self._client_id:
-            raise MissingAppVariableException('Client ID')
-
-        if not self._client_secret:
-            raise MissingAppVariableException('Client Secret')
-
-        if not self._redirect_uri:
-            self._redirect_uri = DEFAULT_REDIRECT_URI
-
-        if not self._scopes:
-            raise MissingAppVariableException('scopes')
-
-        if self._auth_code:
-            return
-
-        auth_link = self.endpoints.authorization_link(self._client_id,
-                                                      self._redirect_uri,
-                                                      self._scopes)
-        raise MissingAuthCodeException(auth_link)
-
-    @logger.catch(onerror=lambda _: sys.exit(1))
-    async def get_access_token(self,
-                               refresh_token: bool = False) -> Tuple[str, str]:
-        """
-        Returns access/refresh tokens from API request.
-
-        If refresh_token flag is set to True,
-        returns refreshed access/refresh tokens.
-
-        :param refresh_token: Flag for token refresh
-        :type refresh_token: bool
-
-        :return: New access/refresh tokens tuple
-        :rtype: Tuple[str, str]
-
-        :raises AccessTokenException: If token request failed
-        """
-        data_body = {
-            'client_id': self._client_id,
-            'client_secret': self._client_secret
-        }
-
-        if refresh_token:
-            logger.info('Refreshing current tokens')
-            data_body['grant_type'] = 'refresh_token'
-            data_body['refresh_token'] = self._refresh_token
-        else:
-            logger.info('Getting new tokens')
-            data_body['grant_type'] = 'authorization_code'
-            data_body['code'] = self._auth_code
-            data_body['redirect_uri'] = self._redirect_uri
-
-        oauth_json: Dict[str, Any] = await self.request(
-            self.endpoints.oauth_token,
-            data=data_body,
-            request_type=RequestType.POST,
-            output_logging=False)
-
-        try:
-            logger.debug('Returning new access and refresh tokens')
-            return oauth_json['access_token'], oauth_json['refresh_token']
-        except KeyError as err:
-            error_info = dumps(oauth_json)
-            raise AccessTokenException(error_info) from err
-
-    @logger.catch(onerror=lambda _: sys.exit(1))
-    def update_tokens(self, tokens_data: Tuple[str, str]):
-        """
-        Set new tokens and update token expire time.
-
-        **Note:** This method also updates cache config file for
-        future use
-
-        :param tokens_data: Tuple with access and refresh tokens
-        :type tokens_data: Tuple[str, str]
-        """
-        logger.debug('Updating current tokens')
-        self.tokens = tokens_data
-        self.store_config()
-
-    @logger.catch(onerror=lambda _: sys.exit(1))
-    async def refresh_tokens(self):
-        """
-        Manages tokens refreshing and caching.
-
-        This method gets new access/refresh tokens and
-        updates them in current instance, as well as
-        caching new config.
-        """
-        tokens_data = await self.get_access_token(refresh_token=True)
-        self.update_tokens(tokens_data)
-
-    def token_expired(self):
-        """
-        Checks if current access token is expired.
-
-        :return: Result of token expiration check
-        :rtype: bool
-        """
-        logger.debug('Checking if current time is greater '
-                     'than current token expire time')
-        return int(time()) > self._token_expire
-
-    @logger.catch(onerror=lambda _: sys.exit(1))
-    def store_config(self):
-        """Updates token expire time and stores new config."""
-        self._token_expire = Utils.get_new_expire_time(TOKEN_EXPIRE_TIME)
-        ConfigStore.save_config(self.config)
-        logger.debug('Expiration time and stored config file have been updated')
-
-    @logger.catch
-    def protected_method_headers(
-            self, endpoint_name: str) -> Optional[Dict[str, str]]:
-        """
-        This method utilizes protected method decoration logic
-        for such methods, which uses access tokens in some situations.
-
-        Example: Calling animes.get_all(my_list=...),
-        mangas.get_all(my_list=...) and ranobes.get_all(my_list=...)
-        requires access token.
-
-        :param endpoint_name: Name of API endpoint for calling as protected
-        :type endpoint_name: str
-
-        :return: Authorization header with correct tokens or None
-        :rtype: Optional[Dict[str, str]]
-        """
-        logger.debug(f'Checking the possibility of using "{endpoint_name}" '
-                     f'as protected method')
-
-        if self.restricted_mode:
-            logger.debug(f'It is not possible to use "{endpoint_name}" '
-                         'as the protected method '
-                         'due to the restricted mode')
-            return None
-
-        if self.token_expired():
-            logger.debug('Token has expired. Refreshing...')
-            self.refresh_tokens()
-
-        logger.debug('All checks for use of the protected '
-                     'method have been passed')
-        return self.authorization_header
+        if not self.closed:
+            self._session.headers.update(
+                {'Authorization': 'Bearer ' + access_token})
 
     @property
-    def closed(self) -> bool:
-        """Check if session is closed."""
-        return self._session is None
+    def config(self) -> Optional[Dict[str, Any]]:
+        """Gets current config.
 
-    async def open(self) -> Client:
-        """Open session and return self."""
-        if self.closed:
-            self._session = ClientSession()
-            await self.init_config(self._passed_config)
-        return self
+        If config is not availble, returns None.
 
-    async def close(self) -> None:
-        """Close session."""
+        :return: Current config
+        :rtype: Optional[Dict[str, Any]]
+        """
+        return self._config
+
+    @config.setter
+    def config(self, config: Optional[Dict[str, Any]]):
+        """Sets new config.
+
+        If passed config isn't valid, raises Exception.
+
+        :param config: New config data
+        :type config: Optional[Dict[str, Any]]
+        """
+        if config is None or self.is_valid_config(config):
+            self._config = config
+
+    @property
+    def scopes(self) -> Optional[List[str]]:
+        """Gets current app scopes.
+
+        If app is in restricted mode, returns None.
+
+        :return: Current scopes
+        :rtype: Optional[List[str]]
+        """
+        if not self.restricted_mode:
+            return cast(str, self._config['scopes']).split()
+        return None
+
+    def is_valid_config(self,
+                        config: Dict[str, Any],
+                        raises: bool = True) -> bool:
+        """Validates passed config.
+
+        Method checks config for required dict keys.
+        If some of keys are missing, returns False or raises Exception
+        if raises parameter is True.
+
+        :param config: Config to validate
+        :type config: Dict[str, Any]
+
+        :param raises: If True, raises Exception if config is invalid
+        :type raises: bool
+
+        :return: True if config is valid, False otherwise
+        :rtype: bool
+
+        :raises MissingAppVariable: If config is invalid and raises is True
+        """
+        if not config.get('app_name'):
+            if raises:
+                raise MissingAppVariable('app_name')
+            return False
+
+        if not config.get('client_id'):
+            if raises:
+                raise MissingAppVariable('client_id')
+            return False
+
+        if not config.get('client_secret'):
+            if raises:
+                raise MissingAppVariable('client_secret')
+            return False
+
+        if not config.get('auth_code') and not config.get('access_token'):
+            if raises:
+                raise MissingAppVariable('auth_code or access_token')
+            return False
+
+        if not config.get('redirect_uri'):
+            config['redirect_uri'] = DEFAULT_REDIRECT_URI
+
+        if not config.get('scopes'):
+            config['scopes'] = ''
+
+        return True
+
+    @asynccontextmanager
+    async def auth(self,
+                   app_name: Optional[str] = None,
+                   client_id: Optional[str] = None,
+                   client_secret: Optional[str] = None,
+                   auth_code: Optional[str] = None,
+                   access_token: Optional[str] = None,
+                   refresh_token: Optional[str] = None,
+                   token_expire_at: Optional[int] = None,
+                   redirect_uri: str = DEFAULT_REDIRECT_URI,
+                   scopes: str = '') -> Client:
+        """Async context manager for authentification.
+
+        :param app_name: OAuth App name
+        :type app_name: Optional[str]
+
+        :param client_id: OAuth App client id
+        :type client_id: Optional[str]
+
+        :param client_secret: OAuth App client secret
+        :type client_secret: Optional[str]
+
+        :param auth_code: OAuth App auth code
+        :type auth_code: Optional[str]
+
+        :param access_token: OAuth App access token
+        :type access_token: Optional[str]
+
+        :param refresh_token: OAuth App refresh token
+        :type refresh_token: Optional[str]
+
+        :param token_expire_at: OAuth App token expire time
+        :type token_expire_at: Optional[int]
+
+        :param redirect_uri: OAuth App redirect uri
+        :type redirect_uri: str
+
+        :param scopes: OAuth App scopes
+        :type scopes: str
+
+        :return: Client object
+        :rtype: Client
+
+        :raises AlreadyRunningClient: If client is already running
+        :raises MissingAppVariable: If some of required variables is missing
+        """
         if not self.closed:
-            await self._session.close()
-            self._session = None
+            raise AlreadyRunningClient()
+
+        if app_name is None:
+            app_name = self._app_name
+
+        if self.store.closed:
+            await self.store.open()
+
+        try:
+            async with self:
+                if access_token is not None:
+                    self.config = await self.store.fetch_by_access_token(
+                        app_name, access_token)
+                elif auth_code is not None:
+                    self.config = await self.store.fetch_by_auth_code(
+                        app_name, auth_code)
+
+                if self.config is None:
+                    if client_id is None or client_secret is None:
+                        raise MissingAppVariable(['client_id', 'client_secret'])
+
+                    if access_token is not None:
+                        self.config = {
+                            'app_name': app_name,
+                            'client_id': client_id,
+                            'client_secret': client_secret,
+                            'redirect_uri': redirect_uri,
+                            'auth_code': auth_code,
+                            'scopes': scopes,
+                            'access_token': access_token,
+                            'refresh_token': refresh_token,
+                            'token_expire_at': token_expire_at
+                        }
+                    elif auth_code is not None:
+                        token_data = await self.get_access_token(
+                            client_id, client_secret, auth_code, redirect_uri)
+                        self.config = {
+                            'app_name':
+                                app_name,
+                            'client_id':
+                                client_id,
+                            'client_secret':
+                                client_secret,
+                            'redirect_uri':
+                                redirect_uri,
+                            'auth_code':
+                                auth_code,
+                            'scopes':
+                                token_data['scope'],
+                            'access_token':
+                                token_data['access_token'],
+                            'refresh_token':
+                                token_data['refresh_token'],
+                            'token_expire_at':
+                                token_data['created_at'] +
+                                token_data['expires_in']
+                        }
+                    else:
+                        raise MissingAppVariable(['auth_code', 'access_token'])
+
+                    await self.store.save_config(**self.config)
+
+                self.user_agent = self.config['app_name']
+                self.authorization_header = self.config['access_token']
+
+                yield self
+        finally:
+            self._config = None
+            if self._auto_close_store and not self.store.closed:
+                await self.store.close()
+
+    async def get_access_token(self, client_id: str, client_secret: str,
+                               auth_code: str,
+                               redirect_uri: str) -> Dict[str, Any]:
+        """Gets new access token.
+
+        :param client_id: Client ID
+        :type client_id: str
+
+        :param client_secret: Client secret
+        :type client_secret: str
+
+        :param auth_code: Authorization code
+        :type auth_code: str
+
+        :param redirect_uri: Redirect URI
+        :type redirect_uri: str
+
+        :return: New access token
+        :rtype: Dict[str, Any]
+        """
+        logger.info('Getting new access token')
+        return await self.request(self.endpoints.oauth_token,
+                                  data={
+                                      'grant_type': 'authorization_code',
+                                      'client_id': client_id,
+                                      'client_secret': client_secret,
+                                      'code': auth_code,
+                                      'redirect_uri': redirect_uri
+                                  },
+                                  request_type=RequestType.POST,
+                                  output_logging=False)
+
+    async def refresh_access_token(self, client_id: str, client_secret: str,
+                                   refresh_token: str) -> Dict[str, Any]:
+        """Refreshes expired access token.
+
+        :param client_id: Client ID
+        :type client_id: str
+
+        :param client_secret: Client secret
+        :type client_secret: str
+
+        :param refresh_token: Refresh token
+        :type refresh_token: str
+
+        :return: Refreshed access token
+        :rtype: Dict[str, Any]
+        """
+        logger.info('Refreshing current access token')
+        return await self.request(self.endpoints.oauth_token,
+                                  data={
+                                      'grant_type': 'refresh_token',
+                                      'client_id': client_id,
+                                      'client_secret': client_secret,
+                                      'refresh_token': refresh_token
+                                  },
+                                  request_type=RequestType.POST,
+                                  output_logging=False)
+
+    def token_expired(self, token_expire_at: int):
+        """Checks if current access token is expired.
+
+        :return: True if token is expired, False otherwise
+        :rtype: bool
+        """
+        logger.debug('Checking if token is expired')
+        return int(time()) > token_expire_at
 
     @request_limiter.ratelimit('shikithon_request', delay=True)
     @backoff.on_exception(backoff.expo,
-                          RetryLaterException,
+                          RetryLater,
                           max_time=5,
                           max_tries=10,
                           jitter=None)
@@ -492,11 +418,10 @@ class Client:
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
-    ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]:
-        """
-        Create request and return response JSON.
+    ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any]]]:
+        """Creates request and returns response JSON.
 
-        This method uses ratelimit library for rate limiting
+        This method uses request_limiter library for rate limiting
         requests (Shikimori API limit: 90rpm and 5rps)
 
         **Note:** To address duplication of methods
@@ -524,10 +449,13 @@ class Client:
         :param output_logging: Parameter for logging JSON response
         :type output_logging: bool
 
-        :return: Response JSON, text or status code
-        :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], str]]
+        :return: Response JSON or None
+        :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any]]]
 
-        :raises RetryLaterException: If Shikimori API returns 429 status code
+        :raises RetryLater: If Shikimori API returns 429 status code
+        :raises ShikimoriAPIResponseError: If response status is
+        not lower than 400
+        :raises InvalidContentType: If response content type not JSON
         """
         if self.closed:
             return
@@ -536,6 +464,23 @@ class Client:
             f'{request_type.value} {url}{Utils.convert_to_query_string(query)}')
         if output_logging:
             logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
+
+        if not self.restricted_mode and \
+                url != self.endpoints.oauth_token and \
+                self.config['refresh_token'] is not None:
+            token_expire_at = self.config['token_expire_at']
+            if isinstance(token_expire_at,
+                          int) and self.token_expired(token_expire_at):
+                token_data = await self.refresh_access_token(
+                    self.config['client_id'], self.config['client_secret'],
+                    self.config['refresh_token'])
+                self._config.update(
+                    refresh_token=token_data['refresh_token'],
+                    token_expire_at=token_data['created_at'] +
+                    token_data['expires_in'],
+                )
+                if self.is_valid_config(self.config):
+                    await self.store.save_config(**self.config)
 
         if data is not None and bytes_data is not None:
             logger.debug(
@@ -574,32 +519,54 @@ class Client:
                                                   params=query)
         else:
             logger.debug('Unknown request_type. Returning None')
-            return None
+            return
 
-        if response.status == ResponseCode.RETRY_LATER.value:
-            logger.warning('Hit retry later code. Retrying backoff...')
-            raise RetryLaterException
-
-        logger.debug('Extracting JSON from response')
         try:
-            json_response = await response.json()
-        except ContentTypeError:
-            logger.debug('Response is not JSON. Returning status code/text')
-            return await Utils.extract_empty_response_data(response)
+            response: ClientResponse
 
-        if output_logging:
-            logger.debug(
-                'Successful extraction. '
-                f'Here are the details of the response: {json_response}')
-            if json_response is None and response.status == 200:
-                logger.debug('Response is empty. Returning status code/text')
-                return await Utils.extract_empty_response_data(response)
+            if response.status == 401 and \
+                    url != self.endpoints.oauth_token and \
+                    not self.restricted_mode and \
+                    self.config['refresh_token'] is not None:
+                token_data = await self.refresh_access_token(
+                    self.config['client_id'], self.config['client_secret'],
+                    self.config['refresh_token'])
+                self._config.update(
+                    refresh_token=token_data['refresh_token'],
+                    token_expire_at=token_data['created_at'] +
+                    token_data['expires_in'],
+                )
+                if self.is_valid_config(self.config):
+                    await self.store.save_config(**self.config)
+                return await self.request(url, data, bytes_data, headers, query,
+                                          request_type, output_logging)
+            elif response.status == ResponseCode.RETRY_LATER.value:
+                logger.warning('Hit retry later code. Retrying backoff...')
+                raise RetryLater
+            elif not response.ok:
+                raise ShikimoriAPIResponseError(
+                    method=response.method,
+                    status=response.status,
+                    url=repr(response.request_info.real_url),
+                    text=await response.text())
 
-        return json_response
+            logger.debug('Extracting JSON from response')
+            try:
+                json_response = await response.json()
+            except ContentTypeError:
+                raise InvalidContentType(response.content_type) from None
+
+            if output_logging:
+                logger.debug(
+                    'Successful extraction. '
+                    f'Here are the details of the response: {json_response}')
+
+            return json_response
+        finally:
+            response.release()
 
     async def multiple_requests(self, requests: List[Callable[..., RT]]):
-        """
-        Make multiple requests to API at the same time.
+        """Makes multiple requests to API at the same time.
 
         :param requests: List of requests
         :type requests: List[Callable[..., RT]]
@@ -613,8 +580,29 @@ class Client:
         logger.info(f'Gathering {len(requests)} requests')
         return await asyncio.gather(*requests, return_exceptions=True)
 
+    async def open(self) -> Client:
+        """Opens session and returns self.
+
+        :return: Client instance
+        :rtype: Client
+        """
+        if self.closed:
+            self._session = ClientSession()
+            self.user_agent = self._app_name
+        return self
+
+    async def close(self) -> None:
+        """Closes session."""
+        if not self.closed:
+            await self._session.close()
+            self._session = None
+
     async def __aenter__(self) -> Client:
-        """Async context manager entry point."""
+        """Async context manager entry point.
+
+        :return: Client instance
+        :rtype: Client
+        """
         return await self.open()
 
     async def __aexit__(self, *args) -> None:

@@ -5,10 +5,8 @@ This file contains the Utils class
 with all the necessary utility methods
 to work with the library
 """
-from time import time
 from typing import Any, Dict, List, Optional, Type, Union
 
-from aiohttp import ClientResponse
 from aiohttp import ClientSession
 from loguru import logger
 from validators import url as is_url
@@ -46,36 +44,6 @@ class Utils:
             f'{key}={val}' for (key, val) in query_dict.items())
         logger.debug(f'Formed {query_dict_str=}')
         return f'?{query_dict_str}'
-
-    @staticmethod
-    def convert_app_name_to_filename(app_name: str) -> str:
-        """
-        Converts app name to snake case for use in
-        config store filename.
-
-        :param app_name: Current OAuth app name
-        :type app_name: str
-
-        :return: Converted app name for filename
-        :rtype: str
-        """
-        logger.debug(f'Converting {app_name=} for stored config')
-        return '_'.join(app_name.lower().split(' '))
-
-    @staticmethod
-    def get_new_expire_time(time_expire_constant: int) -> int:
-        """
-        Gets new token expire time.
-
-        :param time_expire_constant: Token lifetime value
-        :type time_expire_constant: int
-
-        :return: New token expire time
-        :rtype: int
-        """
-        logger.debug(f'Getting new expiration time with a lifetime '
-                     f'of {time_expire_constant} seconds')
-        return int(time()) + time_expire_constant
 
     @staticmethod
     async def get_image_data(image_path: str) -> Dict[str, bytes]:
@@ -379,11 +347,3 @@ class Utils:
         logger.debug('Data model is passed. Returning parsed data')
         return [data_model(**item) for item in response_data] if isinstance(
             response_data, list) else data_model(**response_data)
-
-    @staticmethod
-    async def extract_empty_response_data(
-            response: ClientResponse) -> Union[str, int]:
-        response_text = await response.text()
-        response_status = response.status
-        return response_status \
-            if not response_text else response_text

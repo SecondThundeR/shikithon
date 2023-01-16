@@ -2,7 +2,6 @@
 from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import AnimeCensorship
 from ..enums import AnimeList
 from ..enums import MessageType
@@ -98,7 +97,6 @@ class Users(BaseResource):
         return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/whoami')
-    @protected_method('_client')
     async def current(self) -> Optional[User]:
         """
         Returns brief info about current user.
@@ -109,12 +107,10 @@ class Users(BaseResource):
         :rtype: Optional[User]
         """
         response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.whoami,
-            headers=self._client.authorization_header)
+            self._client.endpoints.whoami)
         return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/sign_out')
-    @protected_method('_client', fallback=False)
     async def sign_out(self) -> bool:
         """
         Sends sign out request to API.
@@ -123,8 +119,7 @@ class Users(BaseResource):
         :rtype: bool
         """
         response: str = await self._client.request(
-            self._client.endpoints.sign_out,
-            headers=self._client.authorization_header)
+            self._client.endpoints.sign_out)
         return response == 'signed out'
 
     @method_endpoint('/api/users/:id/friends')
@@ -296,7 +291,6 @@ class Users(BaseResource):
         return Utils.validate_response_data(response, data_model=Favourites)
 
     @method_endpoint('/api/users/:id/messages')
-    @protected_method('_client', 'messages')
     async def messages(
             self,
             user_id: Union[int, str],
@@ -335,7 +329,6 @@ class Users(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_messages(user_id),
-            headers=self._client.authorization_header,
             query=Utils.create_query_dict(is_nickname=is_nickname,
                                           page=validated_numbers['page'],
                                           limit=validated_numbers['limit'],
@@ -345,7 +338,6 @@ class Users(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/users/:id/unread_messages')
-    @protected_method('_client', 'messages')
     async def unread_messages(
             self,
             user_id: Union[int, str],
@@ -364,7 +356,6 @@ class Users(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_unread_messages(user_id),
-            headers=self._client.authorization_header,
             query=Utils.create_query_dict(is_nickname=is_nickname))
         return Utils.validate_response_data(response, data_model=UnreadMessages)
 
@@ -443,7 +434,6 @@ class Users(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
-    @protected_method('_client', 'ignores', fallback=False)
     async def ignore(self, user_id: int) -> bool:
         """
         Set user as ignored.
@@ -456,12 +446,10 @@ class Users(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_ignore(user_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, fallback=False) is True
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
-    @protected_method('_client', 'ignores', fallback=True)
     async def unignore(self, user_id: int) -> bool:
         """
         Set user as unignored.
@@ -474,6 +462,5 @@ class Users(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_ignore(user_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=True) is False

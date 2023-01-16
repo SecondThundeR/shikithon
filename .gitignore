@@ -183,6 +183,6 @@ Temporary Items
 
 # Other rules
 .idea
-.shikithon_*
+.shikithon*
 *.log.zip
 /*.py

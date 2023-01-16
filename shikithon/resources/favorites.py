@@ -2,7 +2,6 @@
 from typing import Any, Dict, Optional, Union
 
 from ..decorators import method_endpoint
-from ..decorators import protected_method
 from ..enums import FavoriteLinkedType
 from ..enums import PersonKind
 from ..enums import RequestType
@@ -18,7 +17,6 @@ class Favorites(BaseResource):
     """
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id(/:kind)')
-    @protected_method('_client', fallback=False)
     async def create(self,
                      linked_type: str,
                      linked_id: int,
@@ -48,12 +46,10 @@ class Favorites(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.favorites_create(linked_type, linked_id,
                                                     kind),
-            headers=self._client.authorization_header,
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id')
-    @protected_method('_client', fallback=False)
     async def destroy(self, linked_type: str, linked_id: int) -> bool:
         """
         Destroys a favorite.
@@ -72,12 +68,10 @@ class Favorites(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.favorites_destroy(linked_type, linked_id),
-            headers=self._client.authorization_header,
             request_type=RequestType.DELETE)
         return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/favorites/:id/reorder')
-    @protected_method('_client', fallback=False)
     async def reorder(self,
                       favorite_id: int,
                       new_index: Optional[int] = None) -> bool:
@@ -96,7 +90,6 @@ class Favorites(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.favorites_reorder(favorite_id),
-            headers=self._client.authorization_header,
             query=Utils.create_query_dict(new_index=new_index),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
