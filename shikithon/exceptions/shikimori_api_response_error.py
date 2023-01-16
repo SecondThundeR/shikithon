@@ -1,4 +1,4 @@
-"""..."""
+"""Exception for raising if request response status is not lower than 400."""
 
 
 class ShikimoriAPIResponseError(Exception):

@@ -1,4 +1,4 @@
-"""..."""
+"""Exception for raising on invalid request response content type."""
 
 
 class InvalidContentType(Exception):
