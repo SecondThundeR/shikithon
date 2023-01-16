@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 from time import time
-from typing import Any, Callable, cast, Dict, List, Optional, TypeVar
+from typing import Any, Callable, cast, Dict, List, Optional, TypeVar, Union
 
 from aiohttp import ClientResponse
 from aiohttp import ClientSession
@@ -404,7 +404,7 @@ class Client:
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
-    ) -> Any:
+    ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any]]]:
         if self.closed:
             return
 
