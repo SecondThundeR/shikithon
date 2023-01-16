@@ -12,26 +12,34 @@ repos:
       - id: check-merge-conflict
       - id: double-quote-string-fixer
       - id: end-of-file-fixer
-  - repo: local
+  - repo: https://github.com/pre-commit/mirrors-yapf
+    rev: v0.32.0
     hooks:
       - id: yapf
         name: Formatting files with yapf
         language: python
         entry: yapf
-        args: [-i, -vv]
-        types: [python]
+        args: [ -i, -vv ]
+        types: [ python ]
+        additional_dependencies: [ toml ]
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.11.4
+    hooks:
       - id: isort
         name: Sorting imports using isort
         language: python
         entry: isort
         exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future)/bad.py
-        types: [python]
+        types: [ python ]
+  - repo: https://github.com/PyCQA/pylint
+    rev: v2.15.9
+    hooks:
       - id: pylint
         name: Checking code with pylint
         language: python
         entry: pylint
-        args: ["-rn", "-sn", "--rcfile=.pylintrc", "--load-plugins=pylint.extensions.docparams"]
-        types: [python]
+        args: [ "-rn", "-sn", "--rcfile=.pylintrc", "--load-plugins=pylint.extensions.docparams" ]
+        types: [ python ]
   - repo: meta
     hooks:
       - id: check-hooks-apply
