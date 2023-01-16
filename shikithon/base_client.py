@@ -416,6 +416,44 @@ class Client:
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
     ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any]]]:
+        """Create request and return response JSON.
+
+        This method uses ratelimit library for rate limiting
+        requests (Shikimori API limit: 90rpm and 5rps)
+
+        **Note:** To address duplication of methods
+        for different request methods, this method
+        uses RequestType enum
+
+        :param url: URL for making request
+        :type url: str
+
+        :param data: Request body data
+        :type data: Optional[Dict[str, str]]
+
+        :param bytes_data: Request body data in bytes
+        :type bytes_data: Optional[bytes]
+
+        :param headers: Custom headers for request
+        :type headers: Optional[Dict[str, str]]
+
+        :param query: Query data for request
+        :type query: Optional[Dict[str, str]]
+
+        :param request_type: Type of current request
+        :type request_type: RequestType
+
+        :param output_logging: Parameter for logging JSON response
+        :type output_logging: bool
+
+        :return: Response JSON or None
+        :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any]]]
+
+        :raises RetryLater: If Shikimori API returns 429 status code
+        :raises ShikimoriAPIResponseError: If response status is
+        not lower than 400
+        :raises InvalidContentType: If response content type not JSON
+        """
         if self.closed:
             return
 
