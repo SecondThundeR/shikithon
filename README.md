@@ -37,8 +37,6 @@
 
 ## Пример использования
 
-С использованием полного конфига:
-
 ```py
 import asyncio
 
@@ -46,176 +44,114 @@ from typing import Dict
 
 from json import loads
 
-from shikithon import ShikimoriAPI
+from shikithon import ShikimoriAPI, JSONStore
 
 # Можно установить данные конфигурации в коде
 config = {
     "app_name": "...",
     "client_id": "...",
     "client_secret": "...",
-    "redirect_uri": "...",
-    "scopes": "...",
-    "auth_code": "..."
+    "auth_code": "...",
+    # Необязательно
+    "access_token": "...",
+    "refresh_token": "..."
 }
 
 # Или же прочитать его из внешнего файла
 with open("config.json", "r", encoding="utf-8") as config_file:
     config_2: Dict[str, str] = loads(config_file.read())
 
-async def main():
-    # Инициализация объекта API
-    shikimori = ShikimoriAPI(config)
-
-    # Запуск сессии
-    await shikimori.open()
-
-    # Получение данных текущего пользователя через /users/whoami
-    user = await shikimori.users.current()
-    print(f"Current user is {user.nickname}")
-
-    # Получение достижений пользователя через /achievements
-    # и вывод первого достижения
-    user_achievements = await shikimori.achievements.get(user.id)
-    if user_achievements:
-            print(user_achievements[0])
-
-    # Закрытие сессии
-    await shikimori.close()
-
-asyncio.run(main())
-
-# >> Current user is SecondThundeR
-
-# >> id=719972946
-# >> neko_id='animelist'
-# >> level=1
-# >> progress=77
-# >> user_id=723052
-# >> created_at=datetime.datetime(...)
-# >> updated_at=datetime.datetime(...)
-
-# На самом деле достижение выводится как одна строка с данными.
-# Для удобства она показана здесь раздельно
-```
-
-С использованием имени приложения:
-
-```py
-import asyncio
-
-from shikithon import ShikimoriAPI
-
-# Можно установить имя приложения в коде
-app_name = "..."
-
-# Или же прочитать его из внешнего файла
-with open("config.txt", "r", encoding="utf-8") as config_file:
-    app_name_2 = config_file.readline().strip()
+# Инициализируем API объект с необходимыми опциями
+# В данном примере используется JSONStore и отключено логирование
+api = ShikimoriAPI(app_name=config['app_name'], store=JSONStore(), logging=False)
 
 async def main():
-    # Инициализация объекта API
-    async with ShikimoriAPI(app_name) as shikimori:
-        # Попытка получения данных текущего пользователя через /users/whoami
-        # При попытке доступа к защищенному методу, возвращает всегда None
-        user = await shikimori.users.current()
-        print(user)
+    # Используем объект без авторизации
+    async with api:
+        lycoris = await api.animes.get(50709)
+        print(lycoris)
+        # >> id=50709 name='Lycoris Recoil' russian='Ликорис Рикоил' ...
 
-        # Получение достижений пользователя через /achievements
-        # и вывод первого достижения
-        # Можно получать достижения любого пользователя через ID
-        user_achievements = await shikimori.achievements.get(1)
-        if user_achievements:
-            print(user_achievements[0])
+        # Важно отметить, что внутри нельзя вкладывать async with api.auth(...)
+
+    # Используем объект с авторизацией
+    # Вариант 1
+    async with api.auth(
+        client_id=config["client_id"],
+        client_secret=config["client_secret"],
+        auth_code=config["auth_code"],
+    ):
+        print(await api.users.current())
+        # >> User(id=723052, nickname='SecondThundeR', ...
+
+    # Вариант 2
+
+    # Создаем новый объект API
+    # (По умолчанию используется NullStore в качестве хранилища)
+    api_2 = ShikimoriAPI(app_name="...")
+
+    # В данном случае app_name в __init__ не будет перезаписан,
+    # а токен будет обновлен при ошибке 401
+    api_auth_maker = api_2.auth(
+        app_name=config['app_name'],
+        client_id=config['client_id'],
+        client_secret=config['client_secret'],
+        access_token=config['access_token'],
+        refresh_token=config['refresh_token']
+    )
+
+    # Далее созданный объект можно использовать сколько угодно раз
+    async with api_auth_maker:
+        ...
 
 asyncio.run(main())
-
-# >> None
-
-# >> id=811883697
-# >> neko_id='aa_megami_sama'
-# >> level=0
-# >> progress=31
-# >> user_id=1
-# >> created_at=datetime.datetime(...)
-# >> updated_at=datetime.datetime(...)
-
-# На самом деле достижение выводится как одна строка с данными.
-# Для удобства она показана здесь раздельно
 ```
 
-Выполнение нескольких запросов одновременно с помощью метода multiple_requests:
+Выполнение нескольких запросов одновременно с помощью метода `multiple_requests`:
 ```py
 # В этом примере используется распаковка, но можно также получать весь массив с данными ответов
 # в одной переменнной (chainsaw, lycoris_anime, ... -> data = await ...)
-from shikithon import ShikimoriAPI
+from shikithon import ShikimoriAPI, JSONStore
 
 config = ...
 
-shikimori = ShikimoriAPI(config)
-await shikimori.open()
+api = ShikimoriAPI(app_name=config['app_name'], store=JSONStore(), logging=False)
 
-chainsaw, lycoris_chisato, lycoris_ranobe = await shikimori.multiple_requests([
-    shikimori.animes.get_all(search="Бензопила"),
-    shikimori.characters.search("Тисато Нисикиги"),
-    shikimori.ranobes.get_all(search="Ликорис"),
-])
-print(chainsaw)
-print(lycoris_chisato[:1])
-print(lycoris_ranobe)
-
-await shikimori.close()
+async def main():
+    async with api:
+        chainsaw, lycoris_chisato, lycoris_ranobe = await api.multiple_requests([
+            api.animes.get_all(search="Бензопила"),
+            api.characters.search("Тисато Нисикиги"),
+            api.ranobes.get_all(search="Ликорис"),
+        ])
+        print(chainsaw)
+        print(lycoris_chisato[:1])
+        print(lycoris_ranobe)
 
 # [Anime(id=44511, name='Chainsaw Man', russian='Человек-бензопила', ...]
 # [Character(id=204621, name='Chisato Nishikigi', russian='Тисато Нисикиги', ...]
 # [Ranobe(id=151431, name='Lycoris Recoil: Ordinary Days', russian='Ликорис Рикоил: Повседневность', ...]
-
-# Также возможно использовать этот метод в "ограниченном режиме":
-app_name = ...
-
-async with ShikimoriAPI(app_name) as shikimori:
-    lycoris_ranobe, = await shikimori.multiple_requests([
-        shikimori.ranobes.get_all(search="Ликорис")
-    ])
-    print(lycoris_ranobe)
-
-# [Ranobe(id=151431, name='Lycoris Recoil: Ordinary Days', russian='Ликорис Рикоил: Повседневность', ...]
 ```
 
-> **Пара уточнений по использованию:**
->
-> - Возможно вам придется импортировать модели для ручной аннотации возвращаемых моделей в PyCharm
-> _(в нем немного некорретно работает наследование типа от функции)_
->
->
-> - Поле `scopes` является строкой и разделяется "+", если значений несколько.
->
->   Пример: `user_rates+messages+comments+topics+...`
->
->
-> - При отсутствии каких-либо полей в данных конфигурации, библиотека выдает исключение
->
->
-> - Если вы не хотите использовать логгирование библиотеки, передайте флаг logging=False в объект API.
->
->  Пример: `shikithon = ShikimoriAPI(config, logging=False)`
+Также, если хочется узнать как использовать встроенные хранилища конфигов или хочется создать свой,
+посмотрите [этот гайд](https://github.com/SecondThundeR/shikithon/wiki/%D0%93%D0%B0%D0%B9%D0%B4-%D0%BF%D0%BE-%D1%85%D1%80%D0%B0%D0%BD%D0%B8%D0%BB%D0%B8%D1%89%D0%B0%D0%BC-%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D0%B8)
+
+#### Пара уточнений по использованию:
+
+- Возможно вам придется импортировать модели для ручной аннотации возвращаемых моделей в PyCharm
+_(в нем немного некорретно работает наследование типа от функции)_
+- При отсутствии каких-либо полей в данных конфигурации, библиотека выдает исключение
+- Если вы не хотите использовать логгирование библиотеки, передайте флаг logging=False в объект API:
+`api = ShikimoriAPI(app_name="...", logging=False)`
 
 ### Получение данных для конфигурации
 
-Для начала вам необходимо создать новое OAuth-приложение [здесь](https://shikimori.one/oauth/applications)
-_(После этого, сохраните `app_name`, `client_id`, `client_secret`, а так же `redirect_uri`)_
+Для начала вам необходимо создать новое OAuth-приложение [здесь](https://shikimori.one/oauth/applications).
+После этого, сохраните `app_name`, `client_id`, `client_secret`, а так же `redirect_uri`, если вы его меняли
 
 Позже, [на данной странице](https://shikimori.one/oauth) выберите свое приложение, необходимые разрешения
-и получите код авторизации _(После этого сохраните, `scopes` и `auth_code`)_
-
-**Теперь ваш файл конфигурации готов!**
-
-> На первой инициализации, библиотека создаст и сохранит собственный файл конфигурации для дальнейших запросов.
-> Если токены станут недоступны, библиотека автоматически обновит токены и сохранненый файл конфигурации
-
-Также возможно использование библиотеки в "ограниченном режиме",
-используя только имя приложения для доступа к публичным методам API.
-
-В таком случае, вы должны только передать строку с `app_name` для дальнейшей работы, как в примере выше.
+и получите код авторизации и сохраните его.
+_(Если необходимо, то можно также получить токены авторизации, пройдя следующий этап после получения кода авторизации)_
 
 ## Список изменений
 
