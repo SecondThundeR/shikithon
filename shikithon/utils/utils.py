@@ -7,7 +7,6 @@ to work with the library
 """
 from typing import Any, Dict, List, Optional, Type, Union
 
-from aiohttp import ClientResponse
 from aiohttp import ClientSession
 from loguru import logger
 from validators import url as is_url
@@ -348,11 +347,3 @@ class Utils:
         logger.debug('Data model is passed. Returning parsed data')
         return [data_model(**item) for item in response_data] if isinstance(
             response_data, list) else data_model(**response_data)
-
-    @staticmethod
-    async def extract_empty_response_data(
-            response: ClientResponse) -> Union[str, int]:
-        response_text = await response.text()
-        response_status = response.status
-        return response_status \
-            if not response_text else response_text
