@@ -10,19 +10,15 @@ class Store:
     This class is used to create custom stores by overriding abstract methods.
     """
 
-    __slots__ = ('_is_open',)
+    __slots__ = ('_closed',)
 
     def __init__(self) -> None:
-        self._is_open = False
+        self._closed = True
 
     @property
-    def status(self) -> bool:
-        """Returns store status.
-
-        :return: Current store status
-        :rtype: bool
-        """
-        return self._is_open
+    def closed(self) -> bool:
+        """Check if store is closed."""
+        return self._closed
 
     async def save_config(self,
                           app_name: str,
@@ -120,12 +116,12 @@ class Store:
         :return: Store instance
         :rtype: Store
         """
-        self._is_open = True
+        self._closed = False
         return self
 
     async def close(self) -> None:
         """Close store."""
-        self._is_open = False
+        self._closed = True
 
     async def __aenter__(self) -> Store:
         """Async context manager entry point.

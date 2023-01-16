@@ -88,17 +88,6 @@ class Client:
         """
         return self._store
 
-    @store.setter
-    def store(self, store: Store):
-        """Sets store object.
-
-        :param store: Store object
-        :type store: Store
-        """
-        if self._auto_close_store and self.store.status:
-            asyncio.ensure_future(self.store.close())
-        self._store = store
-
     @property
     def user_agent(self) -> Dict[str, str]:
         """Returns current session User-Agent.
@@ -276,10 +265,10 @@ class Client:
 
         async with self:
             if access_token is not None:
-                self.config = await self._store.fetch_by_access_token(
+                self.config = await self.store.fetch_by_access_token(
                     app_name, access_token)
             elif auth_code is not None:
-                self.config = await self._store.fetch_by_auth_code(
+                self.config = await self.store.fetch_by_auth_code(
                     app_name, auth_code)
 
             if self.config is None:
@@ -324,7 +313,7 @@ class Client:
                 else:
                     raise MissingAppVariable(['auth_code', 'access_token'])
 
-                await self._store.save_config(**self.config)
+                await self.store.save_config(**self.config)
 
             self.user_agent = self.config['app_name']
             self.authorization_header = self.config['access_token']
@@ -472,7 +461,7 @@ class Client:
                     token_data['expires_in'],
                 )
                 self.is_valid_config(self.config)
-                await self._store.save_config(**self.config)
+                await self.store.save_config(**self.config)
 
         logger.info(
             f'{request_type.value} {url}{Utils.convert_to_query_string(query)}')
@@ -536,7 +525,7 @@ class Client:
                 token_data['expires_in'],
             )
             self.is_valid_config(self.config)
-            await self._store.save_config(**self.config)
+            await self.store.save_config(**self.config)
 
         logger.debug('Extracting JSON from response')
         try:
@@ -579,8 +568,8 @@ class Client:
         if self.closed:
             self._session = ClientSession()
             self.user_agent = self._app_name
-            if not self.store.status:
-                await self._store.open()
+            if self.store.closed:
+                await self.store.open()
         return self
 
     async def close(self) -> None:
@@ -589,8 +578,8 @@ class Client:
             await self._session.close()
             self._session = None
             self._config = None
-            if self._auto_close_store:
-                await self._store.close()
+            if self._auto_close_store and not self.store.closed:
+                await self.store.close()
 
     async def __aenter__(self) -> Client:
         """Async context manager entry point.
