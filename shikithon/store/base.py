@@ -17,7 +17,11 @@ class Store:
 
     @property
     def closed(self) -> bool:
-        """Check if store is closed."""
+        """Returns close status of store.
+
+        :return: True if store is closed, False otherwise
+        :rtype: bool
+        """
         return self._closed
 
     async def save_config(self,
@@ -111,7 +115,7 @@ class Store:
         raise NotImplementedError
 
     async def open(self) -> Store:
-        """Open store and return self.
+        """Opens store and return self.
 
         :return: Store instance
         :rtype: Store
@@ -120,7 +124,7 @@ class Store:
         return self
 
     async def close(self) -> None:
-        """Close store."""
+        """Closes store."""
         self._closed = True
 
     async def __aenter__(self) -> Store:

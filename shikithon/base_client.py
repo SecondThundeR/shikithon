@@ -67,7 +67,11 @@ class Client:
 
     @property
     def closed(self) -> bool:
-        """Check if session is closed."""
+        """Checks if session is closed.
+
+        :return: True if session is closed, False otherwise
+        :rtype: bool
+        """
         return self._session is None
 
     @property
@@ -101,7 +105,7 @@ class Client:
 
     @user_agent.setter
     def user_agent(self, app_name: str):
-        """Update session headers and set user agent.
+        """Updates session headers and set user agent.
 
         :param app_name: OAuth App name
         :type app_name: str
@@ -393,11 +397,10 @@ class Client:
     def token_expired(self, token_expire_at: int):
         """Checks if current access token is expired.
 
-        :return: Result of token expiration check
+        :return: True if token is expired, False otherwise
         :rtype: bool
         """
-        logger.debug('Checking if current time is greater '
-                     'than current token expire time')
+        logger.debug('Checking if token is expired')
         return int(time()) > token_expire_at
 
     @request_limiter.ratelimit('shikithon_request', delay=True)
@@ -416,9 +419,9 @@ class Client:
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
     ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any]]]:
-        """Create request and return response JSON.
+        """Creates request and returns response JSON.
 
-        This method uses ratelimit library for rate limiting
+        This method uses request_limiter library for rate limiting
         requests (Shikimori API limit: 90rpm and 5rps)
 
         **Note:** To address duplication of methods
@@ -463,8 +466,8 @@ class Client:
             logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
 
         if not self.restricted_mode and \
-           url != self.endpoints.oauth_token and \
-           self.config['refresh_token'] is not None:
+                url != self.endpoints.oauth_token and \
+                self.config['refresh_token'] is not None:
             token_expire_at = self.config['token_expire_at']
             if isinstance(token_expire_at,
                           int) and self.token_expired(token_expire_at):
@@ -522,9 +525,9 @@ class Client:
             response: ClientResponse
 
             if response.status == 401 and \
-                url != self.endpoints.oauth_token and \
-                not self.restricted_mode and \
-                self.config['refresh_token'] is not None:
+                    url != self.endpoints.oauth_token and \
+                    not self.restricted_mode and \
+                    self.config['refresh_token'] is not None:
                 token_data = await self.refresh_access_token(
                     self.config['client_id'], self.config['client_secret'],
                     self.config['refresh_token'])
@@ -563,7 +566,7 @@ class Client:
             response.release()
 
     async def multiple_requests(self, requests: List[Callable[..., RT]]):
-        """Make multiple requests to API at the same time.
+        """Makes multiple requests to API at the same time.
 
         :param requests: List of requests
         :type requests: List[Callable[..., RT]]
@@ -578,7 +581,7 @@ class Client:
         return await asyncio.gather(*requests, return_exceptions=True)
 
     async def open(self) -> Client:
-        """Open session and return self.
+        """Opens session and returns self.
 
         :return: Client instance
         :rtype: Client
@@ -589,7 +592,7 @@ class Client:
         return self
 
     async def close(self) -> None:
-        """Close session."""
+        """Closes session."""
         if not self.closed:
             await self._session.close()
             self._session = None
