@@ -263,62 +263,71 @@ class Client:
         if app_name is None:
             app_name = self._app_name
 
-        async with self:
-            if access_token is not None:
-                self.config = await self.store.fetch_by_access_token(
-                    app_name, access_token)
-            elif auth_code is not None:
-                self.config = await self.store.fetch_by_auth_code(
-                    app_name, auth_code)
+        if self.store.closed:
+            await self.store.open()
 
-            if self.config is None:
-                if client_id is None or client_secret is None:
-                    raise MissingAppVariable(['client_id', 'client_secret'])
-
+        try:
+            async with self:
                 if access_token is not None:
-                    self.config = {
-                        'app_name': app_name,
-                        'client_id': client_id,
-                        'client_secret': client_secret,
-                        'redirect_uri': redirect_uri,
-                        'auth_code': auth_code,
-                        'scopes': scopes,
-                        'access_token': access_token,
-                        'refresh_token': refresh_token,
-                        'token_expire_at': token_expire_at
-                    }
+                    self.config = await self.store.fetch_by_access_token(
+                        app_name, access_token)
                 elif auth_code is not None:
-                    token_data = await self.get_access_token(
-                        client_id, client_secret, auth_code, redirect_uri)
-                    self.config = {
-                        'app_name':
-                            app_name,
-                        'client_id':
-                            client_id,
-                        'client_secret':
-                            client_secret,
-                        'redirect_uri':
-                            redirect_uri,
-                        'auth_code':
-                            auth_code,
-                        'scopes':
-                            token_data['scope'],
-                        'access_token':
-                            token_data['access_token'],
-                        'refresh_token':
-                            token_data['refresh_token'],
-                        'token_expire_at':
-                            token_data['created_at'] + token_data['expires_in']
-                    }
-                else:
-                    raise MissingAppVariable(['auth_code', 'access_token'])
+                    self.config = await self.store.fetch_by_auth_code(
+                        app_name, auth_code)
 
-                await self.store.save_config(**self.config)
+                if self.config is None:
+                    if client_id is None or client_secret is None:
+                        raise MissingAppVariable(['client_id', 'client_secret'])
 
-            self.user_agent = self.config['app_name']
-            self.authorization_header = self.config['access_token']
+                    if access_token is not None:
+                        self.config = {
+                            'app_name': app_name,
+                            'client_id': client_id,
+                            'client_secret': client_secret,
+                            'redirect_uri': redirect_uri,
+                            'auth_code': auth_code,
+                            'scopes': scopes,
+                            'access_token': access_token,
+                            'refresh_token': refresh_token,
+                            'token_expire_at': token_expire_at
+                        }
+                    elif auth_code is not None:
+                        token_data = await self.get_access_token(
+                            client_id, client_secret, auth_code, redirect_uri)
+                        self.config = {
+                            'app_name':
+                                app_name,
+                            'client_id':
+                                client_id,
+                            'client_secret':
+                                client_secret,
+                            'redirect_uri':
+                                redirect_uri,
+                            'auth_code':
+                                auth_code,
+                            'scopes':
+                                token_data['scope'],
+                            'access_token':
+                                token_data['access_token'],
+                            'refresh_token':
+                                token_data['refresh_token'],
+                            'token_expire_at':
+                                token_data['created_at'] +
+                                token_data['expires_in']
+                        }
+                    else:
+                        raise MissingAppVariable(['auth_code', 'access_token'])
 
-            yield self
+                    await self.store.save_config(**self.config)
+
+                self.user_agent = self.config['app_name']
+                self.authorization_header = self.config['access_token']
+
+                yield self
+        finally:
+            self._config = None
+            if self._auto_close_store and not self.store.closed:
+                await self.store.close()
 
     async def get_access_token(self, client_id: str, client_secret: str,
                                auth_code: str,
@@ -537,8 +546,6 @@ class Client:
         if self.closed:
             self._session = ClientSession()
             self.user_agent = self._app_name
-            if self.store.closed:
-                await self.store.open()
         return self
 
     async def close(self) -> None:
@@ -546,9 +553,6 @@ class Client:
         if not self.closed:
             await self._session.close()
             self._session = None
-            self._config = None
-            if self._auto_close_store and not self.store.closed:
-                await self.store.close()
 
     async def __aenter__(self) -> Client:
         """Async context manager entry point.
