@@ -19,8 +19,10 @@ from .endpoints import Endpoints
 from .enums import RequestType
 from .enums import ResponseCode
 from .exceptions import AlreadyRunningClient
+from .exceptions import InvalidContentType
 from .exceptions import MissingAppVariable
 from .exceptions import RetryLater
+from .exceptions import ShikimoriAPIResponseError
 from .store import NullStore
 from .store import Store
 from .utils import Utils
@@ -501,17 +503,17 @@ class Client:
                 logger.warning('Hit retry later code. Retrying backoff...')
                 raise RetryLater
             elif not response.ok:
-                raise Exception(f'{response.method} {response.status} ' +
-                                f'{repr(response.request_info.real_url)}\n' +
-                                f'{await response.text()}')
+                raise ShikimoriAPIResponseError(
+                    method=response.method,
+                    status=response.status,
+                    url=repr(response.request_info.real_url),
+                    text=await response.text())
 
             logger.debug('Extracting JSON from response')
             try:
                 json_response = await response.json()
             except ContentTypeError:
-                raise Exception(
-                    f'Invalid response content type: {response.content_type}'
-                ) from None
+                raise InvalidContentType(response.content_type) from None
 
             if output_logging:
                 logger.debug(
