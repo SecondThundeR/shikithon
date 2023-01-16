@@ -75,6 +75,9 @@ class ShikimoriAPI(Client):
         :param store: Class instance for store configs
         :type store: Optional[Store]
 
+        :param auto_close_store: Auto close store option
+        :type auto_close_store: bool
+
         :param logging: Logging flag
         :type logging: Optional[bool]
         """
