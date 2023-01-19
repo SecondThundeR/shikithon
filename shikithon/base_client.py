@@ -580,7 +580,7 @@ class Client:
             return []
 
         logger.info(f'Gathering {len(requests)} requests')
-        return await asyncio.gather(*requests, return_exceptions=True)
+        return await asyncio.gather(*requests, return_exceptions=False)
 
     async def open(self) -> Client:
         """Opens session and returns self.
