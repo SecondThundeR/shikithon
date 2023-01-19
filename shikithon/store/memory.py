@@ -46,7 +46,8 @@ class MemoryStore(Store):
         app_tokens = app_data.get('tokens', [])
         for token in app_tokens:
             token: Dict[str, Any]
-            if token.get('access_token') == access_token:
+            if token.get('auth_code') == auth_code and token.get(
+                    'scopes') == scopes:
                 token.update(app_token)
                 break
         else:

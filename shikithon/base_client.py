@@ -475,6 +475,7 @@ class Client:
                     self.config['client_id'], self.config['client_secret'],
                     self.config['refresh_token'])
                 self._config.update(
+                    access_token=token_data['access_token'],
                     refresh_token=token_data['refresh_token'],
                     token_expire_at=token_data['created_at'] +
                     token_data['expires_in'],
@@ -532,6 +533,7 @@ class Client:
                     self.config['client_id'], self.config['client_secret'],
                     self.config['refresh_token'])
                 self._config.update(
+                    access_token=token_data['access_token'],
                     refresh_token=token_data['refresh_token'],
                     token_expire_at=token_data['created_at'] +
                     token_data['expires_in'],
