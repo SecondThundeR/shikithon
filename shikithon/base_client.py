@@ -383,6 +383,9 @@ class Client:
                                    refresh_token: str) -> Dict[str, Any]:
         """Refreshes expired access token.
 
+        Due to problems with refreshing token, we need to reset
+        authorization header before refreshing token.
+
         :param client_id: Client ID
         :type client_id: str
 
@@ -396,15 +399,19 @@ class Client:
         :rtype: Dict[str, Any]
         """
         logger.info('Refreshing current access token')
-        return await self.request(self.endpoints.oauth_token,
-                                  data={
-                                      'grant_type': 'refresh_token',
-                                      'client_id': client_id,
-                                      'client_secret': client_secret,
-                                      'refresh_token': refresh_token
-                                  },
-                                  request_type=RequestType.POST,
-                                  output_logging=False)
+
+        self.authorization_header = None
+        tokens_data = await self.request(self.endpoints.oauth_token,
+                                         data={
+                                             'grant_type': 'refresh_token',
+                                             'client_id': client_id,
+                                             'client_secret': client_secret,
+                                             'refresh_token': refresh_token
+                                         },
+                                         request_type=RequestType.POST,
+                                         output_logging=False)
+        self.authorization_header = tokens_data['access_token']
+        return tokens_data
 
     def token_expired(self, token_expire_at: int):
         """Checks if current access token is expired.
