@@ -104,14 +104,20 @@ class Client:
         return {'User-Agent': self._session.headers['User-Agent']}
 
     @user_agent.setter
-    def user_agent(self, app_name: str):
+    def user_agent(self, app_name: Optional[str]):
         """Updates session headers and set user agent.
 
         :param app_name: OAuth App name
-        :type app_name: str
+        :type app_name: Optional[str]
         """
-        if not self.closed:
-            self._session.headers.update({'User-Agent': app_name})
+        if self.closed:
+            return
+
+        if app_name is None:
+            self._session.headers.pop('User-Agent', None)
+            return
+
+        self._session.headers.update({'User-Agent': app_name})
 
     @property
     def authorization_header(self) -> Dict[str, str]:
@@ -123,15 +129,21 @@ class Client:
         return {'Authorization': self._session.headers['Authorization']}
 
     @authorization_header.setter
-    def authorization_header(self, access_token: str):
+    def authorization_header(self, access_token: Optional[str]):
         """Sets authorization header to current session.
 
         :param access_token: Access token
-        :type access_token: str
+        :type access_token: Optional[str]
         """
-        if not self.closed:
-            self._session.headers.update(
-                {'Authorization': 'Bearer ' + access_token})
+        if self.closed:
+            return
+
+        if access_token is None:
+            self._session.headers.pop('Authorization', None)
+            return
+
+        self._session.headers.update(
+            {'Authorization': 'Bearer ' + access_token})
 
     @property
     def config(self) -> Optional[Dict[str, Any]]:
