@@ -383,9 +383,6 @@ class Client:
                                    refresh_token: str) -> Dict[str, Any]:
         """Refreshes expired access token.
 
-        Due to problems with refreshing token, we need to reset
-        authorization header before refreshing token.
-
         :param client_id: Client ID
         :type client_id: str
 
@@ -399,19 +396,15 @@ class Client:
         :rtype: Dict[str, Any]
         """
         logger.info('Refreshing current access token')
-
-        self.authorization_header = None
-        tokens_data = await self.request(self.endpoints.oauth_token,
-                                         data={
-                                             'grant_type': 'refresh_token',
-                                             'client_id': client_id,
-                                             'client_secret': client_secret,
-                                             'refresh_token': refresh_token
-                                         },
-                                         request_type=RequestType.POST,
-                                         output_logging=False)
-        self.authorization_header = tokens_data['access_token']
-        return tokens_data
+        return await self.request(self.endpoints.oauth_token,
+                                  data={
+                                      'grant_type': 'refresh_token',
+                                      'client_id': client_id,
+                                      'client_secret': client_secret,
+                                      'refresh_token': refresh_token
+                                  },
+                                  request_type=RequestType.POST,
+                                  output_logging=False)
 
     def token_expired(self, token_expire_at: int):
         """Checks if current access token is expired.
@@ -421,6 +414,26 @@ class Client:
         """
         logger.debug('Checking if token is expired')
         return int(time()) > token_expire_at
+
+    async def refresh_and_save_tokens(self):
+        """Refreshes current access token and saves it to the store.
+
+        Due to some problems when trying to refresh with
+        Authorization header, this method sets the header to None
+        before refreshing and then sets it back to the new token.
+        """
+        self.authorization_header = None
+        token_data = await self.refresh_access_token(
+            self.config['client_id'], self.config['client_secret'],
+            self.config['refresh_token'])
+        self.authorization_header = token_data['access_token']
+        self._config.update(
+            access_token=token_data['access_token'],
+            refresh_token=token_data['refresh_token'],
+            token_expire_at=token_data['created_at'] + token_data['expires_in'],
+        )
+        if self.is_valid_config(self.config):
+            await self.store.save_config(**self.config)
 
     @request_limiter.ratelimit('shikithon_request', delay=True)
     @backoff.on_exception(backoff.expo,
@@ -486,17 +499,7 @@ class Client:
             token_expire_at = self.config['token_expire_at']
             if isinstance(token_expire_at,
                           int) and self.token_expired(token_expire_at):
-                token_data = await self.refresh_access_token(
-                    self.config['client_id'], self.config['client_secret'],
-                    self.config['refresh_token'])
-                self._config.update(
-                    access_token=token_data['access_token'],
-                    refresh_token=token_data['refresh_token'],
-                    token_expire_at=token_data['created_at'] +
-                    token_data['expires_in'],
-                )
-                if self.is_valid_config(self.config):
-                    await self.store.save_config(**self.config)
+                await self.refresh_and_save_tokens()
 
         if data is not None and bytes_data is not None:
             logger.debug(
@@ -538,17 +541,7 @@ class Client:
                     url != self.endpoints.oauth_token and \
                     not self.restricted_mode and \
                     self.config['refresh_token'] is not None:
-                token_data = await self.refresh_access_token(
-                    self.config['client_id'], self.config['client_secret'],
-                    self.config['refresh_token'])
-                self._config.update(
-                    access_token=token_data['access_token'],
-                    refresh_token=token_data['refresh_token'],
-                    token_expire_at=token_data['created_at'] +
-                    token_data['expires_in'],
-                )
-                if self.is_valid_config(self.config):
-                    await self.store.save_config(**self.config)
+                await self.refresh_and_save_tokens()
                 return await self.request(url, data, bytes_data, query,
                                           request_type, output_logging)
             elif response.status == ResponseCode.RETRY_LATER.value:
