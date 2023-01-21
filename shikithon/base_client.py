@@ -415,26 +415,6 @@ class Client:
         logger.debug('Checking if token is expired')
         return int(time()) > token_expire_at
 
-    async def refresh_and_save_tokens(self):
-        """Refreshes current access token and saves it to the store.
-
-        Due to some problems when trying to refresh with
-        Authorization header, this method sets the header to None
-        before refreshing and then sets it back to the new token.
-        """
-        self.authorization_header = None
-        token_data = await self.refresh_access_token(
-            self.config['client_id'], self.config['client_secret'],
-            self.config['refresh_token'])
-        self.authorization_header = token_data['access_token']
-        self._config.update(
-            access_token=token_data['access_token'],
-            refresh_token=token_data['refresh_token'],
-            token_expire_at=token_data['created_at'] + token_data['expires_in'],
-        )
-        if self.is_valid_config(self.config):
-            await self.store.save_config(**self.config)
-
     @request_limiter.ratelimit('shikithon_request', delay=True)
     @backoff.on_exception(backoff.expo,
                           RetryLater,
@@ -493,13 +473,11 @@ class Client:
         if output_logging:
             logger.debug(f'Request info details: {data=}, {query=}')
 
-        if not self.restricted_mode and \
-                url != self.endpoints.oauth_token and \
-                self.config['refresh_token'] is not None:
+        if self._is_need_token_refresh(url):
             token_expire_at = self.config['token_expire_at']
             if isinstance(token_expire_at,
                           int) and self.token_expired(token_expire_at):
-                await self.refresh_and_save_tokens()
+                await self._refresh_and_save_tokens()
 
         if data is not None and bytes_data is not None:
             logger.debug(
@@ -537,11 +515,8 @@ class Client:
         try:
             response: ClientResponse
 
-            if response.status == 401 and \
-                    url != self.endpoints.oauth_token and \
-                    not self.restricted_mode and \
-                    self.config['refresh_token'] is not None:
-                await self.refresh_and_save_tokens()
+            if response.status == 401 and self._is_need_token_refresh(url):
+                await self._refresh_and_save_tokens()
                 return await self.request(url, data, bytes_data, query,
                                           request_type, output_logging)
             elif response.status == ResponseCode.RETRY_LATER.value:
@@ -583,6 +558,39 @@ class Client:
 
         logger.info(f'Gathering {len(requests)} requests')
         return await asyncio.gather(*requests, return_exceptions=False)
+
+    async def _refresh_and_save_tokens(self):
+        """Refreshes current access token and saves it to the store.
+
+        Due to some problems when trying to refresh with
+        Authorization header, this method sets the header to None
+        before refreshing and then sets it back to the new token.
+        """
+        self.authorization_header = None
+        token_data = await self.refresh_access_token(
+            self.config['client_id'], self.config['client_secret'],
+            self.config['refresh_token'])
+        self.authorization_header = token_data['access_token']
+        self._config.update(
+            access_token=token_data['access_token'],
+            refresh_token=token_data['refresh_token'],
+            token_expire_at=token_data['created_at'] + token_data['expires_in'],
+        )
+        if self.is_valid_config(self.config):
+            await self.store.save_config(**self.config)
+
+    def _is_need_token_refresh(self, url: str) -> bool:
+        """Checks if token refresh is needed.
+
+        :param url: Request URL
+        :type url: str
+
+        :return: True if token refresh is needed, False otherwise
+        :rtype: bool
+        """
+        return not self.restricted_mode and \
+                url != self.endpoints.oauth_token and \
+                self.config['refresh_token'] is not None
 
     async def open(self) -> Client:
         """Opens session and returns self.
