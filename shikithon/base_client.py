@@ -433,7 +433,6 @@ class Client:
         url: str,
         data: Optional[Dict[str, str]] = None,
         bytes_data: Optional[bytes] = None,
-        headers: Optional[Dict[str, str]] = None,
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
@@ -455,9 +454,6 @@ class Client:
 
         :param bytes_data: Request body data in bytes
         :type bytes_data: Optional[bytes]
-
-        :param headers: Custom headers for request
-        :type headers: Optional[Dict[str, str]]
 
         :param query: Query data for request
         :type query: Optional[Dict[str, str]]
@@ -482,7 +478,7 @@ class Client:
         logger.info(
             f'{request_type.value} {url}{Utils.convert_to_query_string(query)}')
         if output_logging:
-            logger.debug(f'Request info details: {data=}, {headers=}, {query=}')
+            logger.debug(f'Request info details: {data=}, {query=}')
 
         if not self.restricted_mode and \
                 url != self.endpoints.oauth_token and \
@@ -510,32 +506,26 @@ class Client:
             data = None
 
         if request_type == RequestType.GET:
-            response = await self._session.get(url,
-                                               headers=headers,
-                                               params=query)
+            response = await self._session.get(url, params=query)
         elif request_type == RequestType.POST:
             response = await self._session.post(url,
                                                 data=bytes_data,
                                                 json=data,
-                                                headers=headers,
                                                 params=query)
         elif request_type == RequestType.PUT:
             response = await self._session.put(url,
                                                data=bytes_data,
                                                json=data,
-                                               headers=headers,
                                                params=query)
         elif request_type == RequestType.PATCH:
             response = await self._session.patch(url,
                                                  data=bytes_data,
                                                  json=data,
-                                                 headers=headers,
                                                  params=query)
         elif request_type == RequestType.DELETE:
             response = await self._session.delete(url,
                                                   data=bytes_data,
                                                   json=data,
-                                                  headers=headers,
                                                   params=query)
         else:
             logger.debug('Unknown request_type. Returning None')
@@ -559,7 +549,7 @@ class Client:
                 )
                 if self.is_valid_config(self.config):
                     await self.store.save_config(**self.config)
-                return await self.request(url, data, bytes_data, headers, query,
+                return await self.request(url, data, bytes_data, query,
                                           request_type, output_logging)
             elif response.status == ResponseCode.RETRY_LATER.value:
                 logger.warning('Hit retry later code. Retrying backoff...')
