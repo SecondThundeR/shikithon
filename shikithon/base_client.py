@@ -473,7 +473,7 @@ class Client:
         if output_logging:
             logger.debug(f'Request info details: {data=}, {query=}')
 
-        if self._is_need_token_refresh(url):
+        if self._is_protected_request(url):
             token_expire_at = self.config['token_expire_at']
             if isinstance(token_expire_at,
                           int) and self.token_expired(token_expire_at):
@@ -515,7 +515,7 @@ class Client:
         try:
             response: ClientResponse
 
-            if response.status == 401 and self._is_need_token_refresh(url):
+            if response.status == 401 and self._is_protected_request(url):
                 await self._refresh_and_save_tokens()
                 return await self.request(url, data, bytes_data, query,
                                           request_type, output_logging)
@@ -579,13 +579,13 @@ class Client:
         if self.is_valid_config(self.config):
             await self.store.save_config(**self.config)
 
-    def _is_need_token_refresh(self, url: str) -> bool:
-        """Checks if token refresh is needed.
+    def _is_protected_request(self, url: str) -> bool:
+        """Checks if a protected request is being made.
 
         :param url: Request URL
         :type url: str
 
-        :return: True if token refresh is needed, False otherwise
+        :return: True if request is protected, False otherwise
         :rtype: bool
         """
         return not self.restricted_mode and \
