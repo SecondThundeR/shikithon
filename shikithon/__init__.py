@@ -5,5 +5,5 @@ from .store import MemoryStore
 from .store import NullStore
 from .store import Store
 
-__version__ = '2.2.0'
+__version__ = '2.2.1'
 __all__ = ['ShikimoriAPI', 'Store', 'NullStore', 'MemoryStore', 'JSONStore']
