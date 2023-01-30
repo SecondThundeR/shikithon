@@ -17,7 +17,7 @@ from .friends import Friends
 from .genres import Genres
 from .mangas import Mangas
 from .messages import Messages
-from .people import Person
+from .people import People
 from .publishers import Publishers
 from .ranobes import Ranobes
 from .stats import Stats
@@ -45,7 +45,7 @@ __all__ = [
     'Genres',
     'Mangas',
     'Messages',
-    'Person',
+    'People',
     'Publishers',
     'Ranobes',
     'Stats',

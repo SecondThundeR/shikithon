@@ -28,6 +28,7 @@ from .resources import Friends
 from .resources import Genres
 from .resources import Mangas
 from .resources import Messages
+from .resources import People
 from .resources import Publishers
 from .resources import Ranobes
 from .resources import Stats
@@ -37,7 +38,6 @@ from .resources import Topics
 from .resources import UserImages
 from .resources import UserRates
 from .resources import Users
-from .resources.people import People
 from .store import NullStore
 from .store import Store
 
