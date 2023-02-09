@@ -2,6 +2,7 @@
 from typing import List, Optional
 
 from pydantic import BaseModel
+from pydantic import validator
 
 from .genre import Genre
 from .image import Image
@@ -45,3 +46,10 @@ class Ranobe(BaseModel):
     genres: Optional[List[Genre]]
     publishers: Optional[List[Publisher]]
     user_rate: Optional[UserRate]
+
+    # pylint: disable=E0213
+    @validator('kind')
+    def kind_validator(cls, v):
+        if 'novel' not in v:
+            raise ValueError('Invalid kind')
+        return v
