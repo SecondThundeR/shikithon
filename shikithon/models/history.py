@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from .anime import Anime
 from .manga import Manga
+from .ranobe import Ranobe
 
 
 class History(BaseModel):
@@ -13,4 +14,4 @@ class History(BaseModel):
     id: int
     created_at: datetime
     description: str
-    target: Union[Anime, Manga]
+    target: Union[Anime, Manga, Ranobe]
