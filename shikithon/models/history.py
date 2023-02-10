@@ -1,6 +1,6 @@
 """Model for /api/users/:id/history"""
 from datetime import datetime
-from typing import Union
+from typing import Union, Optional
 
 from pydantic import BaseModel
 
@@ -14,4 +14,4 @@ class History(BaseModel):
     id: int
     created_at: datetime
     description: str
-    target: Union[Anime, Manga, Ranobe]
+    target: Optional[Union[Anime, Manga, Ranobe]]
