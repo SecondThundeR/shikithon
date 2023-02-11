@@ -11,6 +11,8 @@ from .user_rate import UserRate
 from .user_rate_score import UserRateScore
 from .user_rate_status import UserRateStatus
 
+MANGAS_KIND = ['manga', 'manhwa', 'manhua', 'one_shot', 'doujin']
+
 
 class Manga(BaseModel):
     """Represents manga entity."""
@@ -50,6 +52,6 @@ class Manga(BaseModel):
     # pylint: disable=E0213
     @validator('kind')
     def kind_validator(cls, v):
-        if 'manga' not in v:
-            raise ValueError('Invalid kind')
+        if v not in MANGAS_KIND:
+            raise ValueError(f'Invalid kind. Got {v}')
         return v
