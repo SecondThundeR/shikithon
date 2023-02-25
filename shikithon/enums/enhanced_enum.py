@@ -28,4 +28,4 @@ class EnhancedEnum(Enum):
         :return: Values of the enum
         :rtype: List[str]
         """
-        return list(map(lambda c: c.value, cls))
+        return list(map(lambda e: e.value, cls._member_map_.values()))
