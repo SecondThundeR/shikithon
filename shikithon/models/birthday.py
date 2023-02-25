@@ -7,7 +7,6 @@ class Birthday(BaseModel):
 
     Used to represent birthday of person.
     """
-
     day: int
     month: int
     year: int
