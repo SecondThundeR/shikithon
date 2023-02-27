@@ -707,14 +707,14 @@ email = ["email-validator (>=1.0.3)"]
 
 [[package]]
 name = "pyrate-limiter"
-version = "2.9.0"
+version = "2.10.0"
 description = "Python Rate-Limiter using Leaky-Bucket Algorithm"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "pyrate_limiter-2.9.0-py3-none-any.whl", hash = "sha256:90bc85de0739cbda32bc80b9df19a8307150c0b503d4d22fc31e2135d7d9524d"},
-    {file = "pyrate_limiter-2.9.0.tar.gz", hash = "sha256:a5ca4f53723cd1c565ae25654b1ee22ca221d904270cb13361e1d7c5ce34f4b4"},
+    {file = "pyrate_limiter-2.10.0-py3-none-any.whl", hash = "sha256:a99e52159f5ed5eb58118bed8c645e30818e7c0e0d127a0585c8277c776b0f7f"},
+    {file = "pyrate_limiter-2.10.0.tar.gz", hash = "sha256:98cc52cdbe058458e945ae87d4fd5a73186497ffa545ee6e98372f8599a5bd34"},
 ]
 
 [package.extras]
@@ -956,4 +956,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.10"
-content-hash = "360e5099bd73bd6a90c63734cfb2a498e234af209688d4f22f072dbb97f0dff7"
+content-hash = "1eb40f893d85965cb483e024bd287bacb36a15fec1aa21dc764dc2851f98b432"
