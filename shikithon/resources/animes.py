@@ -313,7 +313,7 @@ class Animes(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/animes/:anime_id/videos')
-    async def create_video(self, anime_id: int, kind: str, name: str,
+    async def create_video(self, anime_id: int, kind: VideoKind, name: str,
                            url: str) -> Optional[Video]:
         """Creates anime video.
 
@@ -321,7 +321,7 @@ class Animes(BaseResource):
         :type anime_id: int
 
         :param kind: Kind of video
-        :type kind: str
+        :type kind: VideoKind
 
         :param name: Name of video
         :type name: str
@@ -332,7 +332,7 @@ class Animes(BaseResource):
         :return: Created video info
         :rtype: Optional[Video]
         """
-        if not Utils.validate_enum_params({VideoKind: kind}):
+        if not Utils.unstable__is_enum_passed(kind):
             return None
 
         data_dict: Dict[str, Any] = Utils.create_data_dict(dict_name='video',
