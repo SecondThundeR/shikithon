@@ -5,6 +5,7 @@ This file contains the Utils class
 with all the necessary utility methods
 to work with the library
 """
+from enum import Enum
 from typing import Any, Dict, List, Optional, Type, Union
 
 from aiohttp import ClientSession
@@ -139,6 +140,30 @@ class Utils:
                 new_data_dict[data_dict_name][key] = data
         logger.debug(f'Generated data dictionary: {new_data_dict=}')
         return new_data_dict
+
+    @staticmethod
+    def unstable__is_enum_passed(*params: Any) -> bool:
+        """Checks if passed params are actually enums.
+
+        Parameters are of the "Any" type, since
+        you can pass anything when calling a library method,
+        so the task of the method is to check the correctness
+        of the passed enums
+
+        :param params: Params of function to check
+        :type params: Any
+
+        :return: Check result
+        :rtype: bool
+        """
+        for data in params:
+            if isinstance(data, list):
+                for item in data:
+                    if not isinstance(item, Enum):
+                        return False
+            elif not isinstance(data, Enum):
+                return False
+        return True
 
     @staticmethod
     def validate_enum_params(
