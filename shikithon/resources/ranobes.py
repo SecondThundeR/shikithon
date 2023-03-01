@@ -27,15 +27,17 @@ class Ranobes(BaseResource):
     async def get_all(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      order: Optional[str] = None,
-                      status: Optional[Union[str, List[str]]] = None,
+                      order: Optional[RanobeOrder] = None,
+                      status: Optional[Union[RanobeStatus,
+                                             List[RanobeStatus]]] = None,
                       season: Optional[Union[str, List[str]]] = None,
                       score: Optional[int] = None,
                       genre: Optional[Union[int, List[int]]] = None,
                       publisher: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
-                      censored: Optional[str] = None,
-                      my_list: Optional[Union[str, List[str]]] = None,
+                      censored: Optional[RanobeCensorship] = None,
+                      my_list: Optional[Union[RanobeList,
+                                              List[RanobeList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None) -> List[Ranobe]:
@@ -48,10 +50,10 @@ class Ranobes(BaseResource):
         :type limit: Optional[int]
 
         :param order: Type of order in list
-        :type order: Optional[str]
+        :type order: Optional[RanobeOrder]
 
         :param status: Type(s) of ranobe status
-        :type status: Optional[Union[str, List[str]]]
+        :type status: Optional[Union[RanobeStatus, List[RanobeStatus]]]
 
         :param season: Name(s) of ranobe seasons
         :type season: Optional[Union[str, List[str]]]
@@ -69,12 +71,12 @@ class Ranobes(BaseResource):
         :type franchise: Optional[Union[int, List[int]]
 
         :param censored: Type of ranobe censorship
-        :type censored: Optional[str]
+        :type censored: Optional[RanobeCensorship]
 
         :param my_list: Status(-es) of ranobe in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[str, List[str]]]
+        :type my_list: Optional[Union[RanobeList, List[RanobeList]]]
 
         :param ids: Ranobe(s) ID to include
         :type ids: Optional[Union[int, List[int]]
@@ -88,12 +90,8 @@ class Ranobes(BaseResource):
         :return: List of Ranobe
         :rtype: List[Ranobe]
         """
-        if not Utils.validate_enum_params({
-                RanobeOrder: order,
-                RanobeStatus: status,
-                RanobeList: my_list,
-                RanobeCensorship: censored
-        }):
+        if not ExperimentalUtils.is_enum_passed(order, status, censored,
+                                                my_list):
             return []
 
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],

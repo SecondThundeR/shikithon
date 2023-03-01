@@ -165,13 +165,14 @@ class Users(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/users/:id/anime_rates')
-    async def anime_rates(self,
-                          user_id: Union[int, str],
-                          is_nickname: Optional[bool] = None,
-                          page: Optional[int] = None,
-                          limit: Optional[int] = None,
-                          status: Optional[str] = None,
-                          censored: Optional[str] = None) -> List[UserList]:
+    async def anime_rates(
+            self,
+            user_id: Union[int, str],
+            is_nickname: Optional[bool] = None,
+            page: Optional[int] = None,
+            limit: Optional[int] = None,
+            status: Optional[AnimeList] = None,
+            censored: Optional[AnimeCensorship] = None) -> List[UserList]:
         """Returns user's anime list.
 
         :param user_id: User ID/Nickname to get anime list
@@ -187,18 +188,15 @@ class Users(BaseResource):
         :type limit: Optional[int]
 
         :param status: Status of status of anime in list
-        :type status: Optional[str]
+        :type status: Optional[AnimeList]
 
         :param censored: Type of anime censorship
-        :type censored: Optional[str]
+        :type censored: Optional[AnimeCensorship]
 
         :return: User's anime list
         :rtype: List[UserList]
         """
-        if not Utils.validate_enum_params({
-                AnimeList: status,
-                AnimeCensorship: censored
-        }):
+        if not ExperimentalUtils.is_enum_passed(status, censored):
             return []
 
         validated_numbers = Utils.query_numbers_validator(
@@ -219,12 +217,13 @@ class Users(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/users/:id/manga_rates')
-    async def manga_rates(self,
-                          user_id: Union[int, str],
-                          is_nickname: Optional[bool] = None,
-                          page: Optional[int] = None,
-                          limit: Optional[int] = None,
-                          censored: Optional[str] = None) -> List[UserList]:
+    async def manga_rates(
+            self,
+            user_id: Union[int, str],
+            is_nickname: Optional[bool] = None,
+            page: Optional[int] = None,
+            limit: Optional[int] = None,
+            censored: Optional[AnimeCensorship] = None) -> List[UserList]:
         """Returns user's manga list.
 
         :param user_id: User ID/Nickname to get manga list
@@ -240,12 +239,12 @@ class Users(BaseResource):
         :type limit: Optional[int]
 
         :param censored: Type of manga censorship
-        :type censored: Optional[str]
+        :type censored: Optional[AnimeCensorship]
 
         :return: User's manga list
         :rtype: List[UserList]
         """
-        if not Utils.validate_enum_params({AnimeCensorship: censored}):
+        if not ExperimentalUtils.is_enum_passed(censored):
             return []
 
         validated_numbers = Utils.query_numbers_validator(
@@ -292,7 +291,7 @@ class Users(BaseResource):
             is_nickname: Optional[bool] = None,
             page: Optional[int] = None,
             limit: Optional[int] = None,
-            message_type: str = MessageType.NEWS.value) -> List[Message]:
+            message_type: MessageType = MessageType.NEWS) -> List[Message]:
         """Returns current user's messages by type.
 
         :param user_id: Current user ID/Nickname to get messages
@@ -308,12 +307,12 @@ class Users(BaseResource):
         :type limit: Optional[int]
 
         :param message_type: Type of message
-        :type message_type: str
+        :type message_type: MessageType
 
         :return: Current user's messages
         :rtype: List[Message]
         """
-        if not Utils.validate_enum_params({MessageType: message_type}):
+        if not ExperimentalUtils.is_enum_passed(message_type):
             return []
 
         validated_numbers = Utils.query_numbers_validator(
@@ -354,13 +353,14 @@ class Users(BaseResource):
         return Utils.validate_response_data(response, data_model=UnreadMessages)
 
     @method_endpoint('/api/users/:id/history')
-    async def history(self,
-                      user_id: Union[int, str],
-                      is_nickname: Optional[bool] = None,
-                      page: Optional[int] = None,
-                      limit: Optional[int] = None,
-                      target_id: Optional[int] = None,
-                      target_type: Optional[str] = None) -> List[History]:
+    async def history(
+            self,
+            user_id: Union[int, str],
+            is_nickname: Optional[bool] = None,
+            page: Optional[int] = None,
+            limit: Optional[int] = None,
+            target_id: Optional[int] = None,
+            target_type: Optional[TargetType] = None) -> List[History]:
         """Returns history of user.
 
         :param user_id: User ID/Nickname to get history
@@ -378,13 +378,13 @@ class Users(BaseResource):
         :param target_id: ID of anime/manga in history
         :type target_id: Optional[int]
 
-        :param target_type: Type of target (Anime/Manga)
-        :type target_type: Optional[str]
+        :param target_type: Type of target
+        :type target_type: Optional[TargetType]
 
         :return: User's history
         :rtype: List[History]
         """
-        if not Utils.validate_enum_params({TargetType: target_type}):
+        if not ExperimentalUtils.is_enum_passed(target_type):
             return []
 
         validated_numbers = Utils.query_numbers_validator(

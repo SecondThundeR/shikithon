@@ -7,6 +7,7 @@ from ..decorators import method_endpoint
 from ..enums import OwnerType
 from ..enums import RequestType
 from ..models import Style
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -53,7 +54,7 @@ class Styles(BaseResource):
 
     @method_endpoint('/api/styles')
     async def create(self, css: str, name: str, owner_id: int,
-                     owner_type: str) -> Optional[Style]:
+                     owner_type: OwnerType) -> Optional[Style]:
         """Creates new style.
 
         :param css: CSS code for style
@@ -65,13 +66,13 @@ class Styles(BaseResource):
         :param owner_id: User/Club ID for style ownership
         :type owner_id: int
 
-        :param owner_type: Type of owner (User/Club)
-        :type owner_type: str
+        :param owner_type: Type of owner
+        :type owner_type: OwnerType
 
         :return: Info about previewed style
         :rtype: Optional[Style]
         """
-        if not Utils.validate_enum_params({OwnerType: owner_type}):
+        if not ExperimentalUtils.is_enum_passed(owner_type):
             return None
 
         response: Dict[str, Any] = await self._client.request(

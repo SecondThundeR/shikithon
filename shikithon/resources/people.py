@@ -32,7 +32,7 @@ class People(BaseResource):
     @method_endpoint('/api/people/search')
     async def search(self,
                      search: Optional[str] = None,
-                     people_kind: Optional[str] = None) -> List[Person]:
+                     people_kind: Optional[PersonKind] = None) -> List[Person]:
         """Returns list of found persons.
 
         **Note:** This API method only allows 'seyu',
@@ -42,12 +42,12 @@ class People(BaseResource):
         :type search: Optional[str]
 
         :param people_kind: Kind of person for searching
-        :type people_kind: Optional[str]
+        :type people_kind: Optional[PersonKind]
 
         :return: List of found persons
         :rtype: List[Person]
         """
-        if not Utils.validate_enum_params({PersonKind: people_kind}):
+        if not ExperimentalUtils.is_enum_passed(people_kind):
             return []
 
         response: List[Dict[str, Any]] = await self._client.request(

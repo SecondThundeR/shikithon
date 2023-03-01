@@ -66,53 +66,6 @@ class Utils:
         return new_data_dict
 
     @staticmethod
-    def validate_enum_params(
-            enum_params: Dict[Type[EnhancedEnum], Union[str,
-                                                        List[str]]]) -> bool:
-        """Validates string parameter with enum values.
-
-        This method gets dictionary with enum and string values.
-
-        If string value is in enum values, function returns True,
-        otherwise False
-
-        :param enum_params: Dictionary with values to validate.
-        :type enum_params: Dict[Type[EnhancedEnum], Union[str, List[str]]])
-
-        :return: Validator result
-        :rtype: bool
-        """
-        enums_counter = 0
-        logger.debug('Checking if enum parameters are valid')
-        for enum, param in enum_params.items():
-            if param is None:
-                continue
-
-            enums_counter += 1
-            enum_values = enum.get_values()
-
-            if isinstance(param, list):
-                for item in param:
-                    if item not in enum_values:
-                        logger.warning(f'"{item}" is not valid value '
-                                       f'of "{enum.get_name()}".'
-                                       f'\nAccepted values: {enum_values}')
-                        return False
-                break
-
-            if param not in enum_values:
-                logger.warning(
-                    f'"{param}" is not valid value of "{enum.get_name()}".'
-                    f'\nAccepted values: {enum_values}')
-                return False
-
-        logger.debug(
-            f'All ({enums_counter}) enum parameters are valid'
-            if enums_counter > 0 else 'There are no enum parameters to check')
-
-        return True
-
-    @staticmethod
     def get_validated_query_number(query_number: Optional[int],
                                    upper_limit: int) -> Optional[int]:
         """Validates query number.

@@ -19,28 +19,25 @@ class Favorites(BaseResource):
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id(/:kind)')
     async def create(self,
-                     linked_type: str,
+                     linked_type: FavoriteLinkedType,
                      linked_id: int,
-                     kind: str = PersonKind.NONE.value) -> bool:
+                     kind: PersonKind = PersonKind.NONE) -> bool:
         """Creates a favorite.
 
         :param linked_type: Type of object for making favorite
-        :type linked_type: str
+        :type linked_type: FavoriteLinkedType
 
         :param linked_id: ID of linked type
         :type linked_id: int
 
         :param kind: Kind of linked type
             (Required when linked_type is 'Person')
-        :type kind: str
+        :type kind: PersonKind
 
         :return: Status of favorite create
         :rtype: bool
         """
-        if not Utils.validate_enum_params({
-                FavoriteLinkedType: linked_type,
-                PersonKind: kind
-        }):
+        if not ExperimentalUtils.is_enum_passed(linked_type, kind):
             return False
 
         response: Dict[str, Any] = await self._client.request(
@@ -50,11 +47,12 @@ class Favorites(BaseResource):
         return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id')
-    async def destroy(self, linked_type: str, linked_id: int) -> bool:
+    async def destroy(self, linked_type: FavoriteLinkedType,
+                      linked_id: int) -> bool:
         """Destroys a favorite.
 
         :param linked_type: Type of object for destroying from favorite
-        :type linked_type: str
+        :type linked_type: FavoriteLinkedType
 
         :param linked_id: ID of linked type
         :type linked_id: int
@@ -62,7 +60,7 @@ class Favorites(BaseResource):
         :return: Status of favorite destroy
         :rtype: bool
         """
-        if not Utils.validate_enum_params({FavoriteLinkedType: linked_type}):
+        if not ExperimentalUtils.is_enum_passed(linked_type):
             return False
 
         response: Dict[str, Any] = await self._client.request(

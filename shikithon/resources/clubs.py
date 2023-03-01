@@ -81,12 +81,12 @@ class Clubs(BaseResource):
             club_id: int,
             name: Optional[str] = None,
             description: Optional[str] = None,
-            join_policy: Optional[str] = None,
+            join_policy: Optional[JoinPolicy] = None,
             display_images: Optional[bool] = None,
-            comment_policy: Optional[str] = None,
-            topic_policy: Optional[str] = None,
-            page_policy: Optional[str] = None,
-            image_upload_policy: Optional[str] = None,
+            comment_policy: Optional[CommentPolicy] = None,
+            topic_policy: Optional[TopicPolicy] = None,
+            page_policy: Optional[PagePolicy] = None,
+            image_upload_policy: Optional[ImageUploadPolicy] = None,
             is_censored: Optional[bool] = None,
             anime_ids: Optional[List[int]] = None,
             manga_ids: Optional[List[int]] = None,
@@ -108,22 +108,22 @@ class Clubs(BaseResource):
         :type description: Optional[str]
 
         :param join_policy: New join policy of club
-        :type join_policy: Optional[str]
+        :type join_policy: Optional[JoinPolicy]
 
         :param display_images: New display images status of club
         :type display_images: Optional[bool]
 
         :param comment_policy: New comment policy of club
-        :type comment_policy: Optional[str]
+        :type comment_policy: Optional[CommentPolicy]
 
         :param topic_policy: New topic policy of club
-        :type topic_policy: Optional[str]
+        :type topic_policy: Optional[TopicPolicy]
 
         :param page_policy: New page policy of club
-        :type page_policy: Optional[str]
+        :type page_policy: Optional[PagePolicy]
 
         :param image_upload_policy: New image upload policy of club
-        :type image_upload_policy: Optional[str]
+        :type image_upload_policy: Optional[ImageUploadPolicy]
 
         :param is_censored: New censored status of club
         :type is_censored: Optional[bool]
@@ -155,13 +155,9 @@ class Clubs(BaseResource):
         :return: Updated club info
         :rtype: Optional[Club]
         """
-        if not Utils.validate_enum_params({
-                JoinPolicy: join_policy,
-                CommentPolicy: comment_policy,
-                TopicPolicy: topic_policy,
-                PagePolicy: page_policy,
-                ImageUploadPolicy: image_upload_policy
-        }):
+        if not ExperimentalUtils.is_enum_passed(join_policy, comment_policy,
+                                                topic_policy, page_policy,
+                                                image_upload_policy):
             return None
 
         response: Dict[str, Any] = await self._client.request(

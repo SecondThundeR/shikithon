@@ -23,10 +23,10 @@ class Topics(BaseResource):
     async def get_all(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      forum: Optional[str] = None,
+                      forum: Optional[ForumType] = None,
                       linked_id: Optional[int] = None,
-                      linked_type: Optional[str] = None,
-                      topic_type: Optional[str] = None) -> List[Topic]:
+                      linked_type: Optional[TopicLinkedType] = None,
+                      topic_type: Optional[TopicType] = None) -> List[Topic]:
         """Returns list of topics.
 
         :param page: Number of page
@@ -35,26 +35,22 @@ class Topics(BaseResource):
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :param forum: Number of results limit
-        :type forum: Optional[str]
+        :param forum: Type of forum
+        :type forum: Optional[ForumType]
 
         :param linked_id: ID of linked topic (Used together with linked_type)
         :type linked_id: Optional[int]
 
         :param linked_type: Type of linked topic (Used together with linked_id)
-        :type linked_type: Optional[str]
+        :type linked_type: Optional[TopicLinkedType]
 
-        :param topic_type: Type of topic.
-        :type topic_type: Optional[str]
+        :param topic_type: Type of topic
+        :type topic_type: Optional[TopicType]
 
         :return: List of topics
         :rtype: List[Topic]
         """
-        if not Utils.validate_enum_params({
-                ForumType: forum,
-                TopicLinkedType: linked_type,
-                TopicType: topic_type
-        }):
+        if not ExperimentalUtils.is_enum_passed(forum, linked_type, topic_type):
             return []
 
         validated_numbers = Utils.query_numbers_validator(
@@ -139,13 +135,14 @@ class Topics(BaseResource):
         return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics')
-    async def create(self,
-                     body: str,
-                     forum_id: int,
-                     title: str,
-                     user_id: int,
-                     linked_id: Optional[int] = None,
-                     linked_type: Optional[str] = None) -> Optional[Topic]:
+    async def create(
+            self,
+            body: str,
+            forum_id: int,
+            title: str,
+            user_id: int,
+            linked_id: Optional[int] = None,
+            linked_type: Optional[TopicLinkedType] = None) -> Optional[Topic]:
         """Creates topic.
 
         :param body: Body of topic
@@ -161,15 +158,15 @@ class Topics(BaseResource):
         :type user_id: int
 
         :param linked_id: ID of linked topic (Used together with linked_type)
-        :type linked_type: Optional[int]
+        :type linked_id: Optional[int]
 
         :param linked_type: Type of linked topic (Used together with linked_id)
-        :type linked_type: Optional[str]
+        :type linked_type: Optional[TopicLinkedType]
 
         :return: Created topic info
         :rtype: Optional[Topic]
         """
-        if not Utils.validate_enum_params({TopicLinkedType: linked_type}):
+        if not ExperimentalUtils.is_enum_passed(linked_type):
             return None
 
         response: Dict[str, Any] = await self._client.request(
@@ -186,12 +183,13 @@ class Topics(BaseResource):
         return Utils.validate_response_data(response, data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
-    async def update(self,
-                     topic_id: int,
-                     body: Optional[str] = None,
-                     title: Optional[str] = None,
-                     linked_id: Optional[int] = None,
-                     linked_type: Optional[str] = None) -> Optional[Topic]:
+    async def update(
+            self,
+            topic_id: int,
+            body: Optional[str] = None,
+            title: Optional[str] = None,
+            linked_id: Optional[int] = None,
+            linked_type: Optional[TopicLinkedType] = None) -> Optional[Topic]:
         """Updates topic.
 
         :param topic_id: ID of topic to update
@@ -204,15 +202,15 @@ class Topics(BaseResource):
         :type title: Optional[str]
 
         :param linked_id: ID of linked topic (Used together with linked_type)
-        :type linked_type: Optional[int]
+        :type linked_id: Optional[int]
 
         :param linked_type: Type of linked topic (Used together with linked_id)
-        :type linked_type: Optional[str]
+        :type linked_type: Optional[TopicLinkedType]
 
         :return: Updated topic info
         :rtype: Optional[Topic]
         """
-        if not Utils.validate_enum_params({TopicLinkedType: linked_type}):
+        if not ExperimentalUtils.is_enum_passed(linked_type):
             return None
 
         response: Dict[str, Any] = await self._client.request(

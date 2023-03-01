@@ -16,16 +16,18 @@ class Calendar(BaseResource):
     """
 
     @method_endpoint('/api/calendar')
-    async def get(self, censored: Optional[str] = None) -> List[CalendarEvent]:
+    async def get(
+            self,
+            censored: Optional[AnimeCensorship] = None) -> List[CalendarEvent]:
         """Returns current calendar events.
 
         :param censored: Status of censorship for events (true/false)
-        :type censored: Optional[str]
+        :type censored: Optional[AnimeCensorship]
 
         :return: List of calendar events
         :rtype: List[CalendarEvent]
         """
-        if not Utils.validate_enum_params({AnimeCensorship: censored}):
+        if not ExperimentalUtils.is_enum_passed(censored):
             return []
 
         response: List[Dict[str, Any]] = await self._client.request(

@@ -21,7 +21,7 @@ class Comments(BaseResource):
     @method_endpoint('/api/comments')
     async def get_all(self,
                       commentable_id: int,
-                      commentable_type: str,
+                      commentable_type: CommentableType,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
                       desc: Optional[int] = None) -> List[Comment]:
@@ -31,7 +31,7 @@ class Comments(BaseResource):
         :type commentable_id: int
 
         :param commentable_type: Type of entity to get comment
-        :type commentable_type: str
+        :type commentable_type: CommentableType
 
         :param page: Number of page
         :type page: Optional[int]
@@ -45,7 +45,7 @@ class Comments(BaseResource):
         :return: List of comments
         :rtype: List[Comment]
         """
-        if not Utils.validate_enum_params({CommentableType: commentable_type}):
+        if not ExperimentalUtils.is_enum_passed(commentable_type):
             return []
 
         validated_numbers = Utils.query_numbers_validator(
@@ -83,7 +83,7 @@ class Comments(BaseResource):
     async def create(self,
                      body: str,
                      commentable_id: int,
-                     commentable_type: str,
+                     commentable_type: CommentableType,
                      is_offtopic: Optional[bool] = None,
                      broadcast: Optional[bool] = None) -> Optional[Comment]:
         """Creates comment.
@@ -98,7 +98,7 @@ class Comments(BaseResource):
         :type commentable_id: int
 
         :param commentable_type: Type of entity to comment on
-        :type commentable_type: str
+        :type commentable_type: CommentableType
 
         :param is_offtopic: Status of offtopic
         :type is_offtopic: Optional[bool]
@@ -109,7 +109,7 @@ class Comments(BaseResource):
         :return: Created comment info
         :rtype: Optional[Comment]
         """
-        if not Utils.validate_enum_params({CommentableType: commentable_type}):
+        if not ExperimentalUtils.is_enum_passed(commentable_type):
             return None
 
         data_dict: Dict[str, Any] = Utils.create_data_dict(

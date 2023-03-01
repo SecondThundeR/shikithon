@@ -28,16 +28,18 @@ class Mangas(BaseResource):
     async def get_all(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      order: Optional[str] = None,
-                      kind: Optional[Union[str, List[str]]] = None,
-                      status: Optional[Union[str, List[str]]] = None,
+                      order: Optional[MangaOrder] = None,
+                      kind: Optional[Union[MangaKind, List[MangaKind]]] = None,
+                      status: Optional[Union[MangaStatus,
+                                             List[MangaStatus]]] = None,
                       season: Optional[Union[str, List[str]]] = None,
                       score: Optional[int] = None,
                       genre: Optional[Union[int, List[int]]] = None,
                       publisher: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
-                      censored: Optional[str] = None,
-                      my_list: Optional[Union[str, List[str]]] = None,
+                      censored: Optional[MangaCensorship] = None,
+                      my_list: Optional[Union[MangaList,
+                                              List[MangaList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None) -> List[Manga]:
@@ -50,13 +52,13 @@ class Mangas(BaseResource):
         :type limit: Optional[int]
 
         :param order: Type of order in list
-        :type order: Optional[str]
+        :type order: Optional[MangaOrder]
 
         :param kind: Type(s) of manga topic
-        :type kind: Optional[Union[str, List[str]]
+        :type kind: Optional[Union[MangaKind, List[MangaKind]]
 
         :param status: Type(s) of manga status
-        :type status: Optional[Union[str, List[str]]]
+        :type status: Optional[Union[MangaStatus, List[MangaStatus]]]
 
         :param season: Name(s) of manga seasons
         :type season: Optional[Union[str, List[str]]]
@@ -74,12 +76,12 @@ class Mangas(BaseResource):
         :type franchise: Optional[Union[int, List[int]]
 
         :param censored: Type of manga censorship
-        :type censored: Optional[str]
+        :type censored: Optional[MangaCensorship]
 
         :param my_list: Status(-es) of manga in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[str, List[str]]]
+        :type my_list: Optional[Union[MangaList, List[MangaList]]]
 
         :param ids: Manga(s) ID to include
         :type ids: Optional[Union[int, List[int]]
@@ -93,13 +95,8 @@ class Mangas(BaseResource):
         :return: List of Mangas
         :rtype: List[Manga]
         """
-        if not Utils.validate_enum_params({
-                MangaOrder: order,
-                MangaKind: kind,
-                MangaStatus: status,
-                MangaCensorship: censored,
-                MangaList: my_list
-        }):
+        if not ExperimentalUtils.is_enum_passed(order, kind, status, censored,
+                                                my_list):
             return []
 
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],

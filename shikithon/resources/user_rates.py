@@ -25,8 +25,8 @@ class UserRates(BaseResource):
     async def get_all(self,
                       user_id: int,
                       target_id: Optional[int] = None,
-                      target_type: Optional[str] = None,
-                      status: Optional[str] = None,
+                      target_type: Optional[UserRateTarget] = None,
+                      status: Optional[UserRateStatus] = None,
                       page: Optional[int] = None,
                       limit: Optional[int] = None) -> List[UserRate]:
         """Returns list of user rates.
@@ -44,10 +44,10 @@ class UserRates(BaseResource):
         :type target_id: Optional[int]
 
         :param target_type: Type of target_id to get rates for
-        :type target_type: Optional[str]
+        :type target_type: Optional[UserRateTarget]
 
         :param status: Status of target_type to get rates for
-        :type target_type: Optional[str]
+        :type status: Optional[UserRateStatus]
 
         :param page: Number of page
         :type page: Optional[int]
@@ -63,7 +63,7 @@ class UserRates(BaseResource):
             logger.warning('target_type is required when passing target_id')
             return []
 
-        if not Utils.validate_enum_params({
+        if not ExperimentalUtils.is_enum_passed({
                 UserRateTarget: target_type,
                 UserRateStatus: status
         }):
@@ -105,8 +105,8 @@ class UserRates(BaseResource):
     async def create(self,
                      user_id: int,
                      target_id: int,
-                     target_type: str,
-                     status: Optional[str] = None,
+                     target_type: UserRateTarget,
+                     status: Optional[UserRateStatus] = None,
                      score: Optional[int] = None,
                      chapters: Optional[int] = None,
                      episodes: Optional[int] = None,
@@ -123,10 +123,10 @@ class UserRates(BaseResource):
 
         :param target_type: Type of target_id to create user rate for
             (Anime or Manga)
-        :type target_type: str
+        :type target_type: UserRateTarget
 
         :param status: Status of target
-        :type status: Optional[str]
+        :type status: Optional[UserRateStatus]
 
         :param score: Score of target
         :type score: Optional[int]
@@ -149,10 +149,7 @@ class UserRates(BaseResource):
         :return: Info about new user rate
         :rtype: Optional[UserRate]
         """
-        if not Utils.validate_enum_params({
-                UserRateTarget: target_type,
-                UserRateStatus: status
-        }):
+        if not ExperimentalUtils.is_enum_passed(target_type, status):
             return None
 
         validated_numbers = Utils.query_numbers_validator(score=[score, 10])
@@ -176,7 +173,7 @@ class UserRates(BaseResource):
     @method_endpoint('/api/v2/user_rates/:id')
     async def update(self,
                      rate_id: int,
-                     status: Optional[str] = None,
+                     status: Optional[UserRateStatus] = None,
                      score: Optional[int] = None,
                      chapters: Optional[int] = None,
                      episodes: Optional[int] = None,
@@ -189,7 +186,7 @@ class UserRates(BaseResource):
         :type rate_id: int
 
         :param status: Status of target
-        :type status: Optional[str]
+        :type status: Optional[UserRateStatus]
 
         :param score: Score of target
         :type score: Optional[int]
@@ -212,7 +209,7 @@ class UserRates(BaseResource):
         :return: Info about new user rate
         :rtype: Optional[UserRate]
         """
-        if not Utils.validate_enum_params({UserRateStatus: status}):
+        if not ExperimentalUtils.is_enum_passed(status):
             return None
 
         validated_numbers = Utils.query_numbers_validator(score=[score, 10])
@@ -262,16 +259,16 @@ class UserRates(BaseResource):
             response, response_code=ResponseCode.NO_CONTENT, fallback=False)
 
     @method_endpoint('/api/users_rates/:type/cleanup')
-    async def delete_all(self, user_rate_type: str) -> bool:
+    async def delete_all(self, user_rate_type: UserRateType) -> bool:
         """Deletes all user rates.
 
         :param user_rate_type: Type of user rates to delete
-        :type user_rate_type: str
+        :type user_rate_type: UserRateType
 
         :return: Status of user rates deletion
         :rtype: bool
         """
-        if not Utils.validate_enum_params({UserRateType: user_rate_type}):
+        if not ExperimentalUtils.is_enum_passed(user_rate_type):
             return False
 
         response: Union[Dict[str, Any], int] = await self._client.request(
@@ -280,7 +277,7 @@ class UserRates(BaseResource):
         return Utils.validate_response_data(response, fallback=False)
 
     @method_endpoint('/api/user_rates/:type/reset')
-    async def reset_all(self, user_rate_type: str) -> bool:
+    async def reset_all(self, user_rate_type: UserRateType) -> bool:
         """Resets all user rates.
 
         :param user_rate_type: Type of user rates to reset
@@ -289,7 +286,7 @@ class UserRates(BaseResource):
         :return: Status of user rates reset
         :rtype: bool
         """
-        if not Utils.validate_enum_params({UserRateType: user_rate_type}):
+        if not ExperimentalUtils.is_enum_passed(user_rate_type):
             return False
 
         response: Union[Dict[str, Any], int] = await self._client.request(

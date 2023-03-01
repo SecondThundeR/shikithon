@@ -118,19 +118,19 @@ class Messages(BaseResource):
                                             fallback=False)
 
     @method_endpoint('/api/messages/read_all')
-    async def read_all(self, message_type: str) -> bool:
+    async def read_all(self, message_type: MessageType) -> bool:
         """Reads all messages on current user's account.
 
         **Note:** This methods accepts as type only 'news' and
         'notifications'
 
         :param message_type: Type of messages to read
-        :type message_type: str
+        :type message_type: MessageType
 
         :return: Status of messages read
         :rtype: bool
         """
-        if not Utils.validate_enum_params({MessageType: message_type}):
+        if not ExperimentalUtils.is_enum_passed(message_type):
             return False
 
         response: Union[Dict[str, Any], int] = await self._client.request(
@@ -142,19 +142,19 @@ class Messages(BaseResource):
                                             fallback=False)
 
     @method_endpoint('/api/messages/delete_all')
-    async def delete_all(self, message_type: str) -> bool:
+    async def delete_all(self, message_type: MessageType) -> bool:
         """Deletes all messages on current user's account.
 
         **Note:** This methods accepts as type only 'news' and
         'notifications'
 
         :param message_type: Type of messages to delete
-        :type message_type: str
+        :type message_type: MessageType
 
         :return: Status of messages deletion
         :rtype: bool
         """
-        if not Utils.validate_enum_params({MessageType: message_type}):
+        if not ExperimentalUtils.is_enum_passed(message_type):
             return False
 
         response: Union[Dict[str, Any], int] = await self._client.request(
