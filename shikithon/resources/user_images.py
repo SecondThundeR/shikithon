@@ -5,6 +5,7 @@ from ..decorators import method_endpoint
 from ..enums import RequestType
 from ..models import CreatedUserImage
 from ..utils import Utils
+from ..utils.experimental_utils import ExperimentalUtils
 from .base_resource import BaseResource
 
 
@@ -30,7 +31,7 @@ class UserImages(BaseResource):
         :return: Created image info
         :rtype: Optional[CreatedUserImage]
         """
-        image_data = await Utils.get_image_data(image_path)
+        image_data = await ExperimentalUtils.get_image_data(image_path)
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.user_images,
             data=Utils.create_data_dict(linked_type=linked_type),

@@ -5,12 +5,9 @@ This file contains the Utils class
 with all the necessary utility methods
 to work with the library
 """
-from enum import Enum
 from typing import Any, Dict, List, Optional, Type, Union
 
-from aiohttp import ClientSession
 from loguru import logger
-from validators import url as is_url
 
 from ..enums.enhanced_enum import EnhancedEnum
 from ..enums.response import ResponseCode
@@ -25,28 +22,6 @@ class Utils:
     Contains all the necessary utility methods
     to work with the library
     """
-
-    @staticmethod
-    async def get_image_data(image_path: str):
-        """Extract image data from image path.
-
-        If image_path is a link, fetch the image data from the link.
-
-        :param image_path: Path to image
-        :type image_path: str
-
-        :return: Image data
-        :rtype: Dict[str, bytes]
-        """
-        if isinstance(is_url(image_path), bool):
-            async with ClientSession() as session:
-                async with session.get(image_path) as image_response:
-                    image_data = await image_response.read()
-        else:
-            with open(image_path, 'rb') as image_file:
-                image_data = image_file.read()
-
-        return {'image': image_data}
 
     @staticmethod
     def create_query_dict(
@@ -259,6 +234,7 @@ class Utils:
 
         :param query_numbers: Passed query numbers to validate
         :type query_numbers: List[Optional[int]]
+
         :return: Dict of validated numbers
         :rtype: Dict[str, Optional[int]]
         """
