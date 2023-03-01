@@ -66,36 +66,6 @@ class Utils:
         return new_data_dict
 
     @staticmethod
-    def unstable__is_enum_passed(*params: Any):
-        """Checks if passed params are actually enums.
-
-        Parameters are of the "Any" type, since
-        you can pass anything when calling a library method,
-        so the task of the method is to check the correctness
-        of the passed enums
-
-        :param params: Params of function to check
-        :type params: Any
-
-        :return: Check result
-        :rtype: bool
-        """
-        logger.debug('Checking is passed params are enums')
-        for data in params:
-            if data is None:
-                continue
-            elif isinstance(data, list):
-                for item in data:
-                    if not isinstance(item, EnhancedEnum):
-                        logger.debug('Passed parameter is not an enum!')
-                        return False
-            elif not isinstance(data, EnhancedEnum):
-                logger.debug('Passed parameter is not an enum!')
-                return False
-        logger.debug('All passed parameters are enums!')
-        return True
-
-    @staticmethod
     def validate_enum_params(
             enum_params: Dict[Type[EnhancedEnum], Union[str,
                                                         List[str]]]) -> bool:

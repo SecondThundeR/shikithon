@@ -112,7 +112,7 @@ class Animes(BaseResource):
         :return: Animes list
         :rtype: List[Anime]
         """
-        if not Utils.unstable__is_enum_passed(
+        if not ExperimentalUtils.is_enum_passed(
                 order,
                 kind,
                 status,
@@ -264,7 +264,7 @@ class Animes(BaseResource):
                      anime_id: int,
                      page: Optional[int] = None,
                      limit: Optional[int] = None,
-                     kind: Optional[str] = None,
+                     kind: Optional[AnimeTopicKind] = None,
                      episode: Optional[int] = None) -> List[Topic]:
         """Returns list of topics of certain anime.
 
@@ -278,7 +278,7 @@ class Animes(BaseResource):
         :type limit: Optional[int]
 
         :param kind: Kind of anime
-        :type kind: Optional[str]
+        :type kind: Optional[AnimeTopicKind]
 
         :param episode: Number of anime episode
         :type episode: Optional[int]
@@ -286,7 +286,7 @@ class Animes(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        if not Utils.validate_enum_params({AnimeTopicKind: kind}):
+        if not ExperimentalUtils.is_enum_passed(kind):
             return []
 
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
@@ -339,7 +339,7 @@ class Animes(BaseResource):
         :return: Created video info
         :rtype: Optional[Video]
         """
-        if not Utils.unstable__is_enum_passed(kind):
+        if not ExperimentalUtils.is_enum_passed(kind):
             return None
 
         data_dict: Dict[str, Any] = Utils.create_data_dict(dict_name='video',
