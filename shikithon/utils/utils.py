@@ -98,7 +98,7 @@ class Utils:
         return new_data_dict
 
     @staticmethod
-    def unstable__is_enum_passed(*params: Any) -> bool:
+    def unstable__is_enum_passed(*params: Any):
         """Checks if passed params are actually enums.
 
         Parameters are of the "Any" type, since
@@ -112,13 +112,19 @@ class Utils:
         :return: Check result
         :rtype: bool
         """
+        logger.debug('Checking is passed params are enums')
         for data in params:
-            if isinstance(data, list):
+            if data is None:
+                continue
+            elif isinstance(data, list):
                 for item in data:
-                    if not isinstance(item, Enum):
+                    if not isinstance(item, EnhancedEnum):
+                        logger.debug('Passed parameter is not an enum!')
                         return False
-            elif not isinstance(data, Enum):
+            elif not isinstance(data, EnhancedEnum):
+                logger.debug('Passed parameter is not an enum!')
                 return False
+        logger.debug('All passed parameters are enums!')
         return True
 
     @staticmethod
