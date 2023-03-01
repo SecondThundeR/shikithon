@@ -8,6 +8,7 @@ from ..enums import ResponseCode
 from ..enums import TopicLinkedType
 from ..enums import TopicType
 from ..models import Topic
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -63,12 +64,13 @@ class Topics(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.topics,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          forum=forum,
-                                          linked_id=linked_id,
-                                          linked_type=linked_type,
-                                          type=topic_type))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                forum=forum,
+                linked_id=linked_id,
+                linked_type=linked_type,
+                type=topic_type))
         return Utils.validate_response_data(response,
                                             data_model=Topic,
                                             fallback=[])
@@ -95,8 +97,9 @@ class Topics(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.updates_topics,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit']))
         return Utils.validate_response_data(response,
                                             data_model=Topic,
                                             fallback=[])
@@ -115,7 +118,8 @@ class Topics(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.hot_topics,
-            query=Utils.create_query_dict(limit=validated_numbers['limit']))
+            query=ExperimentalUtils.create_query_dict(
+                limit=validated_numbers['limit']))
         return Utils.validate_response_data(response,
                                             data_model=Topic,
                                             fallback=[])

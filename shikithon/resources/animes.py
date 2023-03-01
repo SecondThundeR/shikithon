@@ -294,10 +294,11 @@ class Animes(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_topics(anime_id),
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          kind=kind,
-                                          episode=episode))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                kind=kind,
+                episode=episode))
         return Utils.validate_response_data(response,
                                             data_model=Topic,
                                             fallback=[])

@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 
 from ..decorators import method_endpoint
 from ..models import Character
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -39,5 +40,5 @@ class Characters(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.character_search,
-            query=Utils.create_query_dict(search=search))
+            query=ExperimentalUtils.create_query_dict(search=search))
         return Utils.validate_response_data(response, data_model=Character)

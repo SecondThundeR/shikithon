@@ -6,6 +6,7 @@ from ..enums import FavoriteLinkedType
 from ..enums import PersonKind
 from ..enums import RequestType
 from ..enums import ResponseCode
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -87,7 +88,7 @@ class Favorites(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.favorites_reorder(favorite_id),
-            query=Utils.create_query_dict(new_index=new_index),
+            query=ExperimentalUtils.create_query_dict(new_index=new_index),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,

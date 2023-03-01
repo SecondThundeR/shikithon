@@ -7,6 +7,7 @@ from loguru import logger
 from ..decorators import method_endpoint
 from ..enums import RequestType
 from ..enums import ResponseCode
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -40,7 +41,7 @@ class Appears(BaseResource):
 
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.appears,
-            data=Utils.create_query_dict(ids=ids),
+            data=ExperimentalUtils.create_query_dict(ids=ids),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,

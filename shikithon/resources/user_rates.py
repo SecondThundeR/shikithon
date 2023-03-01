@@ -10,6 +10,7 @@ from ..enums import UserRateStatus
 from ..enums import UserRateTarget
 from ..enums import UserRateType
 from ..models import UserRate
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -75,12 +76,13 @@ class UserRates(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_rates,
-            query=Utils.create_query_dict(user_id=user_id,
-                                          target_id=target_id,
-                                          target_type=target_type,
-                                          status=status,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
+            query=ExperimentalUtils.create_query_dict(
+                user_id=user_id,
+                target_id=target_id,
+                target_type=target_type,
+                status=status,
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit']))
         return Utils.validate_response_data(response,
                                             data_model=UserRate,
                                             fallback=[])

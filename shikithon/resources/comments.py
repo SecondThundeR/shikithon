@@ -7,6 +7,7 @@ from ..decorators import method_endpoint
 from ..enums import CommentableType
 from ..enums import RequestType
 from ..models import Comment
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -54,11 +55,12 @@ class Comments(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.comments,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          commentable_id=commentable_id,
-                                          commentable_type=commentable_type,
-                                          desc=desc))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                commentable_id=commentable_id,
+                commentable_type=commentable_type,
+                desc=desc))
         return Utils.validate_response_data(response,
                                             data_model=Comment,
                                             fallback=[])

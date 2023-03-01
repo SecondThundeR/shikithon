@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 from ..decorators import method_endpoint
 from ..enums import AnimeCensorship
 from ..models import CalendarEvent
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -29,7 +30,7 @@ class Calendar(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.calendar,
-            query=Utils.create_query_dict(censored=censored))
+            query=ExperimentalUtils.create_query_dict(censored=censored))
         return Utils.validate_response_data(response,
                                             data_model=CalendarEvent,
                                             fallback=[])

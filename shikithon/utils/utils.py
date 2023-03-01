@@ -24,38 +24,6 @@ class Utils:
     """
 
     @staticmethod
-    def create_query_dict(
-        **params_data: Optional[Union[str, bool, int, List[Union[int, str]]]]
-    ) -> Dict[str, str]:
-        """Creates query dict for API requests.
-
-        This methods checks for data types and converts to valid one.
-
-        :param params_data: API methods parameters data
-        :type params_data:
-            Optional[Union[str, bool, int, List[Union[int, str]]]]
-
-        :return: Query dictionary
-        :rtype: Dict[str, str]
-        """
-        logger.debug(
-            f'Generating query dictionary for request. Passed {params_data=}')
-        query_dict: Dict[str, str] = {}
-        for key, data in params_data.items():
-            if data is None:
-                continue
-            if isinstance(data, bool):
-                query_dict[key] = str(int(data))
-            elif isinstance(data, int):
-                query_dict[key] = str(data)
-            elif isinstance(data, list):
-                query_dict[key] = ','.join(data)
-            else:
-                query_dict[key] = data
-        logger.debug(f'Generated query dictionary: {query_dict=}')
-        return query_dict
-
-    @staticmethod
     def create_data_dict(
         **dict_data: Optional[Union[str, bool, int, List[int]]]
     ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:

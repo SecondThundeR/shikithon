@@ -16,6 +16,7 @@ from ..models import ClubImage
 from ..models import Manga
 from ..models import Ranobe
 from ..models import User
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -52,9 +53,10 @@ class Clubs(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.clubs,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          search=search))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                search=search))
         return Utils.validate_response_data(response,
                                             data_model=Club,
                                             fallback=[])

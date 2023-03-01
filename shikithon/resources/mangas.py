@@ -13,6 +13,7 @@ from ..models import Link
 from ..models import Manga
 from ..models import Relation
 from ..models import Topic
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -107,21 +108,22 @@ class Mangas(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.mangas,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          order=order,
-                                          kind=kind,
-                                          status=status,
-                                          season=season,
-                                          score=validated_numbers['score'],
-                                          genre=genre,
-                                          publisher=publisher,
-                                          franchise=franchise,
-                                          censored=censored,
-                                          mylist=my_list,
-                                          ids=ids,
-                                          exclude_ids=exclude_ids,
-                                          search=search))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                order=order,
+                kind=kind,
+                status=status,
+                season=season,
+                score=validated_numbers['score'],
+                genre=genre,
+                publisher=publisher,
+                franchise=franchise,
+                censored=censored,
+                mylist=my_list,
+                ids=ids,
+                exclude_ids=exclude_ids,
+                search=search))
         return Utils.validate_response_data(response,
                                             data_model=Manga,
                                             fallback=[])
@@ -242,8 +244,9 @@ class Mangas(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_topics(manga_id),
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit']))
         return Utils.validate_response_data(response,
                                             data_model=Topic,
                                             fallback=[])

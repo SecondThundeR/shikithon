@@ -15,6 +15,7 @@ from ..models import Message
 from ..models import UnreadMessages
 from ..models import User
 from ..models import UserList
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -47,8 +48,9 @@ class Users(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.users,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit']))
         return Utils.validate_response_data(response,
                                             data_model=User,
                                             fallback=[])
@@ -70,7 +72,7 @@ class Users(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            query=ExperimentalUtils.create_query_dict(is_nickname=is_nickname))
         return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/:id/info')
@@ -90,7 +92,7 @@ class Users(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_info(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            query=ExperimentalUtils.create_query_dict(is_nickname=is_nickname))
         return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/whoami')
@@ -135,7 +137,7 @@ class Users(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_friends(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            query=ExperimentalUtils.create_query_dict(is_nickname=is_nickname))
         return Utils.validate_response_data(response,
                                             data_model=User,
                                             fallback=[])
@@ -157,7 +159,7 @@ class Users(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_clubs(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            query=ExperimentalUtils.create_query_dict(is_nickname=is_nickname))
         return Utils.validate_response_data(response,
                                             data_model=Club,
                                             fallback=[])
@@ -206,11 +208,12 @@ class Users(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_anime_rates(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          status=status,
-                                          censored=censored))
+            query=ExperimentalUtils.create_query_dict(
+                is_nickname=is_nickname,
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                status=status,
+                censored=censored))
         return Utils.validate_response_data(response,
                                             data_model=UserList,
                                             fallback=[])
@@ -252,10 +255,11 @@ class Users(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_manga_rates(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          censored=censored))
+            query=ExperimentalUtils.create_query_dict(
+                is_nickname=is_nickname,
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                censored=censored))
         return Utils.validate_response_data(response,
                                             data_model=UserList,
                                             fallback=[])
@@ -278,7 +282,7 @@ class Users(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_favourites(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            query=ExperimentalUtils.create_query_dict(is_nickname=is_nickname))
         return Utils.validate_response_data(response, data_model=Favourites)
 
     @method_endpoint('/api/users/:id/messages')
@@ -319,10 +323,11 @@ class Users(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_messages(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          type=message_type))
+            query=ExperimentalUtils.create_query_dict(
+                is_nickname=is_nickname,
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                type=message_type))
         return Utils.validate_response_data(response,
                                             data_model=Message,
                                             fallback=[])
@@ -345,7 +350,7 @@ class Users(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_unread_messages(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            query=ExperimentalUtils.create_query_dict(is_nickname=is_nickname))
         return Utils.validate_response_data(response, data_model=UnreadMessages)
 
     @method_endpoint('/api/users/:id/history')
@@ -389,11 +394,12 @@ class Users(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_history(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          target_id=target_id,
-                                          target_type=target_type))
+            query=ExperimentalUtils.create_query_dict(
+                is_nickname=is_nickname,
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                target_id=target_id,
+                target_type=target_type))
         return Utils.validate_response_data(response,
                                             data_model=History,
                                             fallback=[])
@@ -415,7 +421,7 @@ class Users(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_bans(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            query=ExperimentalUtils.create_query_dict(is_nickname=is_nickname))
         return Utils.validate_response_data(response,
                                             data_model=Ban,
                                             fallback=[])

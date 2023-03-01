@@ -6,6 +6,7 @@ from loguru import logger
 
 from ..decorators import method_endpoint
 from ..models import Achievement
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -32,7 +33,7 @@ class Achievements(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.achievements,
-            query=Utils.create_query_dict(user_id=user_id))
+            query=ExperimentalUtils.create_query_dict(user_id=user_id))
         return Utils.validate_response_data(response,
                                             data_model=Achievement,
                                             fallback=[])

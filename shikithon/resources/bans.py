@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 
 from ..decorators import method_endpoint
 from ..models import Ban
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -35,6 +36,7 @@ class Bans(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.bans_list,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit']))
         return Utils.validate_response_data(response, data_model=Ban)
