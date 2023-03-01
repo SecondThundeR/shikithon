@@ -27,26 +27,7 @@ class Utils:
     """
 
     @staticmethod
-    def convert_to_query_string(query_dict: Dict[str, str]) -> str:
-        """Convert query dict to query string for endpoint link.
-
-        :param query_dict: Query dictionary
-        :type query_dict: Dict[str, str]
-
-        :return: Query string (Empty if query_dict is empty)
-        :rtype: str
-        """
-        logger.debug(f'Converting {query_dict=} to string')
-        if not query_dict:
-            logger.debug('Query dictionary is empty. Returning empty string...')
-            return ''
-        query_dict_str = '&'.join(
-            f'{key}={val}' for (key, val) in query_dict.items())
-        logger.debug(f'Formed {query_dict_str=}')
-        return f'?{query_dict_str}'
-
-    @staticmethod
-    async def get_image_data(image_path: str) -> Dict[str, bytes]:
+    async def get_image_data(image_path: str):
         """Extract image data from image path.
 
         If image_path is a link, fetch the image data from the link.
