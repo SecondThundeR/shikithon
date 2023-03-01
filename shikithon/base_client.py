@@ -466,7 +466,7 @@ class Client:
         :raises InvalidContentType: If response content type not JSON
         """
         if self.closed:
-            return
+            return None
 
         logger.info(
             f'{request_type.value} {url}' \
@@ -486,6 +486,8 @@ class Client:
                 'Splitting into one...')
             bytes_data = {**bytes_data, **data}
             data = None
+
+        response: ClientResponse
 
         if request_type == RequestType.GET:
             response = await self._session.get(url, params=query)
@@ -511,11 +513,9 @@ class Client:
                                                   params=query)
         else:
             logger.debug('Unknown request_type. Returning None')
-            return
+            return None
 
         try:
-            response: ClientResponse
-
             if response.status == 401 and self._is_protected_request(url):
                 await self._refresh_and_save_tokens()
                 return await self.request(url, data, bytes_data, query,
