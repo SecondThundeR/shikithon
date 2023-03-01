@@ -2,7 +2,7 @@
 Experimental version of utils.py
 """
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from aiohttp import ClientSession
 from loguru import logger
@@ -67,3 +67,37 @@ class ExperimentalUtils:
 
         return {'image': image_data}
 
+    @staticmethod
+    def create_query_dict(**params_data: Optional[Any]):
+        """Creates query dict for API requests.
+
+        This methods checks for data types and converts to valid one.
+
+        :param params_data: API methods parameters data
+        :type params_data: Optional[Any]
+
+        :return: Query dictionary
+        :rtype: Dict[str, str]
+        """
+        logger.debug(
+            'Generating query dictionary for request. ' \
+            f'Passed {params_data=}'
+        )
+
+        query_dict: Dict[str, str] = {}
+
+        for key, data in params_data.items():
+            if data is None:
+                continue
+            if isinstance(data, bool):
+                query_dict[key] = str(int(data))
+            elif isinstance(data, int):
+                query_dict[key] = str(data)
+            elif isinstance(data, list):
+                query_dict[key] = ','.join([str(x) for x in data])
+            else:
+                # If something else passed, trying to convert to string
+                query_dict[key] = str(data)
+
+        logger.debug(f'Generated query dictionary: {query_dict=}')
+        return query_dict

@@ -20,6 +20,7 @@ from ..models import Relation
 from ..models import Screenshot
 from ..models import Topic
 from ..models import Video
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -34,18 +35,22 @@ class Animes(BaseResource):
     async def get_all(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      order: Optional[str] = None,
-                      kind: Optional[Union[str, List[str]]] = None,
-                      status: Optional[Union[str, List[str]]] = None,
+                      order: Optional[AnimeOrder] = None,
+                      kind: Optional[Union[AnimeKind, List[AnimeKind]]] = None,
+                      status: Optional[Union[AnimeStatus,
+                                             List[AnimeStatus]]] = None,
                       season: Optional[Union[str, List[str]]] = None,
                       score: Optional[int] = None,
-                      duration: Optional[Union[str, List[str]]] = None,
-                      rating: Optional[Union[str, List[str]]] = None,
+                      duration: Optional[Union[AnimeDuration,
+                                               List[AnimeDuration]]] = None,
+                      rating: Optional[Union[AnimeRating,
+                                             List[AnimeRating]]] = None,
                       genre: Optional[Union[int, List[int]]] = None,
                       studio: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
-                      censored: Optional[str] = None,
-                      my_list: Optional[Union[str, List[str]]] = None,
+                      censored: Optional[AnimeCensorship] = None,
+                      my_list: Optional[Union[AnimeList,
+                                              List[AnimeList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None) -> List[Anime]:
@@ -58,13 +63,13 @@ class Animes(BaseResource):
         :type limit: Optional[int]
 
         :param order: Type of order in list
-        :type order: Optional[str]
+        :type order: Optional[AnimeOrder]
 
         :param kind: Type(s) of anime topics
-        :type kind: Optional[Union[str, List[str]]]
+        :type kind: Optional[Union[AnimeKind, List[AnimeKind]]]
 
         :param status: Type(s) of anime status
-        :type status: Optional[Union[str, List[str]]]
+        :type status: Optional[Union[AnimeStatus, List[AnimeStatus]]]
 
         :param season: Name(s) of anime seasons
         :type season: Optional[Union[str, List[str]]]
@@ -73,10 +78,10 @@ class Animes(BaseResource):
         :type score: Optional[int]
 
         :param duration: Duration size(s) of anime
-        :type duration: Optional[Union[str, List[str]]]
+        :type duration: Optional[Union[AnimeDuration, List[AnimeDuration]]]
 
         :param rating: Type of anime rating(s)
-        :type rating: Optional[Union[str, List[str]]]
+        :type rating: Optional[Union[AnimeRating, List[AnimeRating]]]
 
         :param genre: Genre(s) ID
         :type genre: Optional[Union[int, List[int]]]
@@ -88,12 +93,12 @@ class Animes(BaseResource):
         :type franchise: Optional[Union[int, List[int]]]
 
         :param censored: Type of anime censorship
-        :type censored: Optional[str]
+        :type censored: Optional[AnimeCensorship]
 
         :param my_list: Status(-es) of anime in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[str, List[str]]]
+        :type my_list: Optional[Union[AnimeList, List[AnimeList]]]
 
         :param ids: Anime(s) ID to include
         :type ids: Optional[Union[int, List[int]]]
@@ -107,15 +112,15 @@ class Animes(BaseResource):
         :return: Animes list
         :rtype: List[Anime]
         """
-        if not Utils.validate_enum_params({
-                AnimeOrder: order,
-                AnimeKind: kind,
-                AnimeStatus: status,
-                AnimeDuration: duration,
-                AnimeRating: rating,
-                AnimeCensorship: censored,
-                AnimeList: my_list,
-        }):
+        if not Utils.unstable__is_enum_passed(
+                order,
+                kind,
+                status,
+                duration,
+                rating,
+                censored,
+                my_list,
+        ):
             return []
 
         validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
@@ -124,23 +129,24 @@ class Animes(BaseResource):
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.animes,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          order=order,
-                                          kind=kind,
-                                          status=status,
-                                          season=season,
-                                          score=validated_numbers['score'],
-                                          duration=duration,
-                                          rating=rating,
-                                          genre=genre,
-                                          studio=studio,
-                                          franchise=franchise,
-                                          censored=censored,
-                                          mylist=my_list,
-                                          ids=ids,
-                                          exclude_ids=exclude_ids,
-                                          search=search))
+            query=ExperimentalUtils.create_query_dict(
+                page=validated_numbers['page'],
+                limit=validated_numbers['limit'],
+                order=order,
+                kind=kind,
+                status=status,
+                season=season,
+                score=validated_numbers['score'],
+                duration=duration,
+                rating=rating,
+                genre=genre,
+                studio=studio,
+                franchise=franchise,
+                censored=censored,
+                mylist=my_list,
+                ids=ids,
+                exclude_ids=exclude_ids,
+                search=search))
         return Utils.validate_response_data(response,
                                             data_model=Anime,
                                             fallback=[])
