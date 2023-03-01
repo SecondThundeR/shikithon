@@ -33,12 +33,16 @@ class ExperimentalUtils:
         :rtype: str
         """
         logger.debug(f'Converting {query_dict=} to string')
+
         if not query_dict:
-            logger.debug('Query dictionary is empty. Returning empty string...')
+            logger.debug('Query dictionary is None or empty. '
+                         'Returning empty string')
             return ''
+
         query_dict_str = '&'.join(
             f'{key}={val}' for (key, val) in query_dict.items())
-        logger.debug(f'Formed {query_dict_str=}')
+
+        logger.debug(f'Formed string: "{query_dict_str=}"')
         return f'?{query_dict_str}'
 
     @staticmethod
