@@ -12,6 +12,9 @@ class EnhancedEnum(Enum):
     with the values of the required enum.
     """
 
+    def __str__(self):
+        return self.value
+
     @classmethod
     def get_name(cls) -> str:
         """Returns name of the enum.
