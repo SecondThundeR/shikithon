@@ -25,14 +25,16 @@ class Utils:
 
     @staticmethod
     def create_data_dict(
-        **dict_data: Optional[Union[str, bool, int, List[int]]]
+        **dict_data: Optional[Union[str, bool, int, EnhancedEnum,
+                                    List[EnhancedEnum], List[int]]]
     ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:
         """Creates data dict for API requests.
 
         This methods checks for data types and converts to valid one.
 
         :param dict_data: API methods body data
-        :type dict_data: Optional[Union[str, bool, int, List[int]]]
+        :type dict_data: Optional[Union[str, bool, int,
+            EnhancedEnum, List[EnhancedEnum], List[int]]]
 
         :return: Data dictionary
         :rtype: Optional[Union[str, bool, int, List[int]]]
@@ -59,7 +61,10 @@ class Utils:
             elif isinstance(data, int):
                 new_data_dict[data_dict_name][key] = str(data)
             elif isinstance(data, list):
-                new_data_dict[data_dict_name][key] = ','.join(data)
+                new_data_dict[data_dict_name][key] = ','.join(
+                    [str(x) for x in data])
+            elif isinstance(data, EnhancedEnum):
+                new_data_dict[data_dict_name][key] = str(data)
             else:
                 new_data_dict[data_dict_name][key] = data
         logger.debug(f'Generated data dictionary: {new_data_dict=}')
