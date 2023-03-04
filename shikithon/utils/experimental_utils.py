@@ -2,7 +2,7 @@
 Experimental version of utils.py
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional, overload, Union
 
 from aiohttp import ClientSession
 from loguru import logger
@@ -91,18 +91,104 @@ class ExperimentalUtils:
         for key, data in params_data.items():
             if data is None:
                 continue
-            if isinstance(data, bool):
-                query_dict[key] = str(int(data))
-            elif isinstance(data, int):
-                query_dict[key] = str(data)
-            elif isinstance(data, list):
-                query_dict[key] = ','.join([str(x) for x in data])
-            else:
-                # If something else passed, trying to convert to string
-                query_dict[key] = str(data)
+            query_dict.update(
+                {key: ExperimentalUtils.convert_dictionary_value(data)})
 
         logger.debug(f'Generated query dictionary: {query_dict=}')
         return query_dict
+
+    @staticmethod
+    def create_data_dict(**dict_data: Optional[Any]):
+        """Creates data dict for API requests.
+
+        This methods checks for data types and converts to valid one.
+
+        If dict_data doesn't contain "dict_name" key,
+        generated dictionary will have "temp" as root dictionary name,
+        which will be removed on return.
+
+        :param dict_data: Body data for API request
+        :type dict_data: Optional[Any]
+
+        :return: Data dictionary
+        :rtype:
+            Union[Dict[str, Dict[str, str | bool]], Dict[str, str | bool]]
+        """
+        logger.debug(
+            f'Generating data dictionary for request. Passed {dict_data=}')
+
+        logger.debug('Extracting root dictionary name')
+        data_dict_name: Optional[str] = dict_data.pop('dict_name', 'temp')
+
+        if data_dict_name is None:
+            logger.debug(
+                'There is no dict_name in dict_data. ' \
+                'Continuing with temporary root dictionary'
+            )
+            data_dict_name = 'temp'
+
+        logger.debug(f'Setting root dictionary with name "{data_dict_name}"')
+        new_data_dict: Dict[str, Dict[str, Union[str, bool]]] = {
+            data_dict_name: {}
+        }
+
+        for key, data in dict_data.items():
+            if data is None:
+                continue
+            new_data_dict[data_dict_name].update({
+                key:
+                    ExperimentalUtils.convert_dictionary_value(
+                        data, is_data_dict=True)
+            })
+
+        final_dict: Union[Dict[str, Dict[str, Union[str, bool]]],
+                          Dict[str, Union[str, bool]]]
+
+        if data_dict_name == 'temp':
+            final_dict = new_data_dict[data_dict_name]
+        else:
+            final_dict = new_data_dict
+
+        logger.debug(f'Generated data dictionary: {final_dict}')
+        return final_dict
+
+    @overload
+    @staticmethod
+    def convert_dictionary_value(dict_value: Any) -> str:
+        ...
+
+    @overload
+    @staticmethod
+    def convert_dictionary_value(
+            dict_value: Any, is_data_dict: Literal[True]) -> Union[str, bool]:
+        ...
+
+    @staticmethod
+    def convert_dictionary_value(
+            dict_value: Any,
+            is_data_dict: Optional[bool] = False) -> Union[str, bool]:
+        """Converts dictionary value to string or bool.
+
+        If is_data_dict is True, doesn't convert bool to string.
+
+        :param dict_value: Dictionary value
+        :type dict_value: Any
+
+        :param is_data_dict: If dictionary is data dictionary
+        :type is_data_dict: Optional[bool]
+
+        :return: Converted value
+        :rtype: Union[str, bool]
+        """
+        if isinstance(dict_value, bool):
+            return dict_value if is_data_dict else str(int(dict_value))
+        elif isinstance(dict_value, int):
+            return str(dict_value)
+        elif isinstance(dict_value, list):
+            return ','.join([str(x) for x in dict_value])
+        else:
+            # If something else passed, trying to convert to string
+            return str(dict_value)
 
     @staticmethod
     def is_enum_passed(*params: Any):
