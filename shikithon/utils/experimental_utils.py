@@ -2,7 +2,7 @@
 Experimental version of utils.py
 """
 
-from typing import Any, Dict, Literal, Optional, overload, Union
+from typing import Any, Dict, Optional, Union
 
 from aiohttp import ClientSession
 from loguru import logger
@@ -111,8 +111,7 @@ class ExperimentalUtils:
         :type dict_data: Optional[Any]
 
         :return: Data dictionary
-        :rtype:
-            Union[Dict[str, Dict[str, str | bool]], Dict[str, str | bool]]
+        :rtype: Union[Dict[str, Dict[str, str]], Dict[str, str]]
         """
         logger.debug(
             f'Generating data dictionary for request. Passed {dict_data=}')
@@ -128,21 +127,15 @@ class ExperimentalUtils:
             data_dict_name = 'temp'
 
         logger.debug(f'Setting root dictionary with name "{data_dict_name}"')
-        new_data_dict: Dict[str, Dict[str, Union[str, bool]]] = {
-            data_dict_name: {}
-        }
+        new_data_dict: Dict[str, Dict[str, str]] = {data_dict_name: {}}
 
         for key, data in dict_data.items():
             if data is None:
                 continue
-            new_data_dict[data_dict_name].update({
-                key:
-                    ExperimentalUtils.convert_dictionary_value(
-                        data, is_data_dict=True)
-            })
+            new_data_dict[data_dict_name].update(
+                {key: ExperimentalUtils.convert_dictionary_value(data)})
 
-        final_dict: Union[Dict[str, Dict[str, Union[str, bool]]],
-                          Dict[str, Union[str, bool]]]
+        final_dict: Union[Dict[str, Dict[str, str]], Dict[str, str]]
 
         if data_dict_name == 'temp':
             final_dict = new_data_dict[data_dict_name]
@@ -152,36 +145,18 @@ class ExperimentalUtils:
         logger.debug(f'Generated data dictionary: {final_dict}')
         return final_dict
 
-    @overload
     @staticmethod
     def convert_dictionary_value(dict_value: Any) -> str:
-        ...
-
-    @overload
-    @staticmethod
-    def convert_dictionary_value(
-            dict_value: Any, is_data_dict: Literal[True]) -> Union[str, bool]:
-        ...
-
-    @staticmethod
-    def convert_dictionary_value(
-            dict_value: Any,
-            is_data_dict: Optional[bool] = False) -> Union[str, bool]:
-        """Converts dictionary value to string or bool.
-
-        If is_data_dict is True, doesn't convert bool to string.
+        """Converts dictionary value to string.
 
         :param dict_value: Dictionary value
         :type dict_value: Any
 
-        :param is_data_dict: If dictionary is data dictionary
-        :type is_data_dict: Optional[bool]
-
         :return: Converted value
-        :rtype: Union[str, bool]
+        :rtype: str
         """
         if isinstance(dict_value, bool):
-            return dict_value if is_data_dict else str(int(dict_value))
+            return str(int(dict_value))
         elif isinstance(dict_value, int):
             return str(dict_value)
         elif isinstance(dict_value, list):
