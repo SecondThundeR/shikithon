@@ -424,7 +424,7 @@ class Client:
     async def request(
         self,
         url: str,
-        data: Optional[Dict[str, str]] = None,
+        data: Optional[Union[Dict[str, Dict[str, str]], Dict[str, str]]] = None,
         bytes_data: Optional[bytes] = None,
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
@@ -443,7 +443,7 @@ class Client:
         :type url: str
 
         :param data: Request body data
-        :type data: Optional[Dict[str, str]]
+        :type data: Optional[Union[Dict[str, Dict[str, str]], Dict[str, str]]]
 
         :param bytes_data: Request body data in bytes
         :type bytes_data: Optional[bytes]

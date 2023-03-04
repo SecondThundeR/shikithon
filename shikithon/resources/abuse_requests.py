@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 from ..decorators import method_endpoint
 from ..enums import RequestType
 from ..models import AbuseResponse
+from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -27,7 +28,7 @@ class AbuseRequests(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.abuse_offtopic,
-            data=Utils.create_data_dict(comment_id=comment_id),
+            data=ExperimentalUtils.create_data_dict(comment_id=comment_id),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=AbuseResponse)
 
@@ -43,7 +44,7 @@ class AbuseRequests(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.abuse_review,
-            data=Utils.create_data_dict(comment_id=comment_id),
+            data=ExperimentalUtils.create_data_dict(comment_id=comment_id),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=AbuseResponse)
 
@@ -63,7 +64,8 @@ class AbuseRequests(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.abuse_violation,
-            data=Utils.create_data_dict(comment_id=comment_id, reason=reason),
+            data=ExperimentalUtils.create_data_dict(comment_id=comment_id,
+                                                    reason=reason),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=AbuseResponse)
 
@@ -83,6 +85,7 @@ class AbuseRequests(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.abuse_spoiler,
-            data=Utils.create_data_dict(comment_id=comment_id, reason=reason),
+            data=ExperimentalUtils.create_data_dict(comment_id=comment_id,
+                                                    reason=reason),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=AbuseResponse)

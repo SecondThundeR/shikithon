@@ -342,10 +342,8 @@ class Animes(BaseResource):
         if not ExperimentalUtils.is_enum_passed(kind):
             return None
 
-        data_dict: Dict[str, Any] = Utils.create_data_dict(dict_name='video',
-                                                           kind=kind,
-                                                           name=name,
-                                                           url=url)
+        data_dict: Dict[str, Any] = ExperimentalUtils.create_data_dict(
+            dict_name='video', kind=kind, name=name, url=url)
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_videos(anime_id),
             data=data_dict,

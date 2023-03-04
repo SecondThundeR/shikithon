@@ -171,14 +171,15 @@ class Topics(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.topics,
-            data=Utils.create_data_dict(dict_name='topic',
-                                        body=body,
-                                        forum_id=forum_id,
-                                        linked_id=linked_id,
-                                        linked_type=linked_type,
-                                        title=title,
-                                        type=str(TopicType.REGULAR_TOPIC.value),
-                                        user_id=user_id),
+            data=ExperimentalUtils.create_data_dict(
+                dict_name='topic',
+                body=body,
+                forum_id=forum_id,
+                linked_id=linked_id,
+                linked_type=linked_type,
+                title=title,
+                type=str(TopicType.REGULAR_TOPIC.value),
+                user_id=user_id),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Topic)
 
@@ -215,11 +216,11 @@ class Topics(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.topic(topic_id),
-            data=Utils.create_data_dict(dict_name='topic',
-                                        body=body,
-                                        linked_id=linked_id,
-                                        linked_type=linked_type,
-                                        title=title),
+            data=ExperimentalUtils.create_data_dict(dict_name='topic',
+                                                    body=body,
+                                                    linked_id=linked_id,
+                                                    linked_type=linked_type,
+                                                    title=title),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,

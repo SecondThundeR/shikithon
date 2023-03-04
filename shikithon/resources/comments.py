@@ -112,7 +112,7 @@ class Comments(BaseResource):
         if not ExperimentalUtils.is_enum_passed(commentable_type):
             return None
 
-        data_dict: Dict[str, Any] = Utils.create_data_dict(
+        data_dict = ExperimentalUtils.create_data_dict(
             dict_name='comment',
             body=body,
             commentable_id=commentable_id,
@@ -144,7 +144,8 @@ class Comments(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),
-            data=Utils.create_data_dict(dict_name='comment', body=body),
+            data=ExperimentalUtils.create_data_dict(dict_name='comment',
+                                                    body=body),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response, data_model=Comment)
 

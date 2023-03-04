@@ -156,17 +156,18 @@ class UserRates(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rates,
-            data=Utils.create_data_dict(dict_name='user_rate',
-                                        user_id=user_id,
-                                        target_id=target_id,
-                                        target_type=target_type,
-                                        status=status,
-                                        score=validated_numbers['score'],
-                                        chapters=chapters,
-                                        episodes=episodes,
-                                        volumes=volumes,
-                                        rewatches=rewatches,
-                                        text=text),
+            data=ExperimentalUtils.create_data_dict(
+                dict_name='user_rate',
+                user_id=user_id,
+                target_id=target_id,
+                target_type=target_type,
+                status=status,
+                score=validated_numbers['score'],
+                chapters=chapters,
+                episodes=episodes,
+                volumes=volumes,
+                rewatches=rewatches,
+                text=text),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=UserRate)
 
@@ -216,14 +217,15 @@ class UserRates(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rate(rate_id),
-            data=Utils.create_data_dict(dict_name='user_rate',
-                                        status=status,
-                                        score=validated_numbers['score'],
-                                        chapters=chapters,
-                                        episodes=episodes,
-                                        volumes=volumes,
-                                        rewatches=rewatches,
-                                        text=text),
+            data=ExperimentalUtils.create_data_dict(
+                dict_name='user_rate',
+                status=status,
+                score=validated_numbers['score'],
+                chapters=chapters,
+                episodes=episodes,
+                volumes=volumes,
+                rewatches=rewatches,
+                text=text),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response, data_model=UserRate)
 

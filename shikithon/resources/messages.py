@@ -50,11 +50,11 @@ class Messages(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.messages,
-            data=Utils.create_data_dict(dict_name='message',
-                                        body=body,
-                                        from_id=from_id,
-                                        kind='Private',
-                                        to_id=to_id),
+            data=ExperimentalUtils.create_data_dict(dict_name='message',
+                                                    body=body,
+                                                    from_id=from_id,
+                                                    kind='Private',
+                                                    to_id=to_id),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Message)
 
@@ -73,7 +73,8 @@ class Messages(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.message(message_id),
-            data=Utils.create_data_dict(dict_name='message', body=body),
+            data=ExperimentalUtils.create_data_dict(dict_name='message',
+                                                    body=body),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response, data_model=Message)
 
