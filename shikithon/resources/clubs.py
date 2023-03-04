@@ -46,9 +46,9 @@ class Clubs(BaseResource):
         :return: Clubs list
         :rtype: List[Club]
         """
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 30],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 30),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(

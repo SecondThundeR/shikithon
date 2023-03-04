@@ -123,9 +123,8 @@ class Animes(BaseResource):
         ):
             return []
 
-        validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
-                                                          limit=[limit, 50],
-                                                          score=[score, 9])
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000), limit=(limit, 50), score=(score, 9))
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.animes,
@@ -289,8 +288,8 @@ class Animes(BaseResource):
         if not ExperimentalUtils.is_enum_passed(kind):
             return []
 
-        validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
-                                                          limit=[limit, 30])
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000), limit=(limit, 30))
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_topics(anime_id),

@@ -48,9 +48,9 @@ class Comments(BaseResource):
         if not ExperimentalUtils.is_enum_passed(commentable_type):
             return []
 
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 30],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 30),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(

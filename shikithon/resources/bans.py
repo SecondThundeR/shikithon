@@ -29,9 +29,9 @@ class Bans(BaseResource):
         :return: List of recent bans
         :rtype: List[Ban]
         """
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 30],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 30),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(

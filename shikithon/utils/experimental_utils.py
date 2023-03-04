@@ -2,13 +2,15 @@
 Experimental version of utils.py
 """
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, overload, Tuple, Union
 
 from aiohttp import ClientSession
 from loguru import logger
 from validators import url
 
 from ..enums.enhanced_enum import EnhancedEnum
+
+LOWER_LIMIT_NUMBER = 1
 
 
 class ExperimentalUtils:
@@ -194,3 +196,97 @@ class ExperimentalUtils:
                 return False
         logger.debug('All passed parameters are enums!')
         return True
+
+    @overload
+    @staticmethod
+    def validate_query_number(number: None, limit: int) -> None:
+        ...
+
+    @overload
+    @staticmethod
+    def validate_query_number(number: int, limit: int) -> int:
+        ...
+
+    @overload
+    @staticmethod
+    def validate_query_number(number: float, limit: int) -> int:
+        ...
+
+    @staticmethod
+    def validate_query_number(number: Optional[Union[int, float]], limit: int):
+        """Validates query number.
+
+        If number is lower, returns lower limit, else upper limit.
+        If number is None, returns or None.
+
+        :param number: Number to validate
+        :type number: Optional[Union[int, float]]
+
+        :param limit: Upper limit for range check
+        :type limit: int
+
+        :return: Validated number
+        :rtype: Optional[int]
+        """
+        logger.debug(f'Validating query number ({number}) '
+                     f'with upper limit ({limit})')
+
+        if number is None:
+            logger.debug('Query number is empty. Returning')
+            return number
+
+        if isinstance(number, float):
+            logger.debug(f'Query number ({number}) is a float. '
+                         f'Converting to int')
+            number = int(number)
+
+        if number < LOWER_LIMIT_NUMBER:
+            logger.debug(f'Query number ({number}) is lower '
+                         f'than lower limit ({LOWER_LIMIT_NUMBER}). '
+                         'Returning lower limit value')
+            return LOWER_LIMIT_NUMBER
+
+        if number > limit:
+            logger.debug(f'Query number ({number}) is higher '
+                         f'than upper limit ({limit}). '
+                         'Returning upper limit value')
+            return limit
+
+        logger.debug(f'Returning passed query number ({number})')
+        return number
+
+    @staticmethod
+    def validate_query_numbers(**query_numbers: Tuple[Optional[Union[int,
+                                                                     float]],
+                                                      int]):
+        """Gets all query numbers to validate and returns validated numbers.
+
+        This method uses validate_query_number method for validating.
+
+        Query numbers are passed in such form:
+            { "page": (1, 100), ... }
+
+            "page" <- Name of query number
+
+            (1 (Passed value), 100 (Upper limit value), )
+
+        This method outputs them like this:
+            { "page": 1 }
+
+            "page" <- Name of query number
+
+            1 <- Validated number
+
+        :param query_numbers: Passed query numbers to validate
+        :type query_numbers: Tuple[Optional[Union[int, float]], int]
+
+        :return: Dict of validated numbers
+        :rtype: Dict[str, Optional[int]]
+        """
+        validated_numbers: Dict[str, Optional[int]] = {}
+        for name, data in query_numbers.items():
+            logger.debug(f'Checking "{name}" parameter')
+            number, limit = data[0], data[1]
+            validated_numbers.update(
+                {name: ExperimentalUtils.validate_query_number(number, limit)})
+        return validated_numbers

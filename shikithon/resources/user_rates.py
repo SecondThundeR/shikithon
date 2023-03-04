@@ -69,9 +69,9 @@ class UserRates(BaseResource):
         }):
             return []
 
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 1000],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 1000),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
@@ -152,7 +152,8 @@ class UserRates(BaseResource):
         if not ExperimentalUtils.is_enum_passed(target_type, status):
             return None
 
-        validated_numbers = Utils.query_numbers_validator(score=[score, 10])
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            score=(score, 10))
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rates,
@@ -213,7 +214,8 @@ class UserRates(BaseResource):
         if not ExperimentalUtils.is_enum_passed(status):
             return None
 
-        validated_numbers = Utils.query_numbers_validator(score=[score, 10])
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            score=(score, 10))
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rate(rate_id),

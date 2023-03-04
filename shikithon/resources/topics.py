@@ -53,9 +53,9 @@ class Topics(BaseResource):
         if not ExperimentalUtils.is_enum_passed(forum, linked_type, topic_type):
             return []
 
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 30],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 30),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
@@ -86,9 +86,9 @@ class Topics(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 30],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 30),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
@@ -110,7 +110,8 @@ class Topics(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        validated_numbers = Utils.query_numbers_validator(limit=[limit, 10])
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            limit=(limit, 10))
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.hot_topics,

@@ -41,9 +41,9 @@ class Users(BaseResource):
         :return: List of users
         :rtype: List[User]
         """
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 100],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 100),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
@@ -199,9 +199,9 @@ class Users(BaseResource):
         if not ExperimentalUtils.is_enum_passed(status, censored):
             return []
 
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 5000],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 5000),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
@@ -247,9 +247,9 @@ class Users(BaseResource):
         if not ExperimentalUtils.is_enum_passed(censored):
             return []
 
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 5000],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 5000),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
@@ -315,9 +315,9 @@ class Users(BaseResource):
         if not ExperimentalUtils.is_enum_passed(message_type):
             return []
 
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 100],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 100),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
@@ -387,9 +387,9 @@ class Users(BaseResource):
         if not ExperimentalUtils.is_enum_passed(target_type):
             return []
 
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 100],
+        validated_numbers = ExperimentalUtils.validate_query_numbers(
+            page=(page, 100000),
+            limit=(limit, 100),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
