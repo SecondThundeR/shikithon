@@ -117,7 +117,7 @@ class ExperimentalUtils:
             f'Generating data dictionary for request. Passed {dict_data=}')
 
         logger.debug('Extracting root dictionary name')
-        data_dict_name: Optional[str] = dict_data.pop('dict_name', 'temp')
+        data_dict_name: Optional[str] = dict_data.pop('dict_name', None)
 
         if data_dict_name is None:
             logger.debug(
