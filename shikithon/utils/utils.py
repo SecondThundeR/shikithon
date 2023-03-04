@@ -9,10 +9,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from loguru import logger
 
-from ..enums.enhanced_enum import EnhancedEnum
 from ..enums.response import ResponseCode
-
-LOWER_LIMIT_NUMBER = 1
 
 
 class Utils:
@@ -22,130 +19,6 @@ class Utils:
     Contains all the necessary utility methods
     to work with the library
     """
-
-    @staticmethod
-    def create_data_dict(
-        **dict_data: Optional[Union[str, bool, int, EnhancedEnum,
-                                    List[EnhancedEnum], List[int]]]
-    ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:
-        """Creates data dict for API requests.
-
-        This methods checks for data types and converts to valid one.
-
-        :param dict_data: API methods body data
-        :type dict_data: Optional[Union[str, bool, int,
-            EnhancedEnum, List[EnhancedEnum], List[int]]]
-
-        :return: Data dictionary
-        :rtype: Optional[Union[str, bool, int, List[int]]]
-        """
-        logger.debug(
-            f'Generating data dictionary for request. Passed {dict_data=}')
-        if 'dict_name' not in dict_data:
-            logger.debug(
-                'There is no dict_name in dict_data. Returning empty dictionary'
-            )
-            return {}
-
-        logger.debug('Extracting root dictionary name')
-        data_dict_name: str = dict_data['dict_name']
-        dict_data.pop('dict_name')
-
-        logger.debug(f'Setting root dictionary "{data_dict_name}"')
-        new_data_dict: Dict[str, Dict[str, Any]] = {data_dict_name: {}}
-        for key, data in dict_data.items():
-            if data is None:
-                continue
-            if isinstance(data, bool):
-                new_data_dict[data_dict_name][key] = data
-            elif isinstance(data, int):
-                new_data_dict[data_dict_name][key] = str(data)
-            elif isinstance(data, list):
-                new_data_dict[data_dict_name][key] = ','.join(
-                    [str(x) for x in data])
-            elif isinstance(data, EnhancedEnum):
-                new_data_dict[data_dict_name][key] = str(data)
-            else:
-                new_data_dict[data_dict_name][key] = data
-        logger.debug(f'Generated data dictionary: {new_data_dict=}')
-        return new_data_dict
-
-    @staticmethod
-    def get_validated_query_number(query_number: Optional[int],
-                                   upper_limit: int) -> Optional[int]:
-        """Validates query number.
-
-        If number is lower, returns lower limit, else upper limit.
-        If number is None, returns or None.
-
-        :param query_number: Number to validate
-        :type query_number: Optional[int]
-
-        :param upper_limit: Upper limit for range check
-        :type upper_limit: int
-
-        :return: Validated number
-        :rtype: Optional[int]
-        """
-        logger.debug(f'Validating query number ("{query_number}") '
-                     f'with upper limit ("{upper_limit}")')
-        if query_number is None:
-            logger.debug('Query number is "None"')
-            return query_number
-
-        if query_number < LOWER_LIMIT_NUMBER:
-            logger.debug(f'Query number ("{query_number}") is lower '
-                         f'than lower limit ("{LOWER_LIMIT_NUMBER}"). '
-                         f'Returning {LOWER_LIMIT_NUMBER=}')
-            return LOWER_LIMIT_NUMBER
-
-        if query_number > upper_limit:
-            logger.debug(f'Query number ("{query_number}") is higher '
-                         f'than upper limit ("{upper_limit}"). '
-                         f'Returning {upper_limit=}')
-            return upper_limit
-
-        if isinstance(query_number, float):
-            logger.debug(f'Query number ("{query_number}") is float. '
-                         f'Converting to int')
-            query_number = int(query_number)
-
-        logger.debug(f'Returning passed query number ("{query_number}")')
-        return query_number
-
-    @staticmethod
-    def query_numbers_validator(**query_numbers: List[Optional[int]]
-                               ) -> Dict[str, Optional[int]]:
-        """Gets all query numbers to validate and returns validated numbers.
-
-        This method uses validate_query_number method for validating.
-
-        Query numbers are passed in such form:
-            { "page": [1, 100], ... }
-
-            "page" <- Name of query number
-
-            [1 (Passed value), 100 (Upper limit value)]
-
-        This method outputs them like this:
-            { "page": 1 }
-
-            "page" <- Name of query number
-
-            1 <- Validated number
-
-        :param query_numbers: Passed query numbers to validate
-        :type query_numbers: List[Optional[int]]
-
-        :return: Dict of validated numbers
-        :rtype: Dict[str, Optional[int]]
-        """
-        validated_numbers: Dict[str, Optional[int]] = {}
-        for name, data in query_numbers.items():
-            logger.debug(f'Checking "{name}" parameter')
-            validated_numbers[name] = (Utils.get_validated_query_number(
-                data[0], data[1]))
-        return validated_numbers
 
     @staticmethod
     def validate_response_data(
