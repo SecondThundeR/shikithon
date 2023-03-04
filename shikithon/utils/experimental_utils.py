@@ -26,7 +26,7 @@ class ExperimentalUtils:
 
     @staticmethod
     def convert_to_query_string(query_dict: Optional[Dict[str, str]]):
-        """Convert query dict to query string for endpoint link.
+        """Converts query dict to query string for endpoint link.
 
         If query_dict is None or empty, returns empty string.
 
@@ -36,7 +36,7 @@ class ExperimentalUtils:
         :return: Query string
         :rtype: str
         """
-        logger.debug(f'Converting {query_dict=} to string')
+        logger.debug(f'Converting {query_dict} to query string')
 
         if not query_dict:
             logger.debug('Query dictionary is None or empty. '
@@ -46,12 +46,14 @@ class ExperimentalUtils:
         query_dict_str = '&'.join(
             f'{key}={val}' for (key, val) in query_dict.items())
 
-        logger.debug(f'Formed string: "{query_dict_str=}"')
-        return f'?{query_dict_str}'
+        query_string = f'?{query_dict_str}'
+
+        logger.debug(f'Formed string: "{query_string}"')
+        return query_string
 
     @staticmethod
     async def get_image_data(image_path: str):
-        """Extract image data from image path.
+        """Extracts image data from image path.
 
         If image_path is a link, fetch the image data from the link.
 
@@ -61,23 +63,28 @@ class ExperimentalUtils:
         :return: Image data
         :rtype: Dict[str, bytes]
         """
+        logger.debug(f'Getting image from "{image_path}"')
+
         if isinstance(url(image_path), bool):
+            logger.debug('Image path is a link. Querying image data')
             async with ClientSession() as session:
                 async with session.get(image_path) as image_response:
                     image_data = await image_response.read()
         else:
+            logger.debug('Image path is local. Reading image data')
             with open(image_path, 'rb') as image_file:
                 image_data = image_file.read()
 
+        logger.debug('Extracted image data. Returning')
         return {'image': image_data}
 
     @staticmethod
     def create_query_dict(**params_data: Optional[Any]):
-        """Creates query dict for API requests.
+        """Creates query dictionary for API request.
 
         This methods checks for data types and converts to valid one.
 
-        :param params_data: API methods parameters data
+        :param params_data: Parameters data for API request
         :type params_data: Optional[Any]
 
         :return: Query dictionary
@@ -90,6 +97,7 @@ class ExperimentalUtils:
 
         query_dict: Dict[str, str] = {}
 
+        logger.debug('Extracting data for query dictionary')
         for key, data in params_data.items():
             if data is None:
                 continue
@@ -101,7 +109,7 @@ class ExperimentalUtils:
 
     @staticmethod
     def create_data_dict(**dict_data: Optional[Any]):
-        """Creates data dict for API requests.
+        """Creates data dictionary for API request.
 
         This methods checks for data types and converts to valid one.
 
@@ -131,6 +139,7 @@ class ExperimentalUtils:
         logger.debug(f'Setting root dictionary with name "{data_dict_name}"')
         new_data_dict: Dict[str, Dict[str, str]] = {data_dict_name: {}}
 
+        logger.debug('Extracting data for data dictionary')
         for key, data in dict_data.items():
             if data is None:
                 continue
@@ -148,7 +157,7 @@ class ExperimentalUtils:
         return final_dict
 
     @staticmethod
-    def convert_dictionary_value(dict_value: Any) -> str:
+    def convert_dictionary_value(dict_value: Any):
         """Converts dictionary value to string.
 
         :param dict_value: Dictionary value
@@ -157,6 +166,8 @@ class ExperimentalUtils:
         :return: Converted value
         :rtype: str
         """
+        logger.debug(f'Converting value "{dict_value}" to string')
+
         if isinstance(dict_value, bool):
             return str(int(dict_value))
         elif isinstance(dict_value, int):
@@ -183,17 +194,19 @@ class ExperimentalUtils:
         :rtype: bool
         """
         logger.debug('Checking is passed params are enums')
+
         for data in params:
             if data is None:
                 continue
             elif isinstance(data, list):
                 for item in data:
                     if not isinstance(item, EnhancedEnum):
-                        logger.debug('Passed parameter is not an enum!')
+                        logger.warning(f'Parameter ({item}) is not an enum!')
                         return False
             elif not isinstance(data, EnhancedEnum):
-                logger.debug('Passed parameter is not an enum!')
+                logger.warning(f'Parameter ({item}) is not an enum!')
                 return False
+
         logger.debug('All passed parameters are enums!')
         return True
 
@@ -214,7 +227,7 @@ class ExperimentalUtils:
 
     @staticmethod
     def validate_query_number(number: Optional[Union[int, float]], limit: int):
-        """Validates query number.
+        """Validates passed query number.
 
         If number is lower, returns lower limit, else upper limit.
         If number is None, returns or None.
@@ -228,40 +241,40 @@ class ExperimentalUtils:
         :return: Validated number
         :rtype: Optional[int]
         """
-        logger.debug(f'Validating query number ({number}) '
-                     f'with upper limit ({limit})')
+        logger.debug(f'Validating query number "{number}" '
+                     f'with upper limit "{limit}"')
 
         if number is None:
             logger.debug('Query number is empty. Returning')
             return number
 
         if isinstance(number, float):
-            logger.debug(f'Query number ({number}) is a float. '
-                         f'Converting to int')
+            logger.debug(f'Query number "{number}" is a float. '
+                         'Converting to int')
             number = int(number)
 
         if number < LOWER_LIMIT_NUMBER:
-            logger.debug(f'Query number ({number}) is lower '
-                         f'than lower limit ({LOWER_LIMIT_NUMBER}). '
+            logger.debug(f'Query number "{number}" is lower '
+                         f'than lower limit "{LOWER_LIMIT_NUMBER}". '
                          'Returning lower limit value')
             return LOWER_LIMIT_NUMBER
 
         if number > limit:
-            logger.debug(f'Query number ({number}) is higher '
-                         f'than upper limit ({limit}). '
+            logger.debug(f'Query number "{number}" is higher '
+                         f'than upper limit "{limit}". '
                          'Returning upper limit value')
             return limit
 
-        logger.debug(f'Returning passed query number ({number})')
+        logger.debug(f'Returning passed query number: "{number}"')
         return number
 
     @staticmethod
     def validate_query_numbers(**query_numbers: Tuple[Optional[Union[int,
                                                                      float]],
                                                       int]):
-        """Gets all query numbers to validate and returns validated numbers.
+        """Validates passed tuples of query numbers.
 
-        This method uses validate_query_number method for validating.
+        This method uses validate_query_number method for numbers validating.
 
         Query numbers are passed in such form:
             { "page": (1, 100), ... }
@@ -283,10 +296,14 @@ class ExperimentalUtils:
         :return: Dict of validated numbers
         :rtype: Dict[str, Optional[int]]
         """
+        logger.debug(f'Validating query numbers {query_numbers}')
+
         validated_numbers: Dict[str, Optional[int]] = {}
+
         for name, data in query_numbers.items():
-            logger.debug(f'Checking "{name}" parameter')
             number, limit = data[0], data[1]
             validated_numbers.update(
                 {name: ExperimentalUtils.validate_query_number(number, limit)})
+
+        logger.debug(f'Returning validated numbers: {validated_numbers}')
         return validated_numbers
