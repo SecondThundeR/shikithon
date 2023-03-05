@@ -2,15 +2,19 @@
 Experimental version of utils.py
 """
 
-from typing import Any, Dict, Optional, overload, Tuple, Union
+from typing import (Any, Dict, List, Optional, overload, Tuple, Type, TypeVar,
+                    Union)
 
 from aiohttp import ClientSession
 from loguru import logger
+from pydantic import BaseModel
 from validators import url
 
 from ..enums.enhanced_enum import EnhancedEnum
+from ..enums.response import ResponseCode
 
 LOWER_LIMIT_NUMBER = 1
+M = TypeVar('M', bound=BaseModel)
 
 
 class ExperimentalUtils:
@@ -307,3 +311,72 @@ class ExperimentalUtils:
 
         logger.debug(f'Returning validated numbers: {validated_numbers}')
         return validated_numbers
+
+    @staticmethod
+    def validate_response_code(response_code: int, check_code: ResponseCode):
+        """Validates passed response code.
+
+        :param response_code: Passed response code
+        :type response_code: int
+
+        :param check_code: Response code to compare with
+        :type check_code: ResponseCode
+
+        :return: Validated response code
+        :rtype: bool
+        """
+        logger.debug(f'Validating response code: {response_code=}, '
+                     f'{check_code=}')
+
+        if not isinstance(response_code, int):
+            logger.warning(
+                'Got non-int value. Cancel comparing with response code')
+            return False
+
+        response_code_value: int = check_code.value
+        return response_code == response_code_value
+
+    @overload
+    @staticmethod
+    def validate_response_data(
+        response_data: Dict[str, Any],
+        data_model: Type[M],
+    ) -> M:
+        ...
+
+    @overload
+    @staticmethod
+    def validate_response_data(
+        response_data: List[Dict[str, Any]],
+        data_model: Type[M],
+    ) -> List[M]:
+        ...
+
+    @staticmethod
+    def validate_response_data(
+        response_data: Union[Dict[str, Any], List[Dict[str, Any]]],
+        data_model: Type[M],
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]], M, List[M]]:
+        """Validates passed response data and returns parsed models.
+
+        :param response_data: Passed response data
+        :type response_data: Union[Dict[str, Any], List[Dict[str, Any]]]
+
+        :param data_model: Model to convert into passed response data
+        :type data_model: Type[M]
+
+        :return: Parsed response data
+        :rtype: Union[Dict[str, Any], List[Dict[str, Any]], M, List[M]]
+        """
+        logger.debug(f'Validating response data: {response_data=}, '
+                     f'{data_model=}')
+
+        if not response_data:
+            logger.debug('Response data is empty. Returning it')
+            return response_data
+
+        # TODO: Implement other checks from Utils method
+
+        logger.debug('Parsing response data via passed model')
+        return [data_model(**item) for item in response_data] if isinstance(
+            response_data, list) else data_model(**response_data)
