@@ -369,8 +369,9 @@ class ExperimentalUtils:
         :return: Parsed response data
         :rtype: Union[Dict[str, Any], List[Dict[str, Any]], M, List[M]]
         """
-        logger.debug(f'Validating response data: {response_data=}, '
-                     f'{data_model=}')
+        logger.debug('Validating and parsing response data '\
+                    f'using "{data_model.__name__}" data model')
+        logger.debug(f'Passed response data: {response_data}')
 
         if not response_data:
             logger.debug('Response data is empty. Returning it')
@@ -378,6 +379,5 @@ class ExperimentalUtils:
 
         # TODO: Implement other checks from Utils method
 
-        logger.debug('Parsing response data via passed model')
         return [data_model(**item) for item in response_data] if isinstance(
             response_data, list) else data_model(**response_data)

@@ -413,7 +413,9 @@ class Client:
         :rtype: bool
         """
         logger.debug('Checking if token is expired')
-        return int(time()) > token_expire_at
+        token_expiration_status = int(time()) > token_expire_at
+        logger.debug(f'Token expire status: {token_expiration_status}')
+        return token_expiration_status
 
     @request_limiter.ratelimit('shikithon_request', delay=True)
     @backoff.on_exception(backoff.expo,
@@ -483,7 +485,7 @@ class Client:
         if data is not None and bytes_data is not None:
             logger.debug(
                 'Request body data and bytes data are sent at the same time. '
-                'Splitting into one...')
+                'Splitting into one')
             bytes_data = {**bytes_data, **data}
             data = None
 
@@ -512,7 +514,7 @@ class Client:
                                                   json=data,
                                                   params=query)
         else:
-            logger.debug('Unknown request_type. Returning None')
+            logger.debug('Unknown request type passed. Returning None')
             return None
 
         try:
@@ -521,7 +523,7 @@ class Client:
                 return await self.request(url, data, bytes_data, query,
                                           request_type, output_logging)
             elif response.status == ResponseCode.RETRY_LATER.value:
-                logger.warning('Hit retry later code. Retrying backoff...')
+                logger.warning('Hit retry later code. Retrying backoff')
                 raise RetryLater
             elif not response.ok:
                 raise ShikimoriAPIResponseError(
@@ -530,16 +532,14 @@ class Client:
                     url=repr(response.request_info.real_url),
                     text=await response.text())
 
-            logger.debug('Extracting JSON from response')
+            logger.debug('Trying to extract JSON from response')
             try:
                 json_response = await response.json()
             except ContentTypeError:
                 raise InvalidContentType(response.content_type) from None
 
-            if output_logging:
-                logger.debug(
-                    'Successful extraction. '
-                    f'Here are the details of the response: {json_response}')
+            logger.debug('Successful extraction. '
+                         'Returning extracted data')
 
             return json_response
         finally:
