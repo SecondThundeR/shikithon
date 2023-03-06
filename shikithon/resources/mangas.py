@@ -169,7 +169,7 @@ class Mangas(BaseResource):
         return Utils.validate_response_data(response, data_model=Manga)
 
     @method_endpoint('/api/mangas/:id/related')
-    async def related_content(self, manga_id: int) -> List[Relation]:
+    async def related(self, manga_id: int) -> List[Relation]:
         """Returns list of related content of certain manga.
 
         :param manga_id: Manga ID to get related content
@@ -185,7 +185,7 @@ class Mangas(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/mangas/:id/franchise')
-    async def franchise_tree(self, manga_id: int) -> Optional[FranchiseTree]:
+    async def franchise(self, manga_id: int) -> Optional[FranchiseTree]:
         """Returns franchise tree of certain manga.
 
         :param manga_id: Manga ID to get franchise tree

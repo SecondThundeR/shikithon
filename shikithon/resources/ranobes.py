@@ -165,7 +165,7 @@ class Ranobes(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/ranobe/:id/related')
-    async def related_content(self, ranobe_id: int) -> List[Relation]:
+    async def related(self, ranobe_id: int) -> List[Relation]:
         """Returns list of related content of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get related content
@@ -181,7 +181,7 @@ class Ranobes(BaseResource):
                                             fallback=[])
 
     @method_endpoint('/api/ranobe/:id/franchise')
-    async def franchise_tree(self, ranobe_id: int) -> Optional[FranchiseTree]:
+    async def franchise(self, ranobe_id: int) -> Optional[FranchiseTree]:
         """Returns franchise tree of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get franchise tree
