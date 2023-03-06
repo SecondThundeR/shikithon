@@ -1,14 +1,13 @@
 """Represents /api/appears resource."""
 
-from typing import Any, Dict, List, Union
-
 from loguru import logger
 
+from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..enums import RequestType
 from ..enums import ResponseCode
+from ..exceptions import ShikimoriAPIResponseError
 from ..utils import ExperimentalUtils
-from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -19,30 +18,25 @@ class Appears(BaseResource):
     """
 
     @method_endpoint('/api/appears')
-    async def mark(self, ids: List[str]) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def mark(self, *ids: str):
         """Marks comments or topics as read.
 
-        This method uses generate_query_dict for data dict,
-        because there is no need for nested dictionary
-
         :param ids: IDs of comments or topics to mark
-        :type ids: List[str]
+        :type ids: Tuple[str, ...]
 
         :return: Status of mark
         :rtype: bool
         """
-        if not isinstance(ids, list):
-            logger.error('/api/appears accept only list of ids')
-            return False
-
         if not ids:
-            logger.warning('List of ids to mark is empty')
+            logger.error('Cannot pass nothing as IDs to method')
             return False
 
-        response: Union[Dict[str, Any], int] = await self._client.request(
-            self._client.endpoints.appears,
-            data=ExperimentalUtils.create_query_dict(ids=ids),
-            request_type=RequestType.POST)
-        return Utils.validate_response_data(response,
-                                            response_code=ResponseCode.SUCCESS,
-                                            fallback=False)
+        data_dict = ExperimentalUtils.create_data_dict(ids=ids)
+
+        response = await self._client.request(self._client.endpoints.appears,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
+
+        return ExperimentalUtils.validate_response_code(response,
+                                                        ResponseCode.SUCCESS)
