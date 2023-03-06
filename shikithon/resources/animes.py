@@ -78,7 +78,7 @@ class Animes(BaseResource):
         :param season: Name(s) of anime seasons
         :type season: Optional[Union[str, List[str]]]
 
-        :param score: Minimal anime score
+        :param score: Minimal anime score to filter
         :type score: Optional[int]
 
         :param duration: Duration size(s) of anime
@@ -130,26 +130,27 @@ class Animes(BaseResource):
         validated_numbers = ExperimentalUtils.validate_query_numbers(
             page=(page, 100000), limit=(limit, 50), score=(score, 9))
 
-        response = await self._client.request(
-            self._client.endpoints.animes,
-            query=ExperimentalUtils.create_query_dict(
-                page=validated_numbers['page'],
-                limit=validated_numbers['limit'],
-                order=order,
-                kind=kind,
-                status=status,
-                season=season,
-                score=validated_numbers['score'],
-                duration=duration,
-                rating=rating,
-                genre=genre,
-                studio=studio,
-                franchise=franchise,
-                censored=censored,
-                mylist=my_list,
-                ids=ids,
-                exclude_ids=exclude_ids,
-                search=search))
+        query_dict = ExperimentalUtils.create_query_dict(
+            page=validated_numbers['page'],
+            limit=validated_numbers['limit'],
+            order=order,
+            kind=kind,
+            status=status,
+            season=season,
+            score=validated_numbers['score'],
+            duration=duration,
+            rating=rating,
+            genre=genre,
+            studio=studio,
+            franchise=franchise,
+            censored=censored,
+            mylist=my_list,
+            ids=ids,
+            exclude_ids=exclude_ids,
+            search=search)
+
+        response = await self._client.request(self._client.endpoints.animes,
+                                              query=query_dict)
 
         return ExperimentalUtils.validate_response_data(response,
                                                         data_model=Anime)
@@ -174,7 +175,7 @@ class Animes(BaseResource):
     @method_endpoint('/api/animes/:id/roles')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def roles(self, anime_id: int) -> List[Role]:
-        """Returns roles info of certain anime.
+        """Returns roles of certain anime.
 
         :param anime_id: Anime ID to get roles
         :type anime_id: int
@@ -207,10 +208,10 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def related_content(self, anime_id: int) -> List[Relation]:
-        """Returns list of related content of certain anime.
+    async def related(self, anime_id: int) -> List[Relation]:
+        """Returns list of relations of certain anime.
 
-        :param anime_id: Anime ID to get related content
+        :param anime_id: Anime ID to get relations
         :type anime_id: int
 
         :return: List of relations
@@ -241,7 +242,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/franchise')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
-    async def franchise_tree(self, anime_id: int) -> Optional[FranchiseTree]:
+    async def franchise(self, anime_id: int) -> Optional[FranchiseTree]:
         """Returns franchise tree of certain anime.
 
         :param anime_id: Anime ID to get franchise tree
@@ -281,7 +282,7 @@ class Animes(BaseResource):
                      limit: Optional[int] = None,
                      kind: Optional[AnimeTopicKind] = None,
                      episode: Optional[int] = None) -> List[Topic]:
-        """Returns list of topics of certain anime.
+        """Returns anime's list of topics.
 
         :param anime_id: Anime ID to get topics
         :type anime_id: int
@@ -292,7 +293,7 @@ class Animes(BaseResource):
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :param kind: Kind of anime
+        :param kind: Kind of topic
         :type kind: Optional[AnimeTopicKind]
 
         :param episode: Number of anime episode
@@ -307,13 +308,14 @@ class Animes(BaseResource):
         validated_numbers = ExperimentalUtils.validate_query_numbers(
             page=(page, 100000), limit=(limit, 30))
 
+        query_dict = ExperimentalUtils.create_query_dict(
+            page=validated_numbers['page'],
+            limit=validated_numbers['limit'],
+            kind=kind,
+            episode=episode)
+
         response = await self._client.request(
-            self._client.endpoints.anime_topics(anime_id),
-            query=ExperimentalUtils.create_query_dict(
-                page=validated_numbers['page'],
-                limit=validated_numbers['limit'],
-                kind=kind,
-                episode=episode))
+            self._client.endpoints.anime_topics(anime_id), query=query_dict)
 
         return ExperimentalUtils.validate_response_data(response,
                                                         data_model=Topic)
@@ -359,12 +361,14 @@ class Animes(BaseResource):
         if not ExperimentalUtils.is_enum_passed(kind):
             return None
 
+        data_dict = ExperimentalUtils.create_data_dict(dict_name='video',
+                                                       kind=kind,
+                                                       name=name,
+                                                       url=url)
+
         response = await self._client.request(
             self._client.endpoints.anime_videos(anime_id),
-            data=ExperimentalUtils.create_data_dict(dict_name='video',
-                                                    kind=kind,
-                                                    name=name,
-                                                    url=url),
+            data=data_dict,
             request_type=RequestType.POST)
 
         return ExperimentalUtils.validate_response_data(response,
@@ -378,7 +382,7 @@ class Animes(BaseResource):
         :param anime_id: Anime ID to delete video
         :type anime_id: int
 
-        :param video_id: Video ID to delete
+        :param video_id: Video ID
         :type video_id: str
 
         :return: Status of video deletion
