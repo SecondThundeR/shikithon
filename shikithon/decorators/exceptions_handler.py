@@ -57,7 +57,7 @@ def exceptions_handler(
             try:
                 return await function(*args, **kwargs)
             except exceptions as e:
-                logger.warning(e)
+                logger.error(e)
                 return params['fallback']
 
         return exceptions_handler_wrapped
