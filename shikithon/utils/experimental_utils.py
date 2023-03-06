@@ -169,7 +169,7 @@ class ExperimentalUtils:
             return str(int(dict_value))
         elif isinstance(dict_value, int):
             return str(dict_value)
-        elif isinstance(dict_value, list):
+        elif isinstance(dict_value, (list, tuple)):
             return ','.join([str(x) for x in dict_value])
         else:
             # If something else passed, trying to convert to string
