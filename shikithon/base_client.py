@@ -538,14 +538,14 @@ class Client:
             except ContentTypeError:
                 raise InvalidContentType(response.content_type) from None
 
-            if json_response is not None:
-                logger.debug('Successful extraction. ' \
-                    'Returning extracted data')
-                return json_response
+            if json_response is None or json_response == {}:
+                logger.debug('JSON is empty. ' \
+                    'Returning response status')
+                return response.status
 
-            logger.debug('JSON is empty. ' \
-                'Returning response status')
-            return response.status
+            logger.debug('Successful extraction. ' \
+                    'Returning extracted data')
+            return json_response
         finally:
             response.release()
 
