@@ -2,8 +2,6 @@
 
 from typing import Any, Dict, List
 
-from loguru import logger
-
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..exceptions import ShikimoriAPIResponseError
@@ -20,7 +18,7 @@ class Achievements(BaseResource):
 
     @method_endpoint('/api/achievements')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def get(self, user_id: int) -> List[Achievement]:
+    async def get(self, user_id: int):
         """Returns list of user achievements.
 
         :param user_id: User ID for getting achievements
@@ -29,14 +27,6 @@ class Achievements(BaseResource):
         :return: List of achievements
         :rtype: List[Achievement]
         """
-        if not isinstance(user_id, int):
-            logger.error('User ID cannot be other than number')
-            return []
-
-        if user_id < 0:
-            logger.error('User ID cannot be negative number')
-            return []
-
         query_dict = ExperimentalUtils.create_query_dict(user_id=user_id)
 
         response: List[Dict[str, Any]] = await self._client.request(
