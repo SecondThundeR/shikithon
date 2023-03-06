@@ -1,6 +1,6 @@
 """Represents /api/achievements resource."""
 
-from typing import List
+from typing import Any, Dict, List
 
 from loguru import logger
 
@@ -37,8 +37,10 @@ class Achievements(BaseResource):
             logger.error('User ID cannot be negative number')
             return []
 
-        response = await self._client.request(
-            self._client.endpoints.achievements,
-            query=ExperimentalUtils.create_query_dict(user_id=user_id))
+        query_dict = ExperimentalUtils.create_query_dict(user_id=user_id)
+
+        response: List[Dict[str, Any]] = await self._client.request(
+            self._client.endpoints.achievements, query=query_dict)
+
         return ExperimentalUtils.validate_response_data(response,
                                                         data_model=Achievement)
