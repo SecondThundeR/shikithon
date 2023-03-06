@@ -350,7 +350,7 @@ class ExperimentalUtils:
     def validate_response_data(
         response_data: Union[Dict[str, Any], List[Dict[str, Any]]],
         data_model: Type[M],
-    ) -> Optional[Union[List, Optional[M], List[M]]]:
+    ) -> Optional[Union[Optional[M], List[M]]]:
         """Validates passed response data and returns parsed models.
 
         :param response_data: Passed response data
@@ -370,7 +370,7 @@ class ExperimentalUtils:
             logger.debug('Response data is empty. Returning it')
             if isinstance(response_data, dict):
                 return None
-            return response_data
+            return []
 
         # TODO: Implement other checks from Utils method
 
