@@ -27,14 +27,6 @@ def exceptions_handler(
     if not exceptions:
         exceptions = (Exception,)
 
-    async def fallback() -> R:
-        """Returns fallback value from params dictionary.
-
-        :return: Decorator function
-        :rtype: R
-        """
-        return params.get('fallback', None)
-
     def exceptions_handler_wrapper(
             function: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
         """Exceptions handler wrapper.
@@ -66,7 +58,7 @@ def exceptions_handler(
                 return await function(*args, **kwargs)
             except exceptions as e:
                 logger.warning(e)
-                return await fallback()
+                return params.get('fallback', None)
 
         return exceptions_handler_wrapped
 
