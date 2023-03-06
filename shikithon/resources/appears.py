@@ -22,8 +22,9 @@ class Appears(BaseResource):
     async def mark(self, *ids: str):
         """Marks comments or topics as read.
 
-        :param ids: IDs of comments or topics to mark
-        :type ids: Tuple[str, ...]
+        :param ids: Tuple with IDs of comments
+        or topics to mark
+        :type ids: str
 
         :return: Status of mark
         :rtype: bool
