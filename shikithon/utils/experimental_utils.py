@@ -208,7 +208,7 @@ class ExperimentalUtils:
                         logger.warning(f'Parameter ({item}) is not an enum!')
                         return False
             elif not isinstance(data, EnhancedEnum):
-                logger.warning(f'Parameter ({item}) is not an enum!')
+                logger.warning(f'Parameter ({data}) is not an enum!')
                 return False
 
         logger.debug('All passed parameters are enums!')
@@ -313,11 +313,12 @@ class ExperimentalUtils:
         return validated_numbers
 
     @staticmethod
-    def validate_response_code(response_code: int, check_code: ResponseCode):
+    def validate_response_code(response_code: Union[int, Any],
+                               check_code: ResponseCode):
         """Validates passed response code.
 
         :param response_code: Passed response code
-        :type response_code: int
+        :type response_code: Union[int, Any]
 
         :param check_code: Response code to compare with
         :type check_code: ResponseCode
