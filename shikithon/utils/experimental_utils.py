@@ -136,9 +136,9 @@ class ExperimentalUtils:
         if data_dict_name is None:
             logger.debug(
                 'There is no dict_name in dict_data. ' \
-                'Continuing with temporary root dictionary'
+                'Returning dictionary without root'
             )
-            data_dict_name = 'temp'
+            return ExperimentalUtils.create_query_dict(**dict_data)
 
         logger.debug(f'Setting root dictionary with name "{data_dict_name}"')
         new_data_dict: Dict[str, Dict[str, str]] = {data_dict_name: {}}
@@ -150,15 +150,8 @@ class ExperimentalUtils:
             new_data_dict[data_dict_name].update(
                 {key: ExperimentalUtils.convert_dictionary_value(data)})
 
-        final_dict: Union[Dict[str, Dict[str, str]], Dict[str, str]]
-
-        if data_dict_name == 'temp':
-            final_dict = new_data_dict[data_dict_name]
-        else:
-            final_dict = new_data_dict
-
-        logger.debug(f'Generated data dictionary: {final_dict}')
-        return final_dict
+        logger.debug(f'Generated data dictionary: {new_data_dict}')
+        return new_data_dict
 
     @staticmethod
     def convert_dictionary_value(dict_value: Any):
