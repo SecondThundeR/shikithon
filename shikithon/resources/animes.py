@@ -1,5 +1,5 @@
 """Represents /api/animes and /api/animes/:anime_id/videos resource."""
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -57,7 +57,7 @@ class Animes(BaseResource):
                                               List[AnimeList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
-                      search: Optional[str] = None) -> List[Anime]:
+                      search: Optional[str] = None):
         """Returns list of anime.
 
         :param page: Number of page
@@ -116,28 +116,14 @@ class Animes(BaseResource):
         :return: List of anime
         :rtype: List[Anime]
         """
-        if not ExperimentalUtils.is_enum_passed(
-                order,
-                kind,
-                status,
-                duration,
-                rating,
-                censored,
-                my_list,
-        ):
-            return []
-
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
-            page=(page, 100000), limit=(limit, 50), score=(score, 9))
-
         query_dict = ExperimentalUtils.create_query_dict(
-            page=validated_numbers['page'],
-            limit=validated_numbers['limit'],
+            page=page,
+            limit=limit,
             order=order,
             kind=kind,
             status=status,
             season=season,
-            score=validated_numbers['score'],
+            score=score,
             duration=duration,
             rating=rating,
             genre=genre,
@@ -149,15 +135,15 @@ class Animes(BaseResource):
             exclude_ids=exclude_ids,
             search=search)
 
-        response = await self._client.request(self._client.endpoints.animes,
-                                              query=query_dict)
+        response: List[Dict[str, Any]] = await self._client.request(
+            self._client.endpoints.animes, query=query_dict)
 
         return ExperimentalUtils.validate_response_data(response,
                                                         data_model=Anime)
 
     @method_endpoint('/api/animes/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
-    async def get(self, anime_id: int) -> Optional[Anime]:
+    async def get(self, anime_id: int):
         """Returns info about certain anime.
 
         :param anime_id: Anime ID to get info
@@ -166,7 +152,7 @@ class Animes(BaseResource):
         :return: Anime info
         :rtype: Optional[Anime]
         """
-        response = await self._client.request(
+        response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime(anime_id))
 
         return ExperimentalUtils.validate_response_data(response,
@@ -174,7 +160,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/roles')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def roles(self, anime_id: int) -> List[Role]:
+    async def roles(self, anime_id: int):
         """Returns roles of certain anime.
 
         :param anime_id: Anime ID to get roles
@@ -183,7 +169,7 @@ class Animes(BaseResource):
         :return: List of anime roles
         :rtype: List[Role]
         """
-        response = await self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_roles(anime_id))
 
         return ExperimentalUtils.validate_response_data(response,
@@ -191,7 +177,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/similar')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def similar(self, anime_id: int) -> List[Anime]:
+    async def similar(self, anime_id: int):
         """Returns list of similar animes for certain anime.
 
         :param anime_id: Anime ID to get similar animes
@@ -200,7 +186,7 @@ class Animes(BaseResource):
         :return: List of similar animes
         :rtype: List[Anime]
         """
-        response = await self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.similar_animes(anime_id))
 
         return ExperimentalUtils.validate_response_data(response,
@@ -208,7 +194,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def related(self, anime_id: int) -> List[Relation]:
+    async def related(self, anime_id: int):
         """Returns list of relations of certain anime.
 
         :param anime_id: Anime ID to get relations
@@ -217,7 +203,7 @@ class Animes(BaseResource):
         :return: List of relations
         :rtype: List[Relation]
         """
-        response = await self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_related_content(anime_id))
 
         return ExperimentalUtils.validate_response_data(response,
@@ -225,7 +211,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/screenshots')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def screenshots(self, anime_id: int) -> List[Screenshot]:
+    async def screenshots(self, anime_id: int):
         """Returns list of screenshot links of certain anime.
 
         :param anime_id: Anime ID to get screenshot links
@@ -234,7 +220,7 @@ class Animes(BaseResource):
         :return: List of screenshot links
         :rtype: List[Screenshot]
         """
-        response = await self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_screenshots(anime_id))
 
         return ExperimentalUtils.validate_response_data(response,
@@ -242,7 +228,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/franchise')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
-    async def franchise(self, anime_id: int) -> Optional[FranchiseTree]:
+    async def franchise(self, anime_id: int):
         """Returns franchise tree of certain anime.
 
         :param anime_id: Anime ID to get franchise tree
@@ -251,7 +237,7 @@ class Animes(BaseResource):
         :return: Franchise tree of certain anime
         :rtype: Optional[FranchiseTree]
         """
-        response = await self._client.request(
+        response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_franchise_tree(anime_id))
 
         return ExperimentalUtils.validate_response_data(
@@ -259,7 +245,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/external_links')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def external_links(self, anime_id: int) -> List[Link]:
+    async def external_links(self, anime_id: int):
         """Returns list of external links of certain anime.
 
         :param anime_id: Anime ID to get external links
@@ -268,7 +254,7 @@ class Animes(BaseResource):
         :return: List of external links
         :rtype: List[Link]
         """
-        response = await self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_external_links(anime_id))
 
         return ExperimentalUtils.validate_response_data(response,
@@ -281,7 +267,7 @@ class Animes(BaseResource):
                      page: Optional[int] = None,
                      limit: Optional[int] = None,
                      kind: Optional[AnimeTopicKind] = None,
-                     episode: Optional[int] = None) -> List[Topic]:
+                     episode: Optional[int] = None):
         """Returns anime's list of topics.
 
         :param anime_id: Anime ID to get topics
@@ -302,19 +288,12 @@ class Animes(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        if not ExperimentalUtils.is_enum_passed(kind):
-            return []
+        query_dict = ExperimentalUtils.create_query_dict(page=page,
+                                                         limit=limit,
+                                                         kind=kind,
+                                                         episode=episode)
 
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
-            page=(page, 100000), limit=(limit, 30))
-
-        query_dict = ExperimentalUtils.create_query_dict(
-            page=validated_numbers['page'],
-            limit=validated_numbers['limit'],
-            kind=kind,
-            episode=episode)
-
-        response = await self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_topics(anime_id), query=query_dict)
 
         return ExperimentalUtils.validate_response_data(response,
@@ -322,7 +301,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:anime_id/videos')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def videos(self, anime_id: int) -> List[Video]:
+    async def videos(self, anime_id: int):
         """Returns list of anime videos.
 
         :param anime_id: Anime ID to get videos
@@ -331,7 +310,7 @@ class Animes(BaseResource):
         :return: Anime videos list
         :rtype: List[Video]
         """
-        response = await self._client.request(
+        response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.anime_videos(anime_id))
 
         return ExperimentalUtils.validate_response_data(response,
@@ -340,7 +319,7 @@ class Animes(BaseResource):
     @method_endpoint('/api/animes/:anime_id/videos')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def create_video(self, anime_id: int, kind: VideoKind, name: str,
-                           url: str) -> Optional[Video]:
+                           url: str):
         """Creates anime video.
 
         :param anime_id: Anime ID to create video
@@ -358,15 +337,12 @@ class Animes(BaseResource):
         :return: Created video info
         :rtype: Optional[Video]
         """
-        if not ExperimentalUtils.is_enum_passed(kind):
-            return None
-
         data_dict = ExperimentalUtils.create_data_dict(dict_name='video',
                                                        kind=kind,
                                                        name=name,
                                                        url=url)
 
-        response = await self._client.request(
+        response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.anime_videos(anime_id),
             data=data_dict,
             request_type=RequestType.POST)
@@ -376,7 +352,7 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:anime_id/videos/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
-    async def delete_video(self, anime_id: int, video_id: int) -> bool:
+    async def delete_video(self, anime_id: int, video_id: int):
         """Deletes anime video.
 
         :param anime_id: Anime ID to delete video
@@ -388,7 +364,7 @@ class Animes(BaseResource):
         :return: Status of video deletion
         :rtype: bool
         """
-        response = await self._client.request(
+        response: int = await self._client.request(
             self._client.endpoints.anime_video(anime_id, video_id),
             request_type=RequestType.DELETE)
 
