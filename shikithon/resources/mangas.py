@@ -7,11 +7,11 @@ from ..enums import MangaKind
 from ..enums import MangaList
 from ..enums import MangaOrder
 from ..enums import MangaStatus
-from ..models import Creator
 from ..models import FranchiseTree
 from ..models import Link
 from ..models import Manga
 from ..models import Relation
+from ..models import Role
 from ..models import Topic
 from ..utils import ExperimentalUtils
 from ..utils import Utils
@@ -139,19 +139,19 @@ class Mangas(BaseResource):
         return Utils.validate_response_data(response, data_model=Manga)
 
     @method_endpoint('/api/mangas/:id/roles')
-    async def creators(self, manga_id: int) -> List[Creator]:
-        """Returns creators info of certain manga.
+    async def roles(self, manga_id: int) -> List[Role]:
+        """Returns roles info of certain manga.
 
-        :param manga_id: Manga ID to get creators
+        :param manga_id: Manga ID to get roles
         :type manga_id: int
 
-        :return: List of manga creators
-        :rtype: List[Creator]
+        :return: List of manga roles
+        :rtype: List[Role]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_roles(manga_id))
         return Utils.validate_response_data(response,
-                                            data_model=Creator,
+                                            data_model=Role,
                                             fallback=[])
 
     @method_endpoint('/api/mangas/:id/similar')

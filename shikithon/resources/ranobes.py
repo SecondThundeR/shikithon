@@ -6,11 +6,11 @@ from ..enums import RanobeCensorship
 from ..enums import RanobeList
 from ..enums import RanobeOrder
 from ..enums import RanobeStatus
-from ..models import Creator
 from ..models import FranchiseTree
 from ..models import Link
 from ..models import Ranobe
 from ..models import Relation
+from ..models import Role
 from ..models import Topic
 from ..utils import ExperimentalUtils
 from ..utils import Utils
@@ -133,19 +133,19 @@ class Ranobes(BaseResource):
         return Utils.validate_response_data(response, data_model=Ranobe)
 
     @method_endpoint('/api/ranobe/:id/roles')
-    async def creators(self, ranobe_id: int) -> List[Creator]:
-        """Returns creators info of certain ranobe.
+    async def roles(self, ranobe_id: int) -> List[Role]:
+        """Returns roles info of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get creators
         :type ranobe_id: int
 
-        :return: List of ranobe creators
-        :rtype: List[Creator]
+        :return: List of ranobe roles
+        :rtype: List[Role]
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.ranobe_roles(ranobe_id))
         return Utils.validate_response_data(response,
-                                            data_model=Creator,
+                                            data_model=Role,
                                             fallback=[])
 
     @method_endpoint('/api/ranobe/:id/similar')

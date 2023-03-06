@@ -16,10 +16,10 @@ from ..enums import ResponseCode
 from ..enums import VideoKind
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Anime
-from ..models import Creator
 from ..models import FranchiseTree
 from ..models import Link
 from ..models import Relation
+from ..models import Role
 from ..models import Screenshot
 from ..models import Topic
 from ..models import Video
@@ -173,20 +173,20 @@ class Animes(BaseResource):
 
     @method_endpoint('/api/animes/:id/roles')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def creators(self, anime_id: int) -> List[Creator]:
-        """Returns creators info of certain anime.
+    async def roles(self, anime_id: int) -> List[Role]:
+        """Returns roles info of certain anime.
 
-        :param anime_id: Anime ID to get creators
+        :param anime_id: Anime ID to get roles
         :type anime_id: int
 
-        :return: List of anime creators
-        :rtype: List[Creator]
+        :return: List of anime roles
+        :rtype: List[Role]
         """
         response = await self._client.request(
             self._client.endpoints.anime_roles(anime_id))
 
         return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Creator)
+                                                        data_model=Role)
 
     @method_endpoint('/api/animes/:id/similar')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
