@@ -40,11 +40,11 @@ from .user_rate import UserRate
 from .video import Video
 
 __all__ = [
-    'Anime', 'Achievement', 'AbuseResponse', 'Ban', 'CalendarEvent',
-    'Character', 'Club', 'ClubImage', 'Comment', 'ClubConstants',
-    'AnimeConstants', 'MangaConstants', 'SmileyConstants', 'UserRateConstants',
-    'CreatedUserImage', 'Role', 'Dialog', 'Favourites', 'Forum',
-    'FranchiseTree', 'Genre', 'History', 'Link', 'Manga', 'Message', 'Person',
-    'Publisher', 'Ranobe', 'Relation', 'Screenshot', 'Studio', 'Style', 'Topic',
+    'AbuseResponse', 'Anime', 'Achievement', 'Ban', 'CalendarEvent',
+    'Character', 'Club', 'ClubImage', 'Comment', 'AnimeConstants',
+    'ClubConstants', 'MangaConstants', 'SmileyConstants', 'UserRateConstants',
+    'CreatedUserImage', 'Dialog', 'Favourites', 'Forum', 'FranchiseTree',
+    'Genre', 'History', 'Link', 'Manga', 'Message', 'Person', 'Publisher',
+    'Ranobe', 'Relation', 'Role', 'Screenshot', 'Studio', 'Style', 'Topic',
     'UnreadMessages', 'User', 'UserList', 'UserRate', 'Video'
 ]
