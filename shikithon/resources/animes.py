@@ -12,8 +12,8 @@ from ..enums import AnimeRating
 from ..enums import AnimeStatus
 from ..enums import AnimeTopicKind
 from ..enums import RequestType
+from ..enums import ResponseCode
 from ..enums import VideoKind
-from ..enums.response import ResponseCode
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Anime
 from ..models import Creator

@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from loguru import logger
 
-from ..enums.response import ResponseCode
+from ..enums import ResponseCode
 
 
 class Utils:

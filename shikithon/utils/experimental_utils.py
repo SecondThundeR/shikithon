@@ -10,8 +10,8 @@ from loguru import logger
 from pydantic import BaseModel
 from validators import url
 
+from ..enums import ResponseCode
 from ..enums.enhanced_enum import EnhancedEnum
-from ..enums.response import ResponseCode
 
 LOWER_LIMIT_NUMBER = 1
 M = TypeVar('M', bound=BaseModel)
