@@ -19,7 +19,7 @@ class AbuseRequests(BaseResource):
 
     @method_endpoint('/api/v2/abuse_requests/offtopic')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
-    async def comment_offtopic(self, comment_id: int):
+    async def offtopic(self, comment_id: int):
         """Marks comment as offtopic.
 
         :param comment_id: ID of comment to mark as offtopic
@@ -40,7 +40,7 @@ class AbuseRequests(BaseResource):
 
     @method_endpoint('/api/v2/abuse_requests/review')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
-    async def comment_review(self, comment_id: int):
+    async def review(self, comment_id: int):
         """Converts comment to review.
 
         :param comment_id: ID of comment for conversion to review
@@ -61,7 +61,7 @@ class AbuseRequests(BaseResource):
 
     @method_endpoint('/api/v2/abuse_requests/abuse')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
-    async def violation_request(self, comment_id: int, reason: str):
+    async def abuse(self, comment_id: int, reason: str):
         """Creates abuse about violation of site rules.
 
         :param comment_id: ID of comment to create abuse request
@@ -86,7 +86,7 @@ class AbuseRequests(BaseResource):
 
     @method_endpoint('/api/v2/abuse_requests/spoiler')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
-    async def spoiler_abuse_request(self, comment_id: int, reason: str):
+    async def spoiler(self, comment_id: int, reason: str):
         """Creates abuse about spoiler in content.
 
         :param comment_id: ID of comment to create abuse request

@@ -3,12 +3,13 @@ from typing import Any, Dict, List, Optional
 
 from loguru import logger
 
+from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..enums import CommentableType
 from ..enums import RequestType
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Comment
 from ..utils import ExperimentalUtils
-from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -19,12 +20,13 @@ class Comments(BaseResource):
     """
 
     @method_endpoint('/api/comments')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def get_all(self,
                       commentable_id: int,
                       commentable_type: CommentableType,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      desc: Optional[int] = None) -> List[Comment]:
+                      desc: Optional[int] = None):
         """Returns list of comments.
 
         :param commentable_id: ID of entity to get comment
@@ -45,28 +47,22 @@ class Comments(BaseResource):
         :return: List of comments
         :rtype: List[Comment]
         """
-        if not ExperimentalUtils.is_enum_passed(commentable_type):
-            return []
-
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
-            page=(page, 100000),
-            limit=(limit, 30),
-        )
+        query_dict = ExperimentalUtils.create_query_dict(
+            page=page,
+            limit=limit,
+            commentable_id=commentable_id,
+            commentable_type=commentable_type,
+            desc=desc)
 
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.comments,
-            query=ExperimentalUtils.create_query_dict(
-                page=validated_numbers['page'],
-                limit=validated_numbers['limit'],
-                commentable_id=commentable_id,
-                commentable_type=commentable_type,
-                desc=desc))
-        return Utils.validate_response_data(response,
-                                            data_model=Comment,
-                                            fallback=[])
+            self._client.endpoints.comments, query=query_dict)
+
+        return ExperimentalUtils.validate_response_data(response,
+                                                        data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
-    async def get(self, comment_id: int) -> Optional[Comment]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def get(self, comment_id: int):
         """Returns comment info.
 
         :param comment_id: ID of comment
@@ -77,9 +73,12 @@ class Comments(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id))
-        return Utils.validate_response_data(response, data_model=Comment)
+
+        return ExperimentalUtils.validate_response_data(response,
+                                                        data_model=Comment)
 
     @method_endpoint('/api/comments')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def create(self,
                      body: str,
                      commentable_id: int,
@@ -109,9 +108,6 @@ class Comments(BaseResource):
         :return: Created comment info
         :rtype: Optional[Comment]
         """
-        if not ExperimentalUtils.is_enum_passed(commentable_type):
-            return None
-
         data_dict = ExperimentalUtils.create_data_dict(
             dict_name='comment',
             body=body,
@@ -119,7 +115,7 @@ class Comments(BaseResource):
             commentable_type=commentable_type,
             is_offtopic=is_offtopic)
 
-        if broadcast:
+        if isinstance(broadcast, bool):
             logger.debug('Adding a broadcast value to a data_dict')
             data_dict['broadcast'] = broadcast
 
@@ -127,10 +123,13 @@ class Comments(BaseResource):
             self._client.endpoints.comments,
             data=data_dict,
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response, data_model=Comment)
+
+        return ExperimentalUtils.validate_response_data(response,
+                                                        data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
-    async def update(self, comment_id: int, body: str) -> Optional[Comment]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def update(self, comment_id: int, body: str):
         """Updates comment.
 
         :param comment_id: ID of comment to update
@@ -142,16 +141,25 @@ class Comments(BaseResource):
         :return: Updated comment info
         :rtype: Optional[Comment]
         """
+        data_dict = ExperimentalUtils.create_data_dict(dict_name='comment',
+                                                       body=body)
+
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),
-            data=ExperimentalUtils.create_data_dict(dict_name='comment',
-                                                    body=body),
+            data=data_dict,
             request_type=RequestType.PATCH)
-        return Utils.validate_response_data(response, data_model=Comment)
+
+        return ExperimentalUtils.validate_response_data(response,
+                                                        data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
-    async def delete(self, comment_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def delete(self, comment_id: int):
         """Deletes comment.
+
+        Instead of returning just response code,
+        API methods returns dictionary with "notice"
+        field, so it's being logged out with INFO level
 
         :param comment_id: ID of comment to delete
         :type comment_id: int
@@ -162,4 +170,7 @@ class Comments(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response, fallback=False)
+
+        logger.info(response)
+
+        return True

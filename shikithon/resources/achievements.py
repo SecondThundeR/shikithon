@@ -18,7 +18,7 @@ class Achievements(BaseResource):
 
     @method_endpoint('/api/achievements')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def get(self, user_id: int):
+    async def get_all(self, user_id: int):
         """Returns list of user achievements.
 
         :param user_id: User ID for getting achievements

@@ -1,11 +1,12 @@
 """Represents /api/calendar resource."""
 from typing import Any, Dict, List, Optional
 
+from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..enums import AnimeCensorship
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import CalendarEvent
 from ..utils import ExperimentalUtils
-from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -16,23 +17,20 @@ class Calendar(BaseResource):
     """
 
     @method_endpoint('/api/calendar')
-    async def get(
-            self,
-            censored: Optional[AnimeCensorship] = None) -> List[CalendarEvent]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def get_all(self, censored: Optional[AnimeCensorship] = None):
         """Returns current calendar events.
 
-        :param censored: Status of censorship for events (true/false)
+        :param censored: Status of censorship for events
         :type censored: Optional[AnimeCensorship]
 
         :return: List of calendar events
         :rtype: List[CalendarEvent]
         """
-        if not ExperimentalUtils.is_enum_passed(censored):
-            return []
+        query_dict = ExperimentalUtils.create_query_dict(censored=censored)
 
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.calendar,
-            query=ExperimentalUtils.create_query_dict(censored=censored))
-        return Utils.validate_response_data(response,
-                                            data_model=CalendarEvent,
-                                            fallback=[])
+            self._client.endpoints.calendar, query=query_dict)
+
+        return ExperimentalUtils.validate_response_data(
+            response, data_model=CalendarEvent)
