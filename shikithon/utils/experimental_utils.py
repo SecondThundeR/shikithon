@@ -367,7 +367,7 @@ class ExperimentalUtils:
         logger.debug(f'Passed response data: {response_data}')
 
         if not response_data:
-            logger.debug('Response data is empty. Returning it')
+            logger.debug('Response data is empty. Returning')
             if isinstance(response_data, dict):
                 return None
             return []
