@@ -10,8 +10,8 @@ from ..utils import ExperimentalUtils
 from .base_resource import BaseResource
 
 
-class Calendar(BaseResource):
-    """Calendar resource class.
+class Calendars(BaseResource):
+    """Calendars resource class.
 
     Used to represent /api/calendar resource.
     """

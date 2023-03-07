@@ -16,7 +16,7 @@ from .resources import Achievements
 from .resources import Animes
 from .resources import Appears
 from .resources import Bans
-from .resources import Calendar
+from .resources import Calendars
 from .resources import Characters
 from .resources import Clubs
 from .resources import Comments
@@ -51,7 +51,7 @@ class ShikimoriAPI(Client):
     Also, all API methods splitted up to resources for convinient usage.
     """
 
-    __slots__ = ('achievements', 'animes', 'appears', 'bans', 'calendar',
+    __slots__ = ('achievements', 'animes', 'appears', 'bans', 'calendars',
                  'characters', 'clubs', 'comments', 'constants', 'dialogs',
                  'favorites', 'forums', 'friends', 'genres', 'mangas',
                  'messages', 'people', 'publishers', 'ranobes', 'stats',
@@ -107,7 +107,7 @@ class ShikimoriAPI(Client):
         self.animes = Animes(self)
         self.appears = Appears(self)
         self.bans = Bans(self)
-        self.calendar = Calendar(self)
+        self.calendars = Calendars(self)
         self.characters = Characters(self)
         self.clubs = Clubs(self)
         self.comments = Comments(self)
