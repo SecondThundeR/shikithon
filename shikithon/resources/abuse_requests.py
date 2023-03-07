@@ -1,5 +1,5 @@
 """Represents /api/v2/abuse_requests resource."""
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -40,16 +40,22 @@ class AbuseRequests(BaseResource):
 
     @method_endpoint('/api/v2/abuse_requests/review')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
-    async def review(self, comment_id: int):
+    async def review(self,
+                     comment_id: Optional[int] = None,
+                     topic_id: Optional[int] = None):
         """Converts comment to review.
 
         :param comment_id: ID of comment for conversion to review
-        :type comment_id: int
+        :type comment_id: Optional[int]
+
+        :param topic_id: ID of comment's topic
+        :type topic_id: Optional[int]
 
         :return: Abuse response status
         :rtype: bool
         """
-        data_dict = ExperimentalUtils.create_data_dict(comment_id=comment_id)
+        data_dict = ExperimentalUtils.create_data_dict(comment_id=comment_id,
+                                                       topic_id=topic_id)
 
         response: int = await self._client.request(
             self._client.endpoints.abuse_review,
@@ -61,19 +67,26 @@ class AbuseRequests(BaseResource):
 
     @method_endpoint('/api/v2/abuse_requests/abuse')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
-    async def abuse(self, comment_id: int, reason: str):
+    async def abuse(self,
+                    comment_id: Optional[int] = None,
+                    topic_id: Optional[int] = None,
+                    reason: Optional[str] = None):
         """Creates abuse about violation of site rules.
 
         :param comment_id: ID of comment to create abuse request
-        :type comment_id: int
+        :type comment_id: Optional[int]
+
+        :param topic_id: ID of comment's topic
+        :type topic_id: Optional[int]
 
         :param reason: Additional info about violation
-        :type reason: str
+        :type reason: Optional[str]
 
         :return: Abuse response status
         :rtype: bool
         """
         data_dict = ExperimentalUtils.create_data_dict(comment_id=comment_id,
+                                                       topic_id=topic_id,
                                                        reason=reason)
 
         response: int = await self._client.request(
@@ -86,19 +99,26 @@ class AbuseRequests(BaseResource):
 
     @method_endpoint('/api/v2/abuse_requests/spoiler')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
-    async def spoiler(self, comment_id: int, reason: str):
+    async def spoiler(self,
+                      comment_id: Optional[int] = None,
+                      topic_id: Optional[int] = None,
+                      reason: Optional[str] = None):
         """Creates abuse about spoiler in content.
 
         :param comment_id: ID of comment to create abuse request
-        :type comment_id: int
+        :type comment_id: Optional[int]
+
+        :param topic_id: ID of comment's topic
+        :type topic_id: Optional[int]
 
         :param reason: Additional info about spoiler
-        :type reason: str
+        :type reason: Optional[str]
 
         :return: Abuse response status
         :rtype: bool
         """
         data_dict = ExperimentalUtils.create_data_dict(comment_id=comment_id,
+                                                       topic_id=topic_id,
                                                        reason=reason)
 
         response: int = await self._client.request(
