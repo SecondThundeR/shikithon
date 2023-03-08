@@ -16,7 +16,7 @@ class JSONStore(Store):
 
     __slots__ = ('_file_path',)
 
-    def __init__(self, file_path: str = '.shikithon') -> None:
+    def __init__(self, file_path: str = '.shikithon'):
         super().__init__()
         self._file_path = file_path
 
@@ -44,10 +44,8 @@ class JSONStore(Store):
                           access_token: str,
                           refresh_token: Optional[str] = None,
                           token_expire_at: Optional[int] = None,
-                          auth_code: Optional[str] = None) -> None:
+                          auth_code: Optional[str] = None):
         async with MemoryStore(await self._read_from_file()) as ms:
-            ms: MemoryStore
-
             await ms.save_config(app_name=app_name,
                                  client_id=client_id,
                                  client_secret=client_secret,
@@ -72,7 +70,7 @@ class JSONStore(Store):
             return await ms.fetch_by_auth_code(app_name=app_name,
                                                auth_code=auth_code)
 
-    async def delete_token(self, app_name: str, access_token: str) -> None:
+    async def delete_token(self, app_name: str, access_token: str):
         async with MemoryStore(await self._read_from_file()) as ms:
             ms: MemoryStore
 
@@ -80,7 +78,7 @@ class JSONStore(Store):
 
             await self._write_to_file(ms.configs)
 
-    async def delete_all_tokens(self, app_name: str) -> None:
+    async def delete_all_tokens(self, app_name: str):
         async with MemoryStore(await self._read_from_file()) as ms:
             ms: MemoryStore
 

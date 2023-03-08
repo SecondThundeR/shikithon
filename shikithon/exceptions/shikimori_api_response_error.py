@@ -3,5 +3,5 @@
 
 class ShikimoriAPIResponseError(Exception):
 
-    def __init__(self, method: str, status: int, url: str, text: str) -> None:
+    def __init__(self, method: str, status: int, url: str, text: str):
         super().__init__(f'{method} {status} {url}\n{text}')

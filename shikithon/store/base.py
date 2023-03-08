@@ -12,7 +12,7 @@ class Store:
 
     __slots__ = ('_closed',)
 
-    def __init__(self) -> None:
+    def __init__(self):
         self._closed = True
 
     @property
@@ -33,7 +33,7 @@ class Store:
                           access_token: str,
                           refresh_token: Optional[str] = None,
                           token_expire_at: Optional[int] = None,
-                          auth_code: Optional[str] = None) -> None:
+                          auth_code: Optional[str] = None):
         """Saves config using the method of the selected store class.
 
         :param app_name: Application name
@@ -95,7 +95,7 @@ class Store:
         """
         raise NotImplementedError
 
-    async def delete_token(self, app_name: str, access_token: str) -> None:
+    async def delete_token(self, app_name: str, access_token: str):
         """Deletes token from config.
 
         :param app_name: Application name
@@ -106,7 +106,7 @@ class Store:
         """
         raise NotImplementedError
 
-    async def delete_all_tokens(self, app_name: str) -> None:
+    async def delete_all_tokens(self, app_name: str):
         """Deletes all tokens from config.
 
         :param app_name: Application name
@@ -114,8 +114,8 @@ class Store:
         """
         raise NotImplementedError
 
-    async def open(self) -> Store:
-        """Opens store and return self.
+    async def open(self):
+        """Opens store and returns self.
 
         :return: Store instance
         :rtype: Store
@@ -123,11 +123,11 @@ class Store:
         self._closed = False
         return self
 
-    async def close(self) -> None:
+    async def close(self):
         """Closes store."""
         self._closed = True
 
-    async def __aenter__(self) -> Store:
+    async def __aenter__(self):
         """Async context manager entry point.
 
         :return: Store instance
@@ -135,7 +135,7 @@ class Store:
         """
         return await self.open()
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args):
         """Async context manager exit point."""
         await self.close()
 
@@ -155,7 +155,7 @@ class NullStore(Store):
                           access_token: str,
                           refresh_token: Optional[str] = None,
                           token_expire_at: Optional[int] = None,
-                          auth_code: Optional[str] = None) -> None:
+                          auth_code: Optional[str] = None):
         pass
 
     async def fetch_by_access_token(
@@ -166,8 +166,8 @@ class NullStore(Store):
                                  auth_code: str) -> Optional[Dict[str, Any]]:
         pass
 
-    async def delete_token(self, app_name: str, access_token: str) -> None:
+    async def delete_token(self, app_name: str, access_token: str):
         pass
 
-    async def delete_all_tokens(self, app_name: str) -> None:
+    async def delete_all_tokens(self, app_name: str):
         pass

@@ -13,7 +13,7 @@ class MemoryStore(Store):
 
     __slots__ = ('_configs',)
 
-    def __init__(self, configs: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, configs: Optional[Dict[str, Any]] = None):
         super().__init__()
         self._configs = configs or {}
 
@@ -30,7 +30,7 @@ class MemoryStore(Store):
                           access_token: str,
                           refresh_token: Optional[str] = None,
                           token_expire_at: Optional[int] = None,
-                          auth_code: Optional[str] = None) -> None:
+                          auth_code: Optional[str] = None):
         app_data = self._configs.get(app_name)
         if app_data is None:
             app_data = self._configs[app_name] = {}
@@ -93,7 +93,7 @@ class MemoryStore(Store):
                     **token
                 }
 
-    async def delete_token(self, app_name: str, access_token: str) -> None:
+    async def delete_token(self, app_name: str, access_token: str):
         app_config = self._configs.get(app_name)
 
         if app_config is None:
@@ -108,13 +108,13 @@ class MemoryStore(Store):
             if token.get('access_token') == access_token:
                 del app_config['tokens'][idx]
 
-    async def delete_all_tokens(self, app_name: str) -> None:
+    async def delete_all_tokens(self, app_name: str):
         try:
             self._configs.pop(app_name)
         except KeyError as exc:
             raise StoreException(
                 f'The "{app_name}" config app does not exist') from exc
 
-    async def close(self) -> None:
+    async def close(self):
         self._configs.clear()
         return await super().close()

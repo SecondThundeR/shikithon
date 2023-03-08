@@ -55,7 +55,7 @@ class Client:
     def __init__(self,
                  app_name: str = 'Api Test',
                  store: Store = NullStore(),
-                 auto_close_store: bool = True) -> None:
+                 auto_close_store: bool = True):
         self._app_name = app_name
         self._store = store
         self.endpoints = Endpoints(SHIKIMORI_API_URL, SHIKIMORI_API_URL_V2,
@@ -608,7 +608,7 @@ class Client:
             self.user_agent = self._app_name
         return self
 
-    async def close(self) -> None:
+    async def close(self):
         """Closes session."""
         if not self.closed:
             await self._session.close()
@@ -622,6 +622,6 @@ class Client:
         """
         return await self.open()
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args):
         """Async context manager exit point."""
         await self.close()
