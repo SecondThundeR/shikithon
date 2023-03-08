@@ -158,7 +158,7 @@ class Comments(BaseResource):
         """Deletes comment.
 
         Instead of returning just response code,
-        API methods returns dictionary with "notice"
+        API method returns dictionary with "notice"
         field, so it's being logged out with INFO level
 
         :param comment_id: ID of comment to delete
