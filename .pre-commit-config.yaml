@@ -32,7 +32,7 @@ repos:
         exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future)/bad.py
         types: [ python ]
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.16.2
+    rev: v2.17.0
     hooks:
       - id: pylint
         name: Checking code with pylint
