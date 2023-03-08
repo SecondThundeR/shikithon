@@ -1,11 +1,15 @@
 """Represents /api/dialogs resource."""
 from typing import Any, Dict, List, Union
 
+from loguru import logger
+
+from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..enums import RequestType
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Dialog
 from ..models import Message
-from ..utils import Utils
+from ..utils import ExperimentalUtils
 from .base_resource import BaseResource
 
 
@@ -16,7 +20,8 @@ class Dialogs(BaseResource):
     """
 
     @method_endpoint('/api/dialogs')
-    async def get_all(self) -> List[Dialog]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def get_all(self):
         """Returns list of current user's dialogs.
 
         :return: List of dialogs
@@ -24,13 +29,14 @@ class Dialogs(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.dialogs)
-        return Utils.validate_response_data(response,
-                                            data_model=Dialog,
-                                            fallback=[])
+
+        return ExperimentalUtils.validate_response_data(response,
+                                                        data_model=Dialog)
 
     @method_endpoint('/api/dialogs/:id')
-    async def get(self, user_id: Union[int, str]) -> List[Message]:
-        """Returns list of current user's messages with certain user.
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def get(self, user_id: Union[int, str]):
+        """Returns list messages with certain user.
 
         :param user_id: ID/Nickname of the user to get dialog
         :type user_id: Union[int, str]
@@ -40,13 +46,18 @@ class Dialogs(BaseResource):
         """
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.dialog(user_id))
-        return Utils.validate_response_data(response,
-                                            data_model=Message,
-                                            fallback=[])
+
+        return ExperimentalUtils.validate_response_data(response,
+                                                        data_model=Message)
 
     @method_endpoint('/api/dialogs/:id')
-    async def delete(self, user_id: Union[int, str]) -> bool:
-        """Deletes dialog of current user with certain user.
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def delete(self, user_id: Union[int, str]):
+        """Deletes dialog with certain user.
+
+        Instead of returning just response code,
+        API method returns dictionary with "notice"
+        field, so it's being logged out with INFO level
 
         :param user_id: ID/Nickname of the user to delete dialog
         :type user_id: Union[int, str]
@@ -54,7 +65,10 @@ class Dialogs(BaseResource):
         :return: Status of message deletion
         :rtype: bool
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.dialog(user_id),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response, fallback=False)
+
+        logger.info(response)
+
+        return True
