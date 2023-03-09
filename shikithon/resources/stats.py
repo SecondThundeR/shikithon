@@ -1,8 +1,9 @@
 """Represents /api/stats resource."""
 from typing import List
 
+from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
-from ..utils import Utils
+from ..exceptions import ShikimoriAPIResponseError
 from .base_resource import BaseResource
 
 
@@ -13,7 +14,8 @@ class Stats(BaseResource):
     """
 
     @method_endpoint('/api/stats/active_users')
-    async def active_users(self) -> List[int]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def active_users(self):
         """Returns list of IDs of active users.
 
         :return: List of IDs of active users
@@ -21,4 +23,5 @@ class Stats(BaseResource):
         """
         response: List[int] = await self._client.request(
             self._client.endpoints.active_users)
-        return Utils.validate_response_data(response, fallback=[])
+
+        return response

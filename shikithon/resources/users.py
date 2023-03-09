@@ -1,12 +1,16 @@
 """Represents /api/users and /api/v2/users resource."""
 from typing import Any, Dict, List, Optional, Union
 
+from loguru import logger
+
+from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..enums import AnimeCensorship
 from ..enums import AnimeList
 from ..enums import MessageType
 from ..enums import RequestType
 from ..enums import TargetType
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Ban
 from ..models import Club
 from ..models import Favourites
@@ -26,9 +30,10 @@ class Users(BaseResource):
     """
 
     @method_endpoint('/api/users')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def get_all(self,
                       page: Optional[int] = None,
-                      limit: Optional[int] = None) -> List[User]:
+                      limit: Optional[int] = None):
         """Returns list of users.
 
         :param page: Number of page
@@ -40,61 +45,54 @@ class Users(BaseResource):
         :return: List of users
         :rtype: List[User]
         """
-        validated_numbers = Utils.validate_query_numbers(
-            page=(page, 100000),
-            limit=(limit, 100),
-        )
+        query_dict = Utils.create_query_dict(page=page, limit=limit)
 
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.users,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
-        return Utils.validate_response_data(response,
-                                            data_model=User,
-                                            fallback=[])
+            self._client.endpoints.users, query=query_dict)
+
+        return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/:id')
-    async def get(self,
-                  user_id: Union[str, int],
-                  is_nickname: Optional[bool] = None) -> Optional[User]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def get(self, user_id: Union[str, int]):
         """Returns info about user.
 
         :param user_id: User ID/Nickname to get info
         :type user_id: Union[str, int]
 
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
-
         :return: Info about user
         :rtype: Optional[User]
         """
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname)
+
         response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.user(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            self._client.endpoints.user(user_id), query=query_dict)
+
         return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/:id/info')
-    async def info(self,
-                   user_id: Union[str, int],
-                   is_nickname: Optional[bool] = None) -> Optional[User]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def info(self, user_id: Union[str, int]):
         """Returns user's brief info.
 
         :param user_id: User ID/Nickname to get brief info
         :type user_id: Union[int, str]
 
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
-
         :return: User's brief info
         :rtype: Optional[User]
         """
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname)
+
         response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.user_info(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            self._client.endpoints.user_info(user_id), query=query_dict)
+
         return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/whoami')
-    async def current(self) -> Optional[User]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def current(self):
         """Returns brief info about current user.
 
         Current user evaluated depending on authorization code.
@@ -104,10 +102,12 @@ class Users(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.whoami)
+
         return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/sign_out')
-    async def sign_out(self) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def sign_out(self):
         """
         Sends sign out request to API.
 
@@ -116,68 +116,59 @@ class Users(BaseResource):
         """
         response: str = await self._client.request(
             self._client.endpoints.sign_out)
+
         return response == 'signed out'
 
     @method_endpoint('/api/users/:id/friends')
-    async def friends(self,
-                      user_id: Union[str, int],
-                      is_nickname: Optional[bool] = None) -> List[User]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def friends(self, user_id: Union[str, int]):
         """Returns user's friends.
 
         :param user_id: User ID/Nickname to get friends
         :type user_id: Union[int, str]
 
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
-
         :return: List of user's friends
         :rtype: List[User]
         """
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname)
+
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.user_friends(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
-        return Utils.validate_response_data(response,
-                                            data_model=User,
-                                            fallback=[])
+            self._client.endpoints.user_friends(user_id), query=query_dict)
+
+        return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/users/:id/clubs')
-    async def clubs(self,
-                    user_id: Union[int, str],
-                    is_nickname: Optional[bool] = None) -> List[Club]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def clubs(self, user_id: Union[int, str]):
         """Returns user's clubs.
 
         :param user_id: User ID/Nickname to get clubs
         :type user_id: Union[int, str]
 
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
-
         :return: List of user's clubs
         :rtype: List[Club]
         """
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname)
+
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.user_clubs(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
-        return Utils.validate_response_data(response,
-                                            data_model=Club,
-                                            fallback=[])
+            self._client.endpoints.user_clubs(user_id), query=query_dict)
+
+        return Utils.validate_response_data(response, data_model=Club)
 
     @method_endpoint('/api/users/:id/anime_rates')
-    async def anime_rates(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Optional[bool] = None,
-            page: Optional[int] = None,
-            limit: Optional[int] = None,
-            status: Optional[AnimeList] = None,
-            censored: Optional[AnimeCensorship] = None) -> List[UserList]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def anime_rates(self,
+                          user_id: Union[int, str],
+                          page: Optional[int] = None,
+                          limit: Optional[int] = None,
+                          status: Optional[AnimeList] = None,
+                          censored: Optional[AnimeCensorship] = None):
         """Returns user's anime list.
 
         :param user_id: User ID/Nickname to get anime list
         :type user_id: Optional[int, str]
-
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
 
         :param page: Number of page
         :type page: Optional[int]
@@ -194,40 +185,29 @@ class Users(BaseResource):
         :return: User's anime list
         :rtype: List[UserList]
         """
-        if not Utils.is_enum_passed(status, censored):
-            return []
-
-        validated_numbers = Utils.validate_query_numbers(
-            page=(page, 100000),
-            limit=(limit, 5000),
-        )
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname,
+                                             page=page,
+                                             limit=limit,
+                                             status=status,
+                                             censored=censored)
 
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.user_anime_rates(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          status=status,
-                                          censored=censored))
-        return Utils.validate_response_data(response,
-                                            data_model=UserList,
-                                            fallback=[])
+            self._client.endpoints.user_anime_rates(user_id), query=query_dict)
+
+        return Utils.validate_response_data(response, data_model=UserList)
 
     @method_endpoint('/api/users/:id/manga_rates')
-    async def manga_rates(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Optional[bool] = None,
-            page: Optional[int] = None,
-            limit: Optional[int] = None,
-            censored: Optional[AnimeCensorship] = None) -> List[UserList]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def manga_rates(self,
+                          user_id: Union[int, str],
+                          page: Optional[int] = None,
+                          limit: Optional[int] = None,
+                          censored: Optional[AnimeCensorship] = None):
         """Returns user's manga list.
 
         :param user_id: User ID/Nickname to get manga list
         :type user_id: Union[int, str]
-
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
 
         :param page: Number of page
         :type page: Optional[int]
@@ -241,60 +221,47 @@ class Users(BaseResource):
         :return: User's manga list
         :rtype: List[UserList]
         """
-        if not Utils.is_enum_passed(censored):
-            return []
-
-        validated_numbers = Utils.validate_query_numbers(
-            page=(page, 100000),
-            limit=(limit, 5000),
-        )
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname,
+                                             page=page,
+                                             limit=limit,
+                                             censored=censored)
 
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.user_manga_rates(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          censored=censored))
-        return Utils.validate_response_data(response,
-                                            data_model=UserList,
-                                            fallback=[])
+            self._client.endpoints.user_manga_rates(user_id), query=query_dict)
+
+        return Utils.validate_response_data(response, data_model=UserList)
 
     @method_endpoint('/api/users/:id/favourites')
-    async def favourites(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Optional[bool] = None) -> Optional[Favourites]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def favourites(self, user_id: Union[int, str]):
         """Returns user's favourites.
 
         :param user_id: User ID/Nickname to get favourites
         :type user_id: Union[int, str]
 
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
-
         :return: User's favourites
         :rtype: Optional[Favourites]
         """
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname)
+
         response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.user_favourites(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            self._client.endpoints.user_favourites(user_id), query=query_dict)
+
         return Utils.validate_response_data(response, data_model=Favourites)
 
     @method_endpoint('/api/users/:id/messages')
-    async def messages(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Optional[bool] = None,
-            page: Optional[int] = None,
-            limit: Optional[int] = None,
-            message_type: MessageType = MessageType.NEWS) -> List[Message]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def messages(self,
+                       user_id: Union[int, str],
+                       page: Optional[int] = None,
+                       limit: Optional[int] = None,
+                       message_type: MessageType = MessageType.NEWS):
         """Returns current user's messages by type.
 
         :param user_id: Current user ID/Nickname to get messages
         :type user_id: Union[int, str]
-
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
 
         :param page: Number of page
         :type page: Optional[int]
@@ -308,61 +275,50 @@ class Users(BaseResource):
         :return: Current user's messages
         :rtype: List[Message]
         """
-        if not Utils.is_enum_passed(message_type):
-            return []
-
-        validated_numbers = Utils.validate_query_numbers(
-            page=(page, 100000),
-            limit=(limit, 100),
-        )
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname,
+                                             page=page,
+                                             limit=limit,
+                                             type=message_type)
 
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.user_messages(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          type=message_type))
-        return Utils.validate_response_data(response,
-                                            data_model=Message,
-                                            fallback=[])
+            self._client.endpoints.user_messages(user_id), query=query_dict)
+
+        return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/users/:id/unread_messages')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def unread_messages(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Optional[bool] = None) -> Optional[UnreadMessages]:
+            self, user_id: Union[int, str]) -> Optional[UnreadMessages]:
         """Returns current user's unread messages counter.
 
         :param user_id: Current user ID/Nickname to get unread messages
         :type user_id: Union[int, str]
 
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
-
         :return: Current user's unread messages counters
         :rtype: Optional[UnreadMessages]
         """
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname)
+
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_unread_messages(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
+            query=query_dict)
+
         return Utils.validate_response_data(response, data_model=UnreadMessages)
 
     @method_endpoint('/api/users/:id/history')
-    async def history(
-            self,
-            user_id: Union[int, str],
-            is_nickname: Optional[bool] = None,
-            page: Optional[int] = None,
-            limit: Optional[int] = None,
-            target_id: Optional[int] = None,
-            target_type: Optional[TargetType] = None) -> List[History]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def history(self,
+                      user_id: Union[int, str],
+                      page: Optional[int] = None,
+                      limit: Optional[int] = None,
+                      target_id: Optional[int] = None,
+                      target_type: Optional[TargetType] = None):
         """Returns history of user.
 
         :param user_id: User ID/Nickname to get history
         :type user_id: Union[int, str]
-
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
 
         :param page: Number of page
         :type page: Optional[int]
@@ -379,49 +335,39 @@ class Users(BaseResource):
         :return: User's history
         :rtype: List[History]
         """
-        if not Utils.is_enum_passed(target_type):
-            return []
-
-        validated_numbers = Utils.validate_query_numbers(
-            page=(page, 100000),
-            limit=(limit, 100),
-        )
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname,
+                                             page=page,
+                                             limit=limit,
+                                             target_id=target_id,
+                                             target_type=target_type)
 
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.user_history(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          target_id=target_id,
-                                          target_type=target_type))
-        return Utils.validate_response_data(response,
-                                            data_model=History,
-                                            fallback=[])
+            self._client.endpoints.user_history(user_id), query=query_dict)
+
+        return Utils.validate_response_data(response, data_model=History)
 
     @method_endpoint('/api/users/:id/bans')
-    async def bans(self,
-                   user_id: Union[int, str],
-                   is_nickname: Optional[bool] = None) -> List[Ban]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def bans(self, user_id: Union[int, str]):
         """Returns list of bans of user.
 
         :param user_id: User ID/Nickname to get list of bans
         :type user_id: Union[int, str]
 
-        :param is_nickname: Specify if passed user_id is nickname
-        :type is_nickname: Optional[bool]
-
         :return: User's bans
         :rtype: List[Ban]
         """
+        is_nickname = True if isinstance(user_id, str) else None
+        query_dict = Utils.create_query_dict(is_nickname=is_nickname)
+
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.user_bans(user_id),
-            query=Utils.create_query_dict(is_nickname=is_nickname))
-        return Utils.validate_response_data(response,
-                                            data_model=Ban,
-                                            fallback=[])
+            self._client.endpoints.user_bans(user_id), query=query_dict)
+        return Utils.validate_response_data(response, data_model=Ban)
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
-    async def ignore(self, user_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def ignore(self, user_id: int):
         """Sets user as ignored.
 
         :param user_id: ID of topic to ignore
@@ -433,10 +379,14 @@ class Users(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_ignore(user_id),
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response, fallback=False) is True
+
+        logger.info(response)
+
+        return True
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
-    async def unignore(self, user_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def unignore(self, user_id: int):
         """Sets user as unignored.
 
         :param user_id: ID of user to unignore
@@ -448,4 +398,7 @@ class Users(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_ignore(user_id),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response, fallback=True) is False
+
+        logger.info(response)
+
+        return False

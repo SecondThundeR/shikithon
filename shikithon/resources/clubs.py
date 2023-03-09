@@ -21,6 +21,8 @@ from ..models import User
 from ..utils import Utils
 from .base_resource import BaseResource
 
+DICT_NAME = 'club'
+
 
 class Clubs(BaseResource):
     """Clubs resource class.
@@ -155,7 +157,7 @@ class Clubs(BaseResource):
         """
 
         data_dict = Utils.create_data_dict(
-            dict_name='club',
+            dict_name=DICT_NAME,
             name=name,
             join_policy=join_policy,
             description=description,

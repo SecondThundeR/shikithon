@@ -12,6 +12,8 @@ from ..models import Comment
 from ..utils import Utils
 from .base_resource import BaseResource
 
+DICT_NAME = 'comment'
+
 
 class Comments(BaseResource):
     """Comments resource class.
@@ -105,7 +107,7 @@ class Comments(BaseResource):
         :return: Created comment info
         :rtype: Optional[Comment]
         """
-        data_dict = Utils.create_data_dict(dict_name='comment',
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME,
                                            body=body,
                                            commentable_id=commentable_id,
                                            commentable_type=commentable_type,
@@ -136,7 +138,7 @@ class Comments(BaseResource):
         :return: Updated comment info
         :rtype: Optional[Comment]
         """
-        data_dict = Utils.create_data_dict(dict_name='comment', body=body)
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME, body=body)
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),

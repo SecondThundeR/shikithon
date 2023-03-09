@@ -1,13 +1,18 @@
 """Represents /api/messages resource."""
 from typing import Any, Dict, List, Optional, Union
 
+from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..enums import MessageType
 from ..enums import RequestType
 from ..enums import ResponseCode
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Message
 from ..utils import Utils
 from .base_resource import BaseResource
+
+DICT_NAME = 'message'
+PRIVATE_DM = 'Private'
 
 
 class Messages(BaseResource):
@@ -17,7 +22,8 @@ class Messages(BaseResource):
     """
 
     @method_endpoint('/api/messages/:id')
-    async def get(self, message_id: int) -> Optional[Message]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def get(self, message_id: int):
         """Returns message info.
 
         :param message_id: ID of message to get info
@@ -28,9 +34,11 @@ class Messages(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.message(message_id))
+
         return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/messages')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def create(self, body: str, from_id: int,
                      to_id: int) -> Optional[Message]:
         """Creates message.
@@ -47,18 +55,22 @@ class Messages(BaseResource):
         :return: Created message info
         :rtype: Optional[Message]
         """
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME,
+                                           body=body,
+                                           from_id=from_id,
+                                           kind=PRIVATE_DM,
+                                           to_id=to_id)
+
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.messages,
-            data=Utils.create_data_dict(dict_name='message',
-                                        body=body,
-                                        from_id=from_id,
-                                        kind='Private',
-                                        to_id=to_id),
+            data=data_dict,
             request_type=RequestType.POST)
+
         return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/messages/:id')
-    async def update(self, message_id: int, body: str) -> Optional[Message]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def update(self, message_id: int, body: str):
         """Updates message.
 
         :param message_id: ID of message to update
@@ -70,14 +82,18 @@ class Messages(BaseResource):
         :return: Updated message info or None if message cannot be updated
         :rtype: Optional[Message]
         """
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME, body=body)
+
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.message(message_id),
-            data=Utils.create_data_dict(dict_name='message', body=body),
+            data=data_dict,
             request_type=RequestType.PATCH)
+
         return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/messages/:id')
-    async def delete(self, message_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def delete(self, message_id: int):
         """Deletes message.
 
         :param message_id: ID of message to delete
@@ -86,16 +102,18 @@ class Messages(BaseResource):
         :return: Status of message deletion
         :rtype: bool
         """
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        response: int = await self._client.request(
             self._client.endpoints.message(message_id),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(
-            response, response_code=ResponseCode.NO_CONTENT, fallback=False)
+
+        return Utils.validate_response_code(response,
+                                            check_code=ResponseCode.NO_CONTENT)
 
     @method_endpoint('/api/messages/mark_read')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
     async def mark_read(self,
                         message_ids: Optional[Union[int, List[int]]] = None,
-                        is_read: Optional[bool] = None) -> bool:
+                        is_read: Optional[bool] = None):
         """Marks read/unread selected messages.
 
         :param message_ids: ID(s) of messages to mark read/unread
@@ -107,16 +125,19 @@ class Messages(BaseResource):
         :return: Status of messages read/unread
         :rtype: bool
         """
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        data_dict = Utils.create_query_dict(ids=message_ids, is_read=is_read)
+
+        response: int = await self._client.request(
             self._client.endpoints.messages_mark_read,
-            data=Utils.create_query_dict(ids=message_ids, is_read=is_read),
+            data=data_dict,
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response,
-                                            response_code=ResponseCode.SUCCESS,
-                                            fallback=False)
+
+        return Utils.validate_response_code(response,
+                                            check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/messages/read_all')
-    async def read_all(self, message_type: MessageType) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def read_all(self, message_type: MessageType):
         """Reads all messages on current user's account.
 
         **Note:** This methods accepts as type only 'news' and
@@ -128,19 +149,19 @@ class Messages(BaseResource):
         :return: Status of messages read
         :rtype: bool
         """
-        if not Utils.is_enum_passed(message_type):
-            return False
+        data_dict = Utils.create_query_dict(type=message_type)
 
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        response: int = await self._client.request(
             self._client.endpoints.messages_read_all,
-            data=Utils.create_query_dict(type=message_type),
+            data=data_dict,
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response,
-                                            response_code=ResponseCode.SUCCESS,
-                                            fallback=False)
+
+        return Utils.validate_response_code(response,
+                                            check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/messages/delete_all')
-    async def delete_all(self, message_type: MessageType) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def delete_all(self, message_type: MessageType):
         """Deletes all messages on current user's account.
 
         **Note:** This methods accepts as type only 'news' and
@@ -152,13 +173,12 @@ class Messages(BaseResource):
         :return: Status of messages deletion
         :rtype: bool
         """
-        if not Utils.is_enum_passed(message_type):
-            return False
+        data_dict = Utils.create_query_dict(type=message_type)
 
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        response: int = await self._client.request(
             self._client.endpoints.messages_delete_all,
-            data=Utils.create_query_dict(type=message_type),
+            data=data_dict,
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response,
-                                            response_code=ResponseCode.SUCCESS,
-                                            fallback=False)
+
+        return Utils.validate_response_code(response,
+                                            check_code=ResponseCode.SUCCESS)

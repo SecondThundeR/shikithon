@@ -26,6 +26,8 @@ from ..models import Video
 from ..utils import Utils
 from .base_resource import BaseResource
 
+VIDEO_DICT_NAME = 'video'
+
 
 class Animes(BaseResource):
     """Anime resource class.
@@ -326,7 +328,7 @@ class Animes(BaseResource):
         :return: Created video info
         :rtype: Optional[Video]
         """
-        data_dict = Utils.create_data_dict(dict_name='video',
+        data_dict = Utils.create_data_dict(dict_name=VIDEO_DICT_NAME,
                                            kind=kind,
                                            name=name,
                                            url=url)

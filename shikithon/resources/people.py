@@ -1,8 +1,10 @@
 """Represents /api/people resource."""
 from typing import Any, Dict, List, Optional
 
+from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..enums import PersonKind
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Person
 from ..utils import Utils
 from .base_resource import BaseResource
@@ -15,7 +17,8 @@ class People(BaseResource):
     """
 
     @method_endpoint('/api/people/:id')
-    async def get(self, people_id: int) -> Optional[Person]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def get(self, people_id: int):
         """Returns info about a person.
 
         :param people_id: ID of person to get info
@@ -26,12 +29,14 @@ class People(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.people(people_id))
+
         return Utils.validate_response_data(response, data_model=Person)
 
     @method_endpoint('/api/people/search')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def search(self,
                      search: Optional[str] = None,
-                     people_kind: Optional[PersonKind] = None) -> List[Person]:
+                     people_kind: Optional[PersonKind] = None):
         """Returns list of found persons.
 
         **Note:** This API method only allows 'seyu',
@@ -46,12 +51,9 @@ class People(BaseResource):
         :return: List of found persons
         :rtype: List[Person]
         """
-        if not Utils.is_enum_passed(people_kind):
-            return []
+        query_dict = Utils.create_query_dict(search=search, kind=people_kind)
 
         response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.people_search,
-            query=Utils.create_query_dict(search=search, kind=people_kind))
-        return Utils.validate_response_data(response,
-                                            data_model=Person,
-                                            fallback=[])
+            self._client.endpoints.people_search, query=query_dict)
+
+        return Utils.validate_response_data(response, data_model=Person)
