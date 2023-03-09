@@ -72,16 +72,12 @@ class JSONStore(Store):
 
     async def delete_token(self, app_name: str, access_token: str):
         async with MemoryStore(await self._read_from_file()) as ms:
-            ms: MemoryStore
-
             await ms.delete_token(app_name=app_name, access_token=access_token)
 
             await self._write_to_file(ms.configs)
 
     async def delete_all_tokens(self, app_name: str):
         async with MemoryStore(await self._read_from_file()) as ms:
-            ms: MemoryStore
-
             await ms.delete_all_tokens(app_name)
 
             await self._write_to_file(ms.configs)
