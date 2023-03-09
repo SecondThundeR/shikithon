@@ -1,12 +1,13 @@
 """Submodel for creator.py"""
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
 from .anime import Anime
 from .image import Image
 from .manga import Manga
+from .ranobe import Ranobe
 from .seyu import Seyu
 
 
@@ -28,4 +29,4 @@ class Character(BaseModel):
     updated_at: Optional[datetime]
     seyu: Optional[List[Seyu]]
     animes: Optional[List[Anime]]
-    mangas: Optional[List[Manga]]
+    mangas: Optional[List[Union[Manga, Ranobe]]]
