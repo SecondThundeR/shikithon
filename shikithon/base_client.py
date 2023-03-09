@@ -431,7 +431,7 @@ class Client:
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
-    ) -> Optional[Union[List[Dict[str, Any]], Dict[str, Any], int]]:
+    ) -> Optional[Union[Any, int]]:
         """Creates request and returns response JSON.
 
         This method uses request_limiter library for rate limiting
@@ -460,7 +460,7 @@ class Client:
         :type output_logging: bool
 
         :return: Response JSON or None
-        :rtype: Optional[Union[List[Dict[str, Any]], Dict[str, Any], int]]
+        :rtype: Optional[Union[Any, int]]
 
         :raises RetryLater: If Shikimori API returns 429 status code
         :raises ShikimoriAPIResponseError: If response status is
