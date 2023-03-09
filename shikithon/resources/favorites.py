@@ -41,9 +41,12 @@ class Favorites(BaseResource):
         :return: Status of favorite create
         :rtype: bool
         """
+        linked_type_value = str(linked_type)
+        kind_value = None if kind is None else str(kind)
+
         response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.favorites_create(linked_type, linked_id,
-                                                    kind),
+            self._client.endpoints.favorites_create(linked_type_value,
+                                                    linked_id, kind_value),
             request_type=RequestType.POST)
 
         logger.info(response)
@@ -64,8 +67,11 @@ class Favorites(BaseResource):
         :return: Status of favorite destroy
         :rtype: bool
         """
+        linked_type_value = str(linked_type)
+
         response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.favorites_destroy(linked_type, linked_id),
+            self._client.endpoints.favorites_destroy(linked_type_value,
+                                                     linked_id),
             request_type=RequestType.DELETE)
 
         logger.info(response)
