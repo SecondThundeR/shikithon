@@ -4,9 +4,9 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 from time import time
-from typing import Any, Callable, cast, Dict, List, Optional, TypeVar, Union
+from typing import (Any, AsyncIterator, Awaitable, Dict, List, Optional,
+                    TypedDict, TypeVar, Union)
 
-from aiohttp import ClientResponse
 from aiohttp import ClientSession
 from aiohttp import ContentTypeError
 import backoff
@@ -23,6 +23,7 @@ from .exceptions import InvalidContentType
 from .exceptions import MissingAppVariable
 from .exceptions import RetryLater
 from .exceptions import ShikimoriAPIResponseError
+from .exceptions import ShikithonException
 from .store import NullStore
 from .store import Store
 from .utils import Utils
@@ -36,6 +37,28 @@ SHIKIMORI_OAUTH_URL = 'https://shikimori.one/oauth'
 DEFAULT_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 RT = TypeVar('RT')
+
+
+class ClientConfig(TypedDict, total=False):
+    app_name: str
+    client_id: str
+    client_secret: str
+    redirect_uri: str
+    scopes: str
+    auth_code: Optional[str]
+    access_token: str
+    refresh_token: Optional[str]
+    token_expire_at: Optional[int]
+
+
+class TokensDict(TypedDict):
+    access_token: str
+    refresh_token: str
+    token_type: str
+    scope: str
+    created_at: int
+    expires_in: int
+
 
 second_rate = RequestRate(MAX_CALLS_PER_SECOND, Duration.SECOND)
 minute_rate = RequestRate(MAX_CALLS_PER_MINUTE, Duration.MINUTE)
@@ -61,12 +84,12 @@ class Client:
         self.endpoints = Endpoints(SHIKIMORI_API_URL, SHIKIMORI_API_URL_V2,
                                    SHIKIMORI_OAUTH_URL)
 
-        self._session = None
-        self._config = None
+        self._session: Optional[ClientSession] = None
+        self._config: Optional[ClientConfig] = None
         self._auto_close_store = auto_close_store
 
     @property
-    def closed(self) -> bool:
+    def closed(self):
         """Checks if session is closed.
 
         :return: True if session is closed, False otherwise
@@ -75,7 +98,7 @@ class Client:
         return self._session is None
 
     @property
-    def restricted_mode(self) -> bool:
+    def restricted_mode(self):
         """Returns current restrict mode of client object.
 
         If true, client object can access only public methods
@@ -86,7 +109,7 @@ class Client:
         return self._config is None
 
     @property
-    def store(self) -> Store:
+    def store(self):
         """Returns store object.
 
         :return: Store object
@@ -94,107 +117,73 @@ class Client:
         """
         return self._store
 
-    @property
-    def user_agent(self) -> Dict[str, str]:
-        """Returns current session User-Agent.
-
-        :return: Session User-Agent
-        :rtype: Dict[str, str]
-        """
-        return {'User-Agent': self._session.headers['User-Agent']}
-
-    @user_agent.setter
-    def user_agent(self, app_name: Optional[str]):
+    def _set_user_agent(self, app_name: Optional[str]):
         """Updates session headers and set user agent.
 
         :param app_name: OAuth App name
         :type app_name: Optional[str]
         """
-        if self.closed:
+        if self.closed or self._session is None:
             return
 
         if app_name is None:
             self._session.headers.pop('User-Agent', None)
-            return
+        else:
+            self._session.headers.update({'User-Agent': app_name})
 
-        self._session.headers.update({'User-Agent': app_name})
+    user_agent = property(fset=_set_user_agent)
 
-    @property
-    def authorization_header(self) -> Dict[str, str]:
-        """Returns authorization header for current session.
-
-        :return: Authorization header
-        :rtype: Dict[str, str]
-        """
-        return {'Authorization': self._session.headers['Authorization']}
-
-    @authorization_header.setter
-    def authorization_header(self, access_token: Optional[str]):
+    def _set_authorization_header(self, access_token: Optional[str]):
         """Sets authorization header to current session.
 
         :param access_token: Access token
         :type access_token: Optional[str]
         """
-        if self.closed:
+        if self.closed or self._session is None:
             return
 
         if access_token is None:
             self._session.headers.pop('Authorization', None)
-            return
+        else:
+            self._session.headers.update(
+                {'Authorization': 'Bearer ' + access_token})
 
-        self._session.headers.update(
-            {'Authorization': 'Bearer ' + access_token})
+    authorization_header = property(fset=_set_authorization_header)
 
     @property
-    def config(self) -> Optional[Dict[str, Any]]:
+    def config(self) -> Optional[ClientConfig]:
         """Returns current config.
 
         If config is not availble, returns None.
 
         :return: Current config
-        :rtype: Optional[Dict[str, Any]]
+        :rtype: Optional[ClientConfig]
         """
         return self._config
 
     @config.setter
-    def config(self, config: Optional[Dict[str, Any]]):
+    def config(self, config: Optional[ClientConfig]):
         """Sets new config.
 
         If passed config isn't valid, raises Exception.
 
         :param config: New config data
-        :type config: Optional[Dict[str, Any]]
+        :type config: Optional[ClientConfig]
         """
-        if config is None or self.is_valid_config(config):
-            self._config = config
+        if config is None:
+            return None
 
-    @property
-    def scopes(self) -> Optional[List[str]]:
-        """Returns current app scopes.
+        self.validate_config(config)
 
-        If app is in restricted mode, returns None.
+        self._config = config
 
-        :return: Current scopes
-        :rtype: Optional[List[str]]
-        """
-        if not self.restricted_mode:
-            return cast(str, self._config['scopes']).split()
-        return None
-
-    def is_valid_config(self,
-                        config: Dict[str, Any],
-                        raises: bool = True) -> bool:
+    def validate_config(self, config: ClientConfig):
         """Validates passed config.
 
         Method checks config for required dict keys.
-        If some of keys are missing, returns False or raises Exception
-        if raises parameter is True.
 
         :param config: Config to validate
-        :type config: Dict[str, Any]
-
-        :param raises: If True, raises Exception if config is invalid
-        :type raises: bool
+        :type config: ClientConfig
 
         :return: True if config is valid, False otherwise
         :rtype: bool
@@ -202,24 +191,19 @@ class Client:
         :raises MissingAppVariable: If config is invalid and raises is True
         """
         if not config.get('app_name'):
-            if raises:
-                raise MissingAppVariable('app_name')
-            return False
+            raise MissingAppVariable('app_name')
 
         if not config.get('client_id'):
-            if raises:
-                raise MissingAppVariable('client_id')
-            return False
+            raise MissingAppVariable('client_id')
 
         if not config.get('client_secret'):
-            if raises:
-                raise MissingAppVariable('client_secret')
-            return False
+            raise MissingAppVariable('client_secret')
 
-        if not config.get('auth_code') and not config.get('access_token'):
-            if raises:
-                raise MissingAppVariable('auth_code or access_token')
-            return False
+        if not config.get('auth_code'):
+            raise MissingAppVariable('auth_code')
+
+        if not config.get('access_token'):
+            raise MissingAppVariable('access_token')
 
         if not config.get('redirect_uri'):
             config['redirect_uri'] = DEFAULT_REDIRECT_URI
@@ -239,7 +223,7 @@ class Client:
                    refresh_token: Optional[str] = None,
                    token_expire_at: Optional[int] = None,
                    redirect_uri: str = DEFAULT_REDIRECT_URI,
-                   scopes: str = '') -> Client:
+                   scopes: str = '') -> AsyncIterator[Client]:
         """Async context manager for authentification.
 
         :param app_name: OAuth App name
@@ -269,8 +253,8 @@ class Client:
         :param scopes: OAuth App scopes
         :type scopes: str
 
-        :return: Client object
-        :rtype: Client
+        :return: Async iterator of client object
+        :rtype: AsyncIterator[Client]
 
         :raises AlreadyRunningClient: If client is already running
         :raises MissingAppVariable: If some of required variables is missing
@@ -348,8 +332,7 @@ class Client:
                 await self.store.close()
 
     async def get_access_token(self, client_id: str, client_secret: str,
-                               auth_code: str,
-                               redirect_uri: str) -> Dict[str, Any]:
+                               auth_code: str, redirect_uri: str) -> TokensDict:
         """Returns new access token.
 
         :param client_id: Client ID
@@ -365,22 +348,28 @@ class Client:
         :type redirect_uri: str
 
         :return: New access token
-        :rtype: Dict[str, Any]
+        :rtype: TokensDict
         """
         logger.info('Getting new access token')
+
+        data_dict = {
+            'grant_type': 'authorization_code',
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'code': auth_code,
+            'redirect_uri': redirect_uri
+        }
+
         return await self.request(self.endpoints.oauth_token,
-                                  data={
-                                      'grant_type': 'authorization_code',
-                                      'client_id': client_id,
-                                      'client_secret': client_secret,
-                                      'code': auth_code,
-                                      'redirect_uri': redirect_uri
-                                  },
+                                  data=data_dict,
                                   request_type=RequestType.POST,
                                   output_logging=False)
 
-    async def refresh_access_token(self, client_id: str, client_secret: str,
-                                   refresh_token: str) -> Dict[str, Any]:
+    async def refresh_access_token(
+            self,
+            client_id: str,
+            client_secret: str,
+            refresh_token: Optional[str] = None) -> TokensDict:
         """Refreshes expired access token.
 
         :param client_id: Client ID
@@ -390,19 +379,25 @@ class Client:
         :type client_secret: str
 
         :param refresh_token: Refresh token
-        :type refresh_token: str
+        :type refresh_token: Optional[str]
 
         :return: Refreshed access token
-        :rtype: Dict[str, Any]
+        :rtype: TokensDict
         """
         logger.info('Refreshing current access token')
+
+        if refresh_token is None:
+            raise ShikithonException('Missing refresh_token. Returning None')
+
+        data_dict = {
+            'grant_type': 'refresh_token',
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'refresh_token': refresh_token
+        }
+
         return await self.request(self.endpoints.oauth_token,
-                                  data={
-                                      'grant_type': 'refresh_token',
-                                      'client_id': client_id,
-                                      'client_secret': client_secret,
-                                      'refresh_token': refresh_token
-                                  },
+                                  data=data_dict,
                                   request_type=RequestType.POST,
                                   output_logging=False)
 
@@ -413,7 +408,9 @@ class Client:
         :rtype: bool
         """
         logger.debug('Checking if token is expired')
+
         token_expiration_status = int(time()) > token_expire_at
+
         logger.debug(f'Token expire status: {token_expiration_status}')
         return token_expiration_status
 
@@ -427,7 +424,7 @@ class Client:
         self,
         url: str,
         data: Optional[Union[Dict[str, Dict[str, str]], Dict[str, str]]] = None,
-        bytes_data: Optional[bytes] = None,
+        bytes_data: Optional[Dict[str, bytes]] = None,
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
@@ -448,7 +445,7 @@ class Client:
         :type data: Optional[Union[Dict[str, Dict[str, str]], Dict[str, str]]]
 
         :param bytes_data: Request body data in bytes
-        :type bytes_data: Optional[bytes]
+        :type bytes_data: Optional[Dict[str, bytes]]
 
         :param query: Query data for request
         :type query: Optional[Dict[str, str]]
@@ -467,7 +464,7 @@ class Client:
         not lower than 400
         :raises InvalidContentType: If response content type not JSON
         """
-        if self.closed:
+        if self.closed or self._session is None:
             return None
 
         logger.info(
@@ -477,19 +474,22 @@ class Client:
             logger.debug(f'Request info details: {data=}, {query=}')
 
         if self._is_protected_request(url):
-            token_expire_at = self.config['token_expire_at']
+            token_expire_at = None if self.config is None else self.config.get(
+                'token_expire_at')
             if isinstance(token_expire_at,
                           int) and self.token_expired(token_expire_at):
                 await self._refresh_and_save_tokens()
 
-        if data is not None and bytes_data is not None:
+        if bytes_data is not None:
             logger.debug(
-                'Request body data and bytes data are sent at the same time. '
-                'Splitting into one')
-            bytes_data = {**bytes_data, **data}
-            data = None
+                'Found data with bytes. '\
+                'Merging bytes data with regular data form data')
 
-        response: ClientResponse
+            # Ignoring mypy error for now
+            # As there is some headache with
+            # mypy errors with dictionary unpacking
+            bytes_data.update(data)  # type: ignore
+            data = None
 
         if request_type == RequestType.GET:
             response = await self._session.get(url, params=query)
@@ -499,20 +499,11 @@ class Client:
                                                 json=data,
                                                 params=query)
         elif request_type == RequestType.PUT:
-            response = await self._session.put(url,
-                                               data=bytes_data,
-                                               json=data,
-                                               params=query)
+            response = await self._session.put(url, json=data, params=query)
         elif request_type == RequestType.PATCH:
-            response = await self._session.patch(url,
-                                                 data=bytes_data,
-                                                 json=data,
-                                                 params=query)
+            response = await self._session.patch(url, json=data, params=query)
         elif request_type == RequestType.DELETE:
-            response = await self._session.delete(url,
-                                                  data=bytes_data,
-                                                  json=data,
-                                                  params=query)
+            response = await self._session.delete(url, json=data, params=query)
         else:
             logger.debug('Unknown request type passed. Returning None')
             return None
@@ -549,19 +540,21 @@ class Client:
         finally:
             response.release()
 
-    async def multiple_requests(self, requests: List[Callable[..., RT]]):
+    async def multiple_requests(self,
+                                requests: List[Awaitable[RT]]) -> List[RT]:
         """Makes multiple requests to API at the same time.
 
-        :param requests: List of requests
-        :type requests: List[Callable[..., RT]]
+        :param requests: List with async requests
+        :type requests: List[Awaitable[RT]]
 
         :return: List of responses
-        :rtype: List[Union[BaseException, RT]]
+        :rtype: List[RT]
         """
         if self.closed:
             return []
 
         logger.info(f'Gathering {len(requests)} requests')
+
         return await asyncio.gather(*requests, return_exceptions=False)
 
     async def _refresh_and_save_tokens(self):
@@ -571,20 +564,31 @@ class Client:
         Authorization header, this method sets the header to None
         before refreshing and then sets it back to the new token.
         """
-        self.authorization_header = None
-        token_data = await self.refresh_access_token(
-            self.config['client_id'], self.config['client_secret'],
-            self.config['refresh_token'])
-        self.authorization_header = token_data['access_token']
-        self._config.update(
-            access_token=token_data['access_token'],
-            refresh_token=token_data['refresh_token'],
-            token_expire_at=token_data['created_at'] + token_data['expires_in'],
-        )
-        if self.is_valid_config(self.config):
-            await self.store.save_config(**self.config)
+        if self._config is None:
+            return None
 
-    def _is_protected_request(self, url: str) -> bool:
+        self.authorization_header = None
+
+        token_data = await self.refresh_access_token(
+            self._config['client_id'], self._config['client_secret'],
+            self._config['refresh_token'])
+
+        self.authorization_header = token_data['access_token']
+
+        self._config.update({
+            'access_token':
+                token_data['access_token'],
+            'refresh_token':
+                token_data['refresh_token'],
+            'token_expire_at':
+                token_data['created_at'] + token_data['expires_in'],
+        })
+
+        self.validate_config(self._config)
+
+        await self.store.save_config(**self._config)
+
+    def _is_protected_request(self, url: str):
         """Checks if a protected request is being made.
 
         :param url: Request URL
@@ -595,9 +599,10 @@ class Client:
         """
         return not self.restricted_mode and \
                 url != self.endpoints.oauth_token and \
-                self.config['refresh_token'] is not None
+                (self.config is not None and \
+                    self.config['refresh_token'] is not None)
 
-    async def open(self) -> Client:
+    async def open(self):
         """Opens session and returns self.
 
         :return: Client instance
@@ -606,15 +611,18 @@ class Client:
         if self.closed:
             self._session = ClientSession()
             self.user_agent = self._app_name
+
         return self
 
     async def close(self):
         """Closes session."""
-        if not self.closed:
-            await self._session.close()
-            self._session = None
+        if self.closed or self._session is None:
+            return
 
-    async def __aenter__(self) -> Client:
+        await self._session.close()
+        self._session = None
+
+    async def __aenter__(self):
         """Async context manager entry point.
 
         :return: Client instance
