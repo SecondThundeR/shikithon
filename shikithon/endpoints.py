@@ -4,7 +4,7 @@ This module contains Endpoints class, which
 contains all endpoints for API and can form
 customized endpoints via input parameters.
 """
-from typing import Union
+from typing import Optional, Union
 
 from .utils import Utils
 
@@ -579,7 +579,7 @@ class Endpoints:
         return f'{self.base_url_v2}/episode_notifications'
 
     def favorites_create(self, linked_type: str, linked_id: int,
-                         kind: str) -> str:
+                         kind: Optional[str]) -> str:
         """Returns endpoint for creating some type
         of object as favorite
 
@@ -591,13 +591,14 @@ class Endpoints:
 
         :param kind: Kind of linked object
             (Required when linked_type is 'Person')
-        :type kind: str
+        :type kind: Optional[str]
 
         :return: Favorite create endpoint link
         :rtype: str
         """
         return f'{self.base_url}/favorites/' \
-               f'{linked_type}/{linked_id}/{kind}'
+               f'{linked_type}/{linked_id}' \
+               f'{"" if not kind else f"/{kind}"}'
 
     def favorites_destroy(self, linked_type: str, linked_id: int) -> str:
         """Returns endpoint for destroying some type
