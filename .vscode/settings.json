@@ -3,6 +3,7 @@
     "python.linting.mypyEnabled": true,
     "python.linting.lintOnSave": true,
     "python.linting.mypyArgs": [
+        "–ignore-missing-imports",
         "--check-untyped-defs"
     ]
 }
