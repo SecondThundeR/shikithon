@@ -1,8 +1,11 @@
 """Memory based config store class"""
-from typing import Any, Dict, Optional
+from typing import Optional
 
 from ..exceptions import StoreException
+from .base import ConfigsDict
+from .base import ReturnConfig
 from .base import Store
+from .base import Token
 
 
 class MemoryStore(Store):
@@ -13,12 +16,12 @@ class MemoryStore(Store):
 
     __slots__ = ('_configs',)
 
-    def __init__(self, configs: Optional[Dict[str, Any]] = None):
+    def __init__(self, configs: Optional[ConfigsDict] = None):
         super().__init__()
-        self._configs = configs or {}
+        self._configs: ConfigsDict = configs or {}
 
     @property
-    def configs(self) -> Dict[str, Any]:
+    def configs(self) -> ConfigsDict:
         return self._configs
 
     async def save_config(self,
@@ -35,7 +38,7 @@ class MemoryStore(Store):
         if app_data is None:
             app_data = self._configs[app_name] = {}
 
-        app_token = {
+        app_token: Token = {
             'auth_code': auth_code,
             'scopes': scopes,
             'access_token': access_token,
@@ -45,7 +48,6 @@ class MemoryStore(Store):
 
         app_tokens = app_data.get('tokens', [])
         for token in app_tokens:
-            token: Dict[str, Any]
             if token.get('auth_code') == auth_code and token.get(
                     'scopes') == scopes:
                 token.update(app_token)
@@ -53,45 +55,54 @@ class MemoryStore(Store):
         else:
             app_tokens.append(app_token)
 
-        app_data.update(client_id=client_id,
-                        client_secret=client_secret,
-                        redirect_uri=redirect_uri,
-                        tokens=app_tokens)
+        # Replaced update with keyword arguments
+        # as mypy has type check problems with it
+        # https://github.com/python/mypy/issues/6019
+        app_data.update({
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'redirect_uri': redirect_uri,
+            'tokens': app_tokens
+        })
 
-    async def fetch_by_access_token(
-            self, app_name: str, access_token: str) -> Optional[Dict[str, Any]]:
+    async def fetch_by_access_token(self, app_name: str, access_token: str):
         app_config = self._configs.get(app_name)
 
         if app_config is None:
             return None
 
         for token in app_config['tokens']:
-            token: Dict[str, Any]
             if token.get('access_token') == access_token:
-                return {
+                config: ReturnConfig = {
                     'app_name': app_name,
                     'client_id': app_config['client_id'],
                     'client_secret': app_config['client_secret'],
                     'redirect_uri': app_config['redirect_uri'],
-                    **token
+                    # See: https://github.com/python/mypy/issues/9408
+                    **token  # type: ignore[misc]
                 }
+                return config
 
-    async def fetch_by_auth_code(self, app_name: str,
-                                 auth_code: str) -> Optional[Dict[str, Any]]:
+        return None
+
+    async def fetch_by_auth_code(self, app_name: str, auth_code: str):
         app_config = self._configs.get(app_name)
         if app_config is None:
             return None
 
         for token in app_config['tokens']:
-            token: Dict[str, Any]
             if token.get('auth_code') == auth_code:
-                return {
+                config: ReturnConfig = {
                     'app_name': app_name,
                     'client_id': app_config['client_id'],
                     'client_secret': app_config['client_secret'],
                     'redirect_uri': app_config['redirect_uri'],
-                    **token
+                    # See: https://github.com/python/mypy/issues/9408
+                    **token  # type: ignore[misc]
                 }
+                return config
+
+        return None
 
     async def delete_token(self, app_name: str, access_token: str):
         app_config = self._configs.get(app_name)
@@ -104,7 +115,6 @@ class MemoryStore(Store):
             return await self.delete_all_tokens(app_name)
 
         for idx, token in enumerate(app_config['tokens']):
-            token: Dict[str, Any]
             if token.get('access_token') == access_token:
                 del app_config['tokens'][idx]
 
