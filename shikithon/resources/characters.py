@@ -5,7 +5,7 @@ from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Character
-from ..utils import ExperimentalUtils
+from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -29,8 +29,7 @@ class Characters(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.character(character_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Character)
+        return Utils.validate_response_data(response, data_model=Character)
 
     @method_endpoint('/api/characters/search')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -43,10 +42,9 @@ class Characters(BaseResource):
         :return: List of found characters
         :rtype: List[Character]
         """
-        query_dict = ExperimentalUtils.create_query_dict(search=search)
+        query_dict = Utils.create_query_dict(search=search)
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.character_search, query=query_dict)
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Character)
+        return Utils.validate_response_data(response, data_model=Character)

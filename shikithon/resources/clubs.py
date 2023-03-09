@@ -18,7 +18,7 @@ from ..models import ClubImage
 from ..models import Manga
 from ..models import Ranobe
 from ..models import User
-from ..utils import ExperimentalUtils
+from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -48,15 +48,14 @@ class Clubs(BaseResource):
         :return: Clubs list
         :rtype: List[Club]
         """
-        query_dict = ExperimentalUtils.create_query_dict(page=page,
-                                                         limit=limit,
-                                                         search=search)
+        query_dict = Utils.create_query_dict(page=page,
+                                             limit=limit,
+                                             search=search)
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.clubs, query=query_dict)
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Club)
+        return Utils.validate_response_data(response, data_model=Club)
 
     @method_endpoint('/api/clubs/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -72,8 +71,7 @@ class Clubs(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.club(club_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Club)
+        return Utils.validate_response_data(response, data_model=Club)
 
     @method_endpoint('/api/clubs/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -156,7 +154,7 @@ class Clubs(BaseResource):
         :rtype: Optional[Club]
         """
 
-        data_dict = ExperimentalUtils.create_data_dict(
+        data_dict = Utils.create_data_dict(
             dict_name='club',
             name=name,
             join_policy=join_policy,
@@ -181,8 +179,7 @@ class Clubs(BaseResource):
             data=data_dict,
             request_type=RequestType.PATCH)
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Club)
+        return Utils.validate_response_data(response, data_model=Club)
 
     @method_endpoint('/api/clubs/:id/animes')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -198,8 +195,7 @@ class Clubs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_animes(club_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Anime)
+        return Utils.validate_response_data(response, data_model=Anime)
 
     @method_endpoint('/api/clubs/:id/mangas')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -215,8 +211,7 @@ class Clubs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_mangas(club_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Manga)
+        return Utils.validate_response_data(response, data_model=Manga)
 
     @method_endpoint('/api/clubs/:id/ranobe')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -232,8 +227,7 @@ class Clubs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_ranobe(club_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Ranobe)
+        return Utils.validate_response_data(response, data_model=Ranobe)
 
     @method_endpoint('/api/clubs/:id/characters')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -249,8 +243,7 @@ class Clubs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_characters(club_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Character)
+        return Utils.validate_response_data(response, data_model=Character)
 
     @method_endpoint('/api/clubs/:id/members')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -266,8 +259,7 @@ class Clubs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_members(club_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=User)
+        return Utils.validate_response_data(response, data_model=User)
 
     @method_endpoint('/api/clubs/:id/images')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -283,8 +275,7 @@ class Clubs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.club_images(club_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=ClubImage)
+        return Utils.validate_response_data(response, data_model=ClubImage)
 
     @method_endpoint('/api/clubs/:id/join')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -301,8 +292,8 @@ class Clubs(BaseResource):
             self._client.endpoints.club_join(club_id),
             request_type=RequestType.POST)
 
-        return ExperimentalUtils.validate_response_code(
-            response, check_code=ResponseCode.SUCCESS)
+        return Utils.validate_response_code(response,
+                                            check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/clubs/:id/leave')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -319,5 +310,5 @@ class Clubs(BaseResource):
             self._client.endpoints.club_leave(club_id),
             request_type=RequestType.POST)
 
-        return ExperimentalUtils.validate_response_code(
-            response, check_code=ResponseCode.SUCCESS)
+        return Utils.validate_response_code(response,
+                                            check_code=ResponseCode.SUCCESS)

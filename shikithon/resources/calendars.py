@@ -6,7 +6,7 @@ from ..decorators import method_endpoint
 from ..enums import AnimeCensorship
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import CalendarEvent
-from ..utils import ExperimentalUtils
+from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -27,10 +27,9 @@ class Calendars(BaseResource):
         :return: List of calendar events
         :rtype: List[CalendarEvent]
         """
-        query_dict = ExperimentalUtils.create_query_dict(censored=censored)
+        query_dict = Utils.create_query_dict(censored=censored)
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.calendar, query=query_dict)
 
-        return ExperimentalUtils.validate_response_data(
-            response, data_model=CalendarEvent)
+        return Utils.validate_response_data(response, data_model=CalendarEvent)

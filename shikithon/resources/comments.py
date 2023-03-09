@@ -9,7 +9,7 @@ from ..enums import CommentableType
 from ..enums import RequestType
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Comment
-from ..utils import ExperimentalUtils
+from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -47,18 +47,16 @@ class Comments(BaseResource):
         :return: List of comments
         :rtype: List[Comment]
         """
-        query_dict = ExperimentalUtils.create_query_dict(
-            page=page,
-            limit=limit,
-            commentable_id=commentable_id,
-            commentable_type=commentable_type,
-            desc=desc)
+        query_dict = Utils.create_query_dict(page=page,
+                                             limit=limit,
+                                             commentable_id=commentable_id,
+                                             commentable_type=commentable_type,
+                                             desc=desc)
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.comments, query=query_dict)
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Comment)
+        return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -74,8 +72,7 @@ class Comments(BaseResource):
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Comment)
+        return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -108,12 +105,11 @@ class Comments(BaseResource):
         :return: Created comment info
         :rtype: Optional[Comment]
         """
-        data_dict = ExperimentalUtils.create_data_dict(
-            dict_name='comment',
-            body=body,
-            commentable_id=commentable_id,
-            commentable_type=commentable_type,
-            is_offtopic=is_offtopic)
+        data_dict = Utils.create_data_dict(dict_name='comment',
+                                           body=body,
+                                           commentable_id=commentable_id,
+                                           commentable_type=commentable_type,
+                                           is_offtopic=is_offtopic)
 
         if isinstance(broadcast, bool):
             logger.debug('Adding a broadcast value to a data_dict')
@@ -124,8 +120,7 @@ class Comments(BaseResource):
             data=data_dict,
             request_type=RequestType.POST)
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Comment)
+        return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -141,16 +136,14 @@ class Comments(BaseResource):
         :return: Updated comment info
         :rtype: Optional[Comment]
         """
-        data_dict = ExperimentalUtils.create_data_dict(dict_name='comment',
-                                                       body=body)
+        data_dict = Utils.create_data_dict(dict_name='comment', body=body)
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.comment(comment_id),
             data=data_dict,
             request_type=RequestType.PATCH)
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Comment)
+        return Utils.validate_response_data(response, data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)

@@ -10,7 +10,6 @@ from ..enums import UserRateStatus
 from ..enums import UserRateTarget
 from ..enums import UserRateType
 from ..models import UserRate
-from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -63,26 +62,25 @@ class UserRates(BaseResource):
             logger.warning('target_type is required when passing target_id')
             return []
 
-        if not ExperimentalUtils.is_enum_passed({
+        if not Utils.is_enum_passed({
                 UserRateTarget: target_type,
                 UserRateStatus: status
         }):
             return []
 
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
+        validated_numbers = Utils.validate_query_numbers(
             page=(page, 100000),
             limit=(limit, 1000),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.user_rates,
-            query=ExperimentalUtils.create_query_dict(
-                user_id=user_id,
-                target_id=target_id,
-                target_type=target_type,
-                status=status,
-                page=validated_numbers['page'],
-                limit=validated_numbers['limit']))
+            query=Utils.create_query_dict(user_id=user_id,
+                                          target_id=target_id,
+                                          target_type=target_type,
+                                          status=status,
+                                          page=validated_numbers['page'],
+                                          limit=validated_numbers['limit']))
         return Utils.validate_response_data(response,
                                             data_model=UserRate,
                                             fallback=[])
@@ -149,26 +147,24 @@ class UserRates(BaseResource):
         :return: Info about new user rate
         :rtype: Optional[UserRate]
         """
-        if not ExperimentalUtils.is_enum_passed(target_type, status):
+        if not Utils.is_enum_passed(target_type, status):
             return None
 
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
-            score=(score, 10))
+        validated_numbers = Utils.validate_query_numbers(score=(score, 10))
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rates,
-            data=ExperimentalUtils.create_data_dict(
-                dict_name='user_rate',
-                user_id=user_id,
-                target_id=target_id,
-                target_type=target_type,
-                status=status,
-                score=validated_numbers['score'],
-                chapters=chapters,
-                episodes=episodes,
-                volumes=volumes,
-                rewatches=rewatches,
-                text=text),
+            data=Utils.create_data_dict(dict_name='user_rate',
+                                        user_id=user_id,
+                                        target_id=target_id,
+                                        target_type=target_type,
+                                        status=status,
+                                        score=validated_numbers['score'],
+                                        chapters=chapters,
+                                        episodes=episodes,
+                                        volumes=volumes,
+                                        rewatches=rewatches,
+                                        text=text),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=UserRate)
 
@@ -211,23 +207,21 @@ class UserRates(BaseResource):
         :return: Info about new user rate
         :rtype: Optional[UserRate]
         """
-        if not ExperimentalUtils.is_enum_passed(status):
+        if not Utils.is_enum_passed(status):
             return None
 
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
-            score=(score, 10))
+        validated_numbers = Utils.validate_query_numbers(score=(score, 10))
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.user_rate(rate_id),
-            data=ExperimentalUtils.create_data_dict(
-                dict_name='user_rate',
-                status=status,
-                score=validated_numbers['score'],
-                chapters=chapters,
-                episodes=episodes,
-                volumes=volumes,
-                rewatches=rewatches,
-                text=text),
+            data=Utils.create_data_dict(dict_name='user_rate',
+                                        status=status,
+                                        score=validated_numbers['score'],
+                                        chapters=chapters,
+                                        episodes=episodes,
+                                        volumes=volumes,
+                                        rewatches=rewatches,
+                                        text=text),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response, data_model=UserRate)
 
@@ -272,7 +266,7 @@ class UserRates(BaseResource):
         :return: Status of user rates deletion
         :rtype: bool
         """
-        if not ExperimentalUtils.is_enum_passed(user_rate_type):
+        if not Utils.is_enum_passed(user_rate_type):
             return False
 
         response: Union[Dict[str, Any], int] = await self._client.request(
@@ -290,7 +284,7 @@ class UserRates(BaseResource):
         :return: Status of user rates reset
         :rtype: bool
         """
-        if not ExperimentalUtils.is_enum_passed(user_rate_type):
+        if not Utils.is_enum_passed(user_rate_type):
             return False
 
         response: Union[Dict[str, Any], int] = await self._client.request(

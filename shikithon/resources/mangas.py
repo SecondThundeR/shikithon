@@ -13,7 +13,6 @@ from ..models import Manga
 from ..models import Relation
 from ..models import Role
 from ..models import Topic
-from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -95,31 +94,30 @@ class Mangas(BaseResource):
         :return: List of Mangas
         :rtype: List[Manga]
         """
-        if not ExperimentalUtils.is_enum_passed(order, kind, status, censored,
-                                                my_list):
+        if not Utils.is_enum_passed(order, kind, status, censored, my_list):
             return []
 
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
-            page=(page, 100000), limit=(limit, 50), score=(score, 9))
+        validated_numbers = Utils.validate_query_numbers(page=(page, 100000),
+                                                         limit=(limit, 50),
+                                                         score=(score, 9))
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.mangas,
-            query=ExperimentalUtils.create_query_dict(
-                page=validated_numbers['page'],
-                limit=validated_numbers['limit'],
-                order=order,
-                kind=kind,
-                status=status,
-                season=season,
-                score=validated_numbers['score'],
-                genre=genre,
-                publisher=publisher,
-                franchise=franchise,
-                censored=censored,
-                mylist=my_list,
-                ids=ids,
-                exclude_ids=exclude_ids,
-                search=search))
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit'],
+                                          order=order,
+                                          kind=kind,
+                                          status=status,
+                                          season=season,
+                                          score=validated_numbers['score'],
+                                          genre=genre,
+                                          publisher=publisher,
+                                          franchise=franchise,
+                                          censored=censored,
+                                          mylist=my_list,
+                                          ids=ids,
+                                          exclude_ids=exclude_ids,
+                                          search=search))
         return Utils.validate_response_data(response,
                                             data_model=Manga,
                                             fallback=[])
@@ -233,16 +231,15 @@ class Mangas(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
+        validated_numbers = Utils.validate_query_numbers(
             page=(page, 100000),
             limit=(limit, 30),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.manga_topics(manga_id),
-            query=ExperimentalUtils.create_query_dict(
-                page=validated_numbers['page'],
-                limit=validated_numbers['limit']))
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit']))
         return Utils.validate_response_data(response,
                                             data_model=Topic,
                                             fallback=[])

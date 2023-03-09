@@ -6,7 +6,6 @@ from ..enums import MessageType
 from ..enums import RequestType
 from ..enums import ResponseCode
 from ..models import Message
-from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -50,11 +49,11 @@ class Messages(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.messages,
-            data=ExperimentalUtils.create_data_dict(dict_name='message',
-                                                    body=body,
-                                                    from_id=from_id,
-                                                    kind='Private',
-                                                    to_id=to_id),
+            data=Utils.create_data_dict(dict_name='message',
+                                        body=body,
+                                        from_id=from_id,
+                                        kind='Private',
+                                        to_id=to_id),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Message)
 
@@ -73,8 +72,7 @@ class Messages(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.message(message_id),
-            data=ExperimentalUtils.create_data_dict(dict_name='message',
-                                                    body=body),
+            data=Utils.create_data_dict(dict_name='message', body=body),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response, data_model=Message)
 
@@ -111,8 +109,7 @@ class Messages(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.messages_mark_read,
-            data=ExperimentalUtils.create_query_dict(ids=message_ids,
-                                                     is_read=is_read),
+            data=Utils.create_query_dict(ids=message_ids, is_read=is_read),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,
@@ -131,12 +128,12 @@ class Messages(BaseResource):
         :return: Status of messages read
         :rtype: bool
         """
-        if not ExperimentalUtils.is_enum_passed(message_type):
+        if not Utils.is_enum_passed(message_type):
             return False
 
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.messages_read_all,
-            data=ExperimentalUtils.create_query_dict(type=message_type),
+            data=Utils.create_query_dict(type=message_type),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,
@@ -155,12 +152,12 @@ class Messages(BaseResource):
         :return: Status of messages deletion
         :rtype: bool
         """
-        if not ExperimentalUtils.is_enum_passed(message_type):
+        if not Utils.is_enum_passed(message_type):
             return False
 
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.messages_delete_all,
-            data=ExperimentalUtils.create_query_dict(type=message_type),
+            data=Utils.create_query_dict(type=message_type),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,

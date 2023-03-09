@@ -6,7 +6,7 @@ customized endpoints via input parameters.
 """
 from typing import Union
 
-from .utils import ExperimentalUtils
+from .utils import Utils
 
 
 class Endpoints:
@@ -127,7 +127,7 @@ class Endpoints:
         :return: Link for getting authorization code
         :rtype: str
         """
-        query_str = ExperimentalUtils.convert_to_query_string({
+        query_str = Utils.convert_to_query_string({
             'client_id': client_id,
             'redirect_uri': redirect_uri,
             'response_type': 'code',

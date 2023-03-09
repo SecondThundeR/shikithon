@@ -8,7 +8,6 @@ from ..enums import ResponseCode
 from ..enums import TopicLinkedType
 from ..enums import TopicType
 from ..models import Topic
-from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -50,23 +49,22 @@ class Topics(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        if not ExperimentalUtils.is_enum_passed(forum, linked_type, topic_type):
+        if not Utils.is_enum_passed(forum, linked_type, topic_type):
             return []
 
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
+        validated_numbers = Utils.validate_query_numbers(
             page=(page, 100000),
             limit=(limit, 30),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.topics,
-            query=ExperimentalUtils.create_query_dict(
-                page=validated_numbers['page'],
-                limit=validated_numbers['limit'],
-                forum=forum,
-                linked_id=linked_id,
-                linked_type=linked_type,
-                type=topic_type))
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit'],
+                                          forum=forum,
+                                          linked_id=linked_id,
+                                          linked_type=linked_type,
+                                          type=topic_type))
         return Utils.validate_response_data(response,
                                             data_model=Topic,
                                             fallback=[])
@@ -86,16 +84,15 @@ class Topics(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
+        validated_numbers = Utils.validate_query_numbers(
             page=(page, 100000),
             limit=(limit, 30),
         )
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.updates_topics,
-            query=ExperimentalUtils.create_query_dict(
-                page=validated_numbers['page'],
-                limit=validated_numbers['limit']))
+            query=Utils.create_query_dict(page=validated_numbers['page'],
+                                          limit=validated_numbers['limit']))
         return Utils.validate_response_data(response,
                                             data_model=Topic,
                                             fallback=[])
@@ -110,13 +107,11 @@ class Topics(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        validated_numbers = ExperimentalUtils.validate_query_numbers(
-            limit=(limit, 10))
+        validated_numbers = Utils.validate_query_numbers(limit=(limit, 10))
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.hot_topics,
-            query=ExperimentalUtils.create_query_dict(
-                limit=validated_numbers['limit']))
+            query=Utils.create_query_dict(limit=validated_numbers['limit']))
         return Utils.validate_response_data(response,
                                             data_model=Topic,
                                             fallback=[])
@@ -167,20 +162,19 @@ class Topics(BaseResource):
         :return: Created topic info
         :rtype: Optional[Topic]
         """
-        if not ExperimentalUtils.is_enum_passed(linked_type):
+        if not Utils.is_enum_passed(linked_type):
             return None
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.topics,
-            data=ExperimentalUtils.create_data_dict(
-                dict_name='topic',
-                body=body,
-                forum_id=forum_id,
-                linked_id=linked_id,
-                linked_type=linked_type,
-                title=title,
-                type=str(TopicType.REGULAR_TOPIC.value),
-                user_id=user_id),
+            data=Utils.create_data_dict(dict_name='topic',
+                                        body=body,
+                                        forum_id=forum_id,
+                                        linked_id=linked_id,
+                                        linked_type=linked_type,
+                                        title=title,
+                                        type=str(TopicType.REGULAR_TOPIC.value),
+                                        user_id=user_id),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Topic)
 
@@ -212,16 +206,16 @@ class Topics(BaseResource):
         :return: Updated topic info
         :rtype: Optional[Topic]
         """
-        if not ExperimentalUtils.is_enum_passed(linked_type):
+        if not Utils.is_enum_passed(linked_type):
             return None
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.topic(topic_id),
-            data=ExperimentalUtils.create_data_dict(dict_name='topic',
-                                                    body=body,
-                                                    linked_id=linked_id,
-                                                    linked_type=linked_type,
-                                                    title=title),
+            data=Utils.create_data_dict(dict_name='topic',
+                                        body=body,
+                                        linked_id=linked_id,
+                                        linked_type=linked_type,
+                                        title=title),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,

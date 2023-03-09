@@ -6,7 +6,6 @@ from ..enums import FavoriteLinkedType
 from ..enums import PersonKind
 from ..enums import RequestType
 from ..enums import ResponseCode
-from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -37,7 +36,7 @@ class Favorites(BaseResource):
         :return: Status of favorite create
         :rtype: bool
         """
-        if not ExperimentalUtils.is_enum_passed(linked_type, kind):
+        if not Utils.is_enum_passed(linked_type, kind):
             return False
 
         response: Dict[str, Any] = await self._client.request(
@@ -60,7 +59,7 @@ class Favorites(BaseResource):
         :return: Status of favorite destroy
         :rtype: bool
         """
-        if not ExperimentalUtils.is_enum_passed(linked_type):
+        if not Utils.is_enum_passed(linked_type):
             return False
 
         response: Dict[str, Any] = await self._client.request(
@@ -86,7 +85,7 @@ class Favorites(BaseResource):
         """
         response: Union[Dict[str, Any], int] = await self._client.request(
             self._client.endpoints.favorites_reorder(favorite_id),
-            query=ExperimentalUtils.create_query_dict(new_index=new_index),
+            query=Utils.create_query_dict(new_index=new_index),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response,
                                             response_code=ResponseCode.SUCCESS,

@@ -6,7 +6,7 @@ from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Achievement
-from ..utils import ExperimentalUtils
+from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -27,10 +27,9 @@ class Achievements(BaseResource):
         :return: List of achievements
         :rtype: List[Achievement]
         """
-        query_dict = ExperimentalUtils.create_query_dict(user_id=user_id)
+        query_dict = Utils.create_query_dict(user_id=user_id)
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.achievements, query=query_dict)
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Achievement)
+        return Utils.validate_response_data(response, data_model=Achievement)

@@ -25,7 +25,7 @@ from .exceptions import RetryLater
 from .exceptions import ShikimoriAPIResponseError
 from .store import NullStore
 from .store import Store
-from .utils import ExperimentalUtils
+from .utils import Utils
 
 MAX_CALLS_PER_SECOND = 5
 MAX_CALLS_PER_MINUTE = 90
@@ -472,7 +472,7 @@ class Client:
 
         logger.info(
             f'{request_type.value} {url}' \
-            f'{ExperimentalUtils.convert_to_query_string(query)}')
+            f'{Utils.convert_to_query_string(query)}')
         if output_logging:
             logger.debug(f'Request info details: {data=}, {query=}')
 

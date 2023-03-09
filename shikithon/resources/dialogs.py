@@ -9,7 +9,7 @@ from ..enums import RequestType
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Dialog
 from ..models import Message
-from ..utils import ExperimentalUtils
+from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -30,8 +30,7 @@ class Dialogs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.dialogs)
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Dialog)
+        return Utils.validate_response_data(response, data_model=Dialog)
 
     @method_endpoint('/api/dialogs/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -47,8 +46,7 @@ class Dialogs(BaseResource):
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.dialog(user_id))
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Message)
+        return Utils.validate_response_data(response, data_model=Message)
 
     @method_endpoint('/api/dialogs/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)

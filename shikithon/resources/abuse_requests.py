@@ -7,7 +7,7 @@ from ..enums import RequestType
 from ..enums import ResponseCode
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import AbuseResponse
-from ..utils import ExperimentalUtils
+from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -28,15 +28,14 @@ class AbuseRequests(BaseResource):
         :return: Abuse response info
         :rtype: Optional[AbuseResponse]
         """
-        data_dict = ExperimentalUtils.create_data_dict(comment_id=comment_id)
+        data_dict = Utils.create_data_dict(comment_id=comment_id)
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.abuse_offtopic,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return ExperimentalUtils.validate_response_data(
-            response, data_model=AbuseResponse)
+        return Utils.validate_response_data(response, data_model=AbuseResponse)
 
     @method_endpoint('/api/v2/abuse_requests/review')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -54,16 +53,16 @@ class AbuseRequests(BaseResource):
         :return: Abuse response status
         :rtype: bool
         """
-        data_dict = ExperimentalUtils.create_data_dict(comment_id=comment_id,
-                                                       topic_id=topic_id)
+        data_dict = Utils.create_data_dict(comment_id=comment_id,
+                                           topic_id=topic_id)
 
         response: int = await self._client.request(
             self._client.endpoints.abuse_review,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return ExperimentalUtils.validate_response_code(
-            response, check_code=ResponseCode.SUCCESS)
+        return Utils.validate_response_code(response,
+                                            check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/v2/abuse_requests/abuse')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -85,17 +84,17 @@ class AbuseRequests(BaseResource):
         :return: Abuse response status
         :rtype: bool
         """
-        data_dict = ExperimentalUtils.create_data_dict(comment_id=comment_id,
-                                                       topic_id=topic_id,
-                                                       reason=reason)
+        data_dict = Utils.create_data_dict(comment_id=comment_id,
+                                           topic_id=topic_id,
+                                           reason=reason)
 
         response: int = await self._client.request(
             self._client.endpoints.abuse_violation,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return ExperimentalUtils.validate_response_code(
-            response, check_code=ResponseCode.SUCCESS)
+        return Utils.validate_response_code(response,
+                                            check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/v2/abuse_requests/spoiler')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -117,14 +116,14 @@ class AbuseRequests(BaseResource):
         :return: Abuse response status
         :rtype: bool
         """
-        data_dict = ExperimentalUtils.create_data_dict(comment_id=comment_id,
-                                                       topic_id=topic_id,
-                                                       reason=reason)
+        data_dict = Utils.create_data_dict(comment_id=comment_id,
+                                           topic_id=topic_id,
+                                           reason=reason)
 
         response: int = await self._client.request(
             self._client.endpoints.abuse_spoiler,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return ExperimentalUtils.validate_response_code(
-            response, check_code=ResponseCode.SUCCESS)
+        return Utils.validate_response_code(response,
+                                            check_code=ResponseCode.SUCCESS)

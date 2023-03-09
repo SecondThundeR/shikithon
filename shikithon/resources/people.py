@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional
 from ..decorators import method_endpoint
 from ..enums import PersonKind
 from ..models import Person
-from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -47,13 +46,12 @@ class People(BaseResource):
         :return: List of found persons
         :rtype: List[Person]
         """
-        if not ExperimentalUtils.is_enum_passed(people_kind):
+        if not Utils.is_enum_passed(people_kind):
             return []
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.people_search,
-            query=ExperimentalUtils.create_query_dict(search=search,
-                                                      kind=people_kind))
+            query=Utils.create_query_dict(search=search, kind=people_kind))
         return Utils.validate_response_data(response,
                                             data_model=Person,
                                             fallback=[])

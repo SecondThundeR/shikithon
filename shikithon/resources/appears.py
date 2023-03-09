@@ -5,7 +5,7 @@ from ..decorators import method_endpoint
 from ..enums import RequestType
 from ..enums import ResponseCode
 from ..exceptions import ShikimoriAPIResponseError
-from ..utils import ExperimentalUtils
+from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -27,12 +27,11 @@ class Appears(BaseResource):
         :return: Status of mark
         :rtype: bool
         """
-        data_dict = ExperimentalUtils.create_data_dict(ids=ids)
+        data_dict = Utils.create_data_dict(ids=ids)
 
         response: int = await self._client.request(
             self._client.endpoints.appears,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return ExperimentalUtils.validate_response_code(response,
-                                                        ResponseCode.SUCCESS)
+        return Utils.validate_response_code(response, ResponseCode.SUCCESS)

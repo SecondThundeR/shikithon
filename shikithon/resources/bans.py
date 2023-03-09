@@ -5,7 +5,7 @@ from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Ban
-from ..utils import ExperimentalUtils
+from ..utils import Utils
 from .base_resource import BaseResource
 
 
@@ -31,10 +31,9 @@ class Bans(BaseResource):
         :return: List of recent bans
         :rtype: List[Ban]
         """
-        query_dict = ExperimentalUtils.create_query_dict(page=page, limit=limit)
+        query_dict = Utils.create_query_dict(page=page, limit=limit)
 
         response: List[Dict[str, Any]] = await self._client.request(
             self._client.endpoints.bans_list, query=query_dict)
 
-        return ExperimentalUtils.validate_response_data(response,
-                                                        data_model=Ban)
+        return Utils.validate_response_data(response, data_model=Ban)

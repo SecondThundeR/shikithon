@@ -7,7 +7,6 @@ from ..decorators import method_endpoint
 from ..enums import OwnerType
 from ..enums import RequestType
 from ..models import Style
-from ..utils import ExperimentalUtils
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -48,7 +47,7 @@ class Styles(BaseResource):
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.style_preview,
-            data=ExperimentalUtils.create_data_dict(dict_name='style', css=css),
+            data=Utils.create_data_dict(dict_name='style', css=css),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Style)
 
@@ -72,16 +71,16 @@ class Styles(BaseResource):
         :return: Info about previewed style
         :rtype: Optional[Style]
         """
-        if not ExperimentalUtils.is_enum_passed(owner_type):
+        if not Utils.is_enum_passed(owner_type):
             return None
 
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.styles,
-            data=ExperimentalUtils.create_data_dict(dict_name='style',
-                                                    css=css,
-                                                    name=name,
-                                                    owner_id=owner_id,
-                                                    owner_type=owner_type),
+            data=Utils.create_data_dict(dict_name='style',
+                                        css=css,
+                                        name=name,
+                                        owner_id=owner_id,
+                                        owner_type=owner_type),
             request_type=RequestType.POST)
         return Utils.validate_response_data(response, data_model=Style)
 
@@ -106,8 +105,6 @@ class Styles(BaseResource):
         """
         response: Dict[str, Any] = await self._client.request(
             self._client.endpoints.style(style_id),
-            data=ExperimentalUtils.create_data_dict(dict_name='style',
-                                                    css=css,
-                                                    name=name),
+            data=Utils.create_data_dict(dict_name='style', css=css, name=name),
             request_type=RequestType.PATCH)
         return Utils.validate_response_data(response, data_model=Style)
