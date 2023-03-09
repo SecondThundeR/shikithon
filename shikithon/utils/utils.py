@@ -6,8 +6,7 @@ with all the necessary utility methods
 to work with the library
 """
 
-from typing import (Any, Dict, List, Optional, overload, Tuple, Type, TypeVar,
-                    Union)
+from typing import Any, Dict, List, Optional, overload, Type, TypeVar, Union
 
 from aiohttp import ClientSession
 from loguru import logger
@@ -15,7 +14,6 @@ from pydantic import BaseModel
 from validators import url
 
 from ..enums import ResponseCode
-from ..enums.enhanced_enum import EnhancedEnum
 
 LOWER_LIMIT_NUMBER = 1
 M = TypeVar('M', bound=BaseModel)
@@ -176,136 +174,6 @@ class Utils:
             return str(dict_value)
 
     @staticmethod
-    def is_enum_passed(*params: Any):
-        """Checks if passed params are actually enums.
-
-        Parameters are of the "Any" type, since
-        you can pass anything when calling a library method,
-        so the task of the method is to check the correctness
-        of the passed enums
-
-        :param params: Params of function to check
-        :type params: Any
-
-        :return: Check result
-        :rtype: bool
-        """
-        logger.debug('Checking is passed params are enums')
-
-        for data in params:
-            if data is None:
-                continue
-            elif isinstance(data, list):
-                for item in data:
-                    if not isinstance(item, EnhancedEnum):
-                        logger.warning(f'Parameter ({item}) is not an enum!')
-                        return False
-            elif not isinstance(data, EnhancedEnum):
-                logger.warning(f'Parameter ({data}) is not an enum!')
-                return False
-
-        logger.debug('All passed parameters are enums!')
-        return True
-
-    @overload
-    @staticmethod
-    def validate_query_number(number: None, limit: int) -> None:
-        ...
-
-    @overload
-    @staticmethod
-    def validate_query_number(number: int, limit: int) -> int:
-        ...
-
-    @overload
-    @staticmethod
-    def validate_query_number(number: float, limit: int) -> int:
-        ...
-
-    @staticmethod
-    def validate_query_number(number: Optional[Union[int, float]], limit: int):
-        """Validates passed query number.
-
-        If number is lower, returns lower limit, else upper limit.
-        If number is None, returns or None.
-
-        :param number: Number to validate
-        :type number: Optional[Union[int, float]]
-
-        :param limit: Upper limit for range check
-        :type limit: int
-
-        :return: Validated number
-        :rtype: Optional[int]
-        """
-        logger.debug(f'Validating query number "{number}" '
-                     f'with upper limit "{limit}"')
-
-        if number is None:
-            logger.debug('Query number is empty. Returning')
-            return number
-
-        if isinstance(number, float):
-            logger.debug(f'Query number "{number}" is a float. '
-                         'Converting to int')
-            number = int(number)
-
-        if number < LOWER_LIMIT_NUMBER:
-            logger.debug(f'Query number "{number}" is lower '
-                         f'than lower limit "{LOWER_LIMIT_NUMBER}". '
-                         'Returning lower limit value')
-            return LOWER_LIMIT_NUMBER
-
-        if number > limit:
-            logger.debug(f'Query number "{number}" is higher '
-                         f'than upper limit "{limit}". '
-                         'Returning upper limit value')
-            return limit
-
-        logger.debug(f'Returning passed query number: "{number}"')
-        return number
-
-    @staticmethod
-    def validate_query_numbers(**query_numbers: Tuple[Optional[Union[int,
-                                                                     float]],
-                                                      int]):
-        """Validates passed tuples of query numbers.
-
-        This method uses validate_query_number method for numbers validating.
-
-        Query numbers are passed in such form:
-            { "page": (1, 100), ... }
-
-            "page" <- Name of query number
-
-            (1 (Passed value), 100 (Upper limit value), )
-
-        This method outputs them like this:
-            { "page": 1 }
-
-            "page" <- Name of query number
-
-            1 <- Validated number
-
-        :param query_numbers: Passed query numbers to validate
-        :type query_numbers: Tuple[Optional[Union[int, float]], int]
-
-        :return: Dict of validated numbers
-        :rtype: Dict[str, Optional[int]]
-        """
-        logger.debug(f'Validating query numbers {query_numbers}')
-
-        validated_numbers: Dict[str, Optional[int]] = {}
-
-        for name, data in query_numbers.items():
-            number, limit = data[0], data[1]
-            validated_numbers.update(
-                {name: Utils.validate_query_number(number, limit)})
-
-        logger.debug(f'Returning validated numbers: {validated_numbers}')
-        return validated_numbers
-
-    @staticmethod
     def validate_response_code(response_code: Union[int, Any],
                                check_code: ResponseCode):
         """Validates passed response code.
@@ -371,8 +239,6 @@ class Utils:
             if isinstance(response_data, dict):
                 return None
             return []
-
-        # TODO: Implement other checks from Utils method
 
         return [data_model(**item) for item in response_data] if isinstance(
             response_data, list) else data_model(**response_data)
