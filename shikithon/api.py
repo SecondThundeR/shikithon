@@ -81,21 +81,23 @@ class ShikimoriAPI(Client):
         :type logging: Optional[bool]
         """
         if logging:
-            logger.configure(handlers=[
-                {
-                    'sink': sys.stderr,
-                    'level': 'INFO',
-                    'format': '{time} | {level} | {message}'
-                },
-                {
-                    'sink': 'shikithon_{time}.log',
-                    'level': 'DEBUG',
-                    'format': '{time} | {level} | '
-                              '{file}.{function}: {message}',
-                    'rotation': '5 MB',
-                    'compression': 'zip'
-                },
-            ])
+            logger.configure(handlers=[{
+                'sink':
+                    sys.stdout,
+                'level':
+                    'INFO',
+                'format':
+                    '<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> ' \
+                    '| <blue>{level}</blue> | <level>{message}</level>',
+                'colorize':
+                    True,
+            }, {
+                'sink': 'shikithon_{time}.log',
+                'level': 'DEBUG',
+                'format': '{time} | {level} | {file}.{function}: {message}',
+                'rotation': '5 MB',
+                'compression': 'zip',
+            }])
         if not logging:
             logger.disable('shikithon')
 
