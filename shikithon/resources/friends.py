@@ -1,6 +1,4 @@
 """Represents /api/friends resource."""
-from typing import Any, Dict
-
 from loguru import logger
 
 from ..decorators import exceptions_handler
@@ -27,7 +25,7 @@ class Friends(BaseResource):
         :return: Status of create (addition)
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.friend(user_id),
             request_type=RequestType.POST)
 
@@ -46,7 +44,7 @@ class Friends(BaseResource):
         :return: Status of destroy (removal)
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.friend(user_id),
             request_type=RequestType.DELETE)
 

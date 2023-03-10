@@ -1,7 +1,5 @@
 """Represents /api/favorites resource."""
-from typing import Any, Dict, Optional
-
-from loguru import logger
+from typing import Any, cast, Dict, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -44,14 +42,12 @@ class Favorites(BaseResource):
         linked_type_value = str(linked_type)
         kind_value = None if kind is None else str(kind)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.favorites_create(linked_type_value,
                                                     linked_id, kind_value),
             request_type=RequestType.POST)
 
-        logger.info(response)
-
-        return True
+        return cast(Dict[str, Any], response).get('success') is True
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -69,14 +65,12 @@ class Favorites(BaseResource):
         """
         linked_type_value = str(linked_type)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.favorites_destroy(linked_type_value,
                                                      linked_id),
             request_type=RequestType.DELETE)
 
-        logger.info(response)
-
-        return True
+        return cast(Dict[str, Any], response).get('success') is True
 
     @method_endpoint('/api/favorites/:id/reorder')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -101,10 +95,10 @@ class Favorites(BaseResource):
         """
         query_dict = Utils.create_query_dict(new_index=new_index)
 
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.favorites_reorder(favorite_id),
             query=query_dict,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.SUCCESS)

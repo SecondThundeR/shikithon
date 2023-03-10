@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 from time import time
-from typing import (Any, AsyncIterator, Awaitable, Dict, List, Optional,
+from typing import (Any, AsyncIterator, Awaitable, cast, Dict, List, Optional,
                     TypedDict, TypeVar, Union)
 
 from aiohttp import ClientSession
@@ -360,10 +360,11 @@ class Client:
             'redirect_uri': redirect_uri
         }
 
-        return await self.request(self.endpoints.oauth_token,
-                                  data=data_dict,
-                                  request_type=RequestType.POST,
-                                  output_logging=False)
+        tokens = await self.request(self.endpoints.oauth_token,
+                                    data=data_dict,
+                                    request_type=RequestType.POST,
+                                    output_logging=False)
+        return cast(TokensDict, tokens)
 
     async def refresh_access_token(
             self,
@@ -396,10 +397,11 @@ class Client:
             'refresh_token': refresh_token
         }
 
-        return await self.request(self.endpoints.oauth_token,
-                                  data=data_dict,
-                                  request_type=RequestType.POST,
-                                  output_logging=False)
+        tokens = await self.request(self.endpoints.oauth_token,
+                                    data=data_dict,
+                                    request_type=RequestType.POST,
+                                    output_logging=False)
+        return cast(TokensDict, tokens)
 
     def token_expired(self, token_expire_at: int):
         """Checks if current access token is expired.
@@ -414,7 +416,6 @@ class Client:
         logger.debug(f'Token expire status: {token_expiration_status}')
         return token_expiration_status
 
-    @request_limiter.ratelimit('shikithon_request', delay=True)
     @backoff.on_exception(backoff.expo,
                           RetryLater,
                           max_time=5,
@@ -456,7 +457,7 @@ class Client:
         :param output_logging: Parameter for logging JSON response
         :type output_logging: bool
 
-        :return: Response JSON or None
+        :return: Response JSON, status code or None
         :rtype: Optional[Union[Any, int]]
 
         :raises RetryLater: If Shikimori API returns 429 status code
@@ -491,22 +492,27 @@ class Client:
             bytes_data.update(data)  # type: ignore
             data = None
 
-        if request_type == RequestType.GET:
-            response = await self._session.get(url, params=query)
-        elif request_type == RequestType.POST:
-            response = await self._session.post(url,
-                                                data=bytes_data,
-                                                json=data,
-                                                params=query)
-        elif request_type == RequestType.PUT:
-            response = await self._session.put(url, json=data, params=query)
-        elif request_type == RequestType.PATCH:
-            response = await self._session.patch(url, json=data, params=query)
-        elif request_type == RequestType.DELETE:
-            response = await self._session.delete(url, json=data, params=query)
-        else:
-            logger.debug('Unknown request type passed. Returning None')
-            return None
+        async with request_limiter.ratelimit('request', delay=True):
+            if request_type == RequestType.GET:
+                response = await self._session.get(url, params=query)
+            elif request_type == RequestType.POST:
+                response = await self._session.post(url,
+                                                    data=bytes_data,
+                                                    json=data,
+                                                    params=query)
+            elif request_type == RequestType.PUT:
+                response = await self._session.put(url, json=data, params=query)
+            elif request_type == RequestType.PATCH:
+                response = await self._session.patch(url,
+                                                     json=data,
+                                                     params=query)
+            elif request_type == RequestType.DELETE:
+                response = await self._session.delete(url,
+                                                      json=data,
+                                                      params=query)
+            else:
+                logger.debug('Unknown request type passed. Returning None')
+                return None
 
         try:
             if response.status == 401 and self._is_protected_request(url):

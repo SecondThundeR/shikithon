@@ -1,5 +1,5 @@
 """Represents /api/bans resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, cast, Dict, List, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -33,7 +33,9 @@ class Bans(BaseResource):
         """
         query_dict = Utils.create_query_dict(page=page, limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.bans_list, query=query_dict)
+        response = await self._client.request(self._client.endpoints.bans_list,
+                                              query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Ban)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Ban)

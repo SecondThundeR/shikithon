@@ -1,5 +1,5 @@
 """Represents /api/dialogs resource."""
-from typing import Any, Dict, List, Union
+from typing import Any, cast, Dict, List, Union
 
 from loguru import logger
 
@@ -27,10 +27,11 @@ class Dialogs(BaseResource):
         :return: List of dialogs
         :rtype: List[Dialog]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.dialogs)
+        response = await self._client.request(self._client.endpoints.dialogs)
 
-        return Utils.validate_response_data(response, data_model=Dialog)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Dialog)
 
     @method_endpoint('/api/dialogs/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -43,10 +44,12 @@ class Dialogs(BaseResource):
         :return: List of messages
         :rtype: List[Message]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.dialog(user_id))
 
-        return Utils.validate_response_data(response, data_model=Message)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Message)
 
     @method_endpoint('/api/dialogs/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -63,7 +66,7 @@ class Dialogs(BaseResource):
         :return: Status of message deletion
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.dialog(user_id),
             request_type=RequestType.DELETE)
 

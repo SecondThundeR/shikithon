@@ -1,5 +1,5 @@
 """Represents /api/user_rates and /api/v2/user_rates resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, cast, Dict, List, Optional
 
 from loguru import logger
 
@@ -70,10 +70,12 @@ class UserRates(BaseResource):
                                              page=page,
                                              limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.user_rates, query=query_dict)
+        response = await self._client.request(self._client.endpoints.user_rates,
+                                              query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=UserRate)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -86,10 +88,11 @@ class UserRates(BaseResource):
         :return: Info about user rate
         :rtype: Optional[UserRate]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rate(rate_id))
 
-        return Utils.validate_response_data(response, data_model=UserRate)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -152,12 +155,12 @@ class UserRates(BaseResource):
                                            rewatches=rewatches,
                                            text=text)
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.user_rates,
-            data=data_dict,
-            request_type=RequestType.POST)
+        response = await self._client.request(self._client.endpoints.user_rates,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
 
-        return Utils.validate_response_data(response, data_model=UserRate)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -208,12 +211,13 @@ class UserRates(BaseResource):
                                            rewatches=rewatches,
                                            text=text)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rate(rate_id),
             data=data_dict,
             request_type=RequestType.PATCH)
 
-        return Utils.validate_response_data(response, data_model=UserRate)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id/increment')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -226,11 +230,12 @@ class UserRates(BaseResource):
         :return: Info about updated user rate
         :rtype: Optional[UserRate]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rate_increment(rate_id),
             request_type=RequestType.POST)
 
-        return Utils.validate_response_data(response, data_model=UserRate)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -243,14 +248,14 @@ class UserRates(BaseResource):
         :return: Status of user rate deletion
         :rtype: bool
         """
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rate(rate_id),
             request_type=RequestType.DELETE)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.NO_CONTENT)
 
-    @method_endpoint('/api/users_rates/:type/cleanup')
+    @method_endpoint('/api/user_rates/:type/cleanup')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
     async def delete_all(self, user_rate_type: UserRateType):
         """Deletes all user rates.
@@ -261,7 +266,7 @@ class UserRates(BaseResource):
         :return: Status of user rates deletion
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rates_cleanup(str(user_rate_type)),
             request_type=RequestType.DELETE)
 
@@ -280,7 +285,7 @@ class UserRates(BaseResource):
         :return: Status of user rates reset
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rates_reset(str(user_rate_type)),
             request_type=RequestType.DELETE)
 

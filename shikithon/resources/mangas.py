@@ -1,5 +1,5 @@
 """Represents /api/mangas resource."""
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, cast, Dict, List, Optional, Union
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -113,10 +113,12 @@ class Mangas(BaseResource):
                                              exclude_ids=exclude_ids,
                                              search=search)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.mangas, query=query_dict)
+        response = await self._client.request(self._client.endpoints.mangas,
+                                              query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Manga)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Manga)
 
     @method_endpoint('/api/mangas/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -129,10 +131,11 @@ class Mangas(BaseResource):
         :return: Manga info
         :rtype: Optional[Manga]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.manga(manga_id))
 
-        return Utils.validate_response_data(response, data_model=Manga)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Manga)
 
     @method_endpoint('/api/mangas/:id/roles')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -145,10 +148,12 @@ class Mangas(BaseResource):
         :return: List of manga roles
         :rtype: List[Role]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.manga_roles(manga_id))
 
-        return Utils.validate_response_data(response, data_model=Role)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Role)
 
     @method_endpoint('/api/mangas/:id/similar')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -161,10 +166,12 @@ class Mangas(BaseResource):
         :return: List of similar mangas
         :rtype: List[Manga]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.similar_mangas(manga_id))
 
-        return Utils.validate_response_data(response, data_model=Manga)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Manga)
 
     @method_endpoint('/api/mangas/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -177,10 +184,12 @@ class Mangas(BaseResource):
         :return: List of relations
         :rtype: List[Relation]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.manga_related_content(manga_id))
 
-        return Utils.validate_response_data(response, data_model=Relation)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Relation)
 
     @method_endpoint('/api/mangas/:id/franchise')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -193,10 +202,11 @@ class Mangas(BaseResource):
         :return: Franchise tree of certain manga
         :rtype: Optional[FranchiseTree]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.manga_franchise_tree(manga_id))
 
-        return Utils.validate_response_data(response, data_model=FranchiseTree)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=FranchiseTree)
 
     @method_endpoint('/api/mangas/:id/external_links')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -209,10 +219,12 @@ class Mangas(BaseResource):
         :return: List of external links
         :rtype: List[Link]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.manga_external_links(manga_id))
 
-        return Utils.validate_response_data(response, data_model=Link)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Link)
 
     @method_endpoint('/api/mangas/:id/topics')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -236,7 +248,9 @@ class Mangas(BaseResource):
         """
         query_dict = Utils.create_query_dict(page=page, limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.manga_topics(manga_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Topic)

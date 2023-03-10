@@ -1,5 +1,5 @@
 """Represents /api/characters resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, cast, Dict, List, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -26,10 +26,11 @@ class Characters(BaseResource):
         :return: Character info
         :rtype: Optional[Character]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.character(character_id))
 
-        return Utils.validate_response_data(response, data_model=Character)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Character)
 
     @method_endpoint('/api/characters/search')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -44,7 +45,9 @@ class Characters(BaseResource):
         """
         query_dict = Utils.create_query_dict(search=search)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.character_search, query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Character)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Character)

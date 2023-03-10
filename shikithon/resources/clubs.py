@@ -1,5 +1,5 @@
 """Represents /api/clubs resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, cast, Dict, List, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -54,10 +54,12 @@ class Clubs(BaseResource):
                                              limit=limit,
                                              search=search)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.clubs, query=query_dict)
+        response = await self._client.request(self._client.endpoints.clubs,
+                                              query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Club)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Club)
 
     @method_endpoint('/api/clubs/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -70,10 +72,11 @@ class Clubs(BaseResource):
         :return: Info about club
         :rtype: Optional[Club]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club(club_id))
 
-        return Utils.validate_response_data(response, data_model=Club)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Club)
 
     @method_endpoint('/api/clubs/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -176,12 +179,13 @@ class Clubs(BaseResource):
             collection_ids=collection_ids,
             banned_user_ids=banned_user_ids)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club(club_id),
             data=data_dict,
             request_type=RequestType.PATCH)
 
-        return Utils.validate_response_data(response, data_model=Club)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Club)
 
     @method_endpoint('/api/clubs/:id/animes')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -194,10 +198,12 @@ class Clubs(BaseResource):
         :return: Club's anime list
         :rtype: List[Anime]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club_animes(club_id))
 
-        return Utils.validate_response_data(response, data_model=Anime)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Anime)
 
     @method_endpoint('/api/clubs/:id/mangas')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -210,10 +216,12 @@ class Clubs(BaseResource):
         :return: Club's manga list
         :rtype: List[Manga]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club_mangas(club_id))
 
-        return Utils.validate_response_data(response, data_model=Manga)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Manga)
 
     @method_endpoint('/api/clubs/:id/ranobe')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -226,10 +234,12 @@ class Clubs(BaseResource):
         :return: Club's ranobe list
         :rtype: List[Ranobe]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club_ranobe(club_id))
 
-        return Utils.validate_response_data(response, data_model=Ranobe)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Ranobe)
 
     @method_endpoint('/api/clubs/:id/characters')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -242,10 +252,12 @@ class Clubs(BaseResource):
         :return: Club's character list
         :rtype: List[Character]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club_characters(club_id))
 
-        return Utils.validate_response_data(response, data_model=Character)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Character)
 
     @method_endpoint('/api/clubs/:id/members')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -258,10 +270,12 @@ class Clubs(BaseResource):
         :return: Club's member list
         :rtype: List[User]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club_members(club_id))
 
-        return Utils.validate_response_data(response, data_model=User)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=User)
 
     @method_endpoint('/api/clubs/:id/images')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -274,10 +288,12 @@ class Clubs(BaseResource):
         :return: Club's image list
         :rtype: List[ClubImage]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club_images(club_id))
 
-        return Utils.validate_response_data(response, data_model=ClubImage)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=ClubImage)
 
     @method_endpoint('/api/clubs/:id/join')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -290,11 +306,11 @@ class Clubs(BaseResource):
         :return: Status of join
         :rtype: bool
         """
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club_join(club_id),
             request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/clubs/:id/leave')
@@ -308,9 +324,9 @@ class Clubs(BaseResource):
         :return: Status of leave
         :rtype: bool
         """
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club_leave(club_id),
             request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.SUCCESS)

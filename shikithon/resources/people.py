@@ -1,5 +1,5 @@
 """Represents /api/people resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, cast, Dict, List, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -27,10 +27,11 @@ class People(BaseResource):
         :return: Info about a person
         :rtype: Optional[Person]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.people(people_id))
 
-        return Utils.validate_response_data(response, data_model=Person)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Person)
 
     @method_endpoint('/api/people/search')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -53,7 +54,9 @@ class People(BaseResource):
         """
         query_dict = Utils.create_query_dict(search=search, kind=people_kind)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.people_search, query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Person)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Person)

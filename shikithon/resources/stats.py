@@ -1,5 +1,5 @@
 """Represents /api/stats resource."""
-from typing import List
+from typing import cast, List
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -21,7 +21,7 @@ class Stats(BaseResource):
         :return: List of IDs of active users
         :rtype: List[int]
         """
-        response: List[int] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.active_users)
 
-        return response
+        return cast(List[int], response)

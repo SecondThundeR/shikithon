@@ -1,5 +1,5 @@
 """Represents /api/ranobes resource."""
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, cast, Dict, List, Optional, Union
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -107,10 +107,12 @@ class Ranobes(BaseResource):
                                              exclude_ids=exclude_ids,
                                              search=search)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.ranobes, query=query_dict)
+        response = await self._client.request(self._client.endpoints.ranobes,
+                                              query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Ranobe)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Ranobe)
 
     @method_endpoint('/api/ranobe/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -123,10 +125,11 @@ class Ranobes(BaseResource):
         :return: Ranobe info
         :rtype: Optional[Ranobe]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe(ranobe_id))
 
-        return Utils.validate_response_data(response, data_model=Ranobe)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Ranobe)
 
     @method_endpoint('/api/ranobe/:id/roles')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -139,10 +142,12 @@ class Ranobes(BaseResource):
         :return: List of ranobe roles
         :rtype: List[Role]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe_roles(ranobe_id))
 
-        return Utils.validate_response_data(response, data_model=Role)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Role)
 
     @method_endpoint('/api/ranobe/:id/similar')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -155,10 +160,12 @@ class Ranobes(BaseResource):
         :return: List of similar ranobes
         :rtype: List[Ranobe]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.similar_ranobes(ranobe_id))
 
-        return Utils.validate_response_data(response, data_model=Ranobe)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Ranobe)
 
     @method_endpoint('/api/ranobe/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -171,10 +178,12 @@ class Ranobes(BaseResource):
         :return: List of relations
         :rtype: List[Relation]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe_related_content(ranobe_id))
 
-        return Utils.validate_response_data(response, data_model=Relation)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Relation)
 
     @method_endpoint('/api/ranobe/:id/franchise')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -187,10 +196,11 @@ class Ranobes(BaseResource):
         :return: Franchise tree of certain ranobe
         :rtype: Optional[FranchiseTree]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe_franchise_tree(ranobe_id))
 
-        return Utils.validate_response_data(response, data_model=FranchiseTree)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=FranchiseTree)
 
     @method_endpoint('/api/ranobe/:id/external_links')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -203,10 +213,12 @@ class Ranobes(BaseResource):
         :return: List of external links
         :rtype: List[Link]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe_external_links(ranobe_id))
 
-        return Utils.validate_response_data(response, data_model=Link)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Link)
 
     @method_endpoint('/api/ranobe/:id/topics')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -230,7 +242,9 @@ class Ranobes(BaseResource):
         """
         query_dict = Utils.create_query_dict(page=page, limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe_topics(ranobe_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Topic)

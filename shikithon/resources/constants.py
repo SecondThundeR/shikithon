@@ -1,5 +1,5 @@
 """Represents /api/constants resource."""
-from typing import Any, Dict, List
+from typing import Any, cast, Dict, List
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -27,10 +27,11 @@ class Constants(BaseResource):
         :return: Anime constants values
         :rtype: Optional[AnimeConstants]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.anime_constants)
 
-        return Utils.validate_response_data(response, data_model=AnimeConstants)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=AnimeConstants)
 
     @method_endpoint('/api/constants/manga')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -40,10 +41,11 @@ class Constants(BaseResource):
         :return: Manga constants values
         :rtype: Optional[MangaConstants]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.manga_constants)
 
-        return Utils.validate_response_data(response, data_model=MangaConstants)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=MangaConstants)
 
     @method_endpoint('/api/constants/user_rate')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -53,10 +55,10 @@ class Constants(BaseResource):
         :return: User rate constants values
         :rtype: Optional[UserRateConstants]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rate_constants)
 
-        return Utils.validate_response_data(response,
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
                                             data_model=UserRateConstants)
 
     @method_endpoint('/api/constants/club')
@@ -67,10 +69,11 @@ class Constants(BaseResource):
         :return: Club constants values
         :rtype: Optional[ClubConstants]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.club_constants)
 
-        return Utils.validate_response_data(response, data_model=ClubConstants)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=ClubConstants)
 
     @method_endpoint('/api/constants/smileys')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -80,8 +83,9 @@ class Constants(BaseResource):
         :return: List of smileys constants values
         :rtype: List[SmileyConstants]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.smileys_constants)
 
-        return Utils.validate_response_data(response,
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
                                             data_model=SmileyConstants)

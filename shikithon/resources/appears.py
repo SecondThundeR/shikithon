@@ -1,4 +1,5 @@
 """Represents /api/appears resource."""
+from typing import cast
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -29,9 +30,9 @@ class Appears(BaseResource):
         """
         data_dict = Utils.create_data_dict(ids=ids)
 
-        response: int = await self._client.request(
-            self._client.endpoints.appears,
-            data=data_dict,
-            request_type=RequestType.POST)
+        response = await self._client.request(self._client.endpoints.appears,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response, ResponseCode.SUCCESS)
+        return Utils.validate_response_code(cast(int, response),
+                                            ResponseCode.SUCCESS)

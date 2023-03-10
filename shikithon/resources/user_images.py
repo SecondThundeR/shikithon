@@ -1,5 +1,5 @@
 """Represents /api/user_images resource."""
-from typing import Any, Dict, Optional
+from typing import Any, cast, Dict, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -33,11 +33,11 @@ class UserImages(BaseResource):
         image_data = await Utils.get_image_data(image_path)
         data_dict = Utils.create_data_dict(linked_type=linked_type)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_images,
             data=data_dict,
             bytes_data=image_data,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_data(response,
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
                                             data_model=CreatedUserImage)

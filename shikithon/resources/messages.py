@@ -1,5 +1,5 @@
 """Represents /api/messages resource."""
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, cast, Dict, List, Optional, Union
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -32,10 +32,11 @@ class Messages(BaseResource):
         :return: Message info
         :rtype: Optional[Message]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.message(message_id))
 
-        return Utils.validate_response_data(response, data_model=Message)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Message)
 
     @method_endpoint('/api/messages')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -61,12 +62,12 @@ class Messages(BaseResource):
                                            kind=PRIVATE_DM,
                                            to_id=to_id)
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.messages,
-            data=data_dict,
-            request_type=RequestType.POST)
+        response = await self._client.request(self._client.endpoints.messages,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
 
-        return Utils.validate_response_data(response, data_model=Message)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Message)
 
     @method_endpoint('/api/messages/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -84,12 +85,13 @@ class Messages(BaseResource):
         """
         data_dict = Utils.create_data_dict(dict_name=DICT_NAME, body=body)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.message(message_id),
             data=data_dict,
             request_type=RequestType.PATCH)
 
-        return Utils.validate_response_data(response, data_model=Message)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Message)
 
     @method_endpoint('/api/messages/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -102,11 +104,11 @@ class Messages(BaseResource):
         :return: Status of message deletion
         :rtype: bool
         """
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.message(message_id),
             request_type=RequestType.DELETE)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.NO_CONTENT)
 
     @method_endpoint('/api/messages/mark_read')
@@ -127,12 +129,12 @@ class Messages(BaseResource):
         """
         data_dict = Utils.create_query_dict(ids=message_ids, is_read=is_read)
 
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.messages_mark_read,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/messages/read_all')
@@ -151,12 +153,12 @@ class Messages(BaseResource):
         """
         data_dict = Utils.create_query_dict(type=message_type)
 
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.messages_read_all,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/messages/delete_all')
@@ -175,10 +177,10 @@ class Messages(BaseResource):
         """
         data_dict = Utils.create_query_dict(type=message_type)
 
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.messages_delete_all,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.SUCCESS)

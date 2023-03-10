@@ -1,5 +1,5 @@
 """Represents /api/comments resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, cast, Dict, List, Optional
 
 from loguru import logger
 
@@ -55,10 +55,12 @@ class Comments(BaseResource):
                                              commentable_type=commentable_type,
                                              desc=desc)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.comments, query=query_dict)
+        response = await self._client.request(self._client.endpoints.comments,
+                                              query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Comment)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -71,10 +73,11 @@ class Comments(BaseResource):
         :return: Comment info
         :rtype: Optional[Comment]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.comment(comment_id))
 
-        return Utils.validate_response_data(response, data_model=Comment)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Comment)
 
     @method_endpoint('/api/comments')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -117,12 +120,12 @@ class Comments(BaseResource):
             logger.debug('Adding a broadcast value to a data_dict')
             data_dict['broadcast'] = broadcast
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.comments,
-            data=data_dict,
-            request_type=RequestType.POST)
+        response = await self._client.request(self._client.endpoints.comments,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
 
-        return Utils.validate_response_data(response, data_model=Comment)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -140,12 +143,13 @@ class Comments(BaseResource):
         """
         data_dict = Utils.create_data_dict(dict_name=DICT_NAME, body=body)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.comment(comment_id),
             data=data_dict,
             request_type=RequestType.PATCH)
 
-        return Utils.validate_response_data(response, data_model=Comment)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Comment)
 
     @method_endpoint('/api/comments/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -162,7 +166,7 @@ class Comments(BaseResource):
         :return: Status of comment deletion
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.comment(comment_id),
             request_type=RequestType.DELETE)
 

@@ -1,5 +1,5 @@
 """Represents /api/genres resource."""
-from typing import Any, Dict, List
+from typing import Any, cast, Dict, List
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -23,7 +23,8 @@ class Genres(BaseResource):
         :return: List of genres
         :rtype: List[Genre]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.genres)
+        response = await self._client.request(self._client.endpoints.genres)
 
-        return Utils.validate_response_data(response, data_model=Genre)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Genre)

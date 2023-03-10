@@ -1,5 +1,5 @@
 """Represents /api/styles resource."""
-from typing import Any, Dict, Optional
+from typing import Any, cast, Dict, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -30,10 +30,11 @@ class Styles(BaseResource):
         :return: Info about style
         :rtype: Optional[Style]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.style(style_id))
 
-        return Utils.validate_response_data(response, data_model=Style)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Style)
 
     @method_endpoint('/api/styles/preview')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -48,12 +49,13 @@ class Styles(BaseResource):
         """
         data_dict = Utils.create_data_dict(dict_name=STYLES_DICT_NAME, css=css)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.style_preview,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_data(response, data_model=Style)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Style)
 
     @method_endpoint('/api/styles')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -82,12 +84,12 @@ class Styles(BaseResource):
                                            owner_id=owner_id,
                                            owner_type=owner_type)
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.styles,
-            data=data_dict,
-            request_type=RequestType.POST)
+        response = await self._client.request(self._client.endpoints.styles,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
 
-        return Utils.validate_response_data(response, data_model=Style)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Style)
 
     @method_endpoint('/api/styles/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -113,9 +115,10 @@ class Styles(BaseResource):
                                            css=css,
                                            name=name)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.style(style_id),
             data=data_dict,
             request_type=RequestType.PATCH)
 
-        return Utils.validate_response_data(response, data_model=Style)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Style)

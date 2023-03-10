@@ -1,7 +1,5 @@
 """Represents /api/users and /api/v2/users resource."""
-from typing import Any, Dict, List, Optional, Union
-
-from loguru import logger
+from typing import Any, cast, Dict, List, Optional, Union
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -47,10 +45,12 @@ class Users(BaseResource):
         """
         query_dict = Utils.create_query_dict(page=page, limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.users, query=query_dict)
+        response = await self._client.request(self._client.endpoints.users,
+                                              query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=User)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=User)
 
     @method_endpoint('/api/users/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -66,10 +66,11 @@ class Users(BaseResource):
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user(user_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=User)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=User)
 
     @method_endpoint('/api/users/:id/info')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -85,10 +86,11 @@ class Users(BaseResource):
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_info(user_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=User)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=User)
 
     @method_endpoint('/api/users/whoami')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -100,10 +102,10 @@ class Users(BaseResource):
         :return: Current user brief info
         :rtype: Optional[User]
         """
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.whoami)
+        response = await self._client.request(self._client.endpoints.whoami)
 
-        return Utils.validate_response_data(response, data_model=User)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=User)
 
     @method_endpoint('/api/users/sign_out')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -114,10 +116,9 @@ class Users(BaseResource):
         :return: True if request was successful, False otherwise
         :rtype: bool
         """
-        response: str = await self._client.request(
-            self._client.endpoints.sign_out)
+        response = await self._client.request(self._client.endpoints.sign_out)
 
-        return response == 'signed out'
+        return cast(str, response) == 'signed out'
 
     @method_endpoint('/api/users/:id/friends')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -133,10 +134,12 @@ class Users(BaseResource):
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_friends(user_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=User)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=User)
 
     @method_endpoint('/api/users/:id/clubs')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -152,10 +155,12 @@ class Users(BaseResource):
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_clubs(user_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Club)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Club)
 
     @method_endpoint('/api/users/:id/anime_rates')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -192,10 +197,12 @@ class Users(BaseResource):
                                              status=status,
                                              censored=censored)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_anime_rates(user_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=UserList)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=UserList)
 
     @method_endpoint('/api/users/:id/manga_rates')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -227,10 +234,12 @@ class Users(BaseResource):
                                              limit=limit,
                                              censored=censored)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_manga_rates(user_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=UserList)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=UserList)
 
     @method_endpoint('/api/users/:id/favourites')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -246,10 +255,11 @@ class Users(BaseResource):
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_favourites(user_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Favourites)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Favourites)
 
     @method_endpoint('/api/users/:id/messages')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -281,10 +291,12 @@ class Users(BaseResource):
                                              limit=limit,
                                              type=message_type)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_messages(user_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Message)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Message)
 
     @method_endpoint('/api/users/:id/unread_messages')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -301,11 +313,12 @@ class Users(BaseResource):
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_unread_messages(user_id),
             query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=UnreadMessages)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=UnreadMessages)
 
     @method_endpoint('/api/users/:id/history')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -342,10 +355,12 @@ class Users(BaseResource):
                                              target_id=target_id,
                                              target_type=target_type)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_history(user_id), query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=History)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=History)
 
     @method_endpoint('/api/users/:id/bans')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -361,9 +376,11 @@ class Users(BaseResource):
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_bans(user_id), query=query_dict)
-        return Utils.validate_response_data(response, data_model=Ban)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Ban)
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -376,13 +393,13 @@ class Users(BaseResource):
         :return: True if user was ignored, False otherwise
         :rtype: bool
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_ignore(user_id),
             request_type=RequestType.POST)
 
-        logger.info(response)
+        is_ignored = cast(Dict[str, Any], response).get('is_ignored')
 
-        return True
+        return is_ignored is True
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -395,10 +412,10 @@ class Users(BaseResource):
         :return: True if user was unignored, False otherwise
         :rtype: bool
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_ignore(user_id),
             request_type=RequestType.DELETE)
 
-        logger.info(response)
+        is_ignored = cast(Dict[str, Any], response).get('is_ignored')
 
-        return False
+        return is_ignored is False

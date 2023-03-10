@@ -1,5 +1,5 @@
 """Represents /api/topics and /api/v2/topics resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, cast, Dict, List, Optional
 
 from loguru import logger
 
@@ -62,10 +62,12 @@ class Topics(BaseResource):
                                             linked_type=linked_type,
                                             type=topic_type)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.topics, query=data_dict)
+        response = await self._client.request(self._client.endpoints.topics,
+                                              query=data_dict)
 
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/updates')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -85,10 +87,12 @@ class Topics(BaseResource):
         """
         query_dict = Utils.create_query_dict(page=page, limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.updates_topics, query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/hot')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -103,10 +107,12 @@ class Topics(BaseResource):
         """
         query_dict = Utils.create_query_dict(limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.hot_topics, query=query_dict)
+        response = await self._client.request(self._client.endpoints.hot_topics,
+                                              query=query_dict)
 
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -119,10 +125,11 @@ class Topics(BaseResource):
         :return: Info about topic
         :rtype: Optional[Topic]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic(topic_id))
 
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -165,12 +172,12 @@ class Topics(BaseResource):
                                            type=TopicType.REGULAR_TOPIC,
                                            user_id=user_id)
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.topics,
-            data=data_dict,
-            request_type=RequestType.POST)
+        response = await self._client.request(self._client.endpoints.topics,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
 
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -206,12 +213,13 @@ class Topics(BaseResource):
                                            linked_type=linked_type,
                                            title=title)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic(topic_id),
             data=data_dict,
             request_type=RequestType.PATCH)
 
-        return Utils.validate_response_data(response, data_model=Topic)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -224,7 +232,7 @@ class Topics(BaseResource):
         :return: Status of topic deletion
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic(topic_id),
             request_type=RequestType.DELETE)
 
@@ -243,11 +251,11 @@ class Topics(BaseResource):
         :return: True if topic was ignored, False otherwise
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic_ignore(topic_id),
             request_type=RequestType.POST)
 
-        return response.get('is_ignored', None) is True
+        return cast(Dict[str, Any], response).get('is_ignored', None) is True
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -260,8 +268,8 @@ class Topics(BaseResource):
         :return: True if topic was unignored, False otherwise
         :rtype: bool
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic_ignore(topic_id),
             request_type=RequestType.DELETE)
 
-        return response.get('is_ignored', None) is False
+        return cast(Dict[str, Any], response).get('is_ignored', None) is False

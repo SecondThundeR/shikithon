@@ -1,5 +1,5 @@
 """Represents /api/v2/abuse_requests resource."""
-from typing import Any, Dict, Optional
+from typing import Any, cast, Dict, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
@@ -30,12 +30,13 @@ class AbuseRequests(BaseResource):
         """
         data_dict = Utils.create_data_dict(comment_id=comment_id)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.abuse_offtopic,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_data(response, data_model=AbuseResponse)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=AbuseResponse)
 
     @method_endpoint('/api/v2/abuse_requests/review')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -56,12 +57,12 @@ class AbuseRequests(BaseResource):
         data_dict = Utils.create_data_dict(comment_id=comment_id,
                                            topic_id=topic_id)
 
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.abuse_review,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/v2/abuse_requests/abuse')
@@ -88,12 +89,12 @@ class AbuseRequests(BaseResource):
                                            topic_id=topic_id,
                                            reason=reason)
 
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.abuse_violation,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.SUCCESS)
 
     @method_endpoint('/api/v2/abuse_requests/spoiler')
@@ -120,10 +121,10 @@ class AbuseRequests(BaseResource):
                                            topic_id=topic_id,
                                            reason=reason)
 
-        response: int = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.abuse_spoiler,
             data=data_dict,
             request_type=RequestType.POST)
 
-        return Utils.validate_response_code(response,
+        return Utils.validate_response_code(cast(int, response),
                                             check_code=ResponseCode.SUCCESS)
