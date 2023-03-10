@@ -27,6 +27,11 @@ def exceptions_handler(
     if not exceptions:
         exceptions = (Exception,)
 
+    is_error_logging = params.get('logging')
+
+    if is_error_logging is None:
+        is_error_logging = False
+
     def exceptions_handler_wrapper(
             function: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
         """Exceptions handler wrapper.
@@ -57,7 +62,8 @@ def exceptions_handler(
             try:
                 return await function(*args, **kwargs)
             except exceptions as e:
-                logger.error(e)
+                if is_error_logging:
+                    logger.error(e)
                 return params['fallback']
 
         return exceptions_handler_wrapped
