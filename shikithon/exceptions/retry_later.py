@@ -1,5 +1,10 @@
 """Exception for raising on too many requests."""
 
+from loguru import logger
+
 
 class RetryLater(Exception):
-    pass
+
+    def __init__(self, error_message: str):
+        logger.error(error_message)
+        super().__init__(error_message)

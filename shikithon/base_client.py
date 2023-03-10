@@ -520,8 +520,7 @@ class Client:
                 return await self.request(url, data, bytes_data, query,
                                           request_type, output_logging)
             elif response.status == ResponseCode.RETRY_LATER.value:
-                logger.warning('Hit retry later code. Retrying backoff')
-                raise RetryLater
+                raise RetryLater('Hit retry later code. Retrying backoff')
             elif not response.ok:
                 raise ShikimoriAPIResponseError(
                     method=response.method,

@@ -1,6 +1,7 @@
 """Model for /api/ranobe"""
 from typing import List, Optional
 
+from loguru import logger
 from pydantic import BaseModel
 from pydantic import validator
 
@@ -51,5 +52,7 @@ class Ranobe(BaseModel):
     @validator('kind')
     def kind_validator(cls, v):
         if 'novel' not in v:
-            raise ValueError(f'Invalid kind. Got {v}')
+            error_message = f'Invalid kind. Got {v}'
+            logger.error(error_message)
+            raise ValueError(error_message)
         return v
