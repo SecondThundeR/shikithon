@@ -24,7 +24,7 @@ class TopicType(EnhancedEnum):
     CONTEST_STATUS_TOPIC = 'Topics::NewsTopics::ContestStatusTopic'
 
 
-class ForumType(EnhancedEnum):
+class TopicForumType(EnhancedEnum):
     """Contains constants related for getting certain type of forum."""
     ALL = 'all'
     ANIMANGA = 'animanga'

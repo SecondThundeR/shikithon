@@ -5,8 +5,8 @@ from loguru import logger
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
-from ..enums import ForumType
 from ..enums import RequestType
+from ..enums import TopicForumType
 from ..enums import TopicLinkedType
 from ..enums import TopicType
 from ..exceptions import ShikimoriAPIResponseError
@@ -28,7 +28,7 @@ class Topics(BaseResource):
     async def get_all(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      forum: Optional[ForumType] = None,
+                      forum: Optional[TopicForumType] = None,
                       linked_id: Optional[int] = None,
                       linked_type: Optional[TopicLinkedType] = None,
                       topic_type: Optional[TopicType] = None):

@@ -3,8 +3,8 @@ from typing import Any, cast, Dict, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
-from ..enums import OwnerType
 from ..enums import RequestType
+from ..enums import StyleOwner
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Style
 from ..utils import Utils
@@ -60,7 +60,7 @@ class Styles(BaseResource):
     @method_endpoint('/api/styles')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def create(self, css: str, name: str, owner_id: int,
-                     owner_type: OwnerType):
+                     owner_type: StyleOwner):
         """Creates new style.
 
         :param css: CSS code for style

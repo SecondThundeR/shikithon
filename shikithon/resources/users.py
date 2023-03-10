@@ -5,9 +5,9 @@ from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
 from ..enums import AnimeCensorship
 from ..enums import AnimeList
+from ..enums import HistoryTargetType
 from ..enums import MessageType
 from ..enums import RequestType
-from ..enums import TargetType
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Ban
 from ..models import Club
@@ -327,7 +327,7 @@ class Users(BaseResource):
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
                       target_id: Optional[int] = None,
-                      target_type: Optional[TargetType] = None):
+                      target_type: Optional[HistoryTargetType] = None):
         """Returns history of user.
 
         :param user_id: User ID/Nickname to get history
