@@ -209,6 +209,8 @@ class Utils:
             return str(dict_value)
         elif isinstance(dict_value, (list, tuple)):
             return ','.join([str(x) for x in dict_value])
+        elif isinstance(dict_value, bytes):
+            return dict_value
         else:
             # If something else passed, trying to convert to string
             return str(dict_value)
