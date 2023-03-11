@@ -6,6 +6,7 @@ with all the necessary utility methods
 to work with the library
 """
 
+import imghdr
 from typing import Any, Dict, List, Optional, overload, Type, TypeVar, Union
 
 from aiohttp import ClientSession
@@ -55,7 +56,7 @@ class Utils:
         return query_string
 
     @staticmethod
-    async def get_image_data(image_path: str):
+    async def get_image_data(image_path: Optional[str]):
         """Extracts image data from image path.
 
         If image_path is a link, fetch the image data from the link.
@@ -64,22 +65,61 @@ class Utils:
         :type image_path: str
 
         :return: Image data
-        :rtype: Dict[str, bytes]
+        :rtype: Optional[bytes]
         """
         logger.debug(f'Getting image from "{image_path}"')
 
-        if isinstance(url(image_path), bool):
-            logger.debug('Image path is a link. Querying image data')
-            async with ClientSession() as session:
-                async with session.get(image_path) as image_response:
-                    image_data = await image_response.read()
-        else:
+        if image_path is None:
+            logger.debug('Image path is None or empty')
+            return None
+
+        if not isinstance(url(image_path), bool):
             logger.debug('Image path is local. Reading image data')
+            return Utils.extract_local_image_data(image_path)
+
+        logger.debug('Image path is a link. Querying image data')
+        return await Utils.extract_remote_image_data(image_path)
+
+    @staticmethod
+    def extract_local_image_data(image_path: str):
+        """Extracts image data from local path.
+
+        :param image_path: Path to local image
+        :type image_path: str
+
+        :return: Image data
+        :rtype: Optional[bytes]
+        """
+        try:
+            image_path_test = imghdr.what(image_path)
+            if image_path_test is None:
+                logger.warning('Passed image path is not a valid image')
+                return None
             with open(image_path, 'rb') as image_file:
                 image_data = image_file.read()
+            logger.debug('Successfully extracted image data')
+            return image_data
+        except FileNotFoundError:
+            logger.warning('Passed image file is not exists')
+            return None
 
-        logger.debug('Extracted image data. Returning')
-        return {'image': image_data}
+    @staticmethod
+    async def extract_remote_image_data(image_url: str):
+        """Extracts image data from remote path.
+
+        :param image_url: Path to remote image
+        :type image_url: str
+
+        :return: Image data
+        :rtype: Optional[bytes]
+        """
+        async with ClientSession() as session:
+            image_response = await session.get(image_url)
+            if not image_response.content_type.startswith('image/'):
+                logger.warning('Passed URL is not a valid image URL')
+                return None
+            logger.debug('Successfully extracted image data')
+            return await image_response.read()
 
     @staticmethod
     def create_query_dict(**params_data: Optional[Any]):
