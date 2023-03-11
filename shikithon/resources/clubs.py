@@ -311,6 +311,9 @@ class Clubs(BaseResource):
     async def join(self, club_id: int):
         """Joins club by ID.
 
+        When trying to join already joined club,
+        method will log out 403 error and return False
+
         :param club_id: Club ID to join
         :type club_id: int
 
@@ -328,6 +331,9 @@ class Clubs(BaseResource):
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
     async def leave(self, club_id: int):
         """Leaves club by ID.
+
+        When trying to leave already left club,
+        method will log out 403 error and return False
 
         :param club_id: Club ID to leave
         :type club_id: int
