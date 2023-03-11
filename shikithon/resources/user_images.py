@@ -31,12 +31,13 @@ class UserImages(BaseResource):
         :rtype: Optional[CreatedUserImage]
         """
         image_data = await Utils.get_image_data(image_path)
-        data_dict = Utils.create_data_dict(linked_type=linked_type)
+        data_dict = Utils.create_data_dict(image=image_data,
+                                           linked_type=linked_type)
+        form_data = Utils.create_form_data(data_dict)
 
         response = await self._client.request(
             self._client.endpoints.user_images,
-            data=data_dict,
-            bytes_data=image_data,
+            form_data=form_data,
             request_type=RequestType.POST)
 
         return Utils.validate_response_data(cast(Dict[str, Any], response),
