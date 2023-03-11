@@ -9,6 +9,7 @@ from typing import (Any, AsyncIterator, Awaitable, cast, Dict, List, Optional,
 
 from aiohttp import ClientSession
 from aiohttp import ContentTypeError
+from aiohttp import FormData
 import backoff
 from loguru import logger
 from pyrate_limiter import Duration
@@ -425,7 +426,7 @@ class Client:
         self,
         url: str,
         data: Optional[Union[Dict[str, Dict[str, str]], Dict[str, str]]] = None,
-        bytes_data: Optional[Dict[str, bytes]] = None,
+        form_data: Optional[FormData] = None,
         query: Optional[Dict[str, str]] = None,
         request_type: RequestType = RequestType.GET,
         output_logging: bool = True,
@@ -445,8 +446,8 @@ class Client:
         :param data: Request body data
         :type data: Optional[Union[Dict[str, Dict[str, str]], Dict[str, str]]]
 
-        :param bytes_data: Request body data in bytes
-        :type bytes_data: Optional[Dict[str, bytes]]
+        :param form_data: Form data for multipart/form-data requests
+        :type form_data: Optional[FormData]
 
         :param query: Query data for request
         :type query: Optional[Dict[str, str]]
@@ -481,29 +482,22 @@ class Client:
                           int) and self.token_expired(token_expire_at):
                 await self._refresh_and_save_tokens()
 
-        if bytes_data is not None:
-            logger.debug(
-                'Found data with bytes. '\
-                'Merging bytes data with regular data form data')
-
-            # Ignoring mypy error for now
-            # As there is some headache with
-            # mypy errors with dictionary unpacking
-            bytes_data.update(data)  # type: ignore
-            data = None
-
         async with request_limiter.ratelimit('request', delay=True):
             if request_type == RequestType.GET:
                 response = await self._session.get(url, params=query)
             elif request_type == RequestType.POST:
                 response = await self._session.post(url,
-                                                    data=bytes_data,
+                                                    data=form_data,
                                                     json=data,
                                                     params=query)
             elif request_type == RequestType.PUT:
-                response = await self._session.put(url, json=data, params=query)
+                response = await self._session.put(url,
+                                                   data=form_data,
+                                                   json=data,
+                                                   params=query)
             elif request_type == RequestType.PATCH:
                 response = await self._session.patch(url,
+                                                     data=form_data,
                                                      json=data,
                                                      params=query)
             elif request_type == RequestType.DELETE:
@@ -517,7 +511,7 @@ class Client:
         try:
             if response.status == 401 and self._is_protected_request(url):
                 await self._refresh_and_save_tokens()
-                return await self.request(url, data, bytes_data, query,
+                return await self.request(url, data, form_data, query,
                                           request_type, output_logging)
             elif response.status == ResponseCode.RETRY_LATER.value:
                 raise RetryLater('Hit retry later code. Retrying backoff')
