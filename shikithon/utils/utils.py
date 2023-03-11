@@ -10,6 +10,7 @@ import imghdr
 from typing import Any, Dict, List, Optional, overload, Type, TypeVar, Union
 
 from aiohttp import ClientSession
+from aiohttp import FormData
 from loguru import logger
 from pydantic import BaseModel
 from validators import url
@@ -284,3 +285,39 @@ class Utils:
 
         return [data_model(**item) for item in response_data] if isinstance(
             response_data, list) else data_model(**response_data)
+
+    @staticmethod
+    def create_form_data(raw_data: Dict[str, Any]):
+        """Creates form data for API request.
+
+        Method converts dictionary with data to
+        FormData object for API request.
+
+        :param raw_data: Raw data for API request
+        :type raw_data: Dict[str, Any]
+
+        :return: Form data
+        :rtype: Optional[FormData]
+        """
+        if not isinstance(raw_data, dict):
+            logger.debug('Passed data is not a dictionary')
+            return None
+
+        form_data = FormData()
+
+        logger.debug('Creating FormData object')
+        if any(isinstance(value, dict) for value in raw_data.values()):
+            logger.debug('Passed data is a dictionary of dictionaries')
+            for key, value in raw_data.items():
+                if isinstance(value, dict):
+                    for subkey, subvalue in value.items():
+                        form_data.add_field(f'{key}[{subkey}]', subvalue)
+                else:
+                    form_data.add_field(key, value)
+        else:
+            logger.debug('Passed data is a dictionary of plain data')
+            for key, value in raw_data.items():
+                form_data.add_field(key, value)
+
+        logger.debug('Successfully created FormData object')
+        return form_data
