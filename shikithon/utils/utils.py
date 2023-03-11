@@ -187,17 +187,23 @@ class Utils:
             if data is None:
                 continue
             new_data_dict[data_dict_name].update(
-                {key: Utils.convert_dictionary_value(data)})
+                {key: Utils.convert_dictionary_value(data, data_dict=True)})
 
         logger.debug(f'Generated data dictionary: {new_data_dict}')
         return new_data_dict
 
     @staticmethod
-    def convert_dictionary_value(dict_value: Any):
+    def convert_dictionary_value(dict_value: Any, data_dict: bool = False):
         """Converts dictionary value to string.
+
+        If data_dict is False, converts list values to comma-separated string.
+        Otherwise, returns list value as is.
 
         :param dict_value: Dictionary value
         :type dict_value: Any
+
+        :param data_dict: Flag if checking value for data dictionary
+        :type data_dict: bool
 
         :return: Converted value
         :rtype: str
@@ -209,6 +215,8 @@ class Utils:
         elif isinstance(dict_value, int):
             return str(dict_value)
         elif isinstance(dict_value, (list, tuple)):
+            if data_dict is True:
+                return dict_value
             return ','.join([str(x) for x in dict_value])
         elif isinstance(dict_value, bytes):
             return dict_value
@@ -311,12 +319,20 @@ class Utils:
             for key, value in raw_data.items():
                 if isinstance(value, dict):
                     for subkey, subvalue in value.items():
-                        form_data.add_field(f'{key}[{subkey}]', subvalue)
+                        if isinstance(subvalue, list):
+                            for list_value in subvalue:
+                                form_data.add_field(f'{key}[{subkey}][]',
+                                                    list_value)
+                        else:
+                            form_data.add_field(f'{key}[{subkey}]', subvalue)
                 else:
                     form_data.add_field(key, value)
         else:
             logger.debug('Passed data is a dictionary of plain data')
             for key, value in raw_data.items():
+                if isinstance(value, list):
+                    for list_value in value:
+                        form_data.add_field(f'{key}[]', list_value)
                 form_data.add_field(key, value)
 
         logger.debug('Successfully created FormData object')
