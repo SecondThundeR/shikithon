@@ -83,14 +83,16 @@ class Clubs(BaseResource):
     async def update(self,
                      club_id: int,
                      name: Optional[str] = None,
-                     description: Optional[str] = None,
                      join_policy: Optional[JoinPolicy] = None,
+                     description: Optional[str] = None,
                      display_images: Optional[bool] = None,
                      comment_policy: Optional[CommentPolicy] = None,
                      topic_policy: Optional[TopicPolicy] = None,
                      page_policy: Optional[PagePolicy] = None,
                      image_upload_policy: Optional[ImageUploadPolicy] = None,
+                     logo: Optional[str] = None,
                      is_censored: Optional[bool] = None,
+                     is_private: Optional[bool] = None,
                      anime_ids: Optional[List[int]] = None,
                      manga_ids: Optional[List[int]] = None,
                      ranobe_ids: Optional[List[int]] = None,
@@ -107,11 +109,11 @@ class Clubs(BaseResource):
         :param name: New name of club
         :type name: Optional[str]
 
-        :param description: New description of club
-        :type description: Optional[str]
-
         :param join_policy: New join policy of club
         :type join_policy: Optional[JoinPolicy]
+
+        :param description: New description of club
+        :type description: Optional[str]
 
         :param display_images: New display images status of club
         :type display_images: Optional[bool]
@@ -128,8 +130,14 @@ class Clubs(BaseResource):
         :param image_upload_policy: New image upload policy of club
         :type image_upload_policy: Optional[ImageUploadPolicy]
 
+        :param logo: Path to new image for club logo
+        :type logo: Optional[str]
+
         :param is_censored: New censored status of club
         :type is_censored: Optional[bool]
+
+        :param is_private: New privacy status of club
+        :type is_private: Optional[bool]
 
         :param anime_ids: New anime ids of club
         :type anime_ids: Optional[List[int]]
@@ -158,7 +166,7 @@ class Clubs(BaseResource):
         :return: Updated club info
         :rtype: Optional[Club]
         """
-
+        image_data = await Utils.get_image_data(logo)
         data_dict = Utils.create_data_dict(
             dict_name=DICT_NAME,
             name=name,
@@ -169,7 +177,9 @@ class Clubs(BaseResource):
             topic_policy=topic_policy,
             page_policy=page_policy,
             image_upload_policy=image_upload_policy,
+            logo=image_data,
             is_censored=is_censored,
+            is_private=is_private,
             anime_ids=anime_ids,
             manga_ids=manga_ids,
             ranobe_ids=ranobe_ids,
@@ -178,10 +188,11 @@ class Clubs(BaseResource):
             admin_ids=admin_ids,
             collection_ids=collection_ids,
             banned_user_ids=banned_user_ids)
+        form_data = Utils.create_form_data(data_dict)
 
         response = await self._client.request(
             self._client.endpoints.club(club_id),
-            data=data_dict,
+            form_data=form_data,
             request_type=RequestType.PATCH)
 
         return Utils.validate_response_data(cast(Dict[str, Any], response),
