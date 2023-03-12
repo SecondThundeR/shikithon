@@ -311,29 +311,56 @@ class Utils:
             logger.debug('Passed data is not a dictionary')
             return None
 
-        form_data = FormData()
-
-        logger.debug('Creating FormData object')
         if any(isinstance(value, dict) for value in raw_data.values()):
-            logger.debug('Passed data is a dictionary of dictionaries')
-            for key, value in raw_data.items():
-                if isinstance(value, dict):
-                    for subkey, subvalue in value.items():
-                        if isinstance(subvalue, list):
-                            for list_value in subvalue:
-                                form_data.add_field(f'{key}[{subkey}][]',
-                                                    list_value)
-                        else:
-                            form_data.add_field(f'{key}[{subkey}]', subvalue)
-                else:
-                    form_data.add_field(key, value)
-        else:
-            logger.debug('Passed data is a dictionary of plain data')
-            for key, value in raw_data.items():
-                if isinstance(value, list):
-                    for list_value in value:
-                        form_data.add_field(f'{key}[]', list_value)
+            return Utils._generate_nested_form_data(raw_data)
+        return Utils._generate_plain_form_data(raw_data)
+
+    @staticmethod
+    def _generate_nested_form_data(raw_data: Dict[str, Dict[str, Any]]):
+        """Generates FormData for nested dictionaries.
+
+        :param raw_data: Raw data for API request
+        :type raw_data: Dict[str, Dict[str, Any]]
+
+        :return: Generated FormData
+        :rtype: FormData
+        """
+        form_data = FormData()
+        logger.debug('Generating FormData for nested dictionaries')
+
+        for key, value in raw_data.items():
+            if isinstance(value, dict):
+                for subkey, subvalue in value.items():
+                    if isinstance(subvalue, list):
+                        for list_value in subvalue:
+                            form_data.add_field(f'{key}[{subkey}][]',
+                                                list_value)
+                    else:
+                        form_data.add_field(f'{key}[{subkey}]', subvalue)
+            else:
                 form_data.add_field(key, value)
 
         logger.debug('Successfully created FormData object')
+        return form_data
+
+    @staticmethod
+    def _generate_plain_form_data(raw_data: Dict[str, Any]):
+        """Generates FormData for plain dictionary.
+
+        :param raw_data: Raw data for API request
+        :type raw_data: Dict[str, Any]
+
+        :return: Generated FormData
+        :rtype: FormData
+        """
+        form_data = FormData()
+        logger.debug('Generating FormData for plain dictionary')
+
+        for key, value in raw_data.items():
+            if isinstance(value, list):
+                for list_value in value:
+                    form_data.add_field(f'{key}[]', list_value)
+            form_data.add_field(key, value)
+
+        logger.debug('Successfully generated FormData object')
         return form_data
