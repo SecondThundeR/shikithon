@@ -397,9 +397,7 @@ class Users(BaseResource):
             self._client.endpoints.user_ignore(user_id),
             request_type=RequestType.POST)
 
-        is_ignored = cast(Dict[str, Any], response).get('is_ignored')
-
-        return is_ignored is True
+        return cast(Dict[str, Any], response).get('is_ignored') is True
 
     @method_endpoint('/api/v2/users/:user_id/ignore')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -416,6 +414,4 @@ class Users(BaseResource):
             self._client.endpoints.user_ignore(user_id),
             request_type=RequestType.DELETE)
 
-        is_ignored = cast(Dict[str, Any], response).get('is_ignored')
-
-        return is_ignored is False
+        return cast(Dict[str, Any], response).get('is_ignored') is False
