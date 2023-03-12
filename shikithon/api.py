@@ -3,8 +3,6 @@
 This is main module with a class
 for interacting with the Shikimori API.
 """
-from __future__ import annotations
-
 import sys
 from typing import Optional, TypeVar
 
