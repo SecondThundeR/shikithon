@@ -1,11 +1,12 @@
 """Model for /api/users/:id/anime_rates | manga_rates"""
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel
 
 from .anime import Anime
 from .manga import Manga
+from .ranobe import Ranobe
 from .user import User
 
 
@@ -27,4 +28,4 @@ class UserList(BaseModel):
     updated_at: datetime
     user: Optional[User]
     anime: Optional[Anime]
-    manga: Optional[Manga]
+    manga: Optional[Union[Manga, Ranobe]]
