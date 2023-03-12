@@ -12,7 +12,7 @@ from .seyu import Seyu
 
 
 class Character(BaseModel):
-    """Represents character of anime."""
+    """Represents character entity."""
     id: int
     name: str
     russian: str
