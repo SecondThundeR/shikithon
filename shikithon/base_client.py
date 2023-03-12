@@ -535,6 +535,7 @@ class Client:
             try:
                 json_response = await response.json()
             except ContentTypeError:
+                logger.error("Response content type isn't valid JSON")
                 raise InvalidContentType(response.content_type) from None
 
             if json_response is None or json_response == {}:
