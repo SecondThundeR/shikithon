@@ -51,5 +51,6 @@ class Ranobe(BaseModel):
     @validator('kind')
     def kind_validator(cls, v):
         if 'novel' not in v:
-            raise ValueError(f'Invalid kind. Got {v}')
+            raise ValueError(f'Invalid kind. Got {v}'
+                             f' but expected kind, containing "novel"')
         return v
