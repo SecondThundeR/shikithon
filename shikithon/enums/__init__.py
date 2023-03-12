@@ -24,6 +24,7 @@ from .manga import MangaOrder
 from .manga import MangaStatus
 from .message import MessageType
 from .person import PersonKind
+from .person import PersonSearchKind
 from .ranobe import RanobeCensorship
 from .ranobe import RanobeList
 from .ranobe import RanobeOrder
@@ -46,8 +47,8 @@ __all__ = [
     'CommentableType', 'CommentableCreateType', 'HistoryTargetType',
     'FavoriteLinkedType', 'MangaCensorship', 'MangaKind', 'MangaList',
     'MangaOrder', 'MangaStatus', 'MessageType', 'PersonKind',
-    'RanobeCensorship', 'RanobeList', 'RanobeOrder', 'RanobeStatus',
-    'RequestType', 'ResponseCode', 'StyleOwner', 'TopicForumType',
-    'TopicLinkedType', 'TopicType', 'UserRateStatus', 'UserRateTarget',
-    'UserRateType', 'VideoKind'
+    'PersonSearchKind', 'RanobeCensorship', 'RanobeList', 'RanobeOrder',
+    'RanobeStatus', 'RequestType', 'ResponseCode', 'StyleOwner',
+    'TopicForumType', 'TopicLinkedType', 'TopicType', 'UserRateStatus',
+    'UserRateTarget', 'UserRateType', 'VideoKind'
 ]

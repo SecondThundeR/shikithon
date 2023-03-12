@@ -3,7 +3,7 @@ from typing import Any, cast, Dict, List, Optional
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
-from ..enums import PersonKind
+from ..enums import PersonSearchKind
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Person
 from ..utils import Utils
@@ -37,17 +37,14 @@ class People(BaseResource):
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def search(self,
                      search: Optional[str] = None,
-                     people_kind: Optional[PersonKind] = None):
+                     people_kind: Optional[PersonSearchKind] = None):
         """Returns list of found persons.
-
-        This API method only allows 'seyu',
-        'mangaka' or 'producer' as kind parameter
 
         :param search: Search query for persons
         :type search: Optional[str]
 
         :param people_kind: Kind of person for searching
-        :type people_kind: Optional[PersonKind]
+        :type people_kind: Optional[PersonSearchKind]
 
         :return: List of found persons
         :rtype: List[Person]
