@@ -525,9 +525,8 @@ class Client:
                     text=await response.text())
 
             logger.debug('Check if response has empty body')
-            is_empty = await response.text() == ''
-
-            if is_empty:
+            response_text = await response.text()
+            if response_text == '':
                 logger.debug('Response has empty body. ' \
                     'Returning response status')
                 return response.status
@@ -537,6 +536,12 @@ class Client:
             try:
                 json_response = await response.json()
             except ContentTypeError:
+                # Special case for such method, like
+                # /api/users/sign_out
+                if response.content_type == 'text/plain':
+                    logger.debug('Failed JSON extracting.' \
+                        ' Getting response text')
+                    return response_text
                 logger.error("Response content type isn't valid JSON")
                 raise InvalidContentType(response.content_type) from None
 
