@@ -43,7 +43,7 @@ class People(BaseResource):
         **Note:** This API method only allows 'seyu',
         'mangaka' or 'producer' as kind parameter
 
-        :param search:  Search query for persons
+        :param search: Search query for persons
         :type search: Optional[str]
 
         :param people_kind: Kind of person for searching
