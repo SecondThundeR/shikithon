@@ -76,13 +76,13 @@ class Utils:
 
         if not isinstance(url(image_path), bool):
             logger.debug('Image path is local. Reading image data')
-            return Utils.extract_local_image_data(image_path)
+            return Utils._extract_local_image_data(image_path)
 
         logger.debug('Image path is a link. Querying image data')
-        return await Utils.extract_remote_image_data(image_path)
+        return await Utils._extract_remote_image_data(image_path)
 
     @staticmethod
-    def extract_local_image_data(image_path: str):
+    def _extract_local_image_data(image_path: str):
         """Extracts image data from local path.
 
         :param image_path: Path to local image
@@ -105,7 +105,7 @@ class Utils:
             return None
 
     @staticmethod
-    async def extract_remote_image_data(image_url: str):
+    async def _extract_remote_image_data(image_url: str):
         """Extracts image data from remote path.
 
         :param image_url: Path to remote image
@@ -145,7 +145,7 @@ class Utils:
         for key, data in params_data.items():
             if data is None:
                 continue
-            query_dict.update({key: Utils.convert_dictionary_value(data)})
+            query_dict.update({key: Utils._convert_dictionary_value(data)})
 
         logger.debug(f'Generated query dictionary: {query_dict=}')
         return query_dict
@@ -187,13 +187,13 @@ class Utils:
             if data is None:
                 continue
             new_data_dict[data_dict_name].update(
-                {key: Utils.convert_dictionary_value(data, data_dict=True)})
+                {key: Utils._convert_dictionary_value(data, data_dict=True)})
 
         logger.debug(f'Generated data dictionary: {new_data_dict}')
         return new_data_dict
 
     @staticmethod
-    def convert_dictionary_value(dict_value: Any, data_dict: bool = False):
+    def _convert_dictionary_value(dict_value: Any, data_dict: bool = False):
         """Converts dictionary value to string.
 
         If data_dict is False, converts list values to comma-separated string.
