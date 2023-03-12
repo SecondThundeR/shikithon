@@ -80,7 +80,8 @@ class Messages(BaseResource):
         :param body: New body of message
         :type body: str
 
-        :return: Updated message info or None if message cannot be updated
+        :return: Updated message info
+        or None if message cannot be updated
         :rtype: Optional[Message]
         """
         data_dict = Utils.create_data_dict(dict_name=DICT_NAME, body=body)
@@ -142,8 +143,8 @@ class Messages(BaseResource):
     async def read_all(self, message_type: MessageType):
         """Reads all messages on current user's account.
 
-        **Note:** This methods accepts as type only 'news' and
-        'notifications'
+        This method accepts as message type
+        only 'news' and 'notifications'
 
         :param message_type: Type of messages to read
         :type message_type: MessageType
@@ -166,8 +167,8 @@ class Messages(BaseResource):
     async def delete_all(self, message_type: MessageType):
         """Deletes all messages on current user's account.
 
-        **Note:** This methods accepts as type only 'news' and
-        'notifications'
+        This method accepts as message type
+        only 'news' and 'notifications'
 
         :param message_type: Type of messages to delete
         :type message_type: MessageType
