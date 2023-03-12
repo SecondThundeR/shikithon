@@ -26,9 +26,9 @@ class Ranobe(BaseModel):
     chapters: int
     aired_on: Optional[str]
     released_on: Optional[str]
-    english: Optional[List[str]]
-    japanese: Optional[List[str]]
-    synonyms: Optional[List[str]]
+    english: Optional[List[Optional[str]]]
+    japanese: Optional[List[Optional[str]]]
+    synonyms: Optional[List[Optional[str]]]
     license_name_ru: Optional[str]
     description: Optional[str]
     description_html: Optional[str]
