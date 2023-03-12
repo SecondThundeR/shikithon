@@ -522,7 +522,16 @@ class Client:
                     url=repr(response.request_info.real_url),
                     text=await response.text())
 
-            logger.debug('Trying to extract JSON from response')
+            logger.debug('Check if response has empty body')
+            is_empty = await response.text() == ''
+
+            if is_empty:
+                logger.debug('Response has empty body. ' \
+                    'Returning response status')
+                return response.status
+
+            logger.debug('Response is not empty. ' \
+                'Trying to extract JSON from response')
             try:
                 json_response = await response.json()
             except ContentTypeError:
