@@ -13,6 +13,7 @@ from .club import ImageUploadPolicy
 from .club import JoinPolicy
 from .club import PagePolicy
 from .club import TopicPolicy
+from .comment import CommentableCreateType
 from .comment import CommentableType
 from .favorite import FavoriteLinkedType
 from .history import HistoryTargetType
@@ -42,10 +43,11 @@ __all__ = [
     'AnimeCensorship', 'AnimeDuration', 'AnimeKind', 'AnimeTopicKind',
     'AnimeList', 'AnimeOrder', 'AnimeRating', 'AnimeStatus', 'CommentPolicy',
     'ImageUploadPolicy', 'JoinPolicy', 'PagePolicy', 'TopicPolicy',
-    'CommentableType', 'HistoryTargetType', 'FavoriteLinkedType',
-    'MangaCensorship', 'MangaKind', 'MangaList', 'MangaOrder', 'MangaStatus',
-    'MessageType', 'PersonKind', 'RanobeCensorship', 'RanobeList',
-    'RanobeOrder', 'RanobeStatus', 'RequestType', 'ResponseCode', 'StyleOwner',
-    'TopicForumType', 'TopicLinkedType', 'TopicType', 'UserRateStatus',
-    'UserRateTarget', 'UserRateType', 'VideoKind'
+    'CommentableType', 'CommentableCreateType', 'HistoryTargetType',
+    'FavoriteLinkedType', 'MangaCensorship', 'MangaKind', 'MangaList',
+    'MangaOrder', 'MangaStatus', 'MessageType', 'PersonKind',
+    'RanobeCensorship', 'RanobeList', 'RanobeOrder', 'RanobeStatus',
+    'RequestType', 'ResponseCode', 'StyleOwner', 'TopicForumType',
+    'TopicLinkedType', 'TopicType', 'UserRateStatus', 'UserRateTarget',
+    'UserRateType', 'VideoKind'
 ]

@@ -5,6 +5,7 @@ from loguru import logger
 
 from ..decorators import exceptions_handler
 from ..decorators import method_endpoint
+from ..enums import CommentableCreateType
 from ..enums import CommentableType
 from ..enums import RequestType
 from ..exceptions import ShikimoriAPIResponseError
@@ -84,12 +85,12 @@ class Comments(BaseResource):
     async def create(self,
                      body: str,
                      commentable_id: int,
-                     commentable_type: CommentableType,
+                     commentable_type: CommentableCreateType,
                      is_offtopic: Optional[bool] = None,
                      broadcast: Optional[bool] = None) -> Optional[Comment]:
         """Creates comment.
 
-        When commentable_type set to Anime, Manga, Character or Person,
+        When commentable_type set to other than Topic/User,
         comment is attached to commentable main topic.
 
         :param body: Body of comment
@@ -99,7 +100,7 @@ class Comments(BaseResource):
         :type commentable_id: int
 
         :param commentable_type: Type of entity to comment on
-        :type commentable_type: CommentableType
+        :type commentable_type: CommentableCreateType
 
         :param is_offtopic: Status of offtopic
         :type is_offtopic: Optional[bool]
