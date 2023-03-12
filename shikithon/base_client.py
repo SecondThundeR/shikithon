@@ -436,7 +436,7 @@ class Client:
         This method uses request_limiter library for rate limiting
         requests (Shikimori API limit: 90rpm and 5rps)
 
-        **Note:** To address duplication of methods
+        To address duplication of methods
         for different request methods, this method
         uses RequestType enum
 

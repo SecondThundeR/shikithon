@@ -40,7 +40,7 @@ class People(BaseResource):
                      people_kind: Optional[PersonKind] = None):
         """Returns list of found persons.
 
-        **Note:** This API method only allows 'seyu',
+        This API method only allows 'seyu',
         'mangaka' or 'producer' as kind parameter
 
         :param search: Search query for persons

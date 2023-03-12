@@ -35,7 +35,7 @@ class UserRates(BaseResource):
                       limit: Optional[int] = None):
         """Returns list of user rates.
 
-        **Note:** When passing target_id, target_type is required.
+        When passing target_id, target_type is required.
 
         Also there is a strange API behavior, so when pass nothing,
         endpoint not working.
