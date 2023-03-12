@@ -73,7 +73,7 @@ class Styles(BaseResource):
         :type owner_id: int
 
         :param owner_type: Type of owner
-        :type owner_type: OwnerType
+        :type owner_type: StyleOwner
 
         :return: Info about previewed style
         :rtype: Optional[Style]

@@ -41,7 +41,7 @@ class Topics(BaseResource):
         :type limit: Optional[int]
 
         :param forum: Type of forum
-        :type forum: Optional[ForumType]
+        :type forum: Optional[TopicForumType]
 
         :param linked_id: ID of linked topic (Used together with linked_type)
         :type linked_id: Optional[int]

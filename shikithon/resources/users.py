@@ -343,7 +343,7 @@ class Users(BaseResource):
         :type target_id: Optional[int]
 
         :param target_type: Type of target
-        :type target_type: Optional[TargetType]
+        :type target_type: Optional[HistoryTargetType]
 
         :return: User's history
         :rtype: List[History]
