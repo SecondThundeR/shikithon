@@ -133,6 +133,9 @@ class Comments(BaseResource):
     async def update(self, comment_id: int, body: str):
         """Updates comment.
 
+        To change is_offtopic field,
+        use /api/v2/abuse_requests method
+
         :param comment_id: ID of comment to update
         :type comment_id: int
 
