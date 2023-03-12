@@ -8,7 +8,7 @@ from .person import Person
 
 
 class Role(BaseModel):
-    """Represents anime role info."""
+    """Represents role info entity."""
     roles: List[str]
     roles_russian: List[str]
     character: Optional[Character]
