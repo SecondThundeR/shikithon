@@ -9,6 +9,7 @@ to work with the library
 import imghdr
 from typing import Any, Dict, List, Optional, overload, Type, TypeVar, Union
 
+from aiohttp import ClientResponse
 from aiohttp import ClientSession
 from aiohttp import FormData
 from loguru import logger
@@ -364,3 +365,14 @@ class Utils:
 
         logger.debug('Successfully generated FormData object')
         return form_data
+
+    @staticmethod
+    async def log_response_info(response: ClientResponse):
+        """Logs response info.
+
+        :param response: Response object
+        :type response: ClientResponse
+        """
+        logger.debug(f'Response status: {response.status}')
+        logger.debug(f'Response headers: {response.headers}')
+        logger.debug(f'Response data: {await response.text()}')

@@ -508,6 +508,8 @@ class Client:
                 logger.debug('Unknown request type passed. Returning None')
                 return None
 
+        await Utils.log_response_info(response)
+
         try:
             if response.status == 401 and self._is_protected_request(url):
                 await self._refresh_and_save_tokens()
