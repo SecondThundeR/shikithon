@@ -5,16 +5,19 @@ This file contains the Utils class
 with all the necessary utility methods
 to work with the library
 """
-from typing import Any, Dict, List, Optional, Type, Union
 
-from aiohttp import ClientSession
+import imghdr
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union, overload
+
+from aiohttp import ClientResponse, ClientSession, FormData
 from loguru import logger
-from validators import url as is_url
+from pydantic import BaseModel
+from validators import url
 
-from ..enums.enhanced_enum import EnhancedEnum
-from ..enums.response import ResponseCode
+from ..enums import ResponseCode
 
 LOWER_LIMIT_NUMBER = 1
+M = TypeVar('M', bound=BaseModel)
 
 
 class Utils:
@@ -26,27 +29,35 @@ class Utils:
     """
 
     @staticmethod
-    def convert_to_query_string(query_dict: Dict[str, str]) -> str:
-        """Convert query dict to query string for endpoint link.
+    def convert_to_query_string(query_dict: Optional[Dict[str, str]]):
+        """Converts query dict to query string for endpoint link.
+
+        If query_dict is None or empty, returns empty string.
 
         :param query_dict: Query dictionary
         :type query_dict: Dict[str, str]
 
-        :return: Query string (Empty if query_dict is empty)
+        :return: Query string
         :rtype: str
         """
-        logger.debug(f'Converting {query_dict=} to string')
+        logger.debug(f'Converting {query_dict} to query string')
+
         if not query_dict:
-            logger.debug('Query dictionary is empty. Returning empty string...')
+            logger.debug('Query dictionary is None or empty. '
+                         'Returning empty string')
             return ''
+
         query_dict_str = '&'.join(
             f'{key}={val}' for (key, val) in query_dict.items())
-        logger.debug(f'Formed {query_dict_str=}')
-        return f'?{query_dict_str}'
+
+        query_string = f'?{query_dict_str}'
+
+        logger.debug(f'Formed string: "{query_string}"')
+        return query_string
 
     @staticmethod
-    async def get_image_data(image_path: str) -> Dict[str, bytes]:
-        """Extract image data from image path.
+    async def get_image_data(image_path: Optional[str]):
+        """Extracts image data from image path.
 
         If image_path is a link, fetch the image data from the link.
 
@@ -54,289 +65,312 @@ class Utils:
         :type image_path: str
 
         :return: Image data
-        :rtype: Dict[str, bytes]
+        :rtype: Optional[bytes]
         """
-        if isinstance(is_url(image_path), bool):
-            async with ClientSession() as session:
-                async with session.get(image_path) as image_response:
-                    image_data = await image_response.read()
-        else:
-            with open(image_path, 'rb') as image_file:
-                image_data = image_file.read()
+        logger.debug(f'Getting image from "{image_path}"')
 
-        return {'image': image_data}
+        if image_path is None:
+            logger.debug('Image path is None or empty')
+            return None
+
+        if not isinstance(url(image_path), bool):
+            logger.debug('Image path is local. Reading image data')
+            return Utils._extract_local_image_data(image_path)
+
+        logger.debug('Image path is a link. Querying image data')
+        return await Utils._extract_remote_image_data(image_path)
 
     @staticmethod
-    def create_query_dict(
-        **params_data: Optional[Union[str, bool, int, List[Union[int, str]]]]
-    ) -> Dict[str, str]:
-        """Creates query dict for API requests.
+    def _extract_local_image_data(image_path: str):
+        """Extracts image data from local path.
+
+        :param image_path: Path to local image
+        :type image_path: str
+
+        :return: Image data
+        :rtype: Optional[bytes]
+        """
+        try:
+            image_path_test = imghdr.what(image_path)
+            if image_path_test is None:
+                logger.warning('Passed image path is not a valid image')
+                return None
+            with open(image_path, 'rb') as image_file:
+                image_data = image_file.read()
+            logger.debug('Successfully extracted image data')
+            return image_data
+        except FileNotFoundError:
+            logger.warning('Passed image file is not exists')
+            return None
+
+    @staticmethod
+    async def _extract_remote_image_data(image_url: str):
+        """Extracts image data from remote path.
+
+        :param image_url: Path to remote image
+        :type image_url: str
+
+        :return: Image data
+        :rtype: Optional[bytes]
+        """
+        async with ClientSession() as session:
+            image_response = await session.get(image_url)
+            if not image_response.content_type.startswith('image/'):
+                logger.warning('Passed URL is not a valid image URL')
+                return None
+            logger.debug('Successfully extracted image data')
+            return await image_response.read()
+
+    @staticmethod
+    def create_query_dict(**params_data: Optional[Any]):
+        """Creates query dictionary for API request.
 
         This methods checks for data types and converts to valid one.
 
-        :param params_data: API methods parameters data
-        :type params_data:
-            Optional[Union[str, bool, int, List[Union[int, str]]]]
+        :param params_data: Parameters data for API request
+        :type params_data: Optional[Any]
 
         :return: Query dictionary
         :rtype: Dict[str, str]
         """
         logger.debug(
-            f'Generating query dictionary for request. Passed {params_data=}')
+            'Generating query dictionary for request. ' \
+            f'Passed {params_data=}'
+        )
+
         query_dict: Dict[str, str] = {}
+
+        logger.debug('Extracting data for query dictionary')
         for key, data in params_data.items():
             if data is None:
                 continue
-            if isinstance(data, bool):
-                query_dict[key] = str(int(data))
-            elif isinstance(data, int):
-                query_dict[key] = str(data)
-            elif isinstance(data, list):
-                query_dict[key] = ','.join(data)
-            else:
-                query_dict[key] = data
+            query_dict.update({key: Utils._convert_dictionary_value(data)})
+
         logger.debug(f'Generated query dictionary: {query_dict=}')
         return query_dict
 
     @staticmethod
-    def create_data_dict(
-        **dict_data: Optional[Union[str, bool, int, List[int]]]
-    ) -> Union[Dict[str, str], Dict[str, Dict[str, str]]]:
-        """Creates data dict for API requests.
+    def create_data_dict(**dict_data: Optional[Any]):
+        """Creates data dictionary for API request.
 
         This methods checks for data types and converts to valid one.
 
-        :param dict_data: API methods body data
-        :type dict_data: Optional[Union[str, bool, int, List[int]]]
+        If dict_data doesn't contain "dict_name" key,
+        generated dictionary will have "temp" as root dictionary name,
+        which will be removed on return.
+
+        :param dict_data: Body data for API request
+        :type dict_data: Optional[Any]
 
         :return: Data dictionary
-        :rtype: Optional[Union[str, bool, int, List[int]]]
+        :rtype: Union[Dict[str, Dict[str, str]], Dict[str, str]]
         """
         logger.debug(
             f'Generating data dictionary for request. Passed {dict_data=}')
-        if 'dict_name' not in dict_data:
-            logger.debug(
-                'There is no dict_name in dict_data. Returning empty dictionary'
-            )
-            return {}
 
         logger.debug('Extracting root dictionary name')
-        data_dict_name: str = dict_data['dict_name']
-        dict_data.pop('dict_name')
+        data_dict_name: Optional[str] = dict_data.pop('dict_name', None)
 
-        logger.debug(f'Setting root dictionary "{data_dict_name}"')
-        new_data_dict: Dict[str, Dict[str, Any]] = {data_dict_name: {}}
+        if data_dict_name is None:
+            logger.debug(
+                'There is no dict_name in dict_data. ' \
+                'Returning dictionary without root'
+            )
+            return Utils.create_query_dict(**dict_data)
+
+        logger.debug(f'Setting root dictionary with name "{data_dict_name}"')
+        new_data_dict: Dict[str, Dict[str, str]] = {data_dict_name: {}}
+
+        logger.debug('Extracting data for data dictionary')
         for key, data in dict_data.items():
             if data is None:
                 continue
-            if isinstance(data, bool):
-                new_data_dict[data_dict_name][key] = data
-            elif isinstance(data, int):
-                new_data_dict[data_dict_name][key] = str(data)
-            elif isinstance(data, list):
-                new_data_dict[data_dict_name][key] = ','.join(data)
-            else:
-                new_data_dict[data_dict_name][key] = data
-        logger.debug(f'Generated data dictionary: {new_data_dict=}')
+            new_data_dict[data_dict_name].update(
+                {key: Utils._convert_dictionary_value(data, data_dict=True)})
+
+        logger.debug(f'Generated data dictionary: {new_data_dict}')
         return new_data_dict
 
     @staticmethod
-    def validate_enum_params(
-            enum_params: Dict[Type[EnhancedEnum], Union[str,
-                                                        List[str]]]) -> bool:
-        """Validates string parameter with enum values.
+    def _convert_dictionary_value(dict_value: Any, data_dict: bool = False):
+        """Converts dictionary value to string.
 
-        This method gets dictionary with enum and string values.
+        If data_dict is False, converts list values to comma-separated string.
+        Otherwise, returns list value as is.
 
-        If string value is in enum values, function returns True,
-        otherwise False
+        :param dict_value: Dictionary value
+        :type dict_value: Any
 
-        :param enum_params: Dictionary with values to validate.
-        :type enum_params: Dict[Type[EnhancedEnum], Union[str, List[str]]])
+        :param data_dict: Flag if checking value for data dictionary
+        :type data_dict: bool
 
-        :return: Validator result
+        :return: Converted value
+        :rtype: str
+        """
+        logger.debug(f'Converting value "{dict_value}" to string')
+
+        if isinstance(dict_value, bool):
+            return str(int(dict_value))
+        elif isinstance(dict_value, int):
+            return str(dict_value)
+        elif isinstance(dict_value, (list, tuple)):
+            if data_dict is True:
+                return dict_value
+            return ','.join([str(x) for x in dict_value])
+        elif isinstance(dict_value, bytes):
+            return dict_value
+        else:
+            # If something else passed, trying to convert to string
+            return str(dict_value)
+
+    @staticmethod
+    def validate_response_code(response_code: Union[int, Any],
+                               check_code: ResponseCode):
+        """Validates passed response code.
+
+        :param response_code: Passed response code
+        :type response_code: Union[int, Any]
+
+        :param check_code: Response code to compare with
+        :type check_code: ResponseCode
+
+        :return: Validated response code
         :rtype: bool
         """
-        enums_counter = 0
-        logger.debug('Checking if enum parameters are valid')
-        for enum, param in enum_params.items():
-            if param is None:
-                continue
+        logger.debug(f'Validating response code: {response_code=}, '
+                     f'{check_code=}')
 
-            enums_counter += 1
-            enum_values = enum.get_values()
+        if not isinstance(response_code, int):
+            logger.warning(
+                'Got non-int value. Cancel comparing with response code')
+            return False
 
-            if isinstance(param, list):
-                for item in param:
-                    if item not in enum_values:
-                        logger.warning(f'"{item}" is not valid value '
-                                       f'of "{enum.get_name()}".'
-                                       f'\nAccepted values: {enum_values}')
-                        return False
-                break
+        response_code_value: int = check_code.value
+        return response_code == response_code_value
 
-            if param not in enum_values:
-                logger.warning(
-                    f'"{param}" is not valid value of "{enum.get_name()}".'
-                    f'\nAccepted values: {enum_values}')
-                return False
-
-        logger.debug(
-            f'All ({enums_counter}) enum parameters are valid'
-            if enums_counter > 0 else 'There are no enum parameters to check')
-
-        return True
-
+    @overload
     @staticmethod
-    def get_validated_query_number(query_number: Optional[int],
-                                   upper_limit: int) -> Optional[int]:
-        """Validates query number.
+    def validate_response_data(
+        response_data: Dict[str, Any],
+        data_model: Type[M],
+    ) -> Optional[M]:
+        ...
 
-        If number is lower, returns lower limit, else upper limit.
-        If number is None, returns or None.
-
-        :param query_number: Number to validate
-        :type query_number: Optional[int]
-
-        :param upper_limit: Upper limit for range check
-        :type upper_limit: int
-
-        :return: Validated number
-        :rtype: Optional[int]
-        """
-        logger.debug(f'Validating query number ("{query_number}") '
-                     f'with upper limit ("{upper_limit}")')
-        if query_number is None:
-            logger.debug('Query number is "None"')
-            return query_number
-
-        if query_number < LOWER_LIMIT_NUMBER:
-            logger.debug(f'Query number ("{query_number}") is lower '
-                         f'than lower limit ("{LOWER_LIMIT_NUMBER}"). '
-                         f'Returning {LOWER_LIMIT_NUMBER=}')
-            return LOWER_LIMIT_NUMBER
-
-        if query_number > upper_limit:
-            logger.debug(f'Query number ("{query_number}") is higher '
-                         f'than upper limit ("{upper_limit}"). '
-                         f'Returning {upper_limit=}')
-            return upper_limit
-
-        if isinstance(query_number, float):
-            logger.debug(f'Query number ("{query_number}") is float. '
-                         f'Converting to int')
-            query_number = int(query_number)
-
-        logger.debug(f'Returning passed query number ("{query_number}")')
-        return query_number
-
+    @overload
     @staticmethod
-    def query_numbers_validator(**query_numbers: List[Optional[int]]
-                               ) -> Dict[str, Optional[int]]:
-        """Gets all query numbers to validate and returns validated numbers.
-
-        This method uses validate_query_number method for validating.
-
-        Query numbers are passed in such form:
-            { "page": [1, 100], ... }
-
-            "page" <- Name of query number
-
-            [1 (Passed value), 100 (Upper limit value)]
-
-        This method outputs them like this:
-            { "page": 1 }
-
-            "page" <- Name of query number
-
-            1 <- Validated number
-
-        :param query_numbers: Passed query numbers to validate
-        :type query_numbers: List[Optional[int]]
-        :return: Dict of validated numbers
-        :rtype: Dict[str, Optional[int]]
-        """
-        validated_numbers: Dict[str, Optional[int]] = {}
-        for name, data in query_numbers.items():
-            logger.debug(f'Checking "{name}" parameter')
-            validated_numbers[name] = (Utils.get_validated_query_number(
-                data[0], data[1]))
-        return validated_numbers
+    def validate_response_data(
+        response_data: List[Dict[str, Any]],
+        data_model: Type[M],
+    ) -> List[M]:
+        ...
 
     @staticmethod
     def validate_response_data(
-        response_data: Union[List[Dict[str, Any]], Dict[str, Any], List[Any],
-                             int],
-        data_model: Optional[Type[Any]] = None,
-        response_code: Optional[ResponseCode] = None,
-        fallback: Optional[Any] = None
-    ) -> Optional[Union[Type[Any], List[Type[Any]], List[Any], Dict[str, Any],
-                        bool]]:
+        response_data: Union[Dict[str, Any], List[Dict[str, Any]]],
+        data_model: Type[M],
+    ) -> Optional[Union[Optional[M], List[M]]]:
         """Validates passed response data and returns parsed models.
 
-        :param response_data: Response data
-        :type response_data: Union[List[Dict[str, Any],
-            Dict[str, Any], List[Any]]]
+        :param response_data: Passed response data
+        :type response_data: Union[Dict[str, Any], List[Dict[str, Any]]]
 
         :param data_model: Model to convert into passed response data
-        :type data_model: Optional[Type[Any]]
-
-        :param response_code: Code of response
-            (Used only when response_data is int)
-        :type response_code: Optional[ResponseCode]
-
-        :param fallback: Fallback value to return
-        :type fallback: Optional[Any]
+        :type data_model: Type[M]
 
         :return: Parsed response data
-        :rtype: Optional[Union[Type[Any], List[Type[Any]],
-            List[Any], Dict[str, Any], bool]]
+        :rtype: Optional[Union[List, Optional[M], List[M]]]
         """
-        logger.debug(f'Validating return data: {response_data=}, '
-                     f'{data_model=}, {response_code=}')
+        logger.debug('Validating and parsing response data '\
+                    f'using "{data_model.__name__}" data model')
+        logger.debug(f'Passed response data: {response_data}')
 
         if not response_data:
-            logger.debug('Response data is empty. Returning it...')
-            return response_data
+            logger.debug('Response data is empty. Returning')
+            if isinstance(response_data, dict):
+                return None
+            return []
 
-        if isinstance(response_data, int):
-            logger.debug('Response data is int. Returning value '
-                         'of response code comparison')
-            return response_data == response_code.value
-
-        if isinstance(response_data, dict) and response_data.get('errors'):
-            logger.debug('Response data contains unexpected errors. '
-                         'Returning fallback value...')
-            logger.warning(f'Errors list: {response_data.get("errors")}')
-            return fallback
-
-        if isinstance(response_data, list) \
-                and len(response_data) == 1:
-            if isinstance(response_data[0], str) \
-                    and response_data[0].find('Invalid') != -1:
-                logger.debug('Response data contains info about invalid data. '
-                             'Returning fallback value')
-                logger.warning(response_data[0])
-                return fallback
-
-        if 'errors' in response_data or 'code' in response_data:
-            logger.debug(
-                'Response data contains errors info. Returning fallback value')
-            return fallback
-
-        if 'notice' in response_data or 'success' in response_data:
-            logger.debug('Response data contains success info. Returning True')
-            return True
-
-        if 'is_ignored' in response_data and data_model is None:
-            logger.debug('Response data contains is_ignored. '
-                         'Returning status of is_ignored')
-            return response_data.get('is_ignored')
-
-        if data_model is None:
-            logger.debug("Data model isn't passed. Returning response data")
-            return response_data
-
-        logger.debug('Data model is passed. Returning parsed data')
         return [data_model(**item) for item in response_data] if isinstance(
             response_data, list) else data_model(**response_data)
+
+    @staticmethod
+    def create_form_data(raw_data: Dict[str, Any]):
+        """Creates form data for API request.
+
+        Method converts dictionary with data to
+        FormData object for API request.
+
+        :param raw_data: Raw data for API request
+        :type raw_data: Dict[str, Any]
+
+        :return: Form data
+        :rtype: Optional[FormData]
+        """
+        if not isinstance(raw_data, dict):
+            logger.debug('Passed data is not a dictionary')
+            return None
+
+        if any(isinstance(value, dict) for value in raw_data.values()):
+            return Utils._generate_nested_form_data(raw_data)
+        return Utils._generate_plain_form_data(raw_data)
+
+    @staticmethod
+    def _generate_nested_form_data(raw_data: Dict[str, Dict[str, Any]]):
+        """Generates FormData for nested dictionaries.
+
+        :param raw_data: Raw data for API request
+        :type raw_data: Dict[str, Dict[str, Any]]
+
+        :return: Generated FormData
+        :rtype: FormData
+        """
+        form_data = FormData()
+        logger.debug('Generating FormData for nested dictionaries')
+
+        for key, value in raw_data.items():
+            if isinstance(value, dict):
+                for subkey, subvalue in value.items():
+                    if isinstance(subvalue, list):
+                        for list_value in subvalue:
+                            form_data.add_field(f'{key}[{subkey}][]',
+                                                list_value)
+                    else:
+                        form_data.add_field(f'{key}[{subkey}]', subvalue)
+            else:
+                form_data.add_field(key, value)
+
+        logger.debug('Successfully created FormData object')
+        return form_data
+
+    @staticmethod
+    def _generate_plain_form_data(raw_data: Dict[str, Any]):
+        """Generates FormData for plain dictionary.
+
+        :param raw_data: Raw data for API request
+        :type raw_data: Dict[str, Any]
+
+        :return: Generated FormData
+        :rtype: FormData
+        """
+        form_data = FormData()
+        logger.debug('Generating FormData for plain dictionary')
+
+        for key, value in raw_data.items():
+            if isinstance(value, list):
+                for list_value in value:
+                    form_data.add_field(f'{key}[]', list_value)
+            form_data.add_field(key, value)
+
+        logger.debug('Successfully generated FormData object')
+        return form_data
+
+    @staticmethod
+    async def log_response_info(response: ClientResponse):
+        """Logs response info.
+
+        :param response: Response object
+        :type response: ClientResponse
+        """
+        logger.debug(f'Response status: {response.status}')
+        logger.debug(f'Response headers: {response.headers}')
+        logger.debug(f'Response data: {await response.text()}')

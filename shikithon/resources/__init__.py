@@ -5,7 +5,7 @@ from .achievements import Achievements
 from .animes import Animes
 from .appears import Appears
 from .bans import Bans
-from .calendar import Calendar
+from .calendars import Calendars
 from .characters import Characters
 from .clubs import Clubs
 from .comments import Comments
@@ -33,7 +33,7 @@ __all__ = [
     'Animes',
     'Appears',
     'Bans',
-    'Calendar',
+    'Calendars',
     'Characters',
     'Clubs',
     'Comments',

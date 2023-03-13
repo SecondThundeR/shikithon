@@ -1,7 +1,8 @@
 """Represents /api/forums resource."""
-from typing import Any, Dict, List
+from typing import Any, Dict, List, cast
 
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Forum
 from ..utils import Utils
 from .base_resource import BaseResource
@@ -14,14 +15,15 @@ class Forums(BaseResource):
     """
 
     @method_endpoint('/api/forums')
-    async def get(self) -> List[Forum]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def get_all(self):
         """Returns list of forums.
 
         :returns: List of forums
         :rtype: List[Forum]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.forums)
-        return Utils.validate_response_data(response,
-                                            data_model=Forum,
-                                            fallback=[])
+        response = await self._client.request(self._client.endpoints.forums)
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Forum)

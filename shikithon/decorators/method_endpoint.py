@@ -1,6 +1,6 @@
-"""Decorator for method endpoint logging"""
+"""Decorator for logging method endpoint."""
 from functools import wraps
-from typing import Callable, TypeVar
+from typing import Awaitable, Callable, TypeVar
 
 from loguru import logger
 from typing_extensions import ParamSpec
@@ -10,30 +10,32 @@ R = TypeVar('R')
 
 
 def method_endpoint(
-        method_endpoint_name: str
-) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    method_endpoint_name: str
+) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]:
     """Decorator for logging method endpoint.
 
     :param method_endpoint_name: Name of method endpoint
     :type method_endpoint_name: str
 
     :return: Decorator function
-    :rtype: Callable[[Callable[P, R]], Callable[P, R]]
+    :rtype: Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]
     """
 
-    def endpoint_logger_decorator(function: Callable[P, R]) -> Callable[P, R]:
-        """Endpoint logger decorator.
+    def endpoint_logger_wrapper(
+            function: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
+        """Endpoint logger wrapper.
 
         :param function: Function to decorate
-        :type function: Callable[P, R]
+        :type function: Callable[P, Awaitable[R]]
 
         :return: Decorated function
-        :rtype: Callable[P, R]
+        :rtype: Callable[P, Awaitable[R]]
         """
 
         @wraps(function)
-        def endpoint_logger_wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-            """Decorator's wrapper function for logging endpoint of method
+        async def endpoint_logger_wrapped(*args: P.args,
+                                          **kwargs: P.kwargs) -> R:
+            """Decorator's wrapped function for logging endpoint of method
 
             :param args: Positional arguments
             :type args: P.args
@@ -45,8 +47,8 @@ def method_endpoint(
             :rtype: R
             """
             logger.debug(f'Executing "{method_endpoint_name}" method')
-            return function(*args, **kwargs)
+            return await function(*args, **kwargs)
 
-        return endpoint_logger_wrapper
+        return endpoint_logger_wrapped
 
-    return endpoint_logger_decorator
+    return endpoint_logger_wrapper

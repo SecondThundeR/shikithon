@@ -1,17 +1,17 @@
 """Represents /api/user_rates and /api/v2/user_rates resource."""
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, cast
 
 from loguru import logger
 
-from ..decorators import method_endpoint
-from ..enums import RequestType
-from ..enums import ResponseCode
-from ..enums import UserRateStatus
-from ..enums import UserRateTarget
-from ..enums import UserRateType
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import (RequestType, ResponseCode, UserRateStatus, UserRateTarget,
+                     UserRateType)
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import UserRate
 from ..utils import Utils
 from .base_resource import BaseResource
+
+USER_RATES_DICT_NAME = 'user_rate'
 
 
 class UserRates(BaseResource):
@@ -21,16 +21,17 @@ class UserRates(BaseResource):
     """
 
     @method_endpoint('/api/v2/user_rates')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def get_all(self,
                       user_id: int,
                       target_id: Optional[int] = None,
-                      target_type: Optional[str] = None,
-                      status: Optional[str] = None,
+                      target_type: Optional[UserRateTarget] = None,
+                      status: Optional[UserRateStatus] = None,
                       page: Optional[int] = None,
-                      limit: Optional[int] = None) -> List[UserRate]:
+                      limit: Optional[int] = None):
         """Returns list of user rates.
 
-        **Note:** When passing target_id, target_type is required.
+        When passing target_id, target_type is required.
 
         Also there is a strange API behavior, so when pass nothing,
         endpoint not working.
@@ -43,10 +44,10 @@ class UserRates(BaseResource):
         :type target_id: Optional[int]
 
         :param target_type: Type of target_id to get rates for
-        :type target_type: Optional[str]
+        :type target_type: Optional[UserRateTarget]
 
         :param status: Status of target_type to get rates for
-        :type target_type: Optional[str]
+        :type status: Optional[UserRateStatus]
 
         :param page: Number of page
         :type page: Optional[int]
@@ -58,35 +59,23 @@ class UserRates(BaseResource):
         :return: List with info about user rates
         :rtype: List[UserRate]
         """
-        if target_id is not None and target_type is None:
-            logger.warning('target_type is required when passing target_id')
-            return []
+        query_dict = Utils.create_query_dict(user_id=user_id,
+                                             target_id=target_id,
+                                             target_type=target_type,
+                                             status=status,
+                                             page=page,
+                                             limit=limit)
 
-        if not Utils.validate_enum_params({
-                UserRateTarget: target_type,
-                UserRateStatus: status
-        }):
-            return []
+        response = await self._client.request(self._client.endpoints.user_rates,
+                                              query=query_dict)
 
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 1000],
-        )
-
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.user_rates,
-            query=Utils.create_query_dict(user_id=user_id,
-                                          target_id=target_id,
-                                          target_type=target_type,
-                                          status=status,
-                                          page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
-        return Utils.validate_response_data(response,
-                                            data_model=UserRate,
-                                            fallback=[])
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
-    async def get(self, rate_id: int) -> Optional[UserRate]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def get(self, rate_id: int):
         """Returns info about user rate.
 
         :param rate_id: ID of rate to get
@@ -95,22 +84,25 @@ class UserRates(BaseResource):
         :return: Info about user rate
         :rtype: Optional[UserRate]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rate(rate_id))
-        return Utils.validate_response_data(response, data_model=UserRate)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def create(self,
                      user_id: int,
                      target_id: int,
-                     target_type: str,
-                     status: Optional[str] = None,
+                     target_type: UserRateTarget,
+                     status: Optional[UserRateStatus] = None,
                      score: Optional[int] = None,
                      chapters: Optional[int] = None,
                      episodes: Optional[int] = None,
                      volumes: Optional[int] = None,
                      rewatches: Optional[int] = None,
-                     text: Optional[str] = None) -> Optional[UserRate]:
+                     text: Optional[str] = None):
         """Creates new user rate and return info about it.
 
         :param user_id: ID of user to create user rate for
@@ -121,10 +113,10 @@ class UserRates(BaseResource):
 
         :param target_type: Type of target_id to create user rate for
             (Anime or Manga)
-        :type target_type: str
+        :type target_type: UserRateTarget
 
         :param status: Status of target
-        :type status: Optional[str]
+        :type status: Optional[UserRateStatus]
 
         :param score: Score of target
         :type score: Optional[int]
@@ -147,47 +139,43 @@ class UserRates(BaseResource):
         :return: Info about new user rate
         :rtype: Optional[UserRate]
         """
-        if not Utils.validate_enum_params({
-                UserRateTarget: target_type,
-                UserRateStatus: status
-        }):
-            return None
+        data_dict = Utils.create_data_dict(dict_name=USER_RATES_DICT_NAME,
+                                           user_id=user_id,
+                                           target_id=target_id,
+                                           target_type=target_type,
+                                           status=status,
+                                           score=score,
+                                           chapters=chapters,
+                                           episodes=episodes,
+                                           volumes=volumes,
+                                           rewatches=rewatches,
+                                           text=text)
 
-        validated_numbers = Utils.query_numbers_validator(score=[score, 10])
+        response = await self._client.request(self._client.endpoints.user_rates,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.user_rates,
-            data=Utils.create_data_dict(dict_name='user_rate',
-                                        user_id=user_id,
-                                        target_id=target_id,
-                                        target_type=target_type,
-                                        status=status,
-                                        score=validated_numbers['score'],
-                                        chapters=chapters,
-                                        episodes=episodes,
-                                        volumes=volumes,
-                                        rewatches=rewatches,
-                                        text=text),
-            request_type=RequestType.POST)
-        return Utils.validate_response_data(response, data_model=UserRate)
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def update(self,
                      rate_id: int,
-                     status: Optional[str] = None,
+                     status: Optional[UserRateStatus] = None,
                      score: Optional[int] = None,
                      chapters: Optional[int] = None,
                      episodes: Optional[int] = None,
                      volumes: Optional[int] = None,
                      rewatches: Optional[int] = None,
-                     text: Optional[str] = None) -> Optional[UserRate]:
+                     text: Optional[str] = None):
         """Updates user rate and return new info about it.
 
         :param rate_id: ID of user rate to edit
         :type rate_id: int
 
         :param status: Status of target
-        :type status: Optional[str]
+        :type status: Optional[UserRateStatus]
 
         :param score: Score of target
         :type score: Optional[int]
@@ -210,26 +198,26 @@ class UserRates(BaseResource):
         :return: Info about new user rate
         :rtype: Optional[UserRate]
         """
-        if not Utils.validate_enum_params({UserRateStatus: status}):
-            return None
+        data_dict = Utils.create_data_dict(dict_name=USER_RATES_DICT_NAME,
+                                           status=status,
+                                           score=score,
+                                           chapters=chapters,
+                                           episodes=episodes,
+                                           volumes=volumes,
+                                           rewatches=rewatches,
+                                           text=text)
 
-        validated_numbers = Utils.query_numbers_validator(score=[score, 10])
-
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rate(rate_id),
-            data=Utils.create_data_dict(dict_name='user_rate',
-                                        status=status,
-                                        score=validated_numbers['score'],
-                                        chapters=chapters,
-                                        episodes=episodes,
-                                        volumes=volumes,
-                                        rewatches=rewatches,
-                                        text=text),
+            data=data_dict,
             request_type=RequestType.PATCH)
-        return Utils.validate_response_data(response, data_model=UserRate)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id/increment')
-    async def increment(self, rate_id: int) -> Optional[UserRate]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def increment(self, rate_id: int):
         """Increments user rate episode/chapters and return updated info.
 
         :param rate_id: ID of user rate to increment episode/chapters
@@ -238,13 +226,16 @@ class UserRates(BaseResource):
         :return: Info about updated user rate
         :rtype: Optional[UserRate]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rate_increment(rate_id),
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response, data_model=UserRate)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=UserRate)
 
     @method_endpoint('/api/v2/user_rates/:id')
-    async def delete(self, rate_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def delete(self, rate_id: int):
         """Deletes user rate.
 
         :param rate_id: ID of user rate to delete
@@ -253,32 +244,35 @@ class UserRates(BaseResource):
         :return: Status of user rate deletion
         :rtype: bool
         """
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.user_rate(rate_id),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(
-            response, response_code=ResponseCode.NO_CONTENT, fallback=False)
 
-    @method_endpoint('/api/users_rates/:type/cleanup')
-    async def delete_all(self, user_rate_type: str) -> bool:
+        return Utils.validate_response_code(cast(int, response),
+                                            check_code=ResponseCode.NO_CONTENT)
+
+    @method_endpoint('/api/user_rates/:type/cleanup')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def delete_all(self, user_rate_type: UserRateType):
         """Deletes all user rates.
 
         :param user_rate_type: Type of user rates to delete
-        :type user_rate_type: str
+        :type user_rate_type: UserRateType
 
         :return: Status of user rates deletion
         :rtype: bool
         """
-        if not Utils.validate_enum_params({UserRateType: user_rate_type}):
-            return False
-
-        response: Union[Dict[str, Any], int] = await self._client.request(
-            self._client.endpoints.user_rates_cleanup(user_rate_type),
+        response = await self._client.request(
+            self._client.endpoints.user_rates_cleanup(str(user_rate_type)),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response, fallback=False)
+
+        logger.info(response)
+
+        return True
 
     @method_endpoint('/api/user_rates/:type/reset')
-    async def reset_all(self, user_rate_type: str) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def reset_all(self, user_rate_type: UserRateType):
         """Resets all user rates.
 
         :param user_rate_type: Type of user rates to reset
@@ -287,10 +281,10 @@ class UserRates(BaseResource):
         :return: Status of user rates reset
         :rtype: bool
         """
-        if not Utils.validate_enum_params({UserRateType: user_rate_type}):
-            return False
-
-        response: Union[Dict[str, Any], int] = await self._client.request(
-            self._client.endpoints.user_rates_reset(user_rate_type),
+        response = await self._client.request(
+            self._client.endpoints.user_rates_reset(str(user_rate_type)),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response, fallback=False)
+
+        logger.info(response)
+
+        return True

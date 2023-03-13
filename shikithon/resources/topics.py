@@ -1,15 +1,16 @@
 """Represents /api/topics and /api/v2/topics resource."""
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, cast
 
-from ..decorators import method_endpoint
-from ..enums import ForumType
-from ..enums import RequestType
-from ..enums import ResponseCode
-from ..enums import TopicLinkedType
-from ..enums import TopicType
+from loguru import logger
+
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import RequestType, TopicForumType, TopicLinkedType, TopicType
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Topic
 from ..utils import Utils
 from .base_resource import BaseResource
+
+TOPICS_DICT_NAME = 'topic'
 
 
 class Topics(BaseResource):
@@ -19,13 +20,14 @@ class Topics(BaseResource):
     """
 
     @method_endpoint('/api/topics')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def get_all(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      forum: Optional[str] = None,
+                      forum: Optional[TopicForumType] = None,
                       linked_id: Optional[int] = None,
-                      linked_type: Optional[str] = None,
-                      topic_type: Optional[str] = None) -> List[Topic]:
+                      linked_type: Optional[TopicLinkedType] = None,
+                      topic_type: Optional[TopicType] = None):
         """Returns list of topics.
 
         :param page: Number of page
@@ -34,49 +36,40 @@ class Topics(BaseResource):
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :param forum: Number of results limit
-        :type forum: Optional[str]
+        :param forum: Type of forum
+        :type forum: Optional[TopicForumType]
 
         :param linked_id: ID of linked topic (Used together with linked_type)
         :type linked_id: Optional[int]
 
         :param linked_type: Type of linked topic (Used together with linked_id)
-        :type linked_type: Optional[str]
+        :type linked_type: Optional[TopicLinkedType]
 
-        :param topic_type: Type of topic.
-        :type topic_type: Optional[str]
+        :param topic_type: Type of topic
+        :type topic_type: Optional[TopicType]
 
         :return: List of topics
         :rtype: List[Topic]
         """
-        if not Utils.validate_enum_params({
-                ForumType: forum,
-                TopicLinkedType: linked_type,
-                TopicType: topic_type
-        }):
-            return []
+        data_dict = Utils.create_query_dict(page=page,
+                                            limit=limit,
+                                            forum=forum,
+                                            linked_id=linked_id,
+                                            linked_type=linked_type,
+                                            type=topic_type)
 
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 30],
-        )
+        response = await self._client.request(self._client.endpoints.topics,
+                                              query=data_dict)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.topics,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          forum=forum,
-                                          linked_id=linked_id,
-                                          linked_type=linked_type,
-                                          type=topic_type))
-        return Utils.validate_response_data(response,
-                                            data_model=Topic,
-                                            fallback=[])
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/updates')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def updates(self,
                       page: Optional[int] = None,
-                      limit: Optional[int] = None) -> List[Topic]:
+                      limit: Optional[int] = None):
         """Returns list of NewsTopics about database updates.
 
         :param page: Number of page
@@ -88,21 +81,18 @@ class Topics(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 30],
-        )
+        query_dict = Utils.create_query_dict(page=page, limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.updates_topics,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
-        return Utils.validate_response_data(response,
-                                            data_model=Topic,
-                                            fallback=[])
+        response = await self._client.request(
+            self._client.endpoints.updates_topics, query=query_dict)
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/hot')
-    async def hot(self, limit: Optional[int] = None) -> List[Topic]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def hot(self, limit: Optional[int] = None):
         """Returns list of hot topics.
 
         :param limit: Number of results limit
@@ -111,17 +101,18 @@ class Topics(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        validated_numbers = Utils.query_numbers_validator(limit=[limit, 10])
+        query_dict = Utils.create_query_dict(limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.hot_topics,
-            query=Utils.create_query_dict(limit=validated_numbers['limit']))
-        return Utils.validate_response_data(response,
-                                            data_model=Topic,
-                                            fallback=[])
+        response = await self._client.request(self._client.endpoints.hot_topics,
+                                              query=query_dict)
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
-    async def get(self, topic_id: int) -> Optional[Topic]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def get(self, topic_id: int):
         """Returns info about topic.
 
         :param topic_id: ID of topic to get
@@ -130,18 +121,21 @@ class Topics(BaseResource):
         :return: Info about topic
         :rtype: Optional[Topic]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic(topic_id))
-        return Utils.validate_response_data(response, data_model=Topic)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def create(self,
                      body: str,
                      forum_id: int,
                      title: str,
                      user_id: int,
                      linked_id: Optional[int] = None,
-                     linked_type: Optional[str] = None) -> Optional[Topic]:
+                     linked_type: Optional[TopicLinkedType] = None):
         """Creates topic.
 
         :param body: Body of topic
@@ -157,37 +151,38 @@ class Topics(BaseResource):
         :type user_id: int
 
         :param linked_id: ID of linked topic (Used together with linked_type)
-        :type linked_type: Optional[int]
+        :type linked_id: Optional[int]
 
         :param linked_type: Type of linked topic (Used together with linked_id)
-        :type linked_type: Optional[str]
+        :type linked_type: Optional[TopicLinkedType]
 
         :return: Created topic info
         :rtype: Optional[Topic]
         """
-        if not Utils.validate_enum_params({TopicLinkedType: linked_type}):
-            return None
+        data_dict = Utils.create_data_dict(dict_name=TOPICS_DICT_NAME,
+                                           body=body,
+                                           forum_id=forum_id,
+                                           linked_id=linked_id,
+                                           linked_type=linked_type,
+                                           title=title,
+                                           type=TopicType.REGULAR_TOPIC,
+                                           user_id=user_id)
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.topics,
-            data=Utils.create_data_dict(dict_name='topic',
-                                        body=body,
-                                        forum_id=forum_id,
-                                        linked_id=linked_id,
-                                        linked_type=linked_type,
-                                        title=title,
-                                        type=str(TopicType.REGULAR_TOPIC.value),
-                                        user_id=user_id),
-            request_type=RequestType.POST)
-        return Utils.validate_response_data(response, data_model=Topic)
+        response = await self._client.request(self._client.endpoints.topics,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def update(self,
                      topic_id: int,
                      body: Optional[str] = None,
                      title: Optional[str] = None,
                      linked_id: Optional[int] = None,
-                     linked_type: Optional[str] = None) -> Optional[Topic]:
+                     linked_type: Optional[TopicLinkedType] = None):
         """Updates topic.
 
         :param topic_id: ID of topic to update
@@ -200,31 +195,31 @@ class Topics(BaseResource):
         :type title: Optional[str]
 
         :param linked_id: ID of linked topic (Used together with linked_type)
-        :type linked_type: Optional[int]
+        :type linked_id: Optional[int]
 
         :param linked_type: Type of linked topic (Used together with linked_id)
-        :type linked_type: Optional[str]
+        :type linked_type: Optional[TopicLinkedType]
 
         :return: Updated topic info
         :rtype: Optional[Topic]
         """
-        if not Utils.validate_enum_params({TopicLinkedType: linked_type}):
-            return None
+        data_dict = Utils.create_data_dict(dict_name=TOPICS_DICT_NAME,
+                                           body=body,
+                                           linked_id=linked_id,
+                                           linked_type=linked_type,
+                                           title=title)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic(topic_id),
-            data=Utils.create_data_dict(dict_name='topic',
-                                        body=body,
-                                        linked_id=linked_id,
-                                        linked_type=linked_type,
-                                        title=title),
+            data=data_dict,
             request_type=RequestType.PATCH)
-        return Utils.validate_response_data(response,
-                                            response_code=ResponseCode.SUCCESS,
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
                                             data_model=Topic)
 
     @method_endpoint('/api/topics/:id')
-    async def delete(self, topic_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def delete(self, topic_id: int):
         """Deletes topic.
 
         :param topic_id: ID of topic to delete
@@ -233,13 +228,17 @@ class Topics(BaseResource):
         :return: Status of topic deletion
         :rtype: bool
         """
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic(topic_id),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response, fallback=False)
+
+        logger.info(response)
+
+        return True
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
-    async def ignore(self, topic_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def ignore(self, topic_id: int):
         """Sets topic as ignored.
 
         :param topic_id: ID of topic to ignore
@@ -248,13 +247,15 @@ class Topics(BaseResource):
         :return: True if topic was ignored, False otherwise
         :rtype: bool
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic_ignore(topic_id),
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response, fallback=False) is True
+
+        return cast(Dict[str, Any], response).get('is_ignored', None) is True
 
     @method_endpoint('/api/v2/topics/:topic_id/ignore')
-    async def unignore(self, topic_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def unignore(self, topic_id: int):
         """Sets topic as unignored.
 
         :param topic_id: ID of topic to unignore
@@ -263,7 +264,8 @@ class Topics(BaseResource):
         :return: True if topic was unignored, False otherwise
         :rtype: bool
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.topic_ignore(topic_id),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response, fallback=True) is False
+
+        return cast(Dict[str, Any], response).get('is_ignored', None) is False

@@ -1,14 +1,14 @@
 """Represents /api/styles resource."""
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
-from loguru import logger
-
-from ..decorators import method_endpoint
-from ..enums import OwnerType
-from ..enums import RequestType
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import RequestType, StyleOwner
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Style
 from ..utils import Utils
 from .base_resource import BaseResource
+
+STYLES_DICT_NAME = 'style'
 
 
 class Styles(BaseResource):
@@ -18,7 +18,8 @@ class Styles(BaseResource):
     """
 
     @method_endpoint('/api/styles/:id')
-    async def get(self, style_id: int) -> Optional[Style]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def get(self, style_id: int):
         """Returns info about style.
 
         :param style_id: Style ID to get info
@@ -27,12 +28,15 @@ class Styles(BaseResource):
         :return: Info about style
         :rtype: Optional[Style]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.style(style_id))
-        return Utils.validate_response_data(response, data_model=Style)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Style)
 
     @method_endpoint('/api/styles/preview')
-    async def preview(self, css: str) -> Optional[Style]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def preview(self, css: str):
         """Previews style with passed CSS code.
 
         :param css: CSS code to preview
@@ -41,19 +45,20 @@ class Styles(BaseResource):
         :return: Info about previewed style
         :rtype: Optional[Style]
         """
-        if not css:
-            logger.warning('No CSS code passed to preview')
-            return None
+        data_dict = Utils.create_data_dict(dict_name=STYLES_DICT_NAME, css=css)
 
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.style_preview,
-            data=Utils.create_data_dict(dict_name='style', css=css),
+            data=data_dict,
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response, data_model=Style)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Style)
 
     @method_endpoint('/api/styles')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def create(self, css: str, name: str, owner_id: int,
-                     owner_type: str) -> Optional[Style]:
+                     owner_type: StyleOwner):
         """Creates new style.
 
         :param css: CSS code for style
@@ -65,30 +70,31 @@ class Styles(BaseResource):
         :param owner_id: User/Club ID for style ownership
         :type owner_id: int
 
-        :param owner_type: Type of owner (User/Club)
-        :type owner_type: str
+        :param owner_type: Type of owner
+        :type owner_type: StyleOwner
 
         :return: Info about previewed style
         :rtype: Optional[Style]
         """
-        if not Utils.validate_enum_params({OwnerType: owner_type}):
-            return None
+        data_dict = Utils.create_data_dict(dict_name=STYLES_DICT_NAME,
+                                           css=css,
+                                           name=name,
+                                           owner_id=owner_id,
+                                           owner_type=owner_type)
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.styles,
-            data=Utils.create_data_dict(dict_name='style',
-                                        css=css,
-                                        name=name,
-                                        owner_id=owner_id,
-                                        owner_type=owner_type),
-            request_type=RequestType.POST)
-        return Utils.validate_response_data(response, data_model=Style)
+        response = await self._client.request(self._client.endpoints.styles,
+                                              data=data_dict,
+                                              request_type=RequestType.POST)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Style)
 
     @method_endpoint('/api/styles/:id')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
     async def update(self,
                      style_id: int,
                      css: Optional[str] = None,
-                     name: Optional[str] = None) -> Optional[Style]:
+                     name: Optional[str] = None):
         """Updates existing style.
 
         :param style_id: ID of existing style for edit
@@ -103,8 +109,14 @@ class Styles(BaseResource):
         :return: Info about updated style
         :rtype: Optional[Style]
         """
-        response: Dict[str, Any] = await self._client.request(
+        data_dict = Utils.create_data_dict(dict_name=STYLES_DICT_NAME,
+                                           css=css,
+                                           name=name)
+
+        response = await self._client.request(
             self._client.endpoints.style(style_id),
-            data=Utils.create_data_dict(dict_name='style', css=css, name=name),
+            data=data_dict,
             request_type=RequestType.PATCH)
-        return Utils.validate_response_data(response, data_model=Style)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Style)

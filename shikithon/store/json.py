@@ -1,10 +1,9 @@
 """JSON based config store class."""
-from json import dumps
-from json import loads
+from json import dumps, loads
 from os.path import exists
-from typing import Any, Dict, Optional
+from typing import Optional
 
-from .base import Store
+from .base import ConfigsDict, Store
 from .memory import MemoryStore
 
 
@@ -16,18 +15,18 @@ class JSONStore(Store):
 
     __slots__ = ('_file_path',)
 
-    def __init__(self, file_path: str = '.shikithon') -> None:
+    def __init__(self, file_path: str = '.shikithon'):
         super().__init__()
         self._file_path = file_path
 
-    async def _read_from_file(self) -> Optional[Dict[str, Any]]:
+    async def _read_from_file(self) -> Optional[ConfigsDict]:
         if not exists(self._file_path):
             return None
 
         with open(self._file_path, 'r', encoding='utf-8') as file:
             return loads(file.read())
 
-    async def _write_to_file(self, configs: Dict[str, Any]) -> bool:
+    async def _write_to_file(self, configs: ConfigsDict):
         try:
             with open(self._file_path, 'w', encoding='utf-8') as file:
                 file.write(dumps(configs, indent=4))
@@ -44,10 +43,8 @@ class JSONStore(Store):
                           access_token: str,
                           refresh_token: Optional[str] = None,
                           token_expire_at: Optional[int] = None,
-                          auth_code: Optional[str] = None) -> None:
+                          auth_code: Optional[str] = None):
         async with MemoryStore(await self._read_from_file()) as ms:
-            ms: MemoryStore
-
             await ms.save_config(app_name=app_name,
                                  client_id=client_id,
                                  client_secret=client_secret,
@@ -60,30 +57,24 @@ class JSONStore(Store):
 
             await self._write_to_file(ms.configs)
 
-    async def fetch_by_access_token(
-            self, app_name: str, access_token: str) -> Optional[Dict[str, Any]]:
+    async def fetch_by_access_token(self, app_name: str, access_token: str):
         async with MemoryStore(await self._read_from_file()) as ms:
             return await ms.fetch_by_access_token(app_name=app_name,
                                                   access_token=access_token)
 
-    async def fetch_by_auth_code(self, app_name: str,
-                                 auth_code: str) -> Optional[Dict[str, Any]]:
+    async def fetch_by_auth_code(self, app_name: str, auth_code: str):
         async with MemoryStore(await self._read_from_file()) as ms:
             return await ms.fetch_by_auth_code(app_name=app_name,
                                                auth_code=auth_code)
 
-    async def delete_token(self, app_name: str, access_token: str) -> None:
+    async def delete_token(self, app_name: str, access_token: str):
         async with MemoryStore(await self._read_from_file()) as ms:
-            ms: MemoryStore
-
             await ms.delete_token(app_name=app_name, access_token=access_token)
 
             await self._write_to_file(ms.configs)
 
-    async def delete_all_tokens(self, app_name: str) -> None:
+    async def delete_all_tokens(self, app_name: str):
         async with MemoryStore(await self._read_from_file()) as ms:
-            ms: MemoryStore
-
             await ms.delete_all_tokens(app_name)
 
             await self._write_to_file(ms.configs)

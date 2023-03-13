@@ -9,13 +9,9 @@ from .character import Character
 from .club import Club
 from .club_image import ClubImage
 from .comment import Comment
-from .constants import AnimeConstants
-from .constants import ClubConstants
-from .constants import MangaConstants
-from .constants import SmileyConstants
-from .constants import UserRateConstants
+from .constants import (AnimeConstants, ClubConstants, MangaConstants,
+                        SmileyConstants, UserRateConstants)
 from .created_user_image import CreatedUserImage
-from .creator import Creator
 from .dialog import Dialog
 from .favourites import Favourites
 from .forum import Forum
@@ -29,6 +25,7 @@ from .person import Person
 from .publisher import Publisher
 from .ranobe import Ranobe
 from .relation import Relation
+from .role import Role
 from .screenshot import Screenshot
 from .studio import Studio
 from .style import Style
@@ -40,11 +37,11 @@ from .user_rate import UserRate
 from .video import Video
 
 __all__ = [
-    'Anime', 'Achievement', 'AbuseResponse', 'Ban', 'CalendarEvent',
-    'Character', 'Club', 'ClubImage', 'Comment', 'ClubConstants',
-    'AnimeConstants', 'MangaConstants', 'SmileyConstants', 'UserRateConstants',
-    'CreatedUserImage', 'Creator', 'Dialog', 'Favourites', 'Forum',
-    'FranchiseTree', 'Genre', 'History', 'Link', 'Manga', 'Message', 'Person',
-    'Publisher', 'Ranobe', 'Relation', 'Screenshot', 'Studio', 'Style', 'Topic',
+    'AbuseResponse', 'Anime', 'Achievement', 'Ban', 'CalendarEvent',
+    'Character', 'Club', 'ClubImage', 'Comment', 'AnimeConstants',
+    'ClubConstants', 'MangaConstants', 'SmileyConstants', 'UserRateConstants',
+    'CreatedUserImage', 'Dialog', 'Favourites', 'Forum', 'FranchiseTree',
+    'Genre', 'History', 'Link', 'Manga', 'Message', 'Person', 'Publisher',
+    'Ranobe', 'Relation', 'Role', 'Screenshot', 'Studio', 'Style', 'Topic',
     'UnreadMessages', 'User', 'UserList', 'UserRate', 'Video'
 ]

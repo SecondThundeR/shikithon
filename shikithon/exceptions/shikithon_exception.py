@@ -1,9 +1,9 @@
-"""Exception for raising on store method erros."""
+"""General exception for raising on other errors."""
 
 from loguru import logger
 
 
-class StoreException(Exception):
+class ShikithonException(Exception):
 
     def __init__(self, error_message: str):
         logger.error(error_message)

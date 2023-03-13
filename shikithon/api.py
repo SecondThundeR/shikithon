@@ -3,43 +3,18 @@
 This is main module with a class
 for interacting with the Shikimori API.
 """
-from __future__ import annotations
-
 import sys
 from typing import Optional, TypeVar
 
 from loguru import logger
 
 from .base_client import Client
-from .resources import AbuseRequests
-from .resources import Achievements
-from .resources import Animes
-from .resources import Appears
-from .resources import Bans
-from .resources import Calendar
-from .resources import Characters
-from .resources import Clubs
-from .resources import Comments
-from .resources import Constants
-from .resources import Dialogs
-from .resources import Favorites
-from .resources import Forums
-from .resources import Friends
-from .resources import Genres
-from .resources import Mangas
-from .resources import Messages
-from .resources import People
-from .resources import Publishers
-from .resources import Ranobes
-from .resources import Stats
-from .resources import Studios
-from .resources import Styles
-from .resources import Topics
-from .resources import UserImages
-from .resources import UserRates
-from .resources import Users
-from .store import NullStore
-from .store import Store
+from .resources import (AbuseRequests, Achievements, Animes, Appears, Bans,
+                        Calendars, Characters, Clubs, Comments, Constants,
+                        Dialogs, Favorites, Forums, Friends, Genres, Mangas,
+                        Messages, People, Publishers, Ranobes, Stats, Studios,
+                        Styles, Topics, UserImages, UserRates, Users)
+from .store import NullStore, Store
 
 RT = TypeVar('RT')
 
@@ -51,7 +26,7 @@ class ShikimoriAPI(Client):
     Also, all API methods splitted up to resources for convinient usage.
     """
 
-    __slots__ = ('achievements', 'animes', 'appears', 'bans', 'calendar',
+    __slots__ = ('achievements', 'animes', 'appears', 'bans', 'calendars',
                  'characters', 'clubs', 'comments', 'constants', 'dialogs',
                  'favorites', 'forums', 'friends', 'genres', 'mangas',
                  'messages', 'people', 'publishers', 'ranobes', 'stats',
@@ -81,21 +56,23 @@ class ShikimoriAPI(Client):
         :type logging: Optional[bool]
         """
         if logging:
-            logger.configure(handlers=[
-                {
-                    'sink': sys.stderr,
-                    'level': 'INFO',
-                    'format': '{time} | {level} | {message}'
-                },
-                {
-                    'sink': 'shikithon_{time}.log',
-                    'level': 'DEBUG',
-                    'format': '{time} | {level} | '
-                              '{file}.{function}: {message}',
-                    'rotation': '5 MB',
-                    'compression': 'zip'
-                },
-            ])
+            logger.configure(handlers=[{
+                'sink':
+                    sys.stdout,
+                'level':
+                    'INFO',
+                'format':
+                    '<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> ' \
+                    '| <blue>{level}</blue> | <level>{message}</level>',
+                'colorize':
+                    True,
+            }, {
+                'sink': 'shikithon_{time}.log',
+                'level': 'DEBUG',
+                'format': '{time} | {level} | {file}.{function}: {message}',
+                'rotation': '5 MB',
+                'compression': 'zip',
+            }])
         if not logging:
             logger.disable('shikithon')
 
@@ -107,7 +84,7 @@ class ShikimoriAPI(Client):
         self.animes = Animes(self)
         self.appears = Appears(self)
         self.bans = Bans(self)
-        self.calendar = Calendar(self)
+        self.calendars = Calendars(self)
         self.characters = Characters(self)
         self.clubs = Clubs(self)
         self.comments = Comments(self)

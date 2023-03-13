@@ -1,9 +1,9 @@
 """Represents /api/friends resource."""
-from typing import Any, Dict, Union
+from loguru import logger
 
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RequestType
-from ..utils import Utils
+from ..exceptions import ShikimoriAPIResponseError
 from .base_resource import BaseResource
 
 
@@ -14,7 +14,8 @@ class Friends(BaseResource):
     """
 
     @method_endpoint('/api/friends/:id')
-    async def create(self, user_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def create(self, user_id: int):
         """Creates (adds) new friend by ID.
 
         :param user_id: ID of a user to create (add)
@@ -23,13 +24,17 @@ class Friends(BaseResource):
         :return: Status of create (addition)
         :rtype: bool
         """
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.friend(user_id),
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response, fallback=False)
+
+        logger.info(response)
+
+        return True
 
     @method_endpoint('/api/friends/:id')
-    async def destroy(self, user_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def destroy(self, user_id: int):
         """Destroys (removes) current friend by ID.
 
         :param user_id: ID of a user to destroy (remove)
@@ -38,7 +43,10 @@ class Friends(BaseResource):
         :return: Status of destroy (removal)
         :rtype: bool
         """
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.friend(user_id),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response, fallback=False)
+
+        logger.info(response)
+
+        return True

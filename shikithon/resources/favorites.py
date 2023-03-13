@@ -1,11 +1,9 @@
 """Represents /api/favorites resource."""
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, cast
 
-from ..decorators import method_endpoint
-from ..enums import FavoriteLinkedType
-from ..enums import PersonKind
-from ..enums import RequestType
-from ..enums import ResponseCode
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import FavoriteLinkedType, PersonKind, RequestType, ResponseCode
+from ..exceptions import ShikimoriAPIResponseError
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -17,43 +15,43 @@ class Favorites(BaseResource):
     """
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id(/:kind)')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
     async def create(self,
-                     linked_type: str,
+                     linked_type: FavoriteLinkedType,
                      linked_id: int,
-                     kind: str = PersonKind.NONE.value) -> bool:
+                     kind: Optional[PersonKind] = None):
         """Creates a favorite.
 
         :param linked_type: Type of object for making favorite
-        :type linked_type: str
+        :type linked_type: FavoriteLinkedType
 
         :param linked_id: ID of linked type
         :type linked_id: int
 
         :param kind: Kind of linked type
             (Required when linked_type is 'Person')
-        :type kind: str
+        :type kind: Optional[PersonKind]
 
         :return: Status of favorite create
         :rtype: bool
         """
-        if not Utils.validate_enum_params({
-                FavoriteLinkedType: linked_type,
-                PersonKind: kind
-        }):
-            return False
+        linked_type_value = str(linked_type)
+        kind_value = None if kind is None else str(kind)
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.favorites_create(linked_type, linked_id,
-                                                    kind),
+        response = await self._client.request(
+            self._client.endpoints.favorites_create(linked_type_value,
+                                                    linked_id, kind_value),
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response, fallback=False)
+
+        return cast(Dict[str, Any], response).get('success') is True
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id')
-    async def destroy(self, linked_type: str, linked_id: int) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def destroy(self, linked_type: FavoriteLinkedType, linked_id: int):
         """Destroys a favorite.
 
         :param linked_type: Type of object for destroying from favorite
-        :type linked_type: str
+        :type linked_type: FavoriteLinkedType
 
         :param linked_id: ID of linked type
         :type linked_id: int
@@ -61,19 +59,25 @@ class Favorites(BaseResource):
         :return: Status of favorite destroy
         :rtype: bool
         """
-        if not Utils.validate_enum_params({FavoriteLinkedType: linked_type}):
-            return False
+        linked_type_value = str(linked_type)
 
-        response: Dict[str, Any] = await self._client.request(
-            self._client.endpoints.favorites_destroy(linked_type, linked_id),
+        response = await self._client.request(
+            self._client.endpoints.favorites_destroy(linked_type_value,
+                                                     linked_id),
             request_type=RequestType.DELETE)
-        return Utils.validate_response_data(response, fallback=False)
+
+        return cast(Dict[str, Any], response).get('success') is True
 
     @method_endpoint('/api/favorites/:id/reorder')
-    async def reorder(self,
-                      favorite_id: int,
-                      new_index: Optional[int] = None) -> bool:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
+    async def reorder(self, favorite_id: int, new_index: Optional[int] = None):
         """Reorders a favorite to the new index.
+
+        This method requires a favorite ID,
+        which cannot be retrieved through the current API methods.
+
+        To get the favorite ID, use DevTools on the favorites page
+        See https://github.com/shikimori/shikimori/issues/2655
 
         :param favorite_id: ID of a favorite to reorder
         :type favorite_id: int
@@ -85,10 +89,12 @@ class Favorites(BaseResource):
         :return: Status of reorder
         :rtype: bool
         """
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        query_dict = Utils.create_query_dict(new_index=new_index)
+
+        response = await self._client.request(
             self._client.endpoints.favorites_reorder(favorite_id),
-            query=Utils.create_query_dict(new_index=new_index),
+            query=query_dict,
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response,
-                                            response_code=ResponseCode.SUCCESS,
-                                            fallback=False)
+
+        return Utils.validate_response_code(cast(int, response),
+                                            check_code=ResponseCode.SUCCESS)

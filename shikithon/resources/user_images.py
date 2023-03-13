@@ -1,8 +1,9 @@
 """Represents /api/user_images resource."""
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, cast
 
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RequestType
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import CreatedUserImage
 from ..utils import Utils
 from .base_resource import BaseResource
@@ -15,10 +16,8 @@ class UserImages(BaseResource):
     """
 
     @method_endpoint('/api/user_images')
-    async def create(
-            self,
-            image_path: str,
-            linked_type: Optional[str] = None) -> Optional[CreatedUserImage]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def create(self, image_path: str, linked_type: Optional[str] = None):
         """Creates an user image.
 
         :param image_path: Path or URL to image to create on server
@@ -31,10 +30,14 @@ class UserImages(BaseResource):
         :rtype: Optional[CreatedUserImage]
         """
         image_data = await Utils.get_image_data(image_path)
-        response: Union[Dict[str, Any], int] = await self._client.request(
+        data_dict = Utils.create_data_dict(image=image_data,
+                                           linked_type=linked_type)
+        form_data = Utils.create_form_data(data_dict)
+
+        response = await self._client.request(
             self._client.endpoints.user_images,
-            data=Utils.create_data_dict(linked_type=linked_type),
-            bytes_data=image_data,
+            form_data=form_data,
             request_type=RequestType.POST)
-        return Utils.validate_response_data(response,
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
                                             data_model=CreatedUserImage)

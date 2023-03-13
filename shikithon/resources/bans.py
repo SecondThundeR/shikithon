@@ -1,7 +1,8 @@
 """Represents /api/bans resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Ban
 from ..utils import Utils
 from .base_resource import BaseResource
@@ -14,9 +15,10 @@ class Bans(BaseResource):
     """
 
     @method_endpoint('/api/bans')
-    async def get(self,
-                  page: Optional[int] = None,
-                  limit: Optional[int] = None) -> List[Ban]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def get_all(self,
+                      page: Optional[int] = None,
+                      limit: Optional[int] = None):
         """Returns list of recent bans on Shikimori.
 
         :param page: Number of page
@@ -28,13 +30,11 @@ class Bans(BaseResource):
         :return: List of recent bans
         :rtype: List[Ban]
         """
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 30],
-        )
+        query_dict = Utils.create_query_dict(page=page, limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.bans_list,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
-        return Utils.validate_response_data(response, data_model=Ban)
+        response = await self._client.request(self._client.endpoints.bans_list,
+                                              query=query_dict)
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Ban)

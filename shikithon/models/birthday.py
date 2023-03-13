@@ -1,4 +1,6 @@
 """Submodel for people.py"""
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -7,7 +9,6 @@ class Birthday(BaseModel):
 
     Used to represent birthday of person.
     """
-
-    day: int
-    month: int
-    year: int
+    day: Optional[int]
+    month: Optional[int]
+    year: Optional[int]

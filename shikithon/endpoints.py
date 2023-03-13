@@ -4,7 +4,7 @@ This module contains Endpoints class, which
 contains all endpoints for API and can form
 customized endpoints via input parameters.
 """
-from typing import Union
+from typing import Optional, Union
 
 from .utils import Utils
 
@@ -111,7 +111,7 @@ class Endpoints:
                            scopes: str) -> str:
         """Returns link for getting authorization code.
 
-        **Note:** Since you need to pass a captcha to log in to Shikimori,
+        Since you need to pass a captcha to log in to Shikimori,
         there is no automatic authorization method.
         So, the user needs to pass the authorization code manually
 
@@ -166,7 +166,7 @@ class Endpoints:
     def abuse_violation(self) -> str:
         """Returns endpoint for creating request about violation of site rules.
 
-        **Note:** In Shikimori API docs, this endpoint also named as
+        In Shikimori API docs, this endpoint also named as
         '/api/v2/abuse_requests/**abuse**'
 
         :return: Abuse violation endpoint link
@@ -570,7 +570,7 @@ class Endpoints:
     def episode_notifications(self) -> str:
         """Returns endpoint for notifying Shikimori about anime episode release.
 
-        **Note:** To use this endpoint, you need special private token,
+        To use this endpoint, you need special private token,
         required to access this API
 
         :return: Episode notifications endpoint link
@@ -579,7 +579,7 @@ class Endpoints:
         return f'{self.base_url_v2}/episode_notifications'
 
     def favorites_create(self, linked_type: str, linked_id: int,
-                         kind: str) -> str:
+                         kind: Optional[str]) -> str:
         """Returns endpoint for creating some type
         of object as favorite
 
@@ -591,13 +591,14 @@ class Endpoints:
 
         :param kind: Kind of linked object
             (Required when linked_type is 'Person')
-        :type kind: str
+        :type kind: Optional[str]
 
         :return: Favorite create endpoint link
         :rtype: str
         """
         return f'{self.base_url}/favorites/' \
-               f'{linked_type}/{linked_id}/{kind}'
+               f'{linked_type}/{linked_id}' \
+               f'{"" if not kind else f"/{kind}"}'
 
     def favorites_destroy(self, linked_type: str, linked_id: int) -> str:
         """Returns endpoint for destroying some type
@@ -1207,7 +1208,7 @@ class Endpoints:
     def user_rates_cleanup(self, user_rate_type: str) -> str:
         """Returns endpoint for cleanup user rates by type.
 
-        **Note:** This endpoint is using API v.1
+        This endpoint is using API v.1
 
         :param user_rate_type: Type of an user rate
         :type user_rate_type: str
@@ -1220,7 +1221,7 @@ class Endpoints:
     def user_rates_reset(self, user_rate_type: str) -> str:
         """Returns endpoint for resetting user rates by type.
 
-        **Note:** This endpoint is using API v.1
+        This endpoint is using API v.1
 
         :param user_rate_type: Type of an user rate
         :type user_rate_type: str
