@@ -2,8 +2,8 @@
 from typing import Any, Dict, List, Optional, Union, cast
 
 from ..decorators import exceptions_handler, method_endpoint
-from ..enums import (AnimeCensorship, AnimeList, HistoryTargetType,
-                     MessageType, RequestType)
+from ..enums import (AnimeCensorship, AnimeList, HistoryTargetType, MessageType,
+                     RequestType)
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import (Ban, Club, Favourites, History, Message, UnreadMessages,
                       User, UserList)
