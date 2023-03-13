@@ -7,11 +7,9 @@ to work with the library
 """
 
 import imghdr
-from typing import Any, Dict, List, Optional, overload, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union, overload
 
-from aiohttp import ClientResponse
-from aiohttp import ClientSession
-from aiohttp import FormData
+from aiohttp import ClientResponse, ClientSession, FormData
 from loguru import logger
 from pydantic import BaseModel
 from validators import url

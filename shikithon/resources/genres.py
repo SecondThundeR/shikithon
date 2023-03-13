@@ -1,8 +1,7 @@
 """Represents /api/genres resource."""
-from typing import Any, cast, Dict, List
+from typing import Any, Dict, List, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Genre
 from ..utils import Utils

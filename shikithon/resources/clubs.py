@@ -1,23 +1,11 @@
 """Represents /api/clubs resource."""
-from typing import Any, cast, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import CommentPolicy
-from ..enums import ImageUploadPolicy
-from ..enums import JoinPolicy
-from ..enums import PagePolicy
-from ..enums import RequestType
-from ..enums import ResponseCode
-from ..enums import TopicPolicy
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import (CommentPolicy, ImageUploadPolicy, JoinPolicy, PagePolicy,
+                     RequestType, ResponseCode, TopicPolicy)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import Anime
-from ..models import Character
-from ..models import Club
-from ..models import ClubImage
-from ..models import Manga
-from ..models import Ranobe
-from ..models import User
+from ..models import Anime, Character, Club, ClubImage, Manga, Ranobe, User
 from ..utils import Utils
 from .base_resource import BaseResource
 

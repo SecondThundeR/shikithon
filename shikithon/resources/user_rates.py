@@ -1,15 +1,11 @@
 """Represents /api/user_rates and /api/v2/user_rates resource."""
-from typing import Any, cast, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from loguru import logger
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import RequestType
-from ..enums import ResponseCode
-from ..enums import UserRateStatus
-from ..enums import UserRateTarget
-from ..enums import UserRateType
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import (RequestType, ResponseCode, UserRateStatus, UserRateTarget,
+                     UserRateType)
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import UserRate
 from ..utils import Utils

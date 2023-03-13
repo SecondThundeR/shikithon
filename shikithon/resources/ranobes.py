@@ -1,19 +1,10 @@
 """Represents /api/ranobes resource."""
-from typing import Any, cast, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import RanobeCensorship
-from ..enums import RanobeList
-from ..enums import RanobeOrder
-from ..enums import RanobeStatus
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import RanobeCensorship, RanobeList, RanobeOrder, RanobeStatus
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree
-from ..models import Link
-from ..models import Ranobe
-from ..models import Relation
-from ..models import Role
-from ..models import Topic
+from ..models import FranchiseTree, Link, Ranobe, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 

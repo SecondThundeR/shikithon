@@ -1,13 +1,10 @@
 """Represents /api/comments resource."""
-from typing import Any, cast, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from loguru import logger
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import CommentableCreateType
-from ..enums import CommentableType
-from ..enums import RequestType
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import CommentableCreateType, CommentableType, RequestType
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Comment
 from ..utils import Utils

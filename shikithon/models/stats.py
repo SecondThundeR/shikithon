@@ -1,8 +1,7 @@
 """Submodel for user.py"""
 from typing import Dict, List, Optional, Union
 
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from .activity import Activity
 from .genre import Genre

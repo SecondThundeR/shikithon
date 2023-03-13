@@ -1,8 +1,7 @@
 """Represents /api/stats resource."""
-from typing import cast, List
+from typing import List, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
 from ..exceptions import ShikimoriAPIResponseError
 from .base_resource import BaseResource
 

@@ -1,11 +1,8 @@
 """Represents /api/messages resource."""
-from typing import Any, cast, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import MessageType
-from ..enums import RequestType
-from ..enums import ResponseCode
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import MessageType, RequestType, ResponseCode
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Message
 from ..utils import Utils

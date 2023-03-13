@@ -1,14 +1,10 @@
 """Represents /api/constants resource."""
-from typing import Any, cast, Dict, List
+from typing import Any, Dict, List, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import AnimeConstants
-from ..models import ClubConstants
-from ..models import MangaConstants
-from ..models import SmileyConstants
-from ..models import UserRateConstants
+from ..models import (AnimeConstants, ClubConstants, MangaConstants,
+                      SmileyConstants, UserRateConstants)
 from ..utils import Utils
 from .base_resource import BaseResource
 

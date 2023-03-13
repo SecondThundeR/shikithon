@@ -1,8 +1,7 @@
 """Represents /api/friends resource."""
 from loguru import logger
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RequestType
 from ..exceptions import ShikimoriAPIResponseError
 from .base_resource import BaseResource

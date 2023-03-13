@@ -1,14 +1,10 @@
 """Represents /api/topics and /api/v2/topics resource."""
-from typing import Any, cast, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from loguru import logger
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import RequestType
-from ..enums import TopicForumType
-from ..enums import TopicLinkedType
-from ..enums import TopicType
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import RequestType, TopicForumType, TopicLinkedType, TopicType
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import Topic
 from ..utils import Utils

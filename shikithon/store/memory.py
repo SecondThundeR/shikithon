@@ -2,10 +2,7 @@
 from typing import Optional
 
 from ..exceptions import StoreException
-from .base import ConfigsDict
-from .base import ReturnConfig
-from .base import Store
-from .base import Token
+from .base import ConfigsDict, ReturnConfig, Store, Token
 
 
 class MemoryStore(Store):

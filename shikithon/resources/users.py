@@ -1,22 +1,12 @@
 """Represents /api/users and /api/v2/users resource."""
-from typing import Any, cast, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import AnimeCensorship
-from ..enums import AnimeList
-from ..enums import HistoryTargetType
-from ..enums import MessageType
-from ..enums import RequestType
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import (AnimeCensorship, AnimeList, HistoryTargetType,
+                     MessageType, RequestType)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import Ban
-from ..models import Club
-from ..models import Favourites
-from ..models import History
-from ..models import Message
-from ..models import UnreadMessages
-from ..models import User
-from ..models import UserList
+from ..models import (Ban, Club, Favourites, History, Message, UnreadMessages,
+                      User, UserList)
 from ..utils import Utils
 from .base_resource import BaseResource
 

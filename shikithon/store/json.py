@@ -1,11 +1,9 @@
 """JSON based config store class."""
-from json import dumps
-from json import loads
+from json import dumps, loads
 from os.path import exists
 from typing import Optional
 
-from .base import ConfigsDict
-from .base import Store
+from .base import ConfigsDict, Store
 from .memory import MemoryStore
 
 

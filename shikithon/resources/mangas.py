@@ -1,20 +1,11 @@
 """Represents /api/mangas resource."""
-from typing import Any, cast, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import MangaCensorship
-from ..enums import MangaKind
-from ..enums import MangaList
-from ..enums import MangaOrder
-from ..enums import MangaStatus
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import (MangaCensorship, MangaKind, MangaList, MangaOrder,
+                     MangaStatus)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree
-from ..models import Link
-from ..models import Manga
-from ..models import Relation
-from ..models import Role
-from ..models import Topic
+from ..models import FranchiseTree, Link, Manga, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 

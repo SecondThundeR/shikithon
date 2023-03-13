@@ -1,10 +1,8 @@
 """Represents /api/appears resource."""
 from typing import cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import RequestType
-from ..enums import ResponseCode
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import RequestType, ResponseCode
 from ..exceptions import ShikimoriAPIResponseError
 from ..utils import Utils
 from .base_resource import BaseResource

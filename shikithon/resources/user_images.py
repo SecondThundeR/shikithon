@@ -1,8 +1,7 @@
 """Represents /api/user_images resource."""
-from typing import Any, cast, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RequestType
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import CreatedUserImage

@@ -1,8 +1,7 @@
 """Model for /api/mangas"""
 from typing import List, Optional
 
-from pydantic import BaseModel
-from pydantic import validator
+from pydantic import BaseModel, validator
 
 from .genre import Genre
 from .image import Image

@@ -1,12 +1,8 @@
 """Represents /api/favorites resource."""
-from typing import Any, cast, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
-from ..enums import FavoriteLinkedType
-from ..enums import PersonKind
-from ..enums import RequestType
-from ..enums import ResponseCode
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import FavoriteLinkedType, PersonKind, RequestType, ResponseCode
 from ..exceptions import ShikimoriAPIResponseError
 from ..utils import Utils
 from .base_resource import BaseResource

@@ -1,14 +1,12 @@
 """Represents /api/dialogs resource."""
-from typing import Any, cast, Dict, List, Union
+from typing import Any, Dict, List, Union, cast
 
 from loguru import logger
 
-from ..decorators import exceptions_handler
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RequestType
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import Dialog
-from ..models import Message
+from ..models import Dialog, Message
 from ..utils import Utils
 from .base_resource import BaseResource
 

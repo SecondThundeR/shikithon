@@ -1,8 +1,7 @@
 """Dummy config store class."""
 from typing import Optional
 
-from .base import ReturnConfig
-from .base import Store
+from .base import ReturnConfig, Store
 
 
 class NullStore(Store):

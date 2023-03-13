@@ -9,11 +9,8 @@ from .character import Character
 from .club import Club
 from .club_image import ClubImage
 from .comment import Comment
-from .constants import AnimeConstants
-from .constants import ClubConstants
-from .constants import MangaConstants
-from .constants import SmileyConstants
-from .constants import UserRateConstants
+from .constants import (AnimeConstants, ClubConstants, MangaConstants,
+                        SmileyConstants, UserRateConstants)
 from .created_user_image import CreatedUserImage
 from .dialog import Dialog
 from .favourites import Favourites

@@ -4,29 +4,20 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 from time import time
-from typing import (Any, AsyncIterator, Awaitable, cast, Dict, List, Optional,
-                    TypedDict, TypeVar, Union)
+from typing import (Any, AsyncIterator, Awaitable, Dict, List, Optional,
+                    TypedDict, TypeVar, Union, cast)
 
-from aiohttp import ClientSession
-from aiohttp import ContentTypeError
-from aiohttp import FormData
 import backoff
+from aiohttp import ClientSession, ContentTypeError, FormData
 from loguru import logger
-from pyrate_limiter import Duration
-from pyrate_limiter import Limiter
-from pyrate_limiter import RequestRate
+from pyrate_limiter import Duration, Limiter, RequestRate
 
 from .endpoints import Endpoints
-from .enums import RequestType
-from .enums import ResponseCode
-from .exceptions import AlreadyRunningClient
-from .exceptions import InvalidContentType
-from .exceptions import MissingAppVariable
-from .exceptions import RetryLater
-from .exceptions import ShikimoriAPIResponseError
-from .exceptions import ShikithonException
-from .store import NullStore
-from .store import Store
+from .enums import RequestType, ResponseCode
+from .exceptions import (AlreadyRunningClient, InvalidContentType,
+                         MissingAppVariable, RetryLater,
+                         ShikimoriAPIResponseError, ShikithonException)
+from .store import NullStore, Store
 from .utils import Utils
 
 MAX_CALLS_PER_SECOND = 5
