@@ -1,5 +1,5 @@
 """Submodel for stats.py"""
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -8,5 +8,5 @@ from .type import Type
 
 class TypeList(BaseModel):
     """Represents types collection of anime/manga."""
-    anime: Optional[List[Type]]
-    manga: Optional[List[Type]]
+    anime: List[Type]
+    manga: List[Type]

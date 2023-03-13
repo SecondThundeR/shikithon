@@ -1,8 +1,7 @@
 """Model for /api/mangas"""
 from typing import List, Optional
 
-from pydantic import BaseModel
-from pydantic import validator
+from pydantic import BaseModel, validator
 
 from .genre import Genre
 from .image import Image
@@ -53,5 +52,6 @@ class Manga(BaseModel):
     @validator('kind')
     def kind_validator(cls, v):
         if v not in MANGAS_KIND:
-            raise ValueError(f'Invalid kind. Got {v}')
+            raise ValueError(f'Invalid manga kind. Got "{v}"'
+                             f' but expected one of {MANGAS_KIND}')
         return v

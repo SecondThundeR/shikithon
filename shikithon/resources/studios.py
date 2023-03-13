@@ -1,7 +1,8 @@
 """Represents /api/studios resource."""
-from typing import Any, Dict, List
+from typing import Any, Dict, List, cast
 
-from ..decorators import method_endpoint
+from ..decorators import exceptions_handler, method_endpoint
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Studio
 from ..utils import Utils
 from .base_resource import BaseResource
@@ -14,14 +15,15 @@ class Studios(BaseResource):
     """
 
     @method_endpoint('/api/studios')
-    async def get(self) -> List[Studio]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def get_all(self):
         """Returns list of studios.
 
         :return: List of studios
         :rtype: List[Studio]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.studios)
-        return Utils.validate_response_data(response,
-                                            data_model=Studio,
-                                            fallback=[])
+        response = await self._client.request(self._client.endpoints.studios)
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Studio)

@@ -1,7 +1,27 @@
 """Base classes for config store."""
-from __future__ import annotations
+from typing import Dict, List, Optional, TypedDict
 
-from typing import Any, Dict, Optional
+
+class Token(TypedDict, total=False):
+    scopes: str
+    access_token: str
+    refresh_token: Optional[str]
+    token_expire_at: Optional[int]
+    auth_code: Optional[str]
+
+
+class Config(TypedDict, total=False):
+    client_id: str
+    client_secret: str
+    redirect_uri: str
+    tokens: List[Token]
+
+
+class ReturnConfig(Config):
+    app_name: str
+
+
+ConfigsDict = Dict[str, Config]
 
 
 class Store:
@@ -12,11 +32,11 @@ class Store:
 
     __slots__ = ('_closed',)
 
-    def __init__(self) -> None:
+    def __init__(self):
         self._closed = True
 
     @property
-    def closed(self) -> bool:
+    def closed(self):
         """Returns close status of store.
 
         :return: True if store is closed, False otherwise
@@ -33,7 +53,7 @@ class Store:
                           access_token: str,
                           refresh_token: Optional[str] = None,
                           token_expire_at: Optional[int] = None,
-                          auth_code: Optional[str] = None) -> None:
+                          auth_code: Optional[str] = None):
         """Saves config using the method of the selected store class.
 
         :param app_name: Application name
@@ -66,7 +86,7 @@ class Store:
         raise NotImplementedError
 
     async def fetch_by_access_token(
-            self, app_name: str, access_token: str) -> Optional[Dict[str, Any]]:
+            self, app_name: str, access_token: str) -> Optional[ReturnConfig]:
         """Fetches config by access token.
 
         :param app_name: Application name
@@ -76,12 +96,12 @@ class Store:
         :type access_token: str
 
         :return: Config dictionary
-        :rtype: Optional[Dict[str, Any]]
+        :rtype: Optional[ReturnConfig]
         """
         raise NotImplementedError
 
     async def fetch_by_auth_code(self, app_name: str,
-                                 auth_code: str) -> Optional[Dict[str, Any]]:
+                                 auth_code: str) -> Optional[ReturnConfig]:
         """Fetches config by auth code.
 
         :param app_name: Application name
@@ -91,11 +111,11 @@ class Store:
         :type auth_code: str
 
         :return: Config dictionary
-        :rtype: Optional[Dict[str, Any]]
+        :rtype: Optional[ReturnConfig]
         """
         raise NotImplementedError
 
-    async def delete_token(self, app_name: str, access_token: str) -> None:
+    async def delete_token(self, app_name: str, access_token: str):
         """Deletes token from config.
 
         :param app_name: Application name
@@ -106,7 +126,7 @@ class Store:
         """
         raise NotImplementedError
 
-    async def delete_all_tokens(self, app_name: str) -> None:
+    async def delete_all_tokens(self, app_name: str):
         """Deletes all tokens from config.
 
         :param app_name: Application name
@@ -114,8 +134,8 @@ class Store:
         """
         raise NotImplementedError
 
-    async def open(self) -> Store:
-        """Opens store and return self.
+    async def open(self):
+        """Opens store and returns self.
 
         :return: Store instance
         :rtype: Store
@@ -123,11 +143,11 @@ class Store:
         self._closed = False
         return self
 
-    async def close(self) -> None:
+    async def close(self):
         """Closes store."""
         self._closed = True
 
-    async def __aenter__(self) -> Store:
+    async def __aenter__(self):
         """Async context manager entry point.
 
         :return: Store instance
@@ -135,39 +155,6 @@ class Store:
         """
         return await self.open()
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args):
         """Async context manager exit point."""
         await self.close()
-
-
-class NullStore(Store):
-    """Dummy store with an empty implementation of an abstract store class.
-
-    This store is used when no store is provided to the client.
-    """
-
-    async def save_config(self,
-                          app_name: str,
-                          client_id: str,
-                          client_secret: str,
-                          redirect_uri: str,
-                          scopes: str,
-                          access_token: str,
-                          refresh_token: Optional[str] = None,
-                          token_expire_at: Optional[int] = None,
-                          auth_code: Optional[str] = None) -> None:
-        pass
-
-    async def fetch_by_access_token(
-            self, app_name: str, access_token: str) -> Optional[Dict[str, Any]]:
-        pass
-
-    async def fetch_by_auth_code(self, app_name: str,
-                                 auth_code: str) -> Optional[Dict[str, Any]]:
-        pass
-
-    async def delete_token(self, app_name: str, access_token: str) -> None:
-        pass
-
-    async def delete_all_tokens(self, app_name: str) -> None:
-        pass

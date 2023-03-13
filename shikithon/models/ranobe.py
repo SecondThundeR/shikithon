@@ -1,8 +1,7 @@
 """Model for /api/ranobe"""
 from typing import List, Optional
 
-from pydantic import BaseModel
-from pydantic import validator
+from pydantic import BaseModel, validator
 
 from .genre import Genre
 from .image import Image
@@ -26,9 +25,9 @@ class Ranobe(BaseModel):
     chapters: int
     aired_on: Optional[str]
     released_on: Optional[str]
-    english: Optional[List[str]]
-    japanese: Optional[List[str]]
-    synonyms: Optional[List[str]]
+    english: Optional[List[Optional[str]]]
+    japanese: Optional[List[Optional[str]]]
+    synonyms: Optional[List[Optional[str]]]
     license_name_ru: Optional[str]
     description: Optional[str]
     description_html: Optional[str]
@@ -51,5 +50,6 @@ class Ranobe(BaseModel):
     @validator('kind')
     def kind_validator(cls, v):
         if 'novel' not in v:
-            raise ValueError(f'Invalid kind. Got {v}')
+            raise ValueError(f'Invalid kind. Got {v}'
+                             f' but expected kind, containing "novel"')
         return v

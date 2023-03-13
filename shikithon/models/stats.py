@@ -1,8 +1,7 @@
 """Submodel for user.py"""
 from typing import Dict, List, Optional, Union
 
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from .activity import Activity
 from .genre import Genre
@@ -23,7 +22,7 @@ class Stats(BaseModel):
     ratings: Optional[RatingList]
     has_anime: Optional[bool] = Field(alias='has_anime?')
     has_manga: Optional[bool] = Field(alias='has_manga?')
-    genres: Optional[List[Genre]]
-    studios: Optional[List[Studio]]
-    publishers: Optional[List[Publisher]]
+    genres: List[Genre]
+    studios: List[Studio]
+    publishers: List[Publisher]
     activity: Optional[Union[List[Activity], Dict]]

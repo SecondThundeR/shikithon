@@ -1,5 +1,5 @@
 """Model for /api/users/:id/favorites"""
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -8,11 +8,11 @@ from .favourite import Favourite
 
 class Favourites(BaseModel):
     """Represents collection of favourites by category."""
-    animes: List[Optional[Favourite]]
-    mangas: List[Optional[Favourite]]
-    ranobe: List[Optional[Favourite]]
-    characters: List[Optional[Favourite]]
-    people: List[Optional[Favourite]]
-    mangakas: List[Optional[Favourite]]
-    seyu: List[Optional[Favourite]]
-    producers: List[Optional[Favourite]]
+    animes: List[Favourite]
+    mangas: List[Favourite]
+    ranobe: List[Favourite]
+    characters: List[Favourite]
+    people: List[Favourite]
+    mangakas: List[Favourite]
+    seyu: List[Favourite]
+    producers: List[Favourite]

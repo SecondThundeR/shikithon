@@ -1,8 +1,9 @@
 """Represents /api/people resource."""
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
-from ..decorators import method_endpoint
-from ..enums import PersonKind
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import PersonSearchKind
+from ..exceptions import ShikimoriAPIResponseError
 from ..models import Person
 from ..utils import Utils
 from .base_resource import BaseResource
@@ -15,7 +16,8 @@ class People(BaseResource):
     """
 
     @method_endpoint('/api/people/:id')
-    async def get(self, people_id: int) -> Optional[Person]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def get(self, people_id: int):
         """Returns info about a person.
 
         :param people_id: ID of person to get info
@@ -24,34 +26,33 @@ class People(BaseResource):
         :return: Info about a person
         :rtype: Optional[Person]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.people(people_id))
-        return Utils.validate_response_data(response, data_model=Person)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Person)
 
     @method_endpoint('/api/people/search')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def search(self,
                      search: Optional[str] = None,
-                     people_kind: Optional[str] = None) -> List[Person]:
+                     people_kind: Optional[PersonSearchKind] = None):
         """Returns list of found persons.
 
-        **Note:** This API method only allows 'seyu',
-        'mangaka' or 'producer' as kind parameter
-
-        :param search:  Search query for persons
+        :param search: Search query for persons
         :type search: Optional[str]
 
         :param people_kind: Kind of person for searching
-        :type people_kind: Optional[str]
+        :type people_kind: Optional[PersonSearchKind]
 
         :return: List of found persons
         :rtype: List[Person]
         """
-        if not Utils.validate_enum_params({PersonKind: people_kind}):
-            return []
+        query_dict = Utils.create_query_dict(search=search, kind=people_kind)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.people_search,
-            query=Utils.create_query_dict(search=search, kind=people_kind))
-        return Utils.validate_response_data(response,
-                                            data_model=Person,
-                                            fallback=[])
+        response = await self._client.request(
+            self._client.endpoints.people_search, query=query_dict)
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Person)

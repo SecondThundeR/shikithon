@@ -1,17 +1,10 @@
 """Represents /api/ranobes resource."""
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
-from ..decorators import method_endpoint
-from ..enums import RanobeCensorship
-from ..enums import RanobeList
-from ..enums import RanobeOrder
-from ..enums import RanobeStatus
-from ..models import Creator
-from ..models import FranchiseTree
-from ..models import Link
-from ..models import Ranobe
-from ..models import Relation
-from ..models import Topic
+from ..decorators import exceptions_handler, method_endpoint
+from ..enums import RanobeCensorship, RanobeList, RanobeOrder, RanobeStatus
+from ..exceptions import ShikimoriAPIResponseError
+from ..models import FranchiseTree, Link, Ranobe, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -23,21 +16,24 @@ class Ranobes(BaseResource):
     """
 
     @method_endpoint('/api/ranobe')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def get_all(self,
                       page: Optional[int] = None,
                       limit: Optional[int] = None,
-                      order: Optional[str] = None,
-                      status: Optional[Union[str, List[str]]] = None,
+                      order: Optional[RanobeOrder] = None,
+                      status: Optional[Union[RanobeStatus,
+                                             List[RanobeStatus]]] = None,
                       season: Optional[Union[str, List[str]]] = None,
                       score: Optional[int] = None,
                       genre: Optional[Union[int, List[int]]] = None,
                       publisher: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
-                      censored: Optional[str] = None,
-                      my_list: Optional[Union[str, List[str]]] = None,
+                      censored: Optional[RanobeCensorship] = None,
+                      my_list: Optional[Union[RanobeList,
+                                              List[RanobeList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
-                      search: Optional[str] = None) -> List[Ranobe]:
+                      search: Optional[str] = None):
         """Returns ranobe list.
 
         :param page: Number of page
@@ -47,10 +43,10 @@ class Ranobes(BaseResource):
         :type limit: Optional[int]
 
         :param order: Type of order in list
-        :type order: Optional[str]
+        :type order: Optional[RanobeOrder]
 
         :param status: Type(s) of ranobe status
-        :type status: Optional[Union[str, List[str]]]
+        :type status: Optional[Union[RanobeStatus, List[RanobeStatus]]]
 
         :param season: Name(s) of ranobe seasons
         :type season: Optional[Union[str, List[str]]]
@@ -68,12 +64,12 @@ class Ranobes(BaseResource):
         :type franchise: Optional[Union[int, List[int]]
 
         :param censored: Type of ranobe censorship
-        :type censored: Optional[str]
+        :type censored: Optional[RanobeCensorship]
 
         :param my_list: Status(-es) of ranobe in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[str, List[str]]]
+        :type my_list: Optional[Union[RanobeList, List[RanobeList]]]
 
         :param ids: Ranobe(s) ID to include
         :type ids: Optional[Union[int, List[int]]
@@ -87,40 +83,31 @@ class Ranobes(BaseResource):
         :return: List of Ranobe
         :rtype: List[Ranobe]
         """
-        if not Utils.validate_enum_params({
-                RanobeOrder: order,
-                RanobeStatus: status,
-                RanobeList: my_list,
-                RanobeCensorship: censored
-        }):
-            return []
+        query_dict = Utils.create_query_dict(page=page,
+                                             limit=limit,
+                                             order=order,
+                                             status=status,
+                                             season=season,
+                                             score=score,
+                                             genre=genre,
+                                             publisher=publisher,
+                                             franchise=franchise,
+                                             censored=censored,
+                                             mylist=my_list,
+                                             ids=ids,
+                                             exclude_ids=exclude_ids,
+                                             search=search)
 
-        validated_numbers = Utils.query_numbers_validator(page=[page, 100000],
-                                                          limit=[limit, 50],
-                                                          score=[score, 9])
+        response = await self._client.request(self._client.endpoints.ranobes,
+                                              query=query_dict)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.ranobes,
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit'],
-                                          order=order,
-                                          status=status,
-                                          season=season,
-                                          score=validated_numbers['score'],
-                                          genre=genre,
-                                          publisher=publisher,
-                                          franchise=franchise,
-                                          censored=censored,
-                                          mylist=my_list,
-                                          ids=ids,
-                                          exclude_ids=exclude_ids,
-                                          search=search))
-        return Utils.validate_response_data(response,
-                                            data_model=Ranobe,
-                                            fallback=[])
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Ranobe)
 
     @method_endpoint('/api/ranobe/:id')
-    async def get(self, ranobe_id: int) -> Optional[Ranobe]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def get(self, ranobe_id: int):
         """Returns info about certain ranobe.
 
         :param ranobe_id: Ranobe ID to get info
@@ -129,28 +116,33 @@ class Ranobes(BaseResource):
         :return: Ranobe info
         :rtype: Optional[Ranobe]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe(ranobe_id))
-        return Utils.validate_response_data(response, data_model=Ranobe)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=Ranobe)
 
     @method_endpoint('/api/ranobe/:id/roles')
-    async def creators(self, ranobe_id: int) -> List[Creator]:
-        """Returns creators info of certain ranobe.
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def roles(self, ranobe_id: int):
+        """Returns roles info of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get creators
         :type ranobe_id: int
 
-        :return: List of ranobe creators
-        :rtype: List[Creator]
+        :return: List of ranobe roles
+        :rtype: List[Role]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe_roles(ranobe_id))
-        return Utils.validate_response_data(response,
-                                            data_model=Creator,
-                                            fallback=[])
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Role)
 
     @method_endpoint('/api/ranobe/:id/similar')
-    async def similar(self, ranobe_id: int) -> List[Ranobe]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def similar(self, ranobe_id: int):
         """Returns list of similar ranobes for certain ranobe.
 
         :param ranobe_id: Ranobe ID to get similar ranobes
@@ -159,14 +151,16 @@ class Ranobes(BaseResource):
         :return: List of similar ranobes
         :rtype: List[Ranobe]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.similar_ranobes(ranobe_id))
-        return Utils.validate_response_data(response,
-                                            data_model=Ranobe,
-                                            fallback=[])
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Ranobe)
 
     @method_endpoint('/api/ranobe/:id/related')
-    async def related_content(self, ranobe_id: int) -> List[Relation]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def related(self, ranobe_id: int):
         """Returns list of related content of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get related content
@@ -175,14 +169,16 @@ class Ranobes(BaseResource):
         :return: List of relations
         :rtype: List[Relation]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe_related_content(ranobe_id))
-        return Utils.validate_response_data(response,
-                                            data_model=Relation,
-                                            fallback=[])
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Relation)
 
     @method_endpoint('/api/ranobe/:id/franchise')
-    async def franchise_tree(self, ranobe_id: int) -> Optional[FranchiseTree]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
+    async def franchise(self, ranobe_id: int):
         """Returns franchise tree of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get franchise tree
@@ -191,12 +187,15 @@ class Ranobes(BaseResource):
         :return: Franchise tree of certain ranobe
         :rtype: Optional[FranchiseTree]
         """
-        response: Dict[str, Any] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe_franchise_tree(ranobe_id))
-        return Utils.validate_response_data(response, data_model=FranchiseTree)
+
+        return Utils.validate_response_data(cast(Dict[str, Any], response),
+                                            data_model=FranchiseTree)
 
     @method_endpoint('/api/ranobe/:id/external_links')
-    async def external_links(self, ranobe_id: int) -> List[Link]:
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
+    async def external_links(self, ranobe_id: int):
         """Returns list of external links of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get external links
@@ -205,17 +204,19 @@ class Ranobes(BaseResource):
         :return: List of external links
         :rtype: List[Link]
         """
-        response: List[Dict[str, Any]] = await self._client.request(
+        response = await self._client.request(
             self._client.endpoints.ranobe_external_links(ranobe_id))
-        return Utils.validate_response_data(response,
-                                            data_model=Link,
-                                            fallback=[])
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Link)
 
     @method_endpoint('/api/ranobe/:id/topics')
+    @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def topics(self,
                      ranobe_id: int,
                      page: Optional[int] = None,
-                     limit: Optional[int] = None) -> List[Topic]:
+                     limit: Optional[int] = None):
         """Returns list of topics of certain ranobe.
 
         :param ranobe_id: Ranobe ID to get topics
@@ -230,15 +231,11 @@ class Ranobes(BaseResource):
         :return: List of topics
         :rtype: List[Topic]
         """
-        validated_numbers = Utils.query_numbers_validator(
-            page=[page, 100000],
-            limit=[limit, 30],
-        )
+        query_dict = Utils.create_query_dict(page=page, limit=limit)
 
-        response: List[Dict[str, Any]] = await self._client.request(
-            self._client.endpoints.ranobe_topics(ranobe_id),
-            query=Utils.create_query_dict(page=validated_numbers['page'],
-                                          limit=validated_numbers['limit']))
-        return Utils.validate_response_data(response,
-                                            data_model=Topic,
-                                            fallback=[])
+        response = await self._client.request(
+            self._client.endpoints.ranobe_topics(ranobe_id), query=query_dict)
+
+        return Utils.validate_response_data(cast(List[Dict[str, Any]],
+                                                 response),
+                                            data_model=Topic)
