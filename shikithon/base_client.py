@@ -120,8 +120,8 @@ class Client:
 
         if app_name is None:
             self._session.headers.pop('User-Agent', None)
-        else:
-            self._session.headers.update({'User-Agent': app_name})
+            return
+        self._session.headers.update({'User-Agent': app_name})
 
     user_agent = property(fset=_set_user_agent)
 
@@ -136,9 +136,9 @@ class Client:
 
         if access_token is None:
             self._session.headers.pop('Authorization', None)
-        else:
-            self._session.headers.update(
-                {'Authorization': 'Bearer ' + access_token})
+            return
+        self._session.headers.update(
+            {'Authorization': 'Bearer ' + access_token})
 
     authorization_header = property(fset=_set_authorization_header)
 
