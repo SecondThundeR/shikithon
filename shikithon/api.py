@@ -37,7 +37,7 @@ class ShikimoriAPI(Client):
                  app_name: str = 'Api Test',
                  store: Store = NullStore(),
                  auto_close_store: bool = True,
-                 logging: Optional[bool] = True):
+                 logging: Optional[bool] = False):
         """Shikimori API class initialization.
 
         This magic method inits client and all resources
