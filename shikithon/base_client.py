@@ -115,7 +115,7 @@ class Client:
         :param app_name: OAuth App name
         :type app_name: Optional[str]
         """
-        if self.closed or self._session is None:
+        if self._session is None:
             return
 
         if app_name is None:
@@ -131,7 +131,7 @@ class Client:
         :param access_token: Access token
         :type access_token: Optional[str]
         """
-        if self.closed or self._session is None:
+        if self._session is None:
             return
 
         if access_token is None:
