@@ -23,7 +23,7 @@ repos:
         types: [ python ]
         additional_dependencies: [ toml ]
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.17.0
+    rev: v2.17.1
     hooks:
       - id: pylint
         name: Checking code with pylint
