@@ -23,9 +23,9 @@ from .utils import Utils
 MAX_CALLS_PER_SECOND = 5
 MAX_CALLS_PER_MINUTE = 90
 
-SHIKIMORI_API_URL = 'https://shikimori.one/api'
-SHIKIMORI_API_URL_V2 = 'https://shikimori.one/api/v2'
-SHIKIMORI_OAUTH_URL = 'https://shikimori.one/oauth'
+SHIKIMORI_API_URL = 'https://shikimori.me/api'
+SHIKIMORI_API_URL_V2 = 'https://shikimori.me/api/v2'
+SHIKIMORI_OAUTH_URL = 'https://shikimori.me/oauth'
 DEFAULT_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 RT = TypeVar('RT')
