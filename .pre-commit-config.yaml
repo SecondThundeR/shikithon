@@ -19,18 +19,24 @@ repos:
         name: Formatting files with yapf
         language: python
         entry: yapf
-        args: [ "-i", "-vv", "--style={based_on_style: google}" ]
-        types: [ python ]
-        additional_dependencies: [ toml ]
+        args: ["-i", "-vv", "--style={based_on_style: google}"]
+        types: [python]
+        additional_dependencies: [toml]
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.17.1
+    rev: v2.17.2
     hooks:
       - id: pylint
         name: Checking code with pylint
         language: python
         entry: pylint
-        args: [ "-rn", "-sn", "--rcfile=.pylintrc", "--load-plugins=pylint.extensions.docparams" ]
-        types: [ python ]
+        args:
+          [
+            "-rn",
+            "-sn",
+            "--rcfile=.pylintrc",
+            "--load-plugins=pylint.extensions.docparams",
+          ]
+        types: [python]
   - repo: meta
     hooks:
       - id: check-hooks-apply
