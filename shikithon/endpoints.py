@@ -428,6 +428,28 @@ class Endpoints:
         """
         return f'{self.club(club_id)}/characters'
 
+    def club_collections(self, club_id: int) -> str:
+        """Returns endpoint of a list of collections of a certain club.
+
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
+        :return: Club collections endpoint link
+        :rtype: str
+        """
+        return f'{self.club(club_id)}/collections'
+
+    def club_clubs(self, club_id: int) -> str:
+        """Returns endpoint of a list of clubs of a certain club.
+
+        :param club_id: Club ID for endpoint
+        :type club_id: int
+
+        :return: Club clubs endpoint link
+        :rtype: str
+        """
+        return f'{self.club(club_id)}/clubs'
+
     def club_members(self, club_id: int) -> str:
         """Returns endpoint of a list of members of a certain club.
 
