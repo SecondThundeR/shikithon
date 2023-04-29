@@ -13,9 +13,9 @@ class AnimeOrder(EnhancedEnum):
     AIRED_ON = 'aired_on'
     EPISODES = 'episodes'
     STATUS = 'status'
+    RANDOM = 'random'
     CREATED_AT = 'created_at'
     CREATED_AT_DESC = 'created_at_desc'
-    RANDOM = 'random'
 
 
 class AnimeKind(EnhancedEnum):
