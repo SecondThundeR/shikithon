@@ -30,3 +30,13 @@ class Topic(BaseModel):
     last_comment_viewed: Optional[bool]
     event: Optional[str]
     episode: Optional[int]
+
+
+class TopicUpdate(BaseModel):
+    """Represents topic update entity."""
+    id: int
+    linked: Union[AnimeInfo, MangaInfo]
+    event: Optional[str]
+    episode: Optional[int]
+    created_at: datetime
+    url: str

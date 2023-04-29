@@ -6,7 +6,7 @@ from loguru import logger
 from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RequestType, TopicForumType, TopicLinkedType, TopicType
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import Topic
+from ..models import Topic, TopicUpdate
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -78,8 +78,8 @@ class Topics(BaseResource):
         :param limit: Number of results limit
         :type limit: Optional[int]
 
-        :return: List of topics
-        :rtype: List[Topic]
+        :return: List of topic updates
+        :rtype: List[TopicUpdate]
         """
         query_dict = Utils.create_query_dict(page=page, limit=limit)
 
@@ -88,7 +88,7 @@ class Topics(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Topic)
+                                            data_model=TopicUpdate)
 
     @method_endpoint('/api/topics/hot')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
