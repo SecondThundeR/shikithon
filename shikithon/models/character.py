@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
-from .anime import Anime
+from .anime import CharacterAnime
 from .image import Image
 from .manga import Manga
 from .ranobe import Ranobe
@@ -28,5 +28,5 @@ class Character(BaseModel):
     topic_id: Optional[int]
     updated_at: Optional[datetime]
     seyu: Optional[List[Seyu]]
-    animes: Optional[List[Anime]]
+    animes: Optional[List[CharacterAnime]]
     mangas: Optional[List[Union[Manga, Ranobe]]]

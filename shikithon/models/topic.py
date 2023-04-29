@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from .anime import Anime
+from .anime import AnimeInfo
 from .club import Club
 from .forum import Forum
 from .manga import Manga
@@ -25,7 +25,7 @@ class Topic(BaseModel):
     type: Optional[str]
     linked_id: Optional[int]
     linked_type: Optional[str]
-    linked: Optional[Union[Club, Anime, Manga]]
+    linked: Optional[Union[Club, AnimeInfo, Manga]]
     viewed: Optional[bool]
     last_comment_viewed: Optional[bool]
     event: Optional[str]

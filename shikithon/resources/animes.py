@@ -6,8 +6,8 @@ from ..enums import (AnimeCensorship, AnimeDuration, AnimeKind, AnimeList,
                      AnimeOrder, AnimeRating, AnimeStatus, AnimeTopicKind,
                      RequestType, ResponseCode, VideoKind)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import (Anime, FranchiseTree, Link, Relation, Role, Screenshot,
-                      Topic, Video)
+from ..models import (AnimeInfo, Anime, FranchiseTree, Link, Relation, Role,
+                      Screenshot, Topic, Video)
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -126,7 +126,7 @@ class Animes(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Anime)
+                                            data_model=AnimeInfo)
 
     @method_endpoint('/api/animes/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -179,7 +179,7 @@ class Animes(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Anime)
+                                            data_model=AnimeInfo)
 
     @method_endpoint('/api/animes/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])

@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from .anime import Anime
+from .anime import AnimeInfo
 from .manga import Manga
 from .ranobe import Ranobe
 from .user import User
@@ -27,5 +27,5 @@ class UserList(BaseModel):
     created_at: datetime
     updated_at: datetime
     user: Optional[User]
-    anime: Optional[Anime]
+    anime: Optional[AnimeInfo]
     manga: Optional[Union[Manga, Ranobe]]

@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from .anime import Anime
+from .anime import AnimeInfo
 from .manga import Manga
 from .ranobe import Ranobe
 
@@ -14,4 +14,4 @@ class History(BaseModel):
     id: int
     created_at: datetime
     description: str
-    target: Optional[Union[Anime, Manga, Ranobe]]
+    target: Optional[Union[AnimeInfo, Manga, Ranobe]]

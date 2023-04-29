@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from .anime import Anime
+from .anime import AnimeInfo
 from .character import Character
 from .club_image import ClubImage
 from .logo import Logo
@@ -28,5 +28,5 @@ class Club(BaseModel):
     user_role: Optional[str]
     style_id: Optional[int]
     members: Optional[List[User]]
-    animes: Optional[List[Anime]]
+    animes: Optional[List[AnimeInfo]]
     images: Optional[List[ClubImage]]
