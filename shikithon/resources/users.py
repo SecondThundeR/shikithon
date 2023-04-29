@@ -5,8 +5,8 @@ from ..decorators import exceptions_handler, method_endpoint
 from ..enums import (AnimeCensorship, AnimeList, HistoryTargetType, MessageType,
                      RequestType)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import (Ban, Club, Favourites, History, Message, UnreadMessages,
-                      User, UserList)
+from ..models import (Ban, ClubInfo, Favourites, History, Message,
+                      UnreadMessages, User, UserInfo, UserBrief, UserList)
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -31,7 +31,7 @@ class Users(BaseResource):
         :type limit: Optional[int]
 
         :return: List of users
-        :rtype: List[User]
+        :rtype: List[UserInfo]
         """
         query_dict = Utils.create_query_dict(page=page, limit=limit)
 
@@ -40,7 +40,7 @@ class Users(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=User)
+                                            data_model=UserInfo)
 
     @method_endpoint('/api/users/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -71,7 +71,7 @@ class Users(BaseResource):
         :type user_id: Union[int, str]
 
         :return: User's brief info
-        :rtype: Optional[User]
+        :rtype: Optional[UserBrief]
         """
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
@@ -80,7 +80,7 @@ class Users(BaseResource):
             self._client.endpoints.user_info(user_id), query=query_dict)
 
         return Utils.validate_response_data(cast(Dict[str, Any], response),
-                                            data_model=User)
+                                            data_model=UserBrief)
 
     @method_endpoint('/api/users/whoami')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -90,12 +90,12 @@ class Users(BaseResource):
         Current user evaluated depending on authorization code.
 
         :return: Current user brief info
-        :rtype: Optional[User]
+        :rtype: Optional[UserBrief]
         """
         response = await self._client.request(self._client.endpoints.whoami)
 
         return Utils.validate_response_data(cast(Dict[str, Any], response),
-                                            data_model=User)
+                                            data_model=UserBrief)
 
     @method_endpoint('/api/users/sign_out')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
@@ -119,7 +119,7 @@ class Users(BaseResource):
         :type user_id: Union[int, str]
 
         :return: List of user's friends
-        :rtype: List[User]
+        :rtype: List[UserInfo]
         """
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
@@ -129,7 +129,7 @@ class Users(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=User)
+                                            data_model=UserInfo)
 
     @method_endpoint('/api/users/:id/clubs')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -140,7 +140,7 @@ class Users(BaseResource):
         :type user_id: Union[int, str]
 
         :return: List of user's clubs
-        :rtype: List[Club]
+        :rtype: List[ClubInfo]
         """
         is_nickname = True if isinstance(user_id, str) else None
         query_dict = Utils.create_query_dict(is_nickname=is_nickname)
@@ -150,7 +150,7 @@ class Users(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Club)
+                                            data_model=ClubInfo)
 
     @method_endpoint('/api/users/:id/anime_rates')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
