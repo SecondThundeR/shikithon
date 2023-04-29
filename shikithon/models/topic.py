@@ -5,10 +5,10 @@ from typing import Optional, Union
 from pydantic import BaseModel
 
 from .anime import AnimeInfo
-from .club import Club
+from .club import ClubInfo
 from .forum import Forum
 from .manga import MangaInfo
-from .user import User
+from .user import UserInfo
 
 
 class Topic(BaseModel):
@@ -21,11 +21,11 @@ class Topic(BaseModel):
     created_at: datetime
     comments_count: int
     forum: Forum
-    user: User
+    user: UserInfo
     type: str
     linked_id: int
     linked_type: str
-    linked: Union[AnimeInfo, MangaInfo, Club]
+    linked: Optional[Union[AnimeInfo, MangaInfo, ClubInfo]]
     viewed: bool
     last_comment_viewed: Optional[bool]
     event: Optional[str]

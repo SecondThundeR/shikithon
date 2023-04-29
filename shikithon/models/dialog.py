@@ -2,10 +2,10 @@
 from pydantic import BaseModel
 
 from .message import Message
-from .user import User
+from .user import UserInfo
 
 
 class Dialog(BaseModel):
     """Represents dialog entity."""
-    target_user: User
+    target_user: UserInfo
     message: Message

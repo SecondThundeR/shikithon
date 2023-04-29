@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from .anime import AnimeInfo
 from .manga import MangaInfo
 from .ranobe import RanobeInfo
-from .user import User
+from .user import UserInfo
 
 
 class UserList(BaseModel):
@@ -26,6 +26,6 @@ class UserList(BaseModel):
     rewatches: int
     created_at: datetime
     updated_at: datetime
-    user: Optional[User]
+    user: Optional[UserInfo]
     anime: Optional[AnimeInfo]
     manga: Optional[Union[MangaInfo, RanobeInfo]]

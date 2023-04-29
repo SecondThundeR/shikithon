@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from .linked_topic import LinkedTopic
-from .user import User
+from .user import UserInfo
 
 
 class Message(BaseModel):
@@ -19,5 +19,5 @@ class Message(BaseModel):
     linked_id: int
     linked_type: Optional[str]
     linked: Optional[LinkedTopic]
-    from_user: Optional[User] = Field(alias='from')
-    to_user: Optional[User] = Field(alias='to')
+    from_user: Optional[UserInfo] = Field(alias='from')
+    to_user: Optional[UserInfo] = Field(alias='to')

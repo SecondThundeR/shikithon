@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from .comment import Comment
-from .user import User
+from .user import UserInfo
 
 
 class Ban(BaseModel):
@@ -17,5 +17,5 @@ class Ban(BaseModel):
     reason: str
     created_at: datetime
     duration_minutes: int
-    user: User
-    moderator: User
+    user: UserInfo
+    moderator: UserInfo

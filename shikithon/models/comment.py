@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from .user import User
+from .user import UserInfo
 
 
 class Comment(BaseModel):
@@ -19,4 +19,4 @@ class Comment(BaseModel):
     updated_at: datetime
     is_offtopic: bool
     can_be_edited: Optional[bool]
-    user: Optional[User]
+    user: Optional[UserInfo]
