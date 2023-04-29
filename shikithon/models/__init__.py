@@ -19,11 +19,11 @@ from .franchise_tree import FranchiseTree
 from .genre import Genre
 from .history import History
 from .link import Link
-from .manga import Manga
+from .manga import MangaInfo, Manga, CharacterManga
 from .message import Message
 from .person import PersonInfo, Person
 from .publisher import Publisher
-from .ranobe import Ranobe
+from .ranobe import RanobeInfo, Ranobe, CharacterRanobe
 from .relation import Relation
 from .role import Role
 from .screenshot import Screenshot
@@ -41,8 +41,9 @@ __all__ = [
     'Ban', 'CalendarEvent', 'CharacterInfo', 'Character', 'Club', 'ClubImage',
     'Comment', 'AnimeConstants', 'ClubConstants', 'MangaConstants',
     'SmileyConstants', 'UserRateConstants', 'CreatedUserImage', 'Dialog',
-    'Favourites', 'Forum', 'FranchiseTree', 'Genre', 'History', 'Link', 'Manga',
-    'Message', 'PersonInfo', 'Person', 'Publisher', 'Ranobe', 'Relation',
-    'Role', 'Screenshot', 'Studio', 'Style', 'Topic', 'UnreadMessages', 'User',
+    'Favourites', 'Forum', 'FranchiseTree', 'Genre', 'History', 'Link',
+    'MangaInfo', 'Manga', 'CharacterManga', 'Message', 'PersonInfo', 'Person',
+    'Publisher', 'RanobeInfo', 'Ranobe', 'CharacterRanobe', 'Relation', 'Role',
+    'Screenshot', 'Studio', 'Style', 'Topic', 'UnreadMessages', 'User',
     'UserList', 'UserRate', 'Video'
 ]

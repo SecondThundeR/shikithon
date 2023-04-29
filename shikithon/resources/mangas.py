@@ -5,7 +5,7 @@ from ..decorators import exceptions_handler, method_endpoint
 from ..enums import (MangaCensorship, MangaKind, MangaList, MangaOrder,
                      MangaStatus)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree, Link, Manga, Relation, Role, Topic
+from ..models import FranchiseTree, Link, Manga, MangaInfo, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -86,7 +86,7 @@ class Mangas(BaseResource):
         :type search: Optional[str]
 
         :return: List of Mangas
-        :rtype: List[Manga]
+        :rtype: List[MangaInfo]
         """
         query_dict = Utils.create_query_dict(page=page,
                                              limit=limit,
@@ -109,7 +109,7 @@ class Mangas(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Manga)
+                                            data_model=MangaInfo)
 
     @method_endpoint('/api/mangas/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -155,14 +155,14 @@ class Mangas(BaseResource):
         :type manga_id: int
 
         :return: List of similar mangas
-        :rtype: List[Manga]
+        :rtype: List[MangaInfo]
         """
         response = await self._client.request(
             self._client.endpoints.similar_mangas(manga_id))
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Manga)
+                                            data_model=MangaInfo)
 
     @method_endpoint('/api/mangas/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])

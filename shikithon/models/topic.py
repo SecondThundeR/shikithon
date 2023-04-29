@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from .anime import AnimeInfo
 from .club import Club
 from .forum import Forum
-from .manga import Manga
+from .manga import MangaInfo
 from .user import User
 
 
@@ -25,7 +25,7 @@ class Topic(BaseModel):
     type: str
     linked_id: int
     linked_type: str
-    linked: Union[AnimeInfo, Manga, Club]
+    linked: Union[AnimeInfo, MangaInfo, Club]
     viewed: bool
     last_comment_viewed: Optional[bool]
     event: Optional[str]

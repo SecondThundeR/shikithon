@@ -13,8 +13,8 @@ from .user_rate_status import UserRateStatus
 MANGAS_KIND = ['manga', 'manhwa', 'manhua', 'one_shot', 'doujin']
 
 
-class Manga(BaseModel):
-    """Represents manga entity."""
+class MangaInfo(BaseModel):
+    """Represents manga info entity."""
     id: int
     name: str
     russian: str
@@ -27,6 +27,18 @@ class Manga(BaseModel):
     chapters: int
     aired_on: Optional[str]
     released_on: Optional[str]
+
+    # pylint: disable=E0213
+    @validator('kind')
+    def kind_validator(cls, v):
+        if v not in MANGAS_KIND:
+            raise ValueError(f'Invalid manga kind. Got "{v}"'
+                             f' but expected one of {MANGAS_KIND}')
+        return v
+
+
+class Manga(MangaInfo):
+    """Represents manga entity."""
     english: Optional[List[Optional[str]]]
     japanese: Optional[List[Optional[str]]]
     synonyms: Optional[List[Optional[str]]]
@@ -48,10 +60,8 @@ class Manga(BaseModel):
     publishers: Optional[List[Publisher]]
     user_rate: Optional[UserRate]
 
-    # pylint: disable=E0213
-    @validator('kind')
-    def kind_validator(cls, v):
-        if v not in MANGAS_KIND:
-            raise ValueError(f'Invalid manga kind. Got "{v}"'
-                             f' but expected one of {MANGAS_KIND}')
-        return v
+
+class CharacterManga(MangaInfo):
+    """Represents a character manga info entity."""
+    roles: List[str]
+    role: str

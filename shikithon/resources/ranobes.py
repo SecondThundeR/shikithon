@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Union, cast
 from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RanobeCensorship, RanobeList, RanobeOrder, RanobeStatus
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree, Link, Ranobe, Relation, Role, Topic
+from ..models import FranchiseTree, Link, RanobeInfo, Ranobe, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -81,7 +81,7 @@ class Ranobes(BaseResource):
         :type search: Optional[str]
 
         :return: List of Ranobe
-        :rtype: List[Ranobe]
+        :rtype: List[RanobeInfo]
         """
         query_dict = Utils.create_query_dict(page=page,
                                              limit=limit,
@@ -103,7 +103,7 @@ class Ranobes(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Ranobe)
+                                            data_model=RanobeInfo)
 
     @method_endpoint('/api/ranobe/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -149,14 +149,14 @@ class Ranobes(BaseResource):
         :type ranobe_id: int
 
         :return: List of similar ranobes
-        :rtype: List[Ranobe]
+        :rtype: List[RanobeInfo]
         """
         response = await self._client.request(
             self._client.endpoints.similar_ranobes(ranobe_id))
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Ranobe)
+                                            data_model=RanobeInfo)
 
     @method_endpoint('/api/ranobe/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])

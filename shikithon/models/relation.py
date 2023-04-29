@@ -4,8 +4,8 @@ from typing import Optional, Union
 from pydantic import BaseModel
 
 from .anime import AnimeInfo
-from .manga import Manga
-from .ranobe import Ranobe
+from .manga import MangaInfo
+from .ranobe import RanobeInfo
 
 
 class Relation(BaseModel):
@@ -13,4 +13,4 @@ class Relation(BaseModel):
     relation: str
     relation_russian: str
     anime: Optional[AnimeInfo]
-    manga: Optional[Union[Manga, Ranobe]]
+    manga: Optional[Union[MangaInfo, RanobeInfo]]

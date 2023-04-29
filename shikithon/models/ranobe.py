@@ -11,8 +11,8 @@ from .user_rate_score import UserRateScore
 from .user_rate_status import UserRateStatus
 
 
-class Ranobe(BaseModel):
-    """Represents ranobe entity."""
+class RanobeInfo(BaseModel):
+    """Represents ranobe info entity."""
     id: int
     name: str
     russian: str
@@ -25,6 +25,18 @@ class Ranobe(BaseModel):
     chapters: int
     aired_on: Optional[str]
     released_on: Optional[str]
+
+    # pylint: disable=E0213
+    @validator('kind')
+    def kind_validator(cls, v):
+        if 'novel' not in v:
+            raise ValueError(f'Invalid kind. Got {v}'
+                             f' but expected kind, containing "novel"')
+        return v
+
+
+class Ranobe(RanobeInfo):
+    """Represents ranobe entity."""
     english: Optional[List[Optional[str]]]
     japanese: Optional[List[Optional[str]]]
     synonyms: Optional[List[Optional[str]]]
@@ -46,10 +58,8 @@ class Ranobe(BaseModel):
     publishers: Optional[List[Publisher]]
     user_rate: Optional[UserRate]
 
-    # pylint: disable=E0213
-    @validator('kind')
-    def kind_validator(cls, v):
-        if 'novel' not in v:
-            raise ValueError(f'Invalid kind. Got {v}'
-                             f' but expected kind, containing "novel"')
-        return v
+
+class CharacterRanobe(RanobeInfo):
+    """Represents a character ranobe info entity."""
+    roles: List[str]
+    role: str

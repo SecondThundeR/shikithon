@@ -7,7 +7,7 @@ from .anime import AnimeInfo
 from .character import CharacterInfo
 from .club_image import ClubImage
 from .logo import Logo
-from .manga import Manga
+from .manga import MangaInfo
 from .user import User
 
 
@@ -21,7 +21,7 @@ class Club(BaseModel):
     comment_policy: str
     description: Optional[str]
     description_html: Optional[str]
-    mangas: Optional[List[Manga]]
+    mangas: Optional[List[MangaInfo]]
     characters: Optional[List[CharacterInfo]]
     thread_id: Optional[int]
     topic_id: Optional[int]
