@@ -1,13 +1,13 @@
 """Submodel for creator.py"""
 from datetime import datetime
-from typing import List, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
 from .anime import CharacterAnime
 from .image import Image
-from .manga import Manga
-from .ranobe import Ranobe
+from .manga import CharacterManga
+from .ranobe import CharacterRanobe
 from .seyu import Seyu
 
 
@@ -24,13 +24,13 @@ class Character(CharacterInfo):
     """Represents character entity."""
     altname: str
     japanese: str
-    description: str
+    description: Optional[str]
     description_html: str
-    description_source: str
+    description_source: Optional[str]
     favoured: bool
-    thread_id: int
-    topic_id: int
+    thread_id: Optional[int]
+    topic_id: Optional[int]
     updated_at: datetime
     seyu: List[Seyu]
     animes: List[CharacterAnime]
-    mangas: List[Union[Manga, Ranobe]]
+    mangas: List[Union[CharacterManga, CharacterRanobe]]
