@@ -21,7 +21,7 @@ from .history import History
 from .link import Link
 from .manga import Manga
 from .message import Message
-from .person import Person
+from .person import PersonInfo, Person
 from .publisher import Publisher
 from .ranobe import Ranobe
 from .relation import Relation
@@ -41,7 +41,8 @@ __all__ = [
     'Ban', 'CalendarEvent', 'Character', 'Club', 'ClubImage', 'Comment',
     'AnimeConstants', 'ClubConstants', 'MangaConstants', 'SmileyConstants',
     'UserRateConstants', 'CreatedUserImage', 'Dialog', 'Favourites', 'Forum',
-    'FranchiseTree', 'Genre', 'History', 'Link', 'Manga', 'Message', 'Person',
-    'Publisher', 'Ranobe', 'Relation', 'Role', 'Screenshot', 'Studio', 'Style',
-    'Topic', 'UnreadMessages', 'User', 'UserList', 'UserRate', 'Video'
+    'FranchiseTree', 'Genre', 'History', 'Link', 'Manga', 'Message',
+    'PersonInfo', 'Person', 'Publisher', 'Ranobe', 'Relation', 'Role',
+    'Screenshot', 'Studio', 'Style', 'Topic', 'UnreadMessages', 'User',
+    'UserList', 'UserRate', 'Video'
 ]

@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, cast
 from ..decorators import exceptions_handler, method_endpoint
 from ..enums import PersonSearchKind
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import Person
+from ..models import PersonInfo, Person
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -55,4 +55,4 @@ class People(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Person)
+                                            data_model=PersonInfo)
