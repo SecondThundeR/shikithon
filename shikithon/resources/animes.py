@@ -40,8 +40,8 @@ class Animes(BaseResource):
                       studio: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
                       censored: Optional[AnimeCensorship] = None,
-                      my_list: Optional[Union[AnimeList,
-                                              List[AnimeList]]] = None,
+                      mylist: Optional[Union[AnimeList,
+                                             List[AnimeList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None):
@@ -86,10 +86,10 @@ class Animes(BaseResource):
         :param censored: Type of anime censorship
         :type censored: Optional[AnimeCensorship]
 
-        :param my_list: Status(-es) of anime in current user list.
+        :param mylist: Status(-es) of anime in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[AnimeList, List[AnimeList]]]
+        :type mylist: Optional[Union[AnimeList, List[AnimeList]]]
 
         :param ids: Anime(s) ID to include
         :type ids: Optional[Union[int, List[int]]]
@@ -116,7 +116,7 @@ class Animes(BaseResource):
                                              studio=studio,
                                              franchise=franchise,
                                              censored=censored,
-                                             mylist=my_list,
+                                             mylist=mylist,
                                              ids=ids,
                                              exclude_ids=exclude_ids,
                                              search=search)
