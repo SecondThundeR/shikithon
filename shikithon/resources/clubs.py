@@ -5,7 +5,7 @@ from ..decorators import exceptions_handler, method_endpoint
 from ..enums import (CommentPolicy, ImageUploadPolicy, JoinPolicy, PagePolicy,
                      RequestType, ResponseCode, TopicPolicy)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import AnimeInfo, Character, Club, ClubImage, Manga, Ranobe, User
+from ..models import AnimeInfo, CharacterInfo, Club, ClubImage, Manga, Ranobe, User
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -256,7 +256,7 @@ class Clubs(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Character)
+                                            data_model=CharacterInfo)
 
     @method_endpoint('/api/clubs/:id/members')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])

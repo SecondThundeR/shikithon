@@ -4,10 +4,10 @@ from typing import List
 from pydantic import BaseModel
 
 from .anime import AnimeInfo
-from .character import Character
+from .character import CharacterInfo
 
 
 class Roles(BaseModel):
     """Represents roles entity of person."""
-    characters: List[Character]
+    characters: List[CharacterInfo]
     animes: List[AnimeInfo]

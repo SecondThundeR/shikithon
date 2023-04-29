@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from .character import Character
+from .character import CharacterInfo
 from .person import PersonInfo
 
 
@@ -11,5 +11,5 @@ class Role(BaseModel):
     """Represents role info entity."""
     roles: List[str]
     roles_russian: List[str]
-    character: Optional[Character]
+    character: Optional[CharacterInfo]
     person: Optional[PersonInfo]

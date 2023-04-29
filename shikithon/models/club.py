@@ -4,7 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from .anime import AnimeInfo
-from .character import Character
+from .character import CharacterInfo
 from .club_image import ClubImage
 from .logo import Logo
 from .manga import Manga
@@ -22,7 +22,7 @@ class Club(BaseModel):
     description: Optional[str]
     description_html: Optional[str]
     mangas: Optional[List[Manga]]
-    characters: Optional[List[Character]]
+    characters: Optional[List[CharacterInfo]]
     thread_id: Optional[int]
     topic_id: Optional[int]
     user_role: Optional[str]
