@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, cast
 
 from ..decorators import exceptions_handler, method_endpoint
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import Character
+from ..models import CharacterInfo, Character
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -40,7 +40,7 @@ class Characters(BaseResource):
         :type search: Optional[str]
 
         :return: List of found characters
-        :rtype: List[Character]
+        :rtype: List[CharacterInfo]
         """
         query_dict = Utils.create_query_dict(search=search)
 
@@ -49,4 +49,4 @@ class Characters(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Character)
+                                            data_model=CharacterInfo)
