@@ -101,7 +101,7 @@ class Animes(BaseResource):
         :type search: Optional[str]
 
         :return: List of anime
-        :rtype: List[Anime]
+        :rtype: List[AnimeInfo]
         """
         query_dict = Utils.create_query_dict(page=page,
                                              limit=limit,
@@ -172,7 +172,7 @@ class Animes(BaseResource):
         :type anime_id: int
 
         :return: List of similar animes
-        :rtype: List[Anime]
+        :rtype: List[AnimeInfo]
         """
         response = await self._client.request(
             self._client.endpoints.similar_animes(anime_id))

@@ -46,7 +46,7 @@ class People(BaseResource):
         :type people_kind: Optional[PersonSearchKind]
 
         :return: List of found persons
-        :rtype: List[Person]
+        :rtype: List[PersonInfo]
         """
         query_dict = Utils.create_query_dict(search=search, kind=people_kind)
 

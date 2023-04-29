@@ -195,7 +195,7 @@ class Clubs(BaseResource):
         :type club_id: int
 
         :return: Club's anime list
-        :rtype: List[Anime]
+        :rtype: List[AnimeInfo]
         """
         response = await self._client.request(
             self._client.endpoints.club_animes(club_id))
@@ -249,7 +249,7 @@ class Clubs(BaseResource):
         :type club_id: int
 
         :return: Club's character list
-        :rtype: List[Character]
+        :rtype: List[CharacterInfo]
         """
         response = await self._client.request(
             self._client.endpoints.club_characters(club_id))
