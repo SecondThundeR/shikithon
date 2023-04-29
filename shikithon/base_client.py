@@ -408,11 +408,7 @@ class Client:
         logger.debug(f'Token expire status: {token_expiration_status}')
         return token_expiration_status
 
-    @backoff.on_exception(backoff.expo,
-                          RetryLater,
-                          max_time=5,
-                          max_tries=10,
-                          jitter=None)
+    @backoff.on_exception(backoff.expo, RetryLater, max_time=10, max_tries=20)
     async def request(
         self,
         url: str,
