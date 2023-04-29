@@ -8,7 +8,7 @@ from .calendar_event import CalendarEvent
 from .character import CharacterInfo, Character
 from .club import ClubInfo, Club
 from .club_image import ClubImage
-from .comment import Comment
+from .comment import CommentInfo, Comment
 from .constants import (AnimeConstants, ClubConstants, MangaConstants,
                         SmileyConstants, UserRateConstants)
 from .created_user_image import CreatedUserImage
@@ -39,11 +39,12 @@ from .video import Video
 __all__ = [
     'AbuseResponse', 'AnimeInfo', 'Anime', 'CharacterAnime', 'Achievement',
     'Ban', 'CalendarEvent', 'CharacterInfo', 'Character', 'ClubInfo', 'Club',
-    'ClubImage', 'Comment', 'AnimeConstants', 'ClubConstants', 'MangaConstants',
-    'SmileyConstants', 'UserRateConstants', 'CreatedUserImage', 'Dialog',
-    'Favourites', 'Forum', 'FranchiseTree', 'Genre', 'History', 'Link',
-    'MangaInfo', 'Manga', 'CharacterManga', 'Message', 'PersonInfo', 'Person',
-    'Publisher', 'RanobeInfo', 'Ranobe', 'CharacterRanobe', 'Relation', 'Role',
-    'Screenshot', 'Studio', 'Style', 'Topic', 'UnreadMessages', 'UserInfo',
-    'UserBrief', 'User', 'UserList', 'UserRate', 'Video'
+    'ClubImage', 'CommentInfo', 'Comment', 'AnimeConstants', 'ClubConstants',
+    'MangaConstants', 'SmileyConstants', 'UserRateConstants',
+    'CreatedUserImage', 'Dialog', 'Favourites', 'Forum', 'FranchiseTree',
+    'Genre', 'History', 'Link', 'MangaInfo', 'Manga', 'CharacterManga',
+    'Message', 'PersonInfo', 'Person', 'Publisher', 'RanobeInfo', 'Ranobe',
+    'CharacterRanobe', 'Relation', 'Role', 'Screenshot', 'Studio', 'Style',
+    'Topic', 'UnreadMessages', 'UserInfo', 'UserBrief', 'User', 'UserList',
+    'UserRate', 'Video'
 ]

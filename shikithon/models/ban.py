@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from .comment import Comment
+from .comment import CommentInfo
 from .user import UserInfo
 
 
@@ -12,7 +12,7 @@ class Ban(BaseModel):
     """Represents ban entity."""
     id: int
     user_id: int
-    comment: Optional[Comment]
+    comment: Optional[CommentInfo]
     moderator_id: int
     reason: str
     created_at: datetime
