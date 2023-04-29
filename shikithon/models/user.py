@@ -21,8 +21,8 @@ class UserInfo(BaseModel):
 class UserBrief(UserInfo):
     """Represents user brief info entity."""
     name: Optional[str]
-    sex: str
-    full_years: int
+    sex: Optional[str]
+    full_years: Optional[int]
     locale: Optional[str]
 
 
@@ -37,7 +37,7 @@ class User(UserBrief):
     about_html: str
     common_info: List[str]
     show_comments: bool
-    in_friends: bool
+    in_friends: Optional[bool]
     is_ignored: bool
     stats: Stats
     style_id: int
