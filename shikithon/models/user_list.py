@@ -26,6 +26,6 @@ class UserList(BaseModel):
     rewatches: int
     created_at: datetime
     updated_at: datetime
-    user: Optional[UserInfo]
+    user: UserInfo
     anime: Optional[AnimeInfo]
     manga: Optional[Union[MangaInfo, RanobeInfo]]
