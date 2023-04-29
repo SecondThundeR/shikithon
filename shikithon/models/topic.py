@@ -14,19 +14,19 @@ from .user import User
 class Topic(BaseModel):
     """Represents topic entity."""
     id: int
-    topic_title: Optional[str]
-    body: Optional[str]
-    html_body: Optional[str]
-    html_footer: Optional[str]
+    topic_title: str
+    body: str
+    html_body: str
+    html_footer: str
     created_at: datetime
-    comments_count: Optional[int]
-    forum: Optional[Forum]
-    user: Optional[User]
-    type: Optional[str]
-    linked_id: Optional[int]
-    linked_type: Optional[str]
-    linked: Optional[Union[Club, AnimeInfo, Manga]]
-    viewed: Optional[bool]
+    comments_count: int
+    forum: Forum
+    user: User
+    type: str
+    linked_id: int
+    linked_type: str
+    linked: Union[AnimeInfo, Manga, Club]
+    viewed: bool
     last_comment_viewed: Optional[bool]
     event: Optional[str]
     episode: Optional[int]
