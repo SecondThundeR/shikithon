@@ -13,11 +13,11 @@ class Message(BaseModel):
     id: int
     kind: str
     read: bool
-    body: str
+    body: Optional[str]
     html_body: str
     created_at: datetime
     linked_id: int
     linked_type: Optional[str]
     linked: Optional[LinkedTopic]
-    from_user: Optional[UserInfo] = Field(alias='from')
-    to_user: Optional[UserInfo] = Field(alias='to')
+    from_user: UserInfo = Field(alias='from')
+    to_user: UserInfo = Field(alias='to')
