@@ -517,6 +517,10 @@ class Client:
                 logger.debug('Response has empty body. ' \
                     'Returning response status')
                 return response.status
+            elif response_text == 'null':
+                logger.debug('Response is "null". Returning None')
+                return None
+
 
             logger.debug('Response is not empty. ' \
                 'Trying to extract JSON from response')

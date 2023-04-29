@@ -286,9 +286,7 @@ class Utils:
 
         if not response_data:
             logger.debug('Response data is empty. Returning')
-            if isinstance(response_data, dict):
-                return None
-            return []
+            return [] if isinstance(response_data, list) else None
 
         return [data_model(**item) for item in response_data] if isinstance(
             response_data, list) else data_model(**response_data)
