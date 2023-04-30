@@ -18,7 +18,7 @@ class Animes(BaseResource):
     """Anime resource class.
 
     Used to represent /api/animes and
-    /api/animes/:anime_id/videos resource.
+    /api/animes/:anime_id/videos resources.
     """
 
     @method_endpoint('/api/animes')
