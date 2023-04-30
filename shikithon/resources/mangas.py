@@ -31,8 +31,8 @@ class Mangas(BaseResource):
                       publisher: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
                       censored: Optional[MangaCensorship] = None,
-                      my_list: Optional[Union[MangaList,
-                                              List[MangaList]]] = None,
+                      mylist: Optional[Union[MangaList,
+                                             List[MangaList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None):
@@ -71,10 +71,10 @@ class Mangas(BaseResource):
         :param censored: Type of manga censorship
         :type censored: Optional[MangaCensorship]
 
-        :param my_list: Status(-es) of manga in current user list.
+        :param mylist: Status(-es) of manga in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[MangaList, List[MangaList]]]
+        :type mylist: Optional[Union[MangaList, List[MangaList]]]
 
         :param ids: Manga(s) ID to include
         :type ids: Optional[Union[int, List[int]]
@@ -99,7 +99,7 @@ class Mangas(BaseResource):
                                              publisher=publisher,
                                              franchise=franchise,
                                              censored=censored,
-                                             mylist=my_list,
+                                             mylist=mylist,
                                              ids=ids,
                                              exclude_ids=exclude_ids,
                                              search=search)

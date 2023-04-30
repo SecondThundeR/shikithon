@@ -29,8 +29,8 @@ class Ranobes(BaseResource):
                       publisher: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
                       censored: Optional[RanobeCensorship] = None,
-                      my_list: Optional[Union[RanobeList,
-                                              List[RanobeList]]] = None,
+                      mylist: Optional[Union[RanobeList,
+                                             List[RanobeList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None):
@@ -66,10 +66,10 @@ class Ranobes(BaseResource):
         :param censored: Type of ranobe censorship
         :type censored: Optional[RanobeCensorship]
 
-        :param my_list: Status(-es) of ranobe in current user list.
+        :param mylist: Status(-es) of ranobe in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[RanobeList, List[RanobeList]]]
+        :type mylist: Optional[Union[RanobeList, List[RanobeList]]]
 
         :param ids: Ranobe(s) ID to include
         :type ids: Optional[Union[int, List[int]]
@@ -93,7 +93,7 @@ class Ranobes(BaseResource):
                                              publisher=publisher,
                                              franchise=franchise,
                                              censored=censored,
-                                             mylist=my_list,
+                                             mylist=mylist,
                                              ids=ids,
                                              exclude_ids=exclude_ids,
                                              search=search)
