@@ -1,5 +1,5 @@
 """Model for /api/animes"""
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -26,8 +26,8 @@ class AnimeInfo(BaseModel):
     status: str
     episodes: int
     episodes_aired: int
-    aired_on: Optional[str]
-    released_on: Optional[str]
+    aired_on: Optional[date]
+    released_on: Optional[date]
 
 
 class Anime(AnimeInfo):
