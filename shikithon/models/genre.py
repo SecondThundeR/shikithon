@@ -1,4 +1,6 @@
 """Submodel for anime.py"""
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -7,4 +9,4 @@ class Genre(BaseModel):
     id: int
     name: str
     russian: str
-    kind: str
+    kind: Optional[str]
