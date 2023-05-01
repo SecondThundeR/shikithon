@@ -30,32 +30,32 @@ class RanobeInfo(BaseModel):
     @validator('kind')
     def kind_validator(cls, v):
         if 'novel' not in v:
-            raise ValueError(f'Invalid kind. Got {v}'
+            raise ValueError(f'Invalid kind. Got "{v}"'
                              f' but expected kind, containing "novel"')
         return v
 
 
 class Ranobe(RanobeInfo):
     """Represents ranobe entity."""
-    english: Optional[List[Optional[str]]]
-    japanese: Optional[List[Optional[str]]]
-    synonyms: Optional[List[Optional[str]]]
+    english: List[Optional[str]]
+    japanese: List[Optional[str]]
+    synonyms: List[str]
     license_name_ru: Optional[str]
     description: Optional[str]
-    description_html: Optional[str]
+    description_html: str
     description_source: Optional[str]
     franchise: Optional[str]
-    favoured: Optional[bool]
-    anons: Optional[bool]
-    ongoing: Optional[bool]
+    favoured: bool
+    anons: bool
+    ongoing: bool
     thread_id: Optional[int]
     topic_id: Optional[int]
-    myanimelist_id: Optional[int]
-    rates_scores_stats: Optional[List[UserRateScore]]
-    rates_statuses_stats: Optional[List[UserRateStatus]]
-    licensors: Optional[List[str]]
-    genres: Optional[List[Genre]]
-    publishers: Optional[List[Publisher]]
+    myanimelist_id: int
+    rates_scores_stats: List[UserRateScore]
+    rates_statuses_stats: List[UserRateStatus]
+    licensors: List[str]
+    genres: List[Genre]
+    publishers: List[Publisher]
     user_rate: Optional[UserRate]
 
 
