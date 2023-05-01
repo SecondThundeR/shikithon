@@ -143,19 +143,19 @@ class Ranobes(BaseResource):
     @method_endpoint('/api/ranobe/:id/similar')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def similar(self, ranobe_id: int):
-        """Returns list of similar ranobes or mangas for certain ranobe.
+        """Returns list of similar mangas or ranobe for certain ranobe.
 
-        :param ranobe_id: Ranobe ID to get similar ranobes
+        :param ranobe_id: Ranobe ID to get similar mangas/ranobe
         :type ranobe_id: int
 
-        :return: List of similar ranobes/mangas
-        :rtype: List[Union[RanobeInfo, MangaInfo]]
+        :return: List of similar mangas/ranobe
+        :rtype: List[Union[MangaInfo, RanobeInfo]]
         """
         response = await self._client.request(
             self._client.endpoints.similar_ranobes(ranobe_id))
 
-        return Utils.parse_mixed_response(response, List[Union[RanobeInfo,
-                                                               MangaInfo]])
+        return Utils.parse_mixed_response(response, List[Union[MangaInfo,
+                                                               RanobeInfo]])
 
     @method_endpoint('/api/ranobe/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
