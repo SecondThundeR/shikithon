@@ -5,7 +5,7 @@ from ..decorators import exceptions_handler, method_endpoint
 from ..enums import (CommentPolicy, ImageUploadPolicy, JoinPolicy, PagePolicy,
                      RequestType, ResponseCode, TopicPolicy)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import AnimeInfo, CharacterInfo, ClubInfo, Club, ClubImage, MangaInfo, RanobeInfo, UserInfo, Topic
+from ..models import AnimeInfo, CharacterInfo, ClubInfo, Club, ClubImage, MangaInfo, RanobeInfo, UserInfo, CollectionTopic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -267,14 +267,14 @@ class Clubs(BaseResource):
         :type club_id: int
 
         :return: Club's collection list
-        :rtype: List[Topic]
+        :rtype: List[CollectionTopic]
         """
         response = await self._client.request(
             self._client.endpoints.club_collections(club_id))
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Topic)
+                                            data_model=CollectionTopic)
 
     @method_endpoint('/api/clubs/:id/clubs')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])

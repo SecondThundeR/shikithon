@@ -5,7 +5,7 @@ from ..decorators import exceptions_handler, method_endpoint
 from ..enums import (MangaCensorship, MangaKind, MangaList, MangaOrder,
                      MangaStatus)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree, Link, Manga, MangaInfo, RanobeInfo, Relation, Role, Topic
+from ..models import FranchiseTree, Link, Manga, MangaInfo, RanobeInfo, Relation, Role, MangaTopic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -234,7 +234,7 @@ class Mangas(BaseResource):
         :type limit: Optional[int]
 
         :return: List of topics
-        :rtype: List[Topic]
+        :rtype: List[MangaTopic]
         """
         query_dict = Utils.create_query_dict(page=page, limit=limit)
 
@@ -243,4 +243,4 @@ class Mangas(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Topic)
+                                            data_model=MangaTopic)

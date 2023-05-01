@@ -29,7 +29,7 @@ from .role import Role
 from .screenshot import Screenshot
 from .studio import Studio
 from .style import Style
-from .topic import Topic, TopicUpdate
+from .topic import Topic, AnimeTopic, MangaTopic, RanobeTopic, CollectionTopic, TopicUpdate
 from .unread_messages import UnreadMessages
 from .user import UserInfo, UserBrief, User
 from .user_list import UserList
@@ -45,6 +45,7 @@ __all__ = [
     'Link', 'MangaInfo', 'Manga', 'CharacterManga', 'MessageInfo', 'Message',
     'PersonInfo', 'Person', 'Publisher', 'RanobeInfo', 'Ranobe',
     'CharacterRanobe', 'Relation', 'Role', 'Screenshot', 'Studio', 'Style',
-    'Topic', 'TopicUpdate', 'UnreadMessages', 'UserInfo', 'UserBrief', 'User',
+    'Topic', 'AnimeTopic', 'MangaTopic', 'RanobeTopic', 'CollectionTopic',
+    'TopicUpdate', 'UnreadMessages', 'UserInfo', 'UserBrief', 'User',
     'UserList', 'UserRate', 'Video'
 ]

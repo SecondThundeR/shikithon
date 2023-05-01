@@ -7,7 +7,7 @@ from ..enums import (AnimeCensorship, AnimeDuration, AnimeKind, AnimeList,
                      RequestType, ResponseCode, VideoKind)
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import (AnimeInfo, Anime, FranchiseTree, Link, Relation, Role,
-                      Screenshot, Topic, Video)
+                      Screenshot, AnimeTopic, Video)
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -278,7 +278,7 @@ class Animes(BaseResource):
         :type episode: Optional[int]
 
         :return: List of topics
-        :rtype: List[Topic]
+        :rtype: List[AnimeTopic]
         """
         query_dict = Utils.create_query_dict(page=page,
                                              limit=limit,
@@ -290,7 +290,7 @@ class Animes(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Topic)
+                                            data_model=AnimeTopic)
 
     @method_endpoint('/api/animes/:anime_id/videos')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
