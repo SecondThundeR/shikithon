@@ -311,6 +311,8 @@ class Utils:
         :return: Parsed response to passed type
         :rtype: T
         """
+        logger.info('Parsing response with mixed models')
+        logger.info(f'Parsing using type: {parse_type}')
         return parse_obj_as(parse_type, response)
 
     @staticmethod
