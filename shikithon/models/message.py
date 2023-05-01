@@ -8,8 +8,8 @@ from .linked_topic import LinkedTopic
 from .user import UserInfo
 
 
-class Message(BaseModel):
-    """Represents message entity."""
+class MessageInfo(BaseModel):
+    """Represents message info entity."""
     id: int
     kind: str
     read: bool
@@ -19,5 +19,9 @@ class Message(BaseModel):
     linked_id: int
     linked_type: Optional[str]
     linked: Optional[LinkedTopic]
+
+
+class Message(MessageInfo):
+    """Represents message entity."""
     from_user: UserInfo = Field(alias='from')
     to_user: UserInfo = Field(alias='to')

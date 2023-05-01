@@ -20,7 +20,7 @@ from .genre import Genre
 from .history import History
 from .link import Link
 from .manga import MangaInfo, Manga, CharacterManga
-from .message import Message
+from .message import MessageInfo, Message
 from .person import PersonInfo, Person
 from .publisher import Publisher
 from .ranobe import RanobeInfo, Ranobe, CharacterRanobe
@@ -42,9 +42,9 @@ __all__ = [
     'ClubImage', 'CommentInfo', 'Comment', 'AnimeConstants', 'ClubConstants',
     'MangaConstants', 'SmileyConstant', 'UserRateConstants', 'CreatedUserImage',
     'Dialog', 'Favourites', 'Forum', 'FranchiseTree', 'Genre', 'History',
-    'Link', 'MangaInfo', 'Manga', 'CharacterManga', 'Message', 'PersonInfo',
-    'Person', 'Publisher', 'RanobeInfo', 'Ranobe', 'CharacterRanobe',
-    'Relation', 'Role', 'Screenshot', 'Studio', 'Style', 'Topic', 'TopicUpdate',
-    'UnreadMessages', 'UserInfo', 'UserBrief', 'User', 'UserList', 'UserRate',
-    'Video'
+    'Link', 'MangaInfo', 'Manga', 'CharacterManga', 'MessageInfo', 'Message',
+    'PersonInfo', 'Person', 'Publisher', 'RanobeInfo', 'Ranobe',
+    'CharacterRanobe', 'Relation', 'Role', 'Screenshot', 'Studio', 'Style',
+    'Topic', 'TopicUpdate', 'UnreadMessages', 'UserInfo', 'UserBrief', 'User',
+    'UserList', 'UserRate', 'Video'
 ]
