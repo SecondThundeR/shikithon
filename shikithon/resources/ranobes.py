@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Union, cast
 from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RanobeCensorship, RanobeList, RanobeOrder, RanobeStatus
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree, Link, RanobeInfo, Ranobe, Relation, Role, Topic
+from ..models import FranchiseTree, Link, RanobeInfo, MangaInfo, Ranobe, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -143,20 +143,19 @@ class Ranobes(BaseResource):
     @method_endpoint('/api/ranobe/:id/similar')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def similar(self, ranobe_id: int):
-        """Returns list of similar ranobes for certain ranobe.
+        """Returns list of similar ranobes or mangas for certain ranobe.
 
         :param ranobe_id: Ranobe ID to get similar ranobes
         :type ranobe_id: int
 
-        :return: List of similar ranobes
-        :rtype: List[RanobeInfo]
+        :return: List of similar ranobes/mangas
+        :rtype: List[Union[RanobeInfo, MangaInfo]]
         """
         response = await self._client.request(
             self._client.endpoints.similar_ranobes(ranobe_id))
 
-        return Utils.validate_response_data(cast(List[Dict[str, Any]],
-                                                 response),
-                                            data_model=RanobeInfo)
+        return Utils.parse_mixed_response(response, List[Union[RanobeInfo,
+                                                               MangaInfo]])
 
     @method_endpoint('/api/ranobe/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])

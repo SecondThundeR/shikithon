@@ -5,7 +5,7 @@ from ..decorators import exceptions_handler, method_endpoint
 from ..enums import (MangaCensorship, MangaKind, MangaList, MangaOrder,
                      MangaStatus)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree, Link, Manga, MangaInfo, Relation, Role, Topic
+from ..models import FranchiseTree, Link, Manga, MangaInfo, RanobeInfo, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -160,9 +160,8 @@ class Mangas(BaseResource):
         response = await self._client.request(
             self._client.endpoints.similar_mangas(manga_id))
 
-        return Utils.validate_response_data(cast(List[Dict[str, Any]],
-                                                 response),
-                                            data_model=MangaInfo)
+        return Utils.parse_mixed_response(response, List[Union[RanobeInfo,
+                                                               MangaInfo]])
 
     @method_endpoint('/api/mangas/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])

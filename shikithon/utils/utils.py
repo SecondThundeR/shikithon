@@ -11,13 +11,16 @@ from typing import Any, Dict, List, Optional, Type, TypeVar, Union, overload
 
 from aiohttp import ClientResponse, ClientSession, FormData
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, parse_obj_as
 from validators import url
 
 from ..enums import ResponseCode
 
 LOWER_LIMIT_NUMBER = 1
 M = TypeVar('M', bound=BaseModel)
+
+R = TypeVar('R')
+T = TypeVar('T')
 
 
 class Utils:
@@ -290,6 +293,25 @@ class Utils:
 
         return [data_model(**item) for item in response_data] if isinstance(
             response_data, list) else data_model(**response_data)
+
+    @staticmethod
+    def parse_mixed_response(response: Any, parse_type: Type[T]):
+        """Parses response, mixed with other entities,
+        that can't be parsed with validation utility.
+
+        Due to fact, that every Manga and Ranobe can have both models as
+        similar, this utility method helps parse response correctly.
+
+        :param response: Passed response data
+        :type response: Any
+
+        :param parse_type: Type for parsing response to
+        :type parse_type: Type[T]
+
+        :return: Parsed response to passed type
+        :rtype: T
+        """
+        return parse_obj_as(parse_type, response)
 
     @staticmethod
     def create_form_data(raw_data: Dict[str, Any]):
