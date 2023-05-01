@@ -41,7 +41,7 @@ class Messages(BaseResource):
                      to_id: int) -> Optional[Message]:
         """Creates message.
 
-        :param body: Body of message
+        :param body: Body of message (Need to have length >= 2)
         :type body: str
 
         :param from_id: Sender ID
