@@ -28,7 +28,7 @@ class ClubConstants(BaseModel):
     image_upload_policy: List[str]
 
 
-class SmileyConstants(BaseModel):
-    """Represents smiley constants."""
+class SmileyConstant(BaseModel):
+    """Represents smiley constant."""
     bbcode: str
     path: str
