@@ -34,7 +34,7 @@ class Anime(AnimeInfo):
     """Represents an anime entity."""
     rating: str
     english: List[Optional[str]]
-    japanese: List[str]
+    japanese: List[Optional[str]]
     synonyms: List[str]
     license_name_ru: Optional[str]
     duration: int
