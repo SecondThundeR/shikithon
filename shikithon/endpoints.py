@@ -959,7 +959,7 @@ class Endpoints:
 
     @property
     def active_users(self) -> str:
-        """Returns endpoints of a list of users,
+        """Returns endpoint of a list of users,
         having at least 1 completed animes and active during last month.
 
         :return: Active users list endpoint link
