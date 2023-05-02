@@ -1,4 +1,4 @@
-"""Model for api/dialogs"""
+"""Model for `/api/dialogs`."""
 from pydantic import BaseModel
 
 from .message import MessageInfo

@@ -1,4 +1,4 @@
-"""Model for /api/calendar"""
+"""Model for `/api/calendar`."""
 from datetime import datetime
 from typing import Optional
 

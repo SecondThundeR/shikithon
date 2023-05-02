@@ -1,4 +1,4 @@
-"""Model for /api/users/:id/favorites"""
+"""Model for `/api/users/:id/favorites`."""
 from typing import List
 
 from pydantic import BaseModel

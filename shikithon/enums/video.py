@@ -1,4 +1,4 @@
-"""Enums for /api/animes/:anime_id/videos."""
+"""Enums for `/api/animes/:anime_id/videos`."""
 from .enhanced_enum import EnhancedEnum
 
 

@@ -1,4 +1,4 @@
-"""Represents /api/ranobes resource."""
+"""Represents `/api/ranobes` resource."""
 from typing import Any, Dict, List, Optional, Union, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -12,7 +12,7 @@ from .base_resource import BaseResource
 class Ranobes(BaseResource):
     """Ranobes resource class.
 
-    Used to represent /api/ranobes resource.
+    Used to represent `/api/ranobes` resource
     """
 
     @method_endpoint('/api/ranobe')

@@ -1,4 +1,4 @@
-"""Model for /api/animes|mangas|ranobe/:id/franchise"""
+"""Model for `/api/animes|mangas|ranobe/:id/franchise`."""
 from typing import List
 
 from pydantic import BaseModel

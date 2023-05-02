@@ -1,4 +1,4 @@
-"""Represents /api/reviews resource."""
+"""Represents `/api/reviews` resource."""
 from typing import Any, Dict, Optional, cast
 
 from loguru import logger
@@ -16,7 +16,7 @@ DICT_NAME = 'review'
 class Reviews(BaseResource):
     """Reviews resource class.
 
-    Used to represent /api/reviews resource.
+    Used to represent `/api/reviews` resource
     """
 
     @method_endpoint('/api/reviews')

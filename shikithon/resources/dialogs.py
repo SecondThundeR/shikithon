@@ -1,4 +1,4 @@
-"""Represents /api/dialogs resource."""
+"""Represents `/api/dialogs` resource."""
 from typing import Any, Dict, List, Union, cast
 
 from loguru import logger
@@ -14,7 +14,7 @@ from .base_resource import BaseResource
 class Dialogs(BaseResource):
     """Dialogs resource class.
 
-    Used to represent /api/dialogs resource.
+    Used to represent `/api/dialogs` resource
     """
 
     @method_endpoint('/api/dialogs')

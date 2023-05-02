@@ -1,4 +1,4 @@
-"""Represents /api/stats resource."""
+"""Represents `/api/stats` resource."""
 from typing import List, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -9,7 +9,7 @@ from .base_resource import BaseResource
 class Stats(BaseResource):
     """Stats resource class.
 
-    Used to represent /api/stats resource.
+    Used to represent `/api/stats` resource
     """
 
     @method_endpoint('/api/stats/active_users')

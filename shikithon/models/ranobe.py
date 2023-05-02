@@ -1,4 +1,4 @@
-"""Model for /api/ranobe"""
+"""Model for `/api/ranobe`."""
 from datetime import date
 from typing import List, Optional
 

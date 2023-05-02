@@ -1,4 +1,4 @@
-"""Represents /api/favorites resource."""
+"""Represents `/api/favorites` resource."""
 from typing import Any, Dict, Optional, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -11,7 +11,7 @@ from .base_resource import BaseResource
 class Favorites(BaseResource):
     """Favorites resource class.
 
-    Used to represent /api/favorites resource.
+    Used to represent `/api/favorites` resource
     """
 
     @method_endpoint('/api/favorites/:linked_type/:linked_id(/:kind)')
@@ -74,7 +74,7 @@ class Favorites(BaseResource):
         """Reorders a favorite to the new index.
 
         This method requires a favorite ID,
-        which cannot be retrieved through the current API methods.
+        which cannot be retrieved through the current API methods
 
         To get the favorite ID, use DevTools on the favorites page
         See https://github.com/shikimori/shikimori/issues/2655

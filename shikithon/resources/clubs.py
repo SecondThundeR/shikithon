@@ -1,4 +1,4 @@
-"""Represents /api/clubs resource."""
+"""Represents `/api/clubs` resource."""
 from typing import Any, Dict, List, Optional, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -15,7 +15,7 @@ DICT_NAME = 'club'
 class Clubs(BaseResource):
     """Clubs resource class.
 
-    Used to represent /api/clubs resource.
+    Used to represent `/api/clubs` resource
     """
 
     @method_endpoint('/api/clubs')

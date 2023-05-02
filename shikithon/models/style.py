@@ -1,4 +1,4 @@
-"""Model for /api/styles"""
+"""Model for `/api/styles`."""
 from datetime import datetime
 from typing import Optional
 
@@ -9,7 +9,7 @@ class Style(BaseModel):
     """Represents style entity.
 
     Many fields are optional due to
-    /api/styles/preview returning non-null
+    `/api/styles/preview` returning non-null
     for 3 fields only
     """
     id: Optional[int]

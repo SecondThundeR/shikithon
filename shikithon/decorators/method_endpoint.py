@@ -35,7 +35,7 @@ def method_endpoint(
         @wraps(function)
         async def endpoint_logger_wrapped(*args: P.args,
                                           **kwargs: P.kwargs) -> R:
-            """Decorator's wrapped function for logging endpoint of method
+            """Decorator's wrapped function for logging endpoint of method.
 
             :param args: Positional arguments
             :type args: P.args

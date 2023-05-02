@@ -1,4 +1,4 @@
-"""Model for /api/constants"""
+"""Model for `/api/constants`."""
 from typing import Tuple, Literal
 
 from pydantic import BaseModel

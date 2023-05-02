@@ -1,4 +1,4 @@
-"""Model for /api/publishers"""
+"""Model for `/api/publishers`."""
 from pydantic import BaseModel
 
 

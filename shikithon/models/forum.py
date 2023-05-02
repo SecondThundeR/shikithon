@@ -1,4 +1,4 @@
-"""Model for api/forums"""
+"""Model for `/api/forums`."""
 from pydantic import BaseModel
 
 

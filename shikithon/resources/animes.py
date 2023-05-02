@@ -1,4 +1,4 @@
-"""Represents /api/animes and /api/animes/:anime_id/videos resource."""
+"""Represents `/api/animes` and `/api/animes/:anime_id/videos` resources."""
 from typing import Any, Dict, List, Optional, Union, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -11,14 +11,14 @@ from ..models import (AnimeInfo, Anime, FranchiseTree, Link, Relation, Role,
 from ..utils import Utils
 from .base_resource import BaseResource
 
-VIDEO_DICT_NAME = 'video'
+DICT_NAME = 'video'
 
 
 class Animes(BaseResource):
     """Anime resource class.
 
-    Used to represent /api/animes and
-    /api/animes/:anime_id/videos resources.
+    Used to represent `/api/animes` and
+    `/api/animes/:anime_id/videos` resources
     """
 
     @method_endpoint('/api/animes')
@@ -331,7 +331,7 @@ class Animes(BaseResource):
         :return: Created video info
         :rtype: Optional[Video]
         """
-        data_dict = Utils.create_data_dict(dict_name=VIDEO_DICT_NAME,
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME,
                                            kind=kind,
                                            name=name,
                                            url=url)

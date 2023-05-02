@@ -1,4 +1,4 @@
-"""Submodel for creator.py"""
+"""Submodel for `creator.py`."""
 from datetime import datetime
 from typing import List, Optional, Union
 

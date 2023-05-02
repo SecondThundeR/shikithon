@@ -1,4 +1,4 @@
-"""Represents /api/friends resource."""
+"""Represents `/api/friends` resource."""
 from loguru import logger
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -10,7 +10,7 @@ from .base_resource import BaseResource
 class Friends(BaseResource):
     """Friends resource class.
 
-    Used to represent /api/friends resource.
+    Used to represent `/api/friends` resource
     """
 
     @method_endpoint('/api/friends/:id')

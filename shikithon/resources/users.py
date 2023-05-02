@@ -1,4 +1,4 @@
-"""Represents /api/users and /api/v2/users resource."""
+"""Represents `/api/users` and `/api/v2/users` resources."""
 from typing import Any, Dict, List, Optional, Union, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -14,7 +14,7 @@ from .base_resource import BaseResource
 class Users(BaseResource):
     """Users resource class.
 
-    Used to represent /api/users and /api/v2/users resource.
+    Used to represent `/api/users` and `/api/v2/users` resources
     """
 
     @method_endpoint('/api/users')
@@ -100,8 +100,7 @@ class Users(BaseResource):
     @method_endpoint('/api/users/sign_out')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=False)
     async def sign_out(self):
-        """
-        Sends sign out request to API.
+        """Sends sign out request to API.
 
         :return: True if request was successful, False otherwise
         :rtype: bool

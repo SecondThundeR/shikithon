@@ -1,4 +1,4 @@
-"""Model for /api/users/:id/anime_rates | manga_rates"""
+"""Model for `/api/users/:id/anime_rates|manga_rates`."""
 from datetime import datetime
 from typing import Optional, Union
 

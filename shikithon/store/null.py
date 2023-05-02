@@ -7,7 +7,7 @@ from .base import ReturnConfig, Store
 class NullStore(Store):
     """Dummy store with an empty implementation of an abstract store class.
 
-    This store is used when no store is provided to the client.
+    This store is used when no store is provided to the client
     """
 
     async def save_config(self,

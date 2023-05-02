@@ -1,5 +1,4 @@
-"""
-Set of utility methods for the shikithon library.
+"""Set of utility methods for the shikithon library.
 
 This file contains the Utils class
 with all the necessary utility methods
@@ -24,8 +23,7 @@ T = TypeVar('T')
 
 
 class Utils:
-    """
-    Utils class.
+    """Utils class.
 
     Contains all the necessary utility methods
     to work with the library
@@ -35,7 +33,7 @@ class Utils:
     def convert_to_query_string(query_dict: Optional[Dict[str, str]]):
         """Converts query dict to query string for endpoint link.
 
-        If query_dict is None or empty, returns empty string.
+        If query_dict is None or empty, returns empty string
 
         :param query_dict: Query dictionary
         :type query_dict: Dict[str, str]
@@ -62,7 +60,7 @@ class Utils:
     async def get_image_data(image_path: Optional[str]):
         """Extracts image data from image path.
 
-        If image_path is a link, fetch the image data from the link.
+        If image_path is a link, fetch the image data from the link
 
         :param image_path: Path to image
         :type image_path: str
@@ -128,7 +126,7 @@ class Utils:
     def create_query_dict(**params_data: Optional[Any]):
         """Creates query dictionary for API request.
 
-        This methods checks for data types and converts to valid one.
+        This methods checks for data types and converts to valid one
 
         :param params_data: Parameters data for API request
         :type params_data: Optional[Any]
@@ -156,11 +154,11 @@ class Utils:
     def create_data_dict(**dict_data: Optional[Any]):
         """Creates data dictionary for API request.
 
-        This methods checks for data types and converts to valid one.
+        This methods checks for data types and converts to valid one
 
         If dict_data doesn't contain "dict_name" key,
         generated dictionary will have "temp" as root dictionary name,
-        which will be removed on return.
+        which will be removed on return
 
         :param dict_data: Body data for API request
         :type dict_data: Optional[Any]
@@ -199,7 +197,7 @@ class Utils:
         """Converts dictionary value to string.
 
         If data_dict is False, converts list values to comma-separated string.
-        Otherwise, returns list value as is.
+        Otherwise, returns list value as is
 
         :param dict_value: Dictionary value
         :type dict_value: Any
@@ -300,7 +298,7 @@ class Utils:
         that can't be parsed with validation utility.
 
         Due to fact, that every Manga and Ranobe can have both models as
-        similar, this utility method helps parse response correctly.
+        similar, this utility method helps parse response correctly
 
         :param response: Passed response data
         :type response: Any
@@ -320,7 +318,7 @@ class Utils:
         """Creates form data for API request.
 
         Method converts dictionary with data to
-        FormData object for API request.
+        FormData object for API request
 
         :param raw_data: Raw data for API request
         :type raw_data: Dict[str, Any]
@@ -389,6 +387,8 @@ class Utils:
     @staticmethod
     async def log_response_info(response: ClientResponse):
         """Logs response info.
+
+        This method extracts response status, headers and data
 
         :param response: Response object
         :type response: ClientResponse

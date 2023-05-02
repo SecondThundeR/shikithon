@@ -5,7 +5,7 @@ from enum import Enum
 class EnhancedEnum(Enum):
     """Enhanced enum class.
 
-    Adds support for __str__ for getting enum value
+    Adds support for `__str__` for getting enum value
     when casting to string or using in f-string, etc.
     """
 

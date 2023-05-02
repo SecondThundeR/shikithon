@@ -27,7 +27,7 @@ ConfigsDict = Dict[str, Config]
 class Store:
     """Abstract class for config store.
 
-    This class is used to create custom stores by overriding abstract methods.
+    This class is used to create custom stores by overriding abstract methods
     """
 
     __slots__ = ('_closed',)

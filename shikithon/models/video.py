@@ -1,4 +1,4 @@
-"""Model for /api/animes/:anime_id/videos"""
+"""Model for `/api/animes/:anime_id/videos`."""
 from typing import Optional
 
 from pydantic import BaseModel

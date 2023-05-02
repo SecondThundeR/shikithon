@@ -1,4 +1,4 @@
-"""Represents /api/characters resource."""
+"""Represents `/api/characters` resource."""
 from typing import Any, Dict, List, Optional, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -11,7 +11,7 @@ from .base_resource import BaseResource
 class Characters(BaseResource):
     """Characters resource class.
 
-    Used to represent /api/characters resource.
+    Used to represent `/api/characters` resource
     """
 
     @method_endpoint('/api/characters/:id')

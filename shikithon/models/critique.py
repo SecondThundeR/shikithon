@@ -1,4 +1,4 @@
-"""Submodel for topic.py"""
+"""Submodel for `topic.py`."""
 from datetime import datetime
 from typing import Optional, Union
 

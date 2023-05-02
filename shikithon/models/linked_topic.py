@@ -1,4 +1,4 @@
-"""Submodel for message.py"""
+"""Submodel for `message.py`."""
 from datetime import date
 from typing import Optional
 

@@ -1,4 +1,4 @@
-"""Represents /api/topics and /api/v2/topics resource."""
+"""Represents `/api/topics` and `/api/v2/topics` resources."""
 from typing import Any, Dict, List, Optional, cast
 
 from loguru import logger
@@ -10,13 +10,13 @@ from ..models import Topic, TopicUpdate
 from ..utils import Utils
 from .base_resource import BaseResource
 
-TOPICS_DICT_NAME = 'topic'
+DICT_NAME = 'topic'
 
 
 class Topics(BaseResource):
     """Topics resource class.
 
-    Used to represent /api/topics and /api/v2/topics resource.
+    Used to represent `/api/topics` and `/api/v2/topics` resources
     """
 
     @method_endpoint('/api/topics')
@@ -159,7 +159,7 @@ class Topics(BaseResource):
         :return: Created topic info
         :rtype: Optional[Topic]
         """
-        data_dict = Utils.create_data_dict(dict_name=TOPICS_DICT_NAME,
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME,
                                            body=body,
                                            forum_id=forum_id,
                                            linked_id=linked_id,
@@ -203,7 +203,7 @@ class Topics(BaseResource):
         :return: Updated topic info
         :rtype: Optional[Topic]
         """
-        data_dict = Utils.create_data_dict(dict_name=TOPICS_DICT_NAME,
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME,
                                            body=body,
                                            linked_id=linked_id,
                                            linked_type=linked_type,

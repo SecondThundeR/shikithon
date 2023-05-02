@@ -8,7 +8,7 @@ from .base import ConfigsDict, ReturnConfig, Store, Token
 class MemoryStore(Store):
     """Memory config store class.
 
-    This class is used for storing configs in RAM for faster access.
+    This class is used for storing configs in RAM for faster access
     """
 
     __slots__ = ('_configs',)

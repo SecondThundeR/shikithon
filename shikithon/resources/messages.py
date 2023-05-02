@@ -1,4 +1,4 @@
-"""Represents /api/messages resource."""
+"""Represents `/api/messages` resource."""
 from typing import Any, Dict, List, Optional, Union, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -15,7 +15,7 @@ PRIVATE_DM = 'Private'
 class Messages(BaseResource):
     """Messages resource class.
 
-    Used to represent /api/messages resource.
+    Used to represent `/api/messages` resource
     """
 
     @method_endpoint('/api/messages/:id')

@@ -1,4 +1,4 @@
-"""Model for /api/animes"""
+"""Model for `/api/animes`."""
 from datetime import date, datetime
 from typing import List, Optional
 

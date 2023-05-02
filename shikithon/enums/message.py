@@ -1,4 +1,4 @@
-"""Enums for /api/users/:id/messages"""
+"""Enums for `/api/users/:id/messages`."""
 from .enhanced_enum import EnhancedEnum
 
 

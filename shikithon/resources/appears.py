@@ -1,4 +1,4 @@
-"""Represents /api/appears resource."""
+"""Represents `/api/appears` resource."""
 from typing import cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -11,7 +11,7 @@ from .base_resource import BaseResource
 class Appears(BaseResource):
     """Appears resource class.
 
-    Used to represent /api/appears resource.
+    Used to represent `/api/appears` resource
     """
 
     @method_endpoint('/api/appears')

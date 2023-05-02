@@ -1,4 +1,4 @@
-"""Represents /api/constants resource."""
+"""Represents `/api/constants` resource."""
 from typing import Any, Dict, List, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -12,7 +12,7 @@ from .base_resource import BaseResource
 class Constants(BaseResource):
     """Constants resource class.
 
-    Used to represent /api/constants resource.
+    Used to represent `/api/constants` resource
     """
 
     @method_endpoint('/api/constants/anime')

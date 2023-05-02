@@ -1,7 +1,7 @@
 """Shikithon API Module.
 
 This is main module with a class
-for interacting with the Shikimori API.
+for interacting with the Shikimori API
 """
 import sys
 from typing import Optional, TypeVar
@@ -23,7 +23,7 @@ class ShikimoriAPI(Client):
     """Main class for interacting with the API.
 
     Current API class uses base client for interacting with API.
-    Also, all API methods splitted up to resources for convinient usage.
+    Also, all API methods splitted up to resources for convinient usage
     """
 
     __slots__ = ('achievements', 'animes', 'appears', 'bans', 'calendars',

@@ -1,4 +1,4 @@
-"""Model for /api/users/:id/history"""
+"""Model for `/api/users/:id/history`."""
 from datetime import datetime
 from typing import Optional, Union
 

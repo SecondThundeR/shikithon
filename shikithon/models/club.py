@@ -1,4 +1,4 @@
-"""Model for /api/clubs"""
+"""Model for `/api/clubs`."""
 from typing import List, Optional
 
 from pydantic import BaseModel

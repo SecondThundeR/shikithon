@@ -1,4 +1,4 @@
-"""Submodel for rating_list.py"""
+"""Submodel for `rating_list.py`."""
 from pydantic import BaseModel
 
 

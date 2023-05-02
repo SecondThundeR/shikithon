@@ -1,4 +1,4 @@
-"""Enums for /api/person and /api/favorites."""
+"""Enums for `/api/person` and `/api/favorites`."""
 from .enhanced_enum import EnhancedEnum
 
 

@@ -1,4 +1,4 @@
-"""Model for /api/animes/:id/topics"""
+"""Model for `/api/animes/:id/topics`."""
 from datetime import datetime
 from typing import Optional, Union
 
