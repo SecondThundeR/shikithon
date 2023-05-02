@@ -1,4 +1,5 @@
 """Model for /api/mangas"""
+from datetime import date
 from typing import List, Optional
 
 from pydantic import BaseModel, validator
@@ -31,8 +32,8 @@ class MangaInfo(BaseModel):
     status: str
     volumes: int
     chapters: int
-    aired_on: Optional[str]
-    released_on: Optional[str]
+    aired_on: Optional[date]
+    released_on: Optional[date]
 
     # pylint: disable=E0213
     @validator('kind')

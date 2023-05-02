@@ -1,4 +1,5 @@
 """Submodel for message.py"""
+from datetime import date
 from typing import Optional
 
 from pydantic import BaseModel
@@ -22,5 +23,5 @@ class LinkedTopic(BaseModel):
     status: Optional[str]
     episodes: Optional[int]
     episodes_aired: Optional[int]
-    aired_on: Optional[str]
-    released_on: Optional[str]
+    aired_on: Optional[date]
+    released_on: Optional[date]
