@@ -30,6 +30,9 @@ python_version = "3.8"
 ignore_missing_imports = true
 check_untyped_defs = true
 warn_redundant_casts = true
+plugins = [
+    "pydantic.mypy"
+]
 
 [tool.poetry.dependencies]
 python = "^3.8.10"
