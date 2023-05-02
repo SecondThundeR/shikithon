@@ -14,6 +14,7 @@ from .person import PersonKind, PersonSearchKind
 from .ranobe import RanobeCensorship, RanobeList, RanobeOrder, RanobeStatus
 from .request import RequestType
 from .response import ResponseCode
+from .review import ReviewOpinion
 from .style import StyleOwner
 from .topic import TopicForumType, TopicLinkedType, TopicType
 from .user_rate import UserRateStatus, UserRateTarget, UserRateType
@@ -27,7 +28,7 @@ __all__ = [
     'FavoriteLinkedType', 'MangaCensorship', 'MangaKind', 'MangaList',
     'MangaOrder', 'MangaStatus', 'MessageType', 'PersonKind',
     'PersonSearchKind', 'RanobeCensorship', 'RanobeList', 'RanobeOrder',
-    'RanobeStatus', 'RequestType', 'ResponseCode', 'StyleOwner',
-    'TopicForumType', 'TopicLinkedType', 'TopicType', 'UserRateStatus',
-    'UserRateTarget', 'UserRateType', 'VideoKind'
+    'RanobeStatus', 'RequestType', 'ResponseCode', 'ReviewOpinion',
+    'StyleOwner', 'TopicForumType', 'TopicLinkedType', 'TopicType',
+    'UserRateStatus', 'UserRateTarget', 'UserRateType', 'VideoKind'
 ]

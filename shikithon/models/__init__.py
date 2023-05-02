@@ -25,6 +25,7 @@ from .person import PersonInfo, Person
 from .publisher import Publisher
 from .ranobe import RanobeInfo, Ranobe, CharacterRanobe
 from .relation import Relation
+from .review import Review
 from .role import Role
 from .screenshot import Screenshot
 from .studio import Studio
@@ -44,8 +45,8 @@ __all__ = [
     'Dialog', 'Favourites', 'Forum', 'FranchiseTree', 'Genre', 'History',
     'Link', 'MangaInfo', 'Manga', 'CharacterManga', 'MessageInfo', 'Message',
     'PersonInfo', 'Person', 'Publisher', 'RanobeInfo', 'Ranobe',
-    'CharacterRanobe', 'Relation', 'Role', 'Screenshot', 'Studio', 'Style',
-    'Topic', 'AnimeTopic', 'MangaTopic', 'RanobeTopic', 'CollectionTopic',
-    'TopicUpdate', 'UnreadMessages', 'UserInfo', 'UserBrief', 'User',
-    'UserList', 'UserRate', 'Video'
+    'CharacterRanobe', 'Relation', 'Review', 'Role', 'Screenshot', 'Studio',
+    'Style', 'Topic', 'AnimeTopic', 'MangaTopic', 'RanobeTopic',
+    'CollectionTopic', 'TopicUpdate', 'UnreadMessages', 'UserInfo', 'UserBrief',
+    'User', 'UserList', 'UserRate', 'Video'
 ]

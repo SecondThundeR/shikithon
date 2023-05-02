@@ -938,6 +938,26 @@ class Endpoints:
         return f'{self.ranobe(ranobe_id)}/topics'
 
     @property
+    def reviews(self) -> str:
+        """Returns endpoint of the reviews.
+
+        :return: Reviews endpoint link
+        :rtype: str
+        """
+        return f'{self.base_url}/reviews'
+
+    def review(self, review_id: int) -> str:
+        """Returns endpoint of a specific review.
+
+        :param review_id: Review ID for endpoint
+        :type review_id: int
+
+        :return: Review endpoint link
+        :rtype: str
+        """
+        return f'{self.reviews}/{review_id}'
+
+    @property
     def active_users(self) -> str:
         """Returns endpoints of a list of users,
         having at least 1 completed animes and active during last month.
