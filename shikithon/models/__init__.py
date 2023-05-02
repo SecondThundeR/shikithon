@@ -12,6 +12,7 @@ from .comment import CommentInfo, Comment
 from .constants import (AnimeConstants, ClubConstants, MangaConstants,
                         SmileyConstant, UserRateConstants)
 from .created_user_image import CreatedUserImage
+from .critique import Critique
 from .dialog import Dialog
 from .favourites import Favourites
 from .forum import Forum
@@ -30,7 +31,7 @@ from .role import Role
 from .screenshot import Screenshot
 from .studio import Studio
 from .style import Style
-from .topic import Topic, AnimeTopic, MangaTopic, RanobeTopic, CollectionTopic, TopicUpdate
+from .topic import Topic, TopicUpdate
 from .unread_messages import UnreadMessages
 from .user import UserInfo, UserBrief, User
 from .user_list import UserList
@@ -42,11 +43,10 @@ __all__ = [
     'Ban', 'CalendarEvent', 'CharacterInfo', 'Character', 'ClubInfo', 'Club',
     'ClubImage', 'CommentInfo', 'Comment', 'AnimeConstants', 'ClubConstants',
     'MangaConstants', 'SmileyConstant', 'UserRateConstants', 'CreatedUserImage',
-    'Dialog', 'Favourites', 'Forum', 'FranchiseTree', 'Genre', 'History',
-    'Link', 'MangaInfo', 'Manga', 'CharacterManga', 'MessageInfo', 'Message',
-    'PersonInfo', 'Person', 'Publisher', 'RanobeInfo', 'Ranobe',
+    'Critique', 'Dialog', 'Favourites', 'Forum', 'FranchiseTree', 'Genre',
+    'History', 'Link', 'MangaInfo', 'Manga', 'CharacterManga', 'MessageInfo',
+    'Message', 'PersonInfo', 'Person', 'Publisher', 'RanobeInfo', 'Ranobe',
     'CharacterRanobe', 'Relation', 'Review', 'Role', 'Screenshot', 'Studio',
-    'Style', 'Topic', 'AnimeTopic', 'MangaTopic', 'RanobeTopic',
-    'CollectionTopic', 'TopicUpdate', 'UnreadMessages', 'UserInfo', 'UserBrief',
+    'Style', 'Topic', 'TopicUpdate', 'UnreadMessages', 'UserInfo', 'UserBrief',
     'User', 'UserList', 'UserRate', 'Video'
 ]

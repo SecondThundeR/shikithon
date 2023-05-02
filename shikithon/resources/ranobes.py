@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Union, cast
 from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RanobeCensorship, RanobeList, RanobeOrder, RanobeStatus
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree, Link, RanobeInfo, MangaInfo, Ranobe, Relation, Role, RanobeTopic
+from ..models import FranchiseTree, Link, RanobeInfo, MangaInfo, Ranobe, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -228,7 +228,7 @@ class Ranobes(BaseResource):
         :type limit: Optional[int]
 
         :return: List of topics
-        :rtype: List[RanobeTopic]
+        :rtype: List[Topic]
         """
         query_dict = Utils.create_query_dict(page=page, limit=limit)
 
@@ -237,4 +237,4 @@ class Ranobes(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=RanobeTopic)
+                                            data_model=Topic)
