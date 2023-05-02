@@ -2,7 +2,7 @@
 
 This module contains Endpoints class, which
 contains all endpoints for API and can form
-customized endpoints via input parameters.
+customized endpoints via input parameters
 """
 from typing import Optional, Union
 
@@ -13,14 +13,14 @@ class Endpoints:
     """Contains endpoints for Shikimori API.
 
     This class allows to form customized endpoint depending
-    on input parameters.
+    on input parameters
     """
 
     def __init__(self, base_url: str, base_url_v2: str, oauth_url: str):
         """Initializing URLs for Shikimori's API/OAuth.
 
-        This constructor also has base_url_v2, which is
-        modified base_url that routes to new API methods
+        This constructor also has `base_url_v2`, which is
+        modified `base_url` that routes to new API methods
 
         :param base_url: URL for Shikimori API
         :type base_url: str
@@ -37,7 +37,7 @@ class Endpoints:
 
     @property
     def base_url(self) -> str:
-        """Returns base_url
+        """Returns `base_url`.
 
         :return: Link for Shikimori API
         :rtype: str
@@ -46,7 +46,7 @@ class Endpoints:
 
     @base_url.setter
     def base_url(self, base_url: str):
-        """Sets base_url
+        """Sets `base_url`.
 
         :param base_url: Link for Shikimori API
         :type base_url: str
@@ -55,7 +55,7 @@ class Endpoints:
 
     @property
     def base_url_v2(self) -> str:
-        """Returns base_url_v2
+        """Returns `base_url_v2`.
 
         :return: Link for Shikimori API (v.2)
         :rtype: str
@@ -64,7 +64,7 @@ class Endpoints:
 
     @base_url_v2.setter
     def base_url_v2(self, base_url_v2: str):
-        """Sets base_url_v2
+        """Sets `base_url_v2`.
 
         :param base_url_v2: Link for Shikimori API (v.2)
         :type base_url_v2: str
@@ -73,7 +73,7 @@ class Endpoints:
 
     @property
     def oauth_url(self) -> str:
-        """Returns oauth_url
+        """Returns `oauth_url`.
 
         :return: Link for Shikimori OAuth
         :rtype: str
@@ -82,7 +82,7 @@ class Endpoints:
 
     @oauth_url.setter
     def oauth_url(self, oauth_url: str):
-        """Sets oauth_url
+        """Sets `oauth_url`.
 
         :param oauth_url: Link for Shikimori OAuth
         :type oauth_url: str
@@ -91,7 +91,7 @@ class Endpoints:
 
     @property
     def oauth_token(self) -> str:
-        """Returns endpoint for OAuth token
+        """Returns endpoint for OAuth token.
 
         :return: Link for Shikimori OAuth token endpoint
         :rtype: str
@@ -100,7 +100,7 @@ class Endpoints:
 
     @property
     def oauth_authorize(self) -> str:
-        """Returns endpoint for OAuth authorization
+        """Returns endpoint for OAuth authorization.
 
         :return: Link for Shikimori OAuth authorization endpoint
         :rtype: str
@@ -165,9 +165,6 @@ class Endpoints:
     @property
     def abuse_violation(self) -> str:
         """Returns endpoint for creating request about violation of site rules.
-
-        In Shikimori API docs, this endpoint also named as
-        '/api/v2/abuse_requests/**abuse**'
 
         :return: Abuse violation endpoint link
         :rtype: str
@@ -603,7 +600,7 @@ class Endpoints:
     def favorites_create(self, linked_type: str, linked_id: int,
                          kind: Optional[str]) -> str:
         """Returns endpoint for creating some type
-        of object as favorite
+        of object as favorite.
 
         :param linked_type: Type of object
         :type linked_type: str
@@ -612,7 +609,7 @@ class Endpoints:
         :type linked_id: int
 
         :param kind: Kind of linked object
-            (Required when linked_type is 'Person')
+        (Required when linked_type is `Person`)
         :type kind: Optional[str]
 
         :return: Favorite create endpoint link
@@ -624,7 +621,7 @@ class Endpoints:
 
     def favorites_destroy(self, linked_type: str, linked_id: int) -> str:
         """Returns endpoint for destroying some type
-        of object from favorites
+        of object from favorites.
 
         :param linked_type: Type of object
         :type linked_type: str
@@ -659,7 +656,7 @@ class Endpoints:
         return f'{self.base_url}/forums'
 
     def friend(self, friend_id: int) -> str:
-        """Returns endpoint for adding/deleting friend
+        """Returns endpoint for adding/deleting friend.
 
         :param friend_id: Friend ID for endpoint
         :type friend_id: int
@@ -978,15 +975,22 @@ class Endpoints:
 
     @property
     def styles(self) -> str:
-        """Returns endpoint for creating/previewing style.
+        """Returns endpoint of the styles.
 
-        :return: Style create/preview endpoint link
+        This endpoint also used for styles creation
+
+        :return: Style create endpoint link
         :rtype: str
         """
         return f'{self.base_url}/styles'
 
     @property
     def style_preview(self) -> str:
+        """Returns endpoint for previwing style.
+
+        :return: Style preview endpoint link
+        :rtype: str
+        """
         return f'{self.styles}/preview'
 
     def style(self, style_id: int) -> str:
@@ -994,6 +998,7 @@ class Endpoints:
 
         :param style_id: Style ID for endpoint
         :type style_id: int
+
         :return: Style endpoint link
         :rtype: str
         """
@@ -1237,7 +1242,7 @@ class Endpoints:
         return f'{self.user_rates}/{user_rate_id}'
 
     def user_rate_increment(self, user_rate_id: int) -> str:
-        """Returns endpoint for incrementing episodes/chapters by 1
+        """Returns endpoint for incrementing episodes/chapters by 1.
 
         :param user_rate_id: User rate ID for increment endpoint
         :type user_rate_id: int
@@ -1250,7 +1255,7 @@ class Endpoints:
     def user_rates_cleanup(self, user_rate_type: str) -> str:
         """Returns endpoint for cleanup user rates by type.
 
-        This endpoint is using API v.1
+        This endpoint is used by API v1
 
         :param user_rate_type: Type of an user rate
         :type user_rate_type: str
@@ -1263,7 +1268,7 @@ class Endpoints:
     def user_rates_reset(self, user_rate_type: str) -> str:
         """Returns endpoint for resetting user rates by type.
 
-        This endpoint is using API v.1
+        This endpoint is used by API v1
 
         :param user_rate_type: Type of an user rate
         :type user_rate_type: str
