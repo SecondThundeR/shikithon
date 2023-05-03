@@ -32,6 +32,9 @@
 
 ```shell
 pip install shikithon
+
+# или используя Poetry
+poetry add shikithon
 ```
 
 ## Пример использования
@@ -85,7 +88,7 @@ async def main():
         auth_code=config["auth_code"],
     ):
         print(await api.users.current())
-        # >> UserBrief(id=723052, nickname='SecondThundeR', ...
+        # >> id=723052, nickname='SecondThundeR', ...
 
     # Вариант 2
 
