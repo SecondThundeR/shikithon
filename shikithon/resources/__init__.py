@@ -20,6 +20,7 @@ from .messages import Messages
 from .people import People
 from .publishers import Publishers
 from .ranobes import Ranobes
+from .reviews import Reviews
 from .stats import Stats
 from .studios import Studios
 from .styles import Styles
@@ -48,6 +49,7 @@ __all__ = [
     'People',
     'Publishers',
     'Ranobes',
+    'Reviews',
     'Stats',
     'Studios',
     'Styles',

@@ -1,4 +1,4 @@
-"""Model for /api/achievements"""
+"""Model for `/api/achievements`."""
 from datetime import datetime
 
 from pydantic import BaseModel

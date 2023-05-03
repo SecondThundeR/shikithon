@@ -1,4 +1,4 @@
-"""Represents /api/animes and /api/animes/:anime_id/videos resource."""
+"""Represents `/api/animes` and `/api/animes/:anime_id/videos` resources."""
 from typing import Any, Dict, List, Optional, Union, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -6,19 +6,19 @@ from ..enums import (AnimeCensorship, AnimeDuration, AnimeKind, AnimeList,
                      AnimeOrder, AnimeRating, AnimeStatus, AnimeTopicKind,
                      RequestType, ResponseCode, VideoKind)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import (Anime, FranchiseTree, Link, Relation, Role, Screenshot,
-                      Topic, Video)
+from ..models import (AnimeInfo, Anime, FranchiseTree, Link, Relation, Role,
+                      Screenshot, Topic, Video)
 from ..utils import Utils
 from .base_resource import BaseResource
 
-VIDEO_DICT_NAME = 'video'
+DICT_NAME = 'video'
 
 
 class Animes(BaseResource):
     """Anime resource class.
 
-    Used to represent /api/animes and
-    /api/animes/:anime_id/videos resource.
+    Used to represent `/api/animes` and
+    `/api/animes/:anime_id/videos` resources
     """
 
     @method_endpoint('/api/animes')
@@ -40,8 +40,8 @@ class Animes(BaseResource):
                       studio: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
                       censored: Optional[AnimeCensorship] = None,
-                      my_list: Optional[Union[AnimeList,
-                                              List[AnimeList]]] = None,
+                      mylist: Optional[Union[AnimeList,
+                                             List[AnimeList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None):
@@ -86,10 +86,10 @@ class Animes(BaseResource):
         :param censored: Type of anime censorship
         :type censored: Optional[AnimeCensorship]
 
-        :param my_list: Status(-es) of anime in current user list.
+        :param mylist: Status(-es) of anime in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[AnimeList, List[AnimeList]]]
+        :type mylist: Optional[Union[AnimeList, List[AnimeList]]]
 
         :param ids: Anime(s) ID to include
         :type ids: Optional[Union[int, List[int]]]
@@ -101,7 +101,7 @@ class Animes(BaseResource):
         :type search: Optional[str]
 
         :return: List of anime
-        :rtype: List[Anime]
+        :rtype: List[AnimeInfo]
         """
         query_dict = Utils.create_query_dict(page=page,
                                              limit=limit,
@@ -116,7 +116,7 @@ class Animes(BaseResource):
                                              studio=studio,
                                              franchise=franchise,
                                              censored=censored,
-                                             mylist=my_list,
+                                             mylist=mylist,
                                              ids=ids,
                                              exclude_ids=exclude_ids,
                                              search=search)
@@ -126,7 +126,7 @@ class Animes(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Anime)
+                                            data_model=AnimeInfo)
 
     @method_endpoint('/api/animes/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -172,14 +172,14 @@ class Animes(BaseResource):
         :type anime_id: int
 
         :return: List of similar animes
-        :rtype: List[Anime]
+        :rtype: List[AnimeInfo]
         """
         response = await self._client.request(
             self._client.endpoints.similar_animes(anime_id))
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Anime)
+                                            data_model=AnimeInfo)
 
     @method_endpoint('/api/animes/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
@@ -331,7 +331,7 @@ class Animes(BaseResource):
         :return: Created video info
         :rtype: Optional[Video]
         """
-        data_dict = Utils.create_data_dict(dict_name=VIDEO_DICT_NAME,
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME,
                                            kind=kind,
                                            name=name,
                                            url=url)

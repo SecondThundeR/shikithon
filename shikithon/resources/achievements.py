@@ -1,4 +1,4 @@
-"""Represents /api/achievements resource."""
+"""Represents `/api/achievements` resource."""
 
 from typing import Any, Dict, List, cast
 
@@ -12,7 +12,7 @@ from .base_resource import BaseResource
 class Achievements(BaseResource):
     """Achievements resource class.
 
-    Used to represent /api/achievements resource.
+    Used to represent `/api/achievements` resource
     """
 
     @method_endpoint('/api/achievements')

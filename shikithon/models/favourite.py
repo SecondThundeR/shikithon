@@ -1,4 +1,4 @@
-"""Submodel for favourites.py"""
+"""Submodel for `favourites.py`."""
 from typing import Optional
 
 from pydantic import BaseModel

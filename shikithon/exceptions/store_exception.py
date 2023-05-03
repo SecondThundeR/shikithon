@@ -1,4 +1,4 @@
-"""Exception for raising on store method erros."""
+"""Exception for raising on store method errors."""
 
 from loguru import logger
 

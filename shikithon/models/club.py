@@ -1,32 +1,36 @@
-"""Model for /api/clubs"""
+"""Model for `/api/clubs`."""
 from typing import List, Optional
 
 from pydantic import BaseModel
 
-from .anime import Anime
-from .character import Character
+from .anime import AnimeInfo
+from .character import CharacterInfo
 from .club_image import ClubImage
 from .logo import Logo
-from .manga import Manga
-from .user import User
+from .manga import MangaInfo
+from .user import UserInfo
 
 
-class Club(BaseModel):
-    """Represents a club entity."""
+class ClubInfo(BaseModel):
+    """Represents a club info entity."""
     id: int
     name: str
     logo: Logo
     is_censored: bool
     join_policy: str
     comment_policy: str
+
+
+class Club(ClubInfo):
+    """Represents a club entity."""
     description: Optional[str]
-    description_html: Optional[str]
-    mangas: Optional[List[Manga]]
-    characters: Optional[List[Character]]
-    thread_id: Optional[int]
-    topic_id: Optional[int]
+    description_html: str
+    mangas: List[MangaInfo]
+    characters: List[CharacterInfo]
+    thread_id: int
+    topic_id: int
     user_role: Optional[str]
-    style_id: Optional[int]
-    members: Optional[List[User]]
-    animes: Optional[List[Anime]]
-    images: Optional[List[ClubImage]]
+    style_id: int
+    members: List[UserInfo]
+    animes: List[AnimeInfo]
+    images: List[ClubImage]

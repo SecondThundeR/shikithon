@@ -1,4 +1,4 @@
-"""Represents /api/calendar resource."""
+"""Represents `/api/calendar` resource."""
 from typing import Any, Dict, List, Optional, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -12,7 +12,7 @@ from .base_resource import BaseResource
 class Calendars(BaseResource):
     """Calendars resource class.
 
-    Used to represent /api/calendar resource.
+    Used to represent `/api/calendar` resource
     """
 
     @method_endpoint('/api/calendar')

@@ -1,4 +1,4 @@
-"""Represents /api/publishers resource."""
+"""Represents `/api/publishers` resource."""
 from typing import Any, Dict, List, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -11,7 +11,7 @@ from .base_resource import BaseResource
 class Publishers(BaseResource):
     """Publishers resource class.
 
-    Used to represent /api/publishers resource.
+    Used to represent `/api/publishers` resource
     """
 
     @method_endpoint('/api/publishers')

@@ -1,7 +1,7 @@
 """Shikithon API Module.
 
 This is main module with a class
-for interacting with the Shikimori API.
+for interacting with the Shikimori API
 """
 import sys
 from typing import Optional, TypeVar
@@ -12,8 +12,8 @@ from .base_client import Client
 from .resources import (AbuseRequests, Achievements, Animes, Appears, Bans,
                         Calendars, Characters, Clubs, Comments, Constants,
                         Dialogs, Favorites, Forums, Friends, Genres, Mangas,
-                        Messages, People, Publishers, Ranobes, Stats, Studios,
-                        Styles, Topics, UserImages, UserRates, Users)
+                        Messages, People, Publishers, Ranobes, Reviews, Stats,
+                        Studios, Styles, Topics, UserImages, UserRates, Users)
 from .store import NullStore, Store
 
 RT = TypeVar('RT')
@@ -23,15 +23,15 @@ class ShikimoriAPI(Client):
     """Main class for interacting with the API.
 
     Current API class uses base client for interacting with API.
-    Also, all API methods splitted up to resources for convinient usage.
+    Also, all API methods splitted up to resources for convinient usage
     """
 
     __slots__ = ('achievements', 'animes', 'appears', 'bans', 'calendars',
                  'characters', 'clubs', 'comments', 'constants', 'dialogs',
                  'favorites', 'forums', 'friends', 'genres', 'mangas',
-                 'messages', 'people', 'publishers', 'ranobes', 'stats',
-                 'studios', 'styles', 'topics', 'user_images', 'user_rates',
-                 'users', 'abuse_requests')
+                 'messages', 'people', 'publishers', 'ranobes', 'reviews',
+                 'stats', 'studios', 'styles', 'topics', 'user_images',
+                 'user_rates', 'users', 'abuse_requests')
 
     def __init__(self,
                  app_name: str = 'Api Test',
@@ -99,6 +99,7 @@ class ShikimoriAPI(Client):
         self.people = People(self)
         self.publishers = Publishers(self)
         self.ranobes = Ranobes(self)
+        self.reviews = Reviews(self)
         self.stats = Stats(self)
         self.studios = Studios(self)
         self.styles = Styles(self)

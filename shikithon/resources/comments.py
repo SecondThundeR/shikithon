@@ -1,4 +1,4 @@
-"""Represents /api/comments resource."""
+"""Represents `/api/comments` resource."""
 from typing import Any, Dict, List, Optional, cast
 
 from loguru import logger
@@ -16,7 +16,7 @@ DICT_NAME = 'comment'
 class Comments(BaseResource):
     """Comments resource class.
 
-    Used to represent /api/comments resource.
+    Used to represent `/api/comments` resource
     """
 
     @method_endpoint('/api/comments')
@@ -88,7 +88,7 @@ class Comments(BaseResource):
         """Creates comment.
 
         When commentable_type set to other than Topic/User,
-        comment is attached to commentable main topic.
+        comment is attached to commentable main topic
 
         :param body: Body of comment
         :type body: str

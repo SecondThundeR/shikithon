@@ -1,4 +1,4 @@
-"""Submodel for anime.py"""
+"""Submodel for `anime.py`."""
 from pydantic import BaseModel
 
 

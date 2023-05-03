@@ -1,4 +1,4 @@
-"""Represents /api/genres resource."""
+"""Represents `/api/genres` resource."""
 from typing import Any, Dict, List, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -11,7 +11,7 @@ from .base_resource import BaseResource
 class Genres(BaseResource):
     """Genres resource class.
 
-    Used to represent /api/genres resource.
+    Used to represent `/api/genres` resource
     """
 
     @method_endpoint('/api/genres')

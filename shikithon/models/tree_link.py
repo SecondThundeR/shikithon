@@ -1,4 +1,4 @@
-"""Submodel for franchise_tree.py"""
+"""Submodel for `franchise_tree.py`."""
 from pydantic import BaseModel
 
 

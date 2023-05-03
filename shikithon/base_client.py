@@ -61,7 +61,7 @@ class Client:
     """Base client class for shikithon API class.
 
     Contains logic and methods for making requests to the shikimori API
-    as well as validating config and etc.
+    as well as validating config and etc
     """
 
     __slots__ = ('endpoints', '_app_name', '_store', '_auto_close_store',
@@ -146,7 +146,7 @@ class Client:
     def config(self) -> Optional[ClientConfig]:
         """Returns current config.
 
-        If config is not availble, returns None.
+        If config is not availble, returns None
 
         :return: Current config
         :rtype: Optional[ClientConfig]
@@ -157,7 +157,7 @@ class Client:
     def config(self, config: Optional[ClientConfig]):
         """Sets new config.
 
-        If passed config isn't valid, raises Exception.
+        If passed config isn't valid, raises Exception
 
         :param config: New config data
         :type config: Optional[ClientConfig]
@@ -172,7 +172,7 @@ class Client:
     def validate_config(self, config: ClientConfig):
         """Validates passed config.
 
-        Method checks config for required dict keys.
+        Method checks config for required dict keys
 
         :param config: Config to validate
         :type config: ClientConfig
@@ -408,11 +408,7 @@ class Client:
         logger.debug(f'Token expire status: {token_expiration_status}')
         return token_expiration_status
 
-    @backoff.on_exception(backoff.expo,
-                          RetryLater,
-                          max_time=5,
-                          max_tries=10,
-                          jitter=None)
+    @backoff.on_exception(backoff.expo, RetryLater, max_time=10, max_tries=20)
     async def request(
         self,
         url: str,
@@ -521,6 +517,10 @@ class Client:
                 logger.debug('Response has empty body. ' \
                     'Returning response status')
                 return response.status
+            elif response_text == 'null':
+                logger.debug('Response is "null". Returning None')
+                return None
+
 
             logger.debug('Response is not empty. ' \
                 'Trying to extract JSON from response')
@@ -569,7 +569,7 @@ class Client:
 
         Due to some problems when trying to refresh with
         Authorization header, this method sets the header to None
-        before refreshing and then sets it back to the new token.
+        before refreshing and then sets it back to the new token
         """
         if self._config is None:
             return None

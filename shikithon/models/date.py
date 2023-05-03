@@ -1,13 +1,13 @@
-"""Submodel for people.py"""
+"""Submodel for `people.py`."""
 from typing import Optional
 
 from pydantic import BaseModel
 
 
-class Birthday(BaseModel):
-    """Birthday model class.
+class Date(BaseModel):
+    """Date object model.
 
-    Used to represent birthday of person.
+    Used to represent birthday or decease of person
     """
     day: Optional[int]
     month: Optional[int]

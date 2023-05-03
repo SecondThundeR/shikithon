@@ -1,13 +1,13 @@
-"""Submodel for people.py"""
+"""Submodel for `people.py`."""
 from typing import List
 
 from pydantic import BaseModel
 
-from .anime import Anime
-from .character import Character
+from .anime import AnimeInfo
+from .character import CharacterInfo
 
 
 class Roles(BaseModel):
     """Represents roles entity of person."""
-    characters: List[Character]
-    animes: List[Anime]
+    characters: List[CharacterInfo]
+    animes: List[AnimeInfo]

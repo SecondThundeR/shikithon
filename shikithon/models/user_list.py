@@ -1,13 +1,13 @@
-"""Model for /api/users/:id/anime_rates | manga_rates"""
+"""Model for `/api/users/:id/anime_rates|manga_rates`."""
 from datetime import datetime
 from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from .anime import Anime
-from .manga import Manga
-from .ranobe import Ranobe
-from .user import User
+from .anime import AnimeInfo
+from .manga import MangaInfo
+from .ranobe import RanobeInfo
+from .user import UserInfo
 
 
 class UserList(BaseModel):
@@ -26,6 +26,6 @@ class UserList(BaseModel):
     rewatches: int
     created_at: datetime
     updated_at: datetime
-    user: Optional[User]
-    anime: Optional[Anime]
-    manga: Optional[Union[Manga, Ranobe]]
+    user: UserInfo
+    anime: Optional[AnimeInfo]
+    manga: Optional[Union[MangaInfo, RanobeInfo]]

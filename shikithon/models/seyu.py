@@ -1,4 +1,4 @@
-"""Submodel for character.py"""
+"""Submodel for `character.py`."""
 from pydantic import BaseModel
 
 from .image import Image

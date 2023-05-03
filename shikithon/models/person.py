@@ -1,36 +1,44 @@
-"""Model for /api/people and submodel for creator.py"""
+"""Model for `/api/people` and submodel for `creator.py`."""
 from datetime import datetime
 from typing import List, Optional, Tuple
 
 from pydantic import BaseModel
 
-from .birthday import Birthday
+from .date import Date
 from .image import Image
 from .roles import Roles
 from .works import Works
 
 
-class Person(BaseModel):
-    """Represents person entity."""
+class PersonInfo(BaseModel):
+    """Represents person info entity."""
     id: int
     name: str
     russian: str
     image: Image
     url: str
-    japanese: Optional[str]
-    job_title: Optional[str]
-    birthday: Optional[Birthday]
-    website: Optional[str]
-    groupped_roles: Optional[List[Tuple[str, int]]]
-    roles: Optional[List[Roles]]
-    works: Optional[List[Works]]
-    thread_id: Optional[int]
+
+
+class Person(PersonInfo):
+    """Represents person entity."""
+    japanese: str
+    job_title: str
+    birth_on: Date
+    deceased_on: Date
+    website: str
+    groupped_roles: List[Tuple[str, int]]
+    roles: List[Roles]
+    works: List[Works]
     topic_id: Optional[int]
-    person_favoured: Optional[bool]
-    producer: Optional[bool]
-    producer_favoured: Optional[bool]
-    mangaka: Optional[bool]
-    mangaka_favoured: Optional[bool]
-    seyu: Optional[bool]
-    seyu_favoured: Optional[bool]
-    updated_at: Optional[datetime]
+    person_favoured: bool
+    producer: bool
+    producer_favoured: bool
+    mangaka: bool
+    mangaka_favoured: bool
+    seyu: bool
+    seyu_favoured: bool
+    updated_at: datetime
+    thread_id: Optional[int]
+    # ? Seems like it's gonna be removed soon
+    # because of birth_on and deceased_on fields
+    birthday: Date

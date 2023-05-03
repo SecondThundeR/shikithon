@@ -1,10 +1,10 @@
-"""Represents /api/constants resource."""
+"""Represents `/api/constants` resource."""
 from typing import Any, Dict, List, cast
 
 from ..decorators import exceptions_handler, method_endpoint
 from ..exceptions import ShikimoriAPIResponseError
 from ..models import (AnimeConstants, ClubConstants, MangaConstants,
-                      SmileyConstants, UserRateConstants)
+                      SmileyConstant, UserRateConstants)
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -12,7 +12,7 @@ from .base_resource import BaseResource
 class Constants(BaseResource):
     """Constants resource class.
 
-    Used to represent /api/constants resource.
+    Used to represent `/api/constants` resource
     """
 
     @method_endpoint('/api/constants/anime')
@@ -74,14 +74,14 @@ class Constants(BaseResource):
     @method_endpoint('/api/constants/smileys')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def smileys(self):
-        """Returns list of smileys constants values.
+        """Returns list of smiley constant values.
 
-        :return: List of smileys constants values
-        :rtype: List[SmileyConstants]
+        :return: List of smiley constant values
+        :rtype: List[SmileyConstant]
         """
         response = await self._client.request(
             self._client.endpoints.smileys_constants)
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=SmileyConstants)
+                                            data_model=SmileyConstant)

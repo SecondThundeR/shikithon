@@ -1,10 +1,10 @@
-"""Represents /api/ranobes resource."""
+"""Represents `/api/ranobes` resource."""
 from typing import Any, Dict, List, Optional, Union, cast
 
 from ..decorators import exceptions_handler, method_endpoint
 from ..enums import RanobeCensorship, RanobeList, RanobeOrder, RanobeStatus
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree, Link, Ranobe, Relation, Role, Topic
+from ..models import FranchiseTree, Link, RanobeInfo, MangaInfo, Ranobe, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -12,7 +12,7 @@ from .base_resource import BaseResource
 class Ranobes(BaseResource):
     """Ranobes resource class.
 
-    Used to represent /api/ranobes resource.
+    Used to represent `/api/ranobes` resource
     """
 
     @method_endpoint('/api/ranobe')
@@ -29,8 +29,8 @@ class Ranobes(BaseResource):
                       publisher: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
                       censored: Optional[RanobeCensorship] = None,
-                      my_list: Optional[Union[RanobeList,
-                                              List[RanobeList]]] = None,
+                      mylist: Optional[Union[RanobeList,
+                                             List[RanobeList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None):
@@ -66,10 +66,10 @@ class Ranobes(BaseResource):
         :param censored: Type of ranobe censorship
         :type censored: Optional[RanobeCensorship]
 
-        :param my_list: Status(-es) of ranobe in current user list.
+        :param mylist: Status(-es) of ranobe in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[RanobeList, List[RanobeList]]]
+        :type mylist: Optional[Union[RanobeList, List[RanobeList]]]
 
         :param ids: Ranobe(s) ID to include
         :type ids: Optional[Union[int, List[int]]
@@ -81,7 +81,7 @@ class Ranobes(BaseResource):
         :type search: Optional[str]
 
         :return: List of Ranobe
-        :rtype: List[Ranobe]
+        :rtype: List[RanobeInfo]
         """
         query_dict = Utils.create_query_dict(page=page,
                                              limit=limit,
@@ -93,7 +93,7 @@ class Ranobes(BaseResource):
                                              publisher=publisher,
                                              franchise=franchise,
                                              censored=censored,
-                                             mylist=my_list,
+                                             mylist=mylist,
                                              ids=ids,
                                              exclude_ids=exclude_ids,
                                              search=search)
@@ -103,7 +103,7 @@ class Ranobes(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Ranobe)
+                                            data_model=RanobeInfo)
 
     @method_endpoint('/api/ranobe/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -143,20 +143,19 @@ class Ranobes(BaseResource):
     @method_endpoint('/api/ranobe/:id/similar')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def similar(self, ranobe_id: int):
-        """Returns list of similar ranobes for certain ranobe.
+        """Returns list of similar mangas or ranobe for certain ranobe.
 
-        :param ranobe_id: Ranobe ID to get similar ranobes
+        :param ranobe_id: Ranobe ID to get similar mangas/ranobe
         :type ranobe_id: int
 
-        :return: List of similar ranobes
-        :rtype: List[Ranobe]
+        :return: List of similar mangas/ranobe
+        :rtype: List[Union[MangaInfo, RanobeInfo]]
         """
         response = await self._client.request(
             self._client.endpoints.similar_ranobes(ranobe_id))
 
-        return Utils.validate_response_data(cast(List[Dict[str, Any]],
-                                                 response),
-                                            data_model=Ranobe)
+        return Utils.parse_mixed_response(response, List[Union[MangaInfo,
+                                                               RanobeInfo]])
 
     @method_endpoint('/api/ranobe/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])

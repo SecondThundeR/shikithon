@@ -1,11 +1,11 @@
-"""Represents /api/mangas resource."""
+"""Represents `/api/mangas` resource."""
 from typing import Any, Dict, List, Optional, Union, cast
 
 from ..decorators import exceptions_handler, method_endpoint
 from ..enums import (MangaCensorship, MangaKind, MangaList, MangaOrder,
                      MangaStatus)
 from ..exceptions import ShikimoriAPIResponseError
-from ..models import FranchiseTree, Link, Manga, Relation, Role, Topic
+from ..models import FranchiseTree, Link, Manga, MangaInfo, RanobeInfo, Relation, Role, Topic
 from ..utils import Utils
 from .base_resource import BaseResource
 
@@ -13,7 +13,7 @@ from .base_resource import BaseResource
 class Mangas(BaseResource):
     """Mangas resource class.
 
-    Used to represent /api/mangas resource.
+    Used to represent `/api/mangas` resource
     """
 
     @method_endpoint('/api/mangas')
@@ -31,8 +31,8 @@ class Mangas(BaseResource):
                       publisher: Optional[Union[int, List[int]]] = None,
                       franchise: Optional[Union[int, List[int]]] = None,
                       censored: Optional[MangaCensorship] = None,
-                      my_list: Optional[Union[MangaList,
-                                              List[MangaList]]] = None,
+                      mylist: Optional[Union[MangaList,
+                                             List[MangaList]]] = None,
                       ids: Optional[Union[int, List[int]]] = None,
                       exclude_ids: Optional[Union[int, List[int]]] = None,
                       search: Optional[str] = None):
@@ -71,10 +71,10 @@ class Mangas(BaseResource):
         :param censored: Type of manga censorship
         :type censored: Optional[MangaCensorship]
 
-        :param my_list: Status(-es) of manga in current user list.
+        :param mylist: Status(-es) of manga in current user list.
             If app is in restricted mode,
             this parameter won't affect on response.
-        :type my_list: Optional[Union[MangaList, List[MangaList]]]
+        :type mylist: Optional[Union[MangaList, List[MangaList]]]
 
         :param ids: Manga(s) ID to include
         :type ids: Optional[Union[int, List[int]]
@@ -86,7 +86,7 @@ class Mangas(BaseResource):
         :type search: Optional[str]
 
         :return: List of Mangas
-        :rtype: List[Manga]
+        :rtype: List[MangaInfo]
         """
         query_dict = Utils.create_query_dict(page=page,
                                              limit=limit,
@@ -99,7 +99,7 @@ class Mangas(BaseResource):
                                              publisher=publisher,
                                              franchise=franchise,
                                              censored=censored,
-                                             mylist=my_list,
+                                             mylist=mylist,
                                              ids=ids,
                                              exclude_ids=exclude_ids,
                                              search=search)
@@ -109,7 +109,7 @@ class Mangas(BaseResource):
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
-                                            data_model=Manga)
+                                            data_model=MangaInfo)
 
     @method_endpoint('/api/mangas/:id')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=None)
@@ -149,20 +149,19 @@ class Mangas(BaseResource):
     @method_endpoint('/api/mangas/:id/similar')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
     async def similar(self, manga_id: int):
-        """Returns list of similar mangas for certain manga.
+        """Returns list of similar mangas or ranobe for certain manga.
 
-        :param manga_id: Manga ID to get similar mangas
+        :param manga_id: Manga ID to get similar mangas/ranobe
         :type manga_id: int
 
-        :return: List of similar mangas
-        :rtype: List[Manga]
+        :return: List of similar mangas/ranobe
+        :rtype: List[Union[MangaInfo, RanobeInfo]]
         """
         response = await self._client.request(
             self._client.endpoints.similar_mangas(manga_id))
 
-        return Utils.validate_response_data(cast(List[Dict[str, Any]],
-                                                 response),
-                                            data_model=Manga)
+        return Utils.parse_mixed_response(response, List[Union[MangaInfo,
+                                                               RanobeInfo]])
 
     @method_endpoint('/api/mangas/:id/related')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])

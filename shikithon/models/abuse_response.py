@@ -1,4 +1,4 @@
-"""Model for api/v2/abuse_requests"""
+"""Model for `api/v2/abuse_requests`."""
 from typing import List
 
 from pydantic import BaseModel

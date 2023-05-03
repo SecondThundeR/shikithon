@@ -1,4 +1,5 @@
-"""Submodel for message.py"""
+"""Submodel for `message.py`."""
+from datetime import date
 from typing import Optional
 
 from pydantic import BaseModel
@@ -13,14 +14,14 @@ class LinkedTopic(BaseModel):
     thread_id: int
     topic_id: int
     type: str
-    name: str
-    russian: str
-    image: Image
-    url: str
-    kind: str
-    score: float
-    status: str
-    episodes: int
-    episodes_aired: int
-    aired_on: Optional[str]
-    released_on: Optional[str]
+    name: Optional[str]
+    russian: Optional[str]
+    image: Optional[Image]
+    url: Optional[str]
+    kind: Optional[str]
+    score: Optional[float]
+    status: Optional[str]
+    episodes: Optional[int]
+    episodes_aired: Optional[int]
+    aired_on: Optional[date]
+    released_on: Optional[date]

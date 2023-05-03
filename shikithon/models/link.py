@@ -1,4 +1,4 @@
-"""Model for /api/animes/:id/external_links"""
+"""Model for `/api/animes/:id/external_links`."""
 from datetime import datetime
 from typing import Optional
 

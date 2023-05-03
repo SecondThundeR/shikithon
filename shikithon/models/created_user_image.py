@@ -1,4 +1,4 @@
-"""Model for /api/user_images"""
+"""Model for `/api/user_images`."""
 from pydantic import BaseModel
 
 

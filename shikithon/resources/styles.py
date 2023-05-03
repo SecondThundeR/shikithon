@@ -1,4 +1,4 @@
-"""Represents /api/styles resource."""
+"""Represents `/api/styles` resource."""
 from typing import Any, Dict, Optional, cast
 
 from ..decorators import exceptions_handler, method_endpoint
@@ -8,13 +8,13 @@ from ..models import Style
 from ..utils import Utils
 from .base_resource import BaseResource
 
-STYLES_DICT_NAME = 'style'
+DICT_NAME = 'style'
 
 
 class Styles(BaseResource):
     """Styles resource class.
 
-    Used to represent /api/styles resource.
+    Used to represent `/api/styles` resource
     """
 
     @method_endpoint('/api/styles/:id')
@@ -45,7 +45,7 @@ class Styles(BaseResource):
         :return: Info about previewed style
         :rtype: Optional[Style]
         """
-        data_dict = Utils.create_data_dict(dict_name=STYLES_DICT_NAME, css=css)
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME, css=css)
 
         response = await self._client.request(
             self._client.endpoints.style_preview,
@@ -76,7 +76,7 @@ class Styles(BaseResource):
         :return: Info about previewed style
         :rtype: Optional[Style]
         """
-        data_dict = Utils.create_data_dict(dict_name=STYLES_DICT_NAME,
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME,
                                            css=css,
                                            name=name,
                                            owner_id=owner_id,
@@ -109,7 +109,7 @@ class Styles(BaseResource):
         :return: Info about updated style
         :rtype: Optional[Style]
         """
-        data_dict = Utils.create_data_dict(dict_name=STYLES_DICT_NAME,
+        data_dict = Utils.create_data_dict(dict_name=DICT_NAME,
                                            css=css,
                                            name=name)
 

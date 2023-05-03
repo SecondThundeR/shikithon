@@ -1,4 +1,4 @@
-"""Submodel for user.py"""
+"""Submodel for `user.py`."""
 from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
