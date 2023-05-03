@@ -1,4 +1,4 @@
-"""Submodel for other main models"""
+"""Submodel for other main models."""
 from pydantic import BaseModel
 
 
