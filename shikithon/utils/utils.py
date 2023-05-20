@@ -16,6 +16,10 @@ from validators import url
 from ..enums import ResponseCode
 
 LOWER_LIMIT_NUMBER = 1
+CENSORED_FIELDS = (
+    'access_token',
+    'refresh_token',
+)
 M = TypeVar('M', bound=BaseModel)
 
 R = TypeVar('R')
@@ -385,14 +389,27 @@ class Utils:
         return form_data
 
     @staticmethod
-    async def log_response_info(response: ClientResponse):
+    async def log_response_info(response: ClientResponse,
+                                remove_sensitive_data: Optional[bool] = False):
         """Logs response info.
 
         This method extracts response status, headers and data
 
         :param response: Response object
         :type response: ClientResponse
+
+        :param remove_sensitive_data: Boolean flag for censoring sensitive data
+        :type remove_sensitive_data: Optional[bool]
         """
         logger.debug(f'Response status: {response.status}')
         logger.debug(f'Response headers: {response.headers}')
-        logger.debug(f'Response data: {await response.text()}')
+        if not remove_sensitive_data:
+            logger.debug(f'Response data: {await response.text()}')
+            return
+
+        censored_response_data: Dict[str, Any] = await response.json()
+        for key in censored_response_data.keys():
+            if key in CENSORED_FIELDS:
+                censored_response_data[key] = '[REDACTED]'
+
+        logger.debug(f'Response data: {censored_response_data}')

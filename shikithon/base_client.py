@@ -495,7 +495,7 @@ class Client:
                 logger.debug('Unknown request type passed. Returning None')
                 return None
 
-        await Utils.log_response_info(response)
+        await Utils.log_response_info(response, not output_logging)
 
         try:
             if response.status == 401 and self._is_protected_request(url):
