@@ -17,20 +17,22 @@ class UserInfo(BaseModel):
     last_online_at: datetime
     url: str
 
-
-class UserBrief(UserInfo):
-    """Represents user brief info entity."""
+class UserPersonal(UserInfo):
+    """Represents user personal info entity."""
     name: Optional[str]
     sex: Optional[str]
+    website: str
     full_years: Optional[int]
+
+class UserBrief(UserPersonal):
+    """Represents user brief info entity."""
+    birth_on: Optional[datetime]
     locale: Optional[str]
 
 
-class User(UserBrief):
+class User(UserPersonal):
     """Represents user full info entity."""
     last_online: str
-    website: str
-    birth_on: Optional[datetime]
     location: Optional[str]
     banned: bool
     about: str
