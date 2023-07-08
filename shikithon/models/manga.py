@@ -35,7 +35,6 @@ class MangaInfo(BaseModel):
     aired_on: Optional[date] = None
     released_on: Optional[date] = None
 
-    # pylint: disable=E0213
     @field_validator('kind')
     def kind_validator(cls, v):
         if v not in MANGAS_KIND:

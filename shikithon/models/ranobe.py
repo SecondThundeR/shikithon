@@ -27,7 +27,6 @@ class RanobeInfo(BaseModel):
     aired_on: Optional[date] = None
     released_on: Optional[date] = None
 
-    # pylint: disable=E0213
     @field_validator('kind')
     def kind_validator(cls, v):
         if 'novel' not in v:
