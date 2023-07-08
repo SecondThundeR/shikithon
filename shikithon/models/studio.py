@@ -10,4 +10,4 @@ class Studio(BaseModel):
     name: str
     filtered_name: str
     real: bool
-    image: Optional[str]
+    image: Optional[str] = None

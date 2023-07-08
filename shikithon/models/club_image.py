@@ -10,5 +10,5 @@ class ClubImage(BaseModel):
     original_url: str
     main_url: str
     preview_url: str
-    can_destroy: Optional[bool]
+    can_destroy: Optional[bool] = None
     user_id: int

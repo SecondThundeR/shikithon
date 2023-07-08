@@ -14,14 +14,14 @@ class LinkedTopic(BaseModel):
     thread_id: int
     topic_id: int
     type: str
-    name: Optional[str]
-    russian: Optional[str]
-    image: Optional[Image]
-    url: Optional[str]
-    kind: Optional[str]
-    score: Optional[float]
-    status: Optional[str]
-    episodes: Optional[int]
-    episodes_aired: Optional[int]
-    aired_on: Optional[date]
-    released_on: Optional[date]
+    name: Optional[str] = None
+    russian: Optional[str] = None
+    image: Optional[Image] = None
+    url: Optional[str] = None
+    kind: Optional[str] = None
+    score: Optional[float] = None
+    status: Optional[str] = None
+    episodes: Optional[int] = None
+    episodes_aired: Optional[int] = None
+    aired_on: Optional[date] = None
+    released_on: Optional[date] = None

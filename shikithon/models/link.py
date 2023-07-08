@@ -7,12 +7,12 @@ from pydantic import BaseModel
 
 class Link(BaseModel):
     """Represents external link entity."""
-    id: Optional[int]
+    id: Optional[int] = None
     kind: str
     url: str
     source: str
     entry_id: int
     entry_type: str
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
-    imported_at: Optional[datetime]
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    imported_at: Optional[datetime] = None

@@ -10,6 +10,6 @@ class Video(BaseModel):
     url: str
     image_url: str
     player_url: str
-    name: Optional[str]
+    name: Optional[str] = None
     kind: str
     hosting: str

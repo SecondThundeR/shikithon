@@ -17,15 +17,15 @@ class Critique(BaseModel):
     `Topics::EntryTopics::CritiqueTopic`
     """
     id: int
-    target: Optional[Union[AnimeInfo, MangaInfo, RanobeInfo]]
+    target: Optional[Union[AnimeInfo, MangaInfo, RanobeInfo]] = None
     user: UserInfo
     votes_count: int
     votes_for: int
     body: str
     html_body: str
-    overall: Optional[int]
-    storyline: Optional[int]
-    music: Optional[int]
-    characters: Optional[int]
-    animation: Optional[int]
+    overall: Optional[int] = None
+    storyline: Optional[int] = None
+    music: Optional[int] = None
+    characters: Optional[int] = None
+    animation: Optional[int] = None
     created_at: datetime

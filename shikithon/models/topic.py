@@ -38,21 +38,21 @@ class Topic(BaseModel):
     forum: Forum
     user: UserInfo
     type: str
-    linked_id: Optional[int]
-    linked_type: Optional[str]
+    linked_id: Optional[int] = None
+    linked_type: Optional[str] = None
     linked: Optional[Union[AnimeInfo, MangaInfo, RanobeInfo, ClubInfo,
-                           CharacterInfo, Critique]]
+                           CharacterInfo, Critique]] = None
     viewed: bool
-    last_comment_viewed: Optional[bool]
-    event: Optional[str]
-    episode: Optional[int]
+    last_comment_viewed: Optional[bool] = None
+    event: Optional[str] = None
+    episode: Optional[int] = None
 
 
 class TopicUpdate(BaseModel):
     """Represents topic update entity."""
     id: int
     linked: Union[AnimeInfo, MangaInfo, RanobeInfo]
-    event: Optional[str]
-    episode: Optional[int]
+    event: Optional[str] = None
+    episode: Optional[int] = None
     created_at: datetime
     url: str

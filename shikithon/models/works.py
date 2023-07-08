@@ -10,6 +10,6 @@ from .ranobe import RanobeInfo
 
 class Works(BaseModel):
     """Represents works entity of person."""
-    anime: Optional[AnimeInfo]
-    manga: Optional[Union[MangaInfo, RanobeInfo]]
+    anime: Optional[AnimeInfo] = None
+    manga: Optional[Union[MangaInfo, RanobeInfo]] = None
     role: str

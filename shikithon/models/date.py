@@ -9,6 +9,6 @@ class Date(BaseModel):
 
     Used to represent birthday or decease of person
     """
-    day: Optional[int]
-    month: Optional[int]
-    year: Optional[int]
+    day: Optional[int] = None
+    month: Optional[int] = None
+    year: Optional[int] = None

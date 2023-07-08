@@ -12,11 +12,11 @@ class Style(BaseModel):
     `/api/styles/preview` returning non-null
     for 3 fields only
     """
-    id: Optional[int]
-    owner_id: Optional[int]
-    owner_type: Optional[str]
+    id: Optional[int] = None
+    owner_id: Optional[int] = None
+    owner_type: Optional[str] = None
     name: str
     css: str
-    compiled_css: Optional[str]
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]
+    compiled_css: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None

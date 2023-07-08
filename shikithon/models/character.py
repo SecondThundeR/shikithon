@@ -24,12 +24,12 @@ class Character(CharacterInfo):
     """Represents character entity."""
     altname: str
     japanese: str
-    description: Optional[str]
+    description: Optional[str] = None
     description_html: str
-    description_source: Optional[str]
+    description_source: Optional[str] = None
     favoured: bool
-    thread_id: Optional[int]
-    topic_id: Optional[int]
+    thread_id: Optional[int] = None
+    topic_id: Optional[int] = None
     updated_at: datetime
     seyu: List[Seyu]
     animes: List[CharacterAnime]

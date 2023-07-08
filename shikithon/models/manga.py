@@ -2,7 +2,7 @@
 from datetime import date
 from typing import List, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from .genre import Genre
 from .image import Image
@@ -32,11 +32,11 @@ class MangaInfo(BaseModel):
     status: str
     volumes: int
     chapters: int
-    aired_on: Optional[date]
-    released_on: Optional[date]
+    aired_on: Optional[date] = None
+    released_on: Optional[date] = None
 
     # pylint: disable=E0213
-    @validator('kind')
+    @field_validator('kind')
     def kind_validator(cls, v):
         if v not in MANGAS_KIND:
             raise ValueError(f'Invalid manga kind. Got "{v}"'
@@ -49,23 +49,23 @@ class Manga(MangaInfo):
     english: List[Optional[str]]
     japanese: List[Optional[str]]
     synonyms: List[str]
-    license_name_ru: Optional[str]
-    description: Optional[str]
+    license_name_ru: Optional[str] = None
+    description: Optional[str] = None
     description_html: str
-    description_source: Optional[str]
-    franchise: Optional[str]
+    description_source: Optional[str] = None
+    franchise: Optional[str] = None
     favoured: bool
     anons: bool
     ongoing: bool
-    thread_id: Optional[int]
-    topic_id: Optional[int]
+    thread_id: Optional[int] = None
+    topic_id: Optional[int] = None
     myanimelist_id: int
     rates_scores_stats: List[UserRateScore]
     rates_statuses_stats: List[UserRateStatus]
     licensors: List[str]
     genres: List[Genre]
     publishers: List[Publisher]
-    user_rate: Optional[UserRate]
+    user_rate: Optional[UserRate] = None
 
 
 class CharacterManga(MangaInfo):

@@ -12,5 +12,5 @@ class Relation(BaseModel):
     """Represents relation entity."""
     relation: str
     relation_russian: str
-    anime: Optional[AnimeInfo]
-    manga: Optional[Union[MangaInfo, RanobeInfo]]
+    anime: Optional[AnimeInfo] = None
+    manga: Optional[Union[MangaInfo, RanobeInfo]] = None

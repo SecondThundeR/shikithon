@@ -13,12 +13,12 @@ class MessageInfo(BaseModel):
     id: int
     kind: str
     read: bool
-    body: Optional[str]
+    body: Optional[str] = None
     html_body: str
     created_at: datetime
     linked_id: int
-    linked_type: Optional[str]
-    linked: Optional[LinkedTopic]
+    linked_type: Optional[str] = None
+    linked: Optional[LinkedTopic] = None
 
 
 class Message(MessageInfo):

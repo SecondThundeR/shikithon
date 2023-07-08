@@ -15,14 +15,14 @@ from .type_list import TypeList
 
 class Stats(BaseModel):
     """Represents user's stats entity."""
-    statuses: Optional[StatusList]
-    full_statuses: Optional[StatusList]
-    scores: Optional[ScoreList]
-    types: Optional[TypeList]
-    ratings: Optional[RatingList]
-    has_anime: Optional[bool] = Field(alias='has_anime?')
-    has_manga: Optional[bool] = Field(alias='has_manga?')
+    statuses: Optional[StatusList] = None
+    full_statuses: Optional[StatusList] = None
+    scores: Optional[ScoreList] = None
+    types: Optional[TypeList] = None
+    ratings: Optional[RatingList] = None
+    has_anime: Optional[bool] = Field(default=None, alias='has_anime?')
+    has_manga: Optional[bool] = Field(default=None, alias='has_manga?')
     genres: List[Genre]
     studios: List[Studio]
     publishers: List[Publisher]
-    activity: Optional[Union[List[Activity], Dict]]
+    activity: Optional[Union[List[Activity], Dict]] = None

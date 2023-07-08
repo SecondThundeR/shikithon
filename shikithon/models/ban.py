@@ -12,7 +12,7 @@ class Ban(BaseModel):
     """Represents ban entity."""
     id: int
     user_id: int
-    comment: Optional[CommentInfo]
+    comment: Optional[CommentInfo] = None
     moderator_id: int
     reason: str
     created_at: datetime

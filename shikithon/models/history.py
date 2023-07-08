@@ -14,4 +14,4 @@ class History(BaseModel):
     id: int
     created_at: datetime
     description: str
-    target: Optional[Union[AnimeInfo, MangaInfo, RanobeInfo]]
+    target: Optional[Union[AnimeInfo, MangaInfo, RanobeInfo]] = None

@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Type, TypeVar, Union, overload
 
 from aiohttp import ClientResponse, ClientSession, FormData
 from loguru import logger
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel, TypeAdapter
 from validators import url
 
 from ..enums import ResponseCode
@@ -315,7 +315,8 @@ class Utils:
         """
         logger.info('Parsing response with mixed models')
         logger.info(f'Parsing using type: {parse_type}')
-        return parse_obj_as(parse_type, response)
+        adapter: TypeAdapter[T] = TypeAdapter(parse_type)
+        return adapter.validate_python(response)
 
     @staticmethod
     def create_form_data(raw_data: Dict[str, Any]):

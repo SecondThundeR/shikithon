@@ -8,5 +8,5 @@ from .rating import Rating
 
 class RatingList(BaseModel):
     """Represents ratings collection of anime/manga."""
-    anime: Optional[List[Rating]]
-    manga: Optional[List[Rating]]
+    anime: Optional[List[Rating]] = None
+    manga: Optional[List[Rating]] = None

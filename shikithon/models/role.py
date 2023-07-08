@@ -11,5 +11,5 @@ class Role(BaseModel):
     """Represents role info entity."""
     roles: List[str]
     roles_russian: List[str]
-    character: Optional[CharacterInfo]
-    person: Optional[PersonInfo]
+    character: Optional[CharacterInfo] = None
+    person: Optional[PersonInfo] = None

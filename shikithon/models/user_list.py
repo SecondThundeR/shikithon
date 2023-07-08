@@ -18,14 +18,14 @@ class UserList(BaseModel):
     id: int
     score: int
     status: str
-    text: Optional[str]
-    episodes: Optional[int]
-    chapters: Optional[int]
-    volumes: Optional[int]
+    text: Optional[str] = None
+    episodes: Optional[int] = None
+    chapters: Optional[int] = None
+    volumes: Optional[int] = None
     text_html: str
     rewatches: int
     created_at: datetime
     updated_at: datetime
     user: UserInfo
-    anime: Optional[AnimeInfo]
-    manga: Optional[Union[MangaInfo, RanobeInfo]]
+    anime: Optional[AnimeInfo] = None
+    manga: Optional[Union[MangaInfo, RanobeInfo]] = None

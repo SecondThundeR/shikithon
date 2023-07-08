@@ -23,13 +23,13 @@ class ClubInfo(BaseModel):
 
 class Club(ClubInfo):
     """Represents a club entity."""
-    description: Optional[str]
+    description: Optional[str] = None
     description_html: str
     mangas: List[MangaInfo]
     characters: List[CharacterInfo]
     thread_id: int
     topic_id: int
-    user_role: Optional[str]
+    user_role: Optional[str] = None
     style_id: int
     members: List[UserInfo]
     animes: List[AnimeInfo]

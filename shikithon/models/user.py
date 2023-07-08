@@ -17,29 +17,31 @@ class UserInfo(BaseModel):
     last_online_at: datetime
     url: str
 
+
 class UserPersonal(UserInfo):
     """Represents user personal info entity."""
-    name: Optional[str]
-    sex: Optional[str]
+    name: Optional[str] = None
+    sex: Optional[str] = None
     website: str
-    full_years: Optional[int]
+    full_years: Optional[int] = None
+
 
 class UserBrief(UserPersonal):
     """Represents user brief info entity."""
-    birth_on: Optional[datetime]
-    locale: Optional[str]
+    birth_on: Optional[datetime] = None
+    locale: Optional[str] = None
 
 
 class User(UserPersonal):
     """Represents user full info entity."""
     last_online: str
-    location: Optional[str]
+    location: Optional[str] = None
     banned: bool
     about: str
     about_html: str
     common_info: List[str]
     show_comments: bool
-    in_friends: Optional[bool]
+    in_friends: Optional[bool] = None
     is_ignored: bool
     stats: Stats
     style_id: int

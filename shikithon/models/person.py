@@ -29,7 +29,7 @@ class Person(PersonInfo):
     groupped_roles: List[Tuple[str, int]]
     roles: List[Roles]
     works: List[Works]
-    topic_id: Optional[int]
+    topic_id: Optional[int] = None
     person_favoured: bool
     producer: bool
     producer_favoured: bool
@@ -38,7 +38,7 @@ class Person(PersonInfo):
     seyu: bool
     seyu_favoured: bool
     updated_at: datetime
-    thread_id: Optional[int]
+    thread_id: Optional[int] = None
     # ? Seems like it's gonna be removed soon
     # because of birth_on and deceased_on fields
     birthday: Date

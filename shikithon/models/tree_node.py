@@ -11,6 +11,6 @@ class TreeNode(BaseModel):
     name: str
     image_url: str
     url: str
-    year: Optional[int]
-    kind: Optional[str]
+    year: Optional[int] = None
+    kind: Optional[str] = None
     weight: int

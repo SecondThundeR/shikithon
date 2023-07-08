@@ -10,4 +10,4 @@ class Favourite(BaseModel):
     name: str
     russian: str
     image: str
-    url: Optional[str]
+    url: Optional[str] = None

@@ -21,13 +21,13 @@ class AnimeInfo(BaseModel):
     russian: str
     image: Image
     url: str
-    kind: Optional[str]
+    kind: Optional[str] = None
     score: float
     status: str
     episodes: int
     episodes_aired: int
-    aired_on: Optional[date]
-    released_on: Optional[date]
+    aired_on: Optional[date] = None
+    released_on: Optional[date] = None
 
 
 class Anime(AnimeInfo):
@@ -36,22 +36,22 @@ class Anime(AnimeInfo):
     english: List[Optional[str]]
     japanese: List[Optional[str]]
     synonyms: List[str]
-    license_name_ru: Optional[str]
+    license_name_ru: Optional[str] = None
     duration: int
-    description: Optional[str]
+    description: Optional[str] = None
     description_html: str
-    description_source: Optional[str]
-    franchise: Optional[str]
+    description_source: Optional[str] = None
+    franchise: Optional[str] = None
     favoured: bool
     anons: bool
     ongoing: bool
-    thread_id: Optional[int]
-    topic_id: Optional[int]
+    thread_id: Optional[int] = None
+    topic_id: Optional[int] = None
     myanimelist_id: int
     rates_scores_stats: List[UserRateScore]
     rates_statuses_stats: List[UserRateStatus]
     updated_at: datetime
-    next_episode_at: Optional[datetime]
+    next_episode_at: Optional[datetime] = None
     fansubbers: List[str]
     fandubbers: List[str]
     licensors: List[str]
@@ -59,7 +59,7 @@ class Anime(AnimeInfo):
     studios: List[Studio]
     videos: List[Video]
     screenshots: List[Screenshot]
-    user_rate: Optional[UserRate]
+    user_rate: Optional[UserRate] = None
 
 
 class CharacterAnime(AnimeInfo):
