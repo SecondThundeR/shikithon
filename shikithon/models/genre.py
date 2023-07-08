@@ -1,5 +1,5 @@
 """Submodel for `anime.py`."""
-from typing import Optional
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -9,4 +9,5 @@ class Genre(BaseModel):
     id: int
     name: str
     russian: str
-    kind: Optional[str]
+    kind: Literal['genre', 'demographic', 'theme']
+    entry_type: Literal['Anime', 'Manga']
