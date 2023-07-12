@@ -188,17 +188,22 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/animes')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def animes(self, club_id: int):
+    async def animes(self, club_id: int, page: Optional[int] = None):
         """Returns anime list of club.
 
         :param club_id: Club ID to get anime list
         :type club_id: int
 
+        :param page: Number of page
+        :type page: Optional[int]
+
         :return: Club's anime list
         :rtype: List[AnimeInfo]
         """
+        query_dict = Utils.create_query_dict(page=page)
+
         response = await self._client.request(
-            self._client.endpoints.club_animes(club_id))
+            self._client.endpoints.club_animes(club_id), query=query_dict)
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
@@ -206,17 +211,22 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/mangas')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def mangas(self, club_id: int):
+    async def mangas(self, club_id: int, page: Optional[int] = None):
         """Returns manga list of club.
 
         :param club_id: Club ID to get manga list
         :type club_id: int
 
+        :param page: Number of page
+        :type page: Optional[int]
+
         :return: Club's manga list
         :rtype: List[MangaInfo]
         """
+        query_dict = Utils.create_query_dict(page=page)
+
         response = await self._client.request(
-            self._client.endpoints.club_mangas(club_id))
+            self._client.endpoints.club_mangas(club_id), query=query_dict)
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
@@ -224,17 +234,22 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/ranobe')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def ranobe(self, club_id: int):
+    async def ranobe(self, club_id: int, page: Optional[int] = None):
         """Returns ranobe list of club.
 
         :param club_id: Club ID to get ranobe list
         :type club_id: int
 
+        :param page: Number of page
+        :type page: Optional[int]
+
         :return: Club's ranobe list
         :rtype: List[RanobeInfo]
         """
+        query_dict = Utils.create_query_dict(page=page)
+
         response = await self._client.request(
-            self._client.endpoints.club_ranobe(club_id))
+            self._client.endpoints.club_ranobe(club_id), query=query_dict)
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
@@ -242,17 +257,22 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/characters')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def characters(self, club_id: int):
+    async def characters(self, club_id: int, page: Optional[int] = None):
         """Returns character list of club.
 
         :param club_id: Club ID to get character list
         :type club_id: int
 
+        :param page: Number of page
+        :type page: Optional[int]
+
         :return: Club's character list
         :rtype: List[CharacterInfo]
         """
+        query_dict = Utils.create_query_dict(page=page)
+
         response = await self._client.request(
-            self._client.endpoints.club_characters(club_id))
+            self._client.endpoints.club_characters(club_id), query=query_dict)
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
@@ -260,17 +280,22 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/collections')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def collections(self, club_id: int):
+    async def collections(self, club_id: int, page: Optional[int] = None):
         """Returns collection list of club.
 
         :param club_id: Club ID to get collection list
         :type club_id: int
 
+        :param page: Number of page
+        :type page: Optional[int]
+
         :return: Club's collection list
         :rtype: List[Topic]
         """
+        query_dict = Utils.create_query_dict(page=page)
+
         response = await self._client.request(
-            self._client.endpoints.club_collections(club_id))
+            self._client.endpoints.club_collections(club_id), query=query_dict)
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
@@ -278,17 +303,22 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/clubs')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def clubs(self, club_id: int):
+    async def clubs(self, club_id: int, page: Optional[int] = None):
         """Returns clubs info list of club.
 
         :param club_id: Club ID to get clubs info list
         :type club_id: int
 
+        :param page: Number of page
+        :type page: Optional[int]
+
         :return: Club's clubs info list
         :rtype: List[ClubInfo]
         """
+        query_dict = Utils.create_query_dict(page=page)
+
         response = await self._client.request(
-            self._client.endpoints.club_clubs(club_id))
+            self._client.endpoints.club_clubs(club_id), query=query_dict)
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
