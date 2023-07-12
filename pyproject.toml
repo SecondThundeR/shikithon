@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "shikithon"
-version = "2.5.3"
+version = "2.5.4"
 description = "Yet another Python wrapper for Shikimori API"
 authors = [
     "SecondThundeR <awayfromgalaxy@gmail.com>"
