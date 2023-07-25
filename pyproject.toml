@@ -2,20 +2,14 @@
 name = "shikithon"
 version = "2.5.4"
 description = "Yet another Python wrapper for Shikimori API"
-authors = [
-    "SecondThundeR <awayfromgalaxy@gmail.com>"
-]
+authors = ["SecondThundeR <awayfromgalaxy@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/SecondThundeR/shikithon"
 repository = "https://github.com/SecondThundeR/shikithon"
 documentation = "https://github.com/SecondThundeR/shikithon/README.md"
-packages = [
-    { include = "shikithon", from = "." }
-]
-keywords = [
-    "Python", "Shikimori", "API"
-]
+packages = [{ include = "shikithon", from = "." }]
+keywords = ["Python", "Shikimori", "API"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -30,16 +24,14 @@ python_version = "3.8"
 ignore_missing_imports = true
 check_untyped_defs = true
 warn_redundant_casts = true
-plugins = [
-    "pydantic.mypy"
-]
+plugins = ["pydantic.mypy"]
 
 [tool.poetry.dependencies]
 python = "^3.8.10"
-pydantic = "^2.0.2"
+pydantic = "^2.0.3"
 loguru = "^0.7.0"
 validators = "^0.20.0"
-aiohttp = "^3.8.4"
+aiohttp = "^3.8.5"
 pyrate-limiter = "^2.10.0"
 backoff = "^2.2.1"
 typing-extensions = "^4.7.1"
