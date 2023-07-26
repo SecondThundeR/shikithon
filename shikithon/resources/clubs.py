@@ -326,17 +326,28 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/members')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def members(self, club_id: int):
-        """Returns member list of club.
+    async def members(self,
+                      club_id: int,
+                      page: Optional[int] = None,
+                      limit: Optional[int] = None):
+        """Returns list of club members.
 
-        :param club_id: Club ID to get member list
+        :param club_id: Club ID to get list of members
         :type club_id: int
+
+        :param page: Number of page
+        :type page: Optional[int]
+
+        :param limit: Number of results limit
+        :type limit: Optional[int]
 
         :return: Club's member list
         :rtype: List[UserInfo]
         """
+        query_dict = Utils.create_query_dict(page=page, limit=limit)
+
         response = await self._client.request(
-            self._client.endpoints.club_members(club_id))
+            self._client.endpoints.club_members(club_id), query=query_dict)
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
@@ -344,17 +355,28 @@ class Clubs(BaseResource):
 
     @method_endpoint('/api/clubs/:id/images')
     @exceptions_handler(ShikimoriAPIResponseError, fallback=[])
-    async def images(self, club_id: int):
+    async def images(self,
+                     club_id: int,
+                     page: Optional[int] = None,
+                     limit: Optional[int] = None):
         """Returns images of club.
 
         :param club_id: Club ID to get images
         :type club_id: int
 
+        :param page: Number of page
+        :type page: Optional[int]
+
+        :param limit: Number of results limit
+        :type limit: Optional[int]
+
         :return: Club's image list
         :rtype: List[ClubImage]
         """
+        query_dict = Utils.create_query_dict(page=page, limit=limit)
+
         response = await self._client.request(
-            self._client.endpoints.club_images(club_id))
+            self._client.endpoints.club_images(club_id), query=query_dict)
 
         return Utils.validate_response_data(cast(List[Dict[str, Any]],
                                                  response),
