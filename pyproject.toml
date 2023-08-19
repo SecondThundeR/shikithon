@@ -28,9 +28,9 @@ plugins = ["pydantic.mypy"]
 
 [tool.poetry.dependencies]
 python = "^3.8.10"
-pydantic = "^2.1.1"
+pydantic = "^2.2.1"
 loguru = "^0.7.0"
-validators = "^0.20.0"
+validators = "^0.21.2"
 aiohttp = "^3.8.5"
 pyrate-limiter = "^2.10.0"
 backoff = "^2.2.1"
@@ -38,7 +38,7 @@ typing-extensions = "^4.7.1"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.3.3"
-mypy = "^1.4.1"
+mypy = "^1.5.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
