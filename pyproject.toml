@@ -28,11 +28,11 @@ plugins = ["pydantic.mypy"]
 
 [tool.poetry.dependencies]
 python = "^3.8.10"
-pydantic = "^2.2.1"
+pydantic = "^2.3.0"
 loguru = "^0.7.0"
 validators = "^0.21.2"
 aiohttp = "^3.8.5"
-pyrate-limiter = "^2.10.0"
+pyrate-limiter = "^3.1.0"
 backoff = "^2.2.1"
 typing-extensions = "^4.7.1"
 
