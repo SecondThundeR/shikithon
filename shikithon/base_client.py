@@ -26,6 +26,7 @@ DEFAULT_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 RT = TypeVar('RT')
 
+
 class ClientConfig(TypedDict, total=False):
     app_name: str
     client_id: str
@@ -398,7 +399,12 @@ class Client:
         logger.debug(f'Token expire status: {token_expiration_status}')
         return token_expiration_status
 
-    @backoff.on_exception(backoff.fibo, RetryLater, max_time=300, max_tries=30)
+    @backoff.on_exception(backoff.expo,
+                          RetryLater,
+                          max_time=300,
+                          max_tries=30,
+                          base=2,
+                          factor=5)
     async def request(
         self,
         url: str,
