@@ -10,7 +10,6 @@ from typing import (Any, AsyncIterator, Awaitable, Dict, List, Optional,
 import backoff
 from aiohttp import ClientSession, ContentTypeError, FormData
 from loguru import logger
-from pyrate_limiter import Duration, Limiter, RequestRate
 
 from .endpoints import Endpoints
 from .enums import RequestType, ResponseCode
@@ -20,16 +19,12 @@ from .exceptions import (AlreadyRunningClient, InvalidContentType,
 from .store import NullStore, Store
 from .utils import Utils
 
-MAX_CALLS_PER_SECOND = 5
-MAX_CALLS_PER_MINUTE = 90
-
 SHIKIMORI_API_URL = 'https://shikimori.me/api'
 SHIKIMORI_API_URL_V2 = 'https://shikimori.me/api/v2'
 SHIKIMORI_OAUTH_URL = 'https://shikimori.me/oauth'
 DEFAULT_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 RT = TypeVar('RT')
-
 
 class ClientConfig(TypedDict, total=False):
     app_name: str
@@ -50,11 +45,6 @@ class TokensDict(TypedDict):
     scope: str
     created_at: int
     expires_in: int
-
-
-second_rate = RequestRate(MAX_CALLS_PER_SECOND, Duration.SECOND)
-minute_rate = RequestRate(MAX_CALLS_PER_MINUTE, Duration.MINUTE)
-request_limiter = Limiter(second_rate, minute_rate)
 
 
 class Client:
@@ -408,7 +398,7 @@ class Client:
         logger.debug(f'Token expire status: {token_expiration_status}')
         return token_expiration_status
 
-    @backoff.on_exception(backoff.expo, RetryLater, max_time=10, max_tries=20)
+    @backoff.on_exception(backoff.fibo, RetryLater, max_time=300, max_tries=30)
     async def request(
         self,
         url: str,
@@ -469,31 +459,28 @@ class Client:
                           int) and self.token_expired(token_expire_at):
                 await self._refresh_and_save_tokens()
 
-        async with request_limiter.ratelimit('request', delay=True):
-            if request_type == RequestType.GET:
-                response = await self._session.get(url, params=query)
-            elif request_type == RequestType.POST:
-                response = await self._session.post(url,
-                                                    data=form_data,
-                                                    json=data,
-                                                    params=query)
-            elif request_type == RequestType.PUT:
-                response = await self._session.put(url,
-                                                   data=form_data,
-                                                   json=data,
-                                                   params=query)
-            elif request_type == RequestType.PATCH:
-                response = await self._session.patch(url,
-                                                     data=form_data,
-                                                     json=data,
-                                                     params=query)
-            elif request_type == RequestType.DELETE:
-                response = await self._session.delete(url,
-                                                      json=data,
-                                                      params=query)
-            else:
-                logger.debug('Unknown request type passed. Returning None')
-                return None
+        if request_type == RequestType.GET:
+            response = await self._session.get(url, params=query)
+        elif request_type == RequestType.POST:
+            response = await self._session.post(url,
+                                                data=form_data,
+                                                json=data,
+                                                params=query)
+        elif request_type == RequestType.PUT:
+            response = await self._session.put(url,
+                                               data=form_data,
+                                               json=data,
+                                               params=query)
+        elif request_type == RequestType.PATCH:
+            response = await self._session.patch(url,
+                                                 data=form_data,
+                                                 json=data,
+                                                 params=query)
+        elif request_type == RequestType.DELETE:
+            response = await self._session.delete(url, json=data, params=query)
+        else:
+            logger.debug('Unknown request type passed. Returning None')
+            return None
 
         await Utils.log_response_info(response, not output_logging)
 
