@@ -13,7 +13,7 @@ repos:
       - id: double-quote-string-fixer
       - id: end-of-file-fixer
   - repo: https://github.com/google/yapf
-    rev: v0.40.1
+    rev: v0.40.2
     hooks:
       - id: yapf
         name: Formatting files with yapf
@@ -23,7 +23,7 @@ repos:
         types: [python]
         additional_dependencies: [toml]
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.17.5
+    rev: v2.17.6
     hooks:
       - id: pylint
         name: Checking code with pylint
