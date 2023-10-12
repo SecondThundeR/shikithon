@@ -17,7 +17,8 @@ from .resources import (AbuseRequests, Achievements, Animes, Appears, Bans,
 from .store import NullStore, Store
 
 RT = TypeVar('RT')
-SHIKIMORI_DOMAINS = Union[Literal['.me', '.one'], AnyStr]
+ShikimoriDomains = Union[Literal['.me', '.one'], AnyStr]
+
 
 class ShikimoriAPI(Client):
     """Main class for interacting with the API.
@@ -34,8 +35,8 @@ class ShikimoriAPI(Client):
                  'user_rates', 'users', 'abuse_requests')
 
     def __init__(self,
-                 app_name: str = "Api Test",
-                 api_domain: SHIKIMORI_DOMAINS = ".one",
+                 app_name: str = 'Api Test',
+                 api_domain: ShikimoriDomains = '.one',
                  store: Store = NullStore(),
                  auto_close_store: bool = True,
                  logging: Optional[bool] = False):
@@ -47,7 +48,8 @@ class ShikimoriAPI(Client):
         :param app_name: OAuth App name
         :type app_name: str
 
-        :param api_domain: Domain for Shikimori URL (In case, it suddenly changes again)
+        :param api_domain: Domain for Shikimori URL
+        (In case, it suddenly changes again)
             By default, set to `.one` domain
         :type api_domain: str
 

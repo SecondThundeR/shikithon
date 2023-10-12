@@ -19,7 +19,7 @@ from .exceptions import (AlreadyRunningClient, InvalidContentType,
 from .store import Store
 from .utils import Utils
 
-SHIKIMORI_BASE_URL = "https://shikimori"
+SHIKIMORI_BASE_URL = 'https://shikimori'
 SHIKIMORI_API_ENDPOINT = '/api'
 SHIKIMORI_API_V2_ENDPOINT = '/api/v2'
 SHIKIMORI_OAUTH_ENDPOINT = '/oauth'
@@ -59,15 +59,14 @@ class Client:
     __slots__ = ('endpoints', '_app_name', '_store', '_auto_close_store',
                  '_session', '_config')
 
-    def __init__(self,
-                 app_name: str,
-                 api_domain: str,
-                 store: Store,
+    def __init__(self, app_name: str, api_domain: str, store: Store,
                  auto_close_store: bool):
         self._app_name = app_name
         self._store = store
-        self.endpoints = Endpoints(SHIKIMORI_BASE_URL, api_domain, SHIKIMORI_API_ENDPOINT,
-                                   SHIKIMORI_API_V2_ENDPOINT, SHIKIMORI_OAUTH_ENDPOINT)
+        self.endpoints = Endpoints(SHIKIMORI_BASE_URL, api_domain,
+                                   SHIKIMORI_API_ENDPOINT,
+                                   SHIKIMORI_API_V2_ENDPOINT,
+                                   SHIKIMORI_OAUTH_ENDPOINT)
 
         self._session: Optional[ClientSession] = None
         self._config: Optional[ClientConfig] = None

@@ -19,7 +19,8 @@ class Endpoints:
     on input parameters
     """
 
-    def __init__(self, base_url: str, url_domain: str, api_endpoint: str, api_endpoint_v2: str, oauth_endpoint: str):
+    def __init__(self, base_url: str, url_domain: str, api_endpoint: str,
+                 api_endpoint_v2: str, oauth_endpoint: str):
         """Initializing URLs for Shikimori's API/OAuth.
 
         :param base_url: URL for Shikimori API (without domain part)
@@ -39,7 +40,10 @@ class Endpoints:
         """
         constructed_base_url = base_url + url_domain
         if not isinstance(url(constructed_base_url), bool):
-            raise ShikithonException(f"Formed URL for endpoints is incorrect. Maybe you passed wrong domain? Tried to validate: {constructed_base_url}")
+            raise ShikithonException(
+                'Formed URL for endpoints is incorrect. ' +
+                'Maybe you passed wrong domain? ' +
+                f'Tried to validate: {constructed_base_url}')
         self._base_url = constructed_base_url + api_endpoint
         self._base_url_v2 = constructed_base_url + api_endpoint_v2
         self._oauth_url = constructed_base_url + oauth_endpoint
