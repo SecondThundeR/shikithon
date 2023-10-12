@@ -16,12 +16,13 @@ from .enums import RequestType, ResponseCode
 from .exceptions import (AlreadyRunningClient, InvalidContentType,
                          MissingAppVariable, RetryLater,
                          ShikimoriAPIResponseError, ShikithonException)
-from .store import NullStore, Store
+from .store import Store
 from .utils import Utils
 
-SHIKIMORI_API_URL = 'https://shikimori.me/api'
-SHIKIMORI_API_URL_V2 = 'https://shikimori.me/api/v2'
-SHIKIMORI_OAUTH_URL = 'https://shikimori.me/oauth'
+SHIKIMORI_BASE_URL = "https://shikimori"
+SHIKIMORI_API_ENDPOINT = '/api'
+SHIKIMORI_API_V2_ENDPOINT = '/api/v2'
+SHIKIMORI_OAUTH_ENDPOINT = '/oauth'
 DEFAULT_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 RT = TypeVar('RT')
@@ -59,13 +60,14 @@ class Client:
                  '_session', '_config')
 
     def __init__(self,
-                 app_name: str = 'Api Test',
-                 store: Store = NullStore(),
-                 auto_close_store: bool = True):
+                 app_name: str,
+                 api_domain: str,
+                 store: Store,
+                 auto_close_store: bool):
         self._app_name = app_name
         self._store = store
-        self.endpoints = Endpoints(SHIKIMORI_API_URL, SHIKIMORI_API_URL_V2,
-                                   SHIKIMORI_OAUTH_URL)
+        self.endpoints = Endpoints(SHIKIMORI_BASE_URL, api_domain, SHIKIMORI_API_ENDPOINT,
+                                   SHIKIMORI_API_V2_ENDPOINT, SHIKIMORI_OAUTH_ENDPOINT)
 
         self._session: Optional[ClientSession] = None
         self._config: Optional[ClientConfig] = None
