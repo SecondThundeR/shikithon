@@ -4,7 +4,7 @@ This is main module with a class
 for interacting with the Shikimori API
 """
 import sys
-from typing import Optional, TypeVar
+from typing import AnyStr, Literal, Optional, TypeVar, Union
 
 from loguru import logger
 
@@ -17,7 +17,7 @@ from .resources import (AbuseRequests, Achievements, Animes, Appears, Bans,
 from .store import NullStore, Store
 
 RT = TypeVar('RT')
-
+SHIKIMORI_DOMAINS = Union[Literal['.me', '.one'], AnyStr]
 
 class ShikimoriAPI(Client):
     """Main class for interacting with the API.
@@ -34,7 +34,8 @@ class ShikimoriAPI(Client):
                  'user_rates', 'users', 'abuse_requests')
 
     def __init__(self,
-                 app_name: str = 'Api Test',
+                 app_name: str = "Api Test",
+                 api_domain: SHIKIMORI_DOMAINS = ".one",
                  store: Store = NullStore(),
                  auto_close_store: bool = True,
                  logging: Optional[bool] = False):
@@ -45,6 +46,10 @@ class ShikimoriAPI(Client):
 
         :param app_name: OAuth App name
         :type app_name: str
+
+        :param api_domain: Domain for Shikimori URL (In case, it suddenly changes again)
+            By default, set to `.one` domain
+        :type api_domain: str
 
         :param store: Class instance for store configs
         :type store: Optional[Store]
@@ -78,7 +83,7 @@ class ShikimoriAPI(Client):
 
         logger.info('Initializing API object')
 
-        super().__init__(app_name, store, auto_close_store)
+        super().__init__(app_name, api_domain, store, auto_close_store)
 
         self.achievements = Achievements(self)
         self.animes = Animes(self)

@@ -5,6 +5,9 @@ contains all endpoints for API and can form
 customized endpoints via input parameters
 """
 from typing import Optional, Union
+from validators import url
+
+from .exceptions.shikithon_exception import ShikithonException
 
 from .utils import Utils
 
@@ -16,24 +19,30 @@ class Endpoints:
     on input parameters
     """
 
-    def __init__(self, base_url: str, base_url_v2: str, oauth_url: str):
+    def __init__(self, base_url: str, url_domain: str, api_endpoint: str, api_endpoint_v2: str, oauth_endpoint: str):
         """Initializing URLs for Shikimori's API/OAuth.
 
-        This constructor also has `base_url_v2`, which is
-        modified `base_url` that routes to new API methods
-
-        :param base_url: URL for Shikimori API
+        :param base_url: URL for Shikimori API (without domain part)
         :type base_url: str
 
-        :param base_url_v2: URL for Shikimori API (v.2)
-        :type base_url_v2: str
+        :param url_domain: Domain for Shikimori URL
+        :type url_domain: str
 
-        :param oauth_url: URL for Shikimori OAuth
-        :type oauth_url: str
+        :param api_endpoint: Endpoint for Shikimori API
+        :type api_endpoint: str
+
+        :param api_endpoint_v2: Endpoint for Shikimori API (v.2)
+        :type api_endpoint_v2: str
+
+        :param oauth_endpoint: Endpoint for Shikimori OAuth
+        :type oauth_endpoint: str
         """
-        self._base_url = base_url
-        self._base_url_v2 = base_url_v2
-        self._oauth_url = oauth_url
+        constructed_base_url = base_url + url_domain
+        if not isinstance(url(constructed_base_url), bool):
+            raise ShikithonException(f"Formed URL for endpoints is incorrect. Maybe you passed wrong domain? Tried to validate: {constructed_base_url}")
+        self._base_url = constructed_base_url + api_endpoint
+        self._base_url_v2 = constructed_base_url + api_endpoint_v2
+        self._oauth_url = constructed_base_url + oauth_endpoint
 
     @property
     def base_url(self) -> str:
