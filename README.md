@@ -1,3 +1,8 @@
+> [!CAUTION]
+> **Состояние библиотеки:** прекращена поддержка библиотеки
+>
+> В связи с моим полным переходом на веб-разработку и TypeScript вместо Python, поддерживать эту библиотеку больше нет возможности. Если что-то необходимо исправить -> Just make a fork
+
 <!-- If PyCharm or IDEA will throw a warning here, just ignore it -->
 <div align="center">
     <img src="https://raw.githubusercontent.com/SecondThundeR/shikithon/main/assets/logo.png" alt="Shikithon Logo">
@@ -7,10 +12,7 @@
 
 [![Publish Shikithon package to PyPI](https://github.com/SecondThundeR/shikithon/actions/workflows/pypi-publish.yml/badge.svg)](https://github.com/SecondThundeR/shikithon/actions/workflows/pypi-publish.yml)
 
-> **Состояние библиотеки:** завершена основная разработка
->
-> На данный момент, библиотека находится в статусе поддержки (новые функции будут добавляться только по необходимости)
->
+> [!TIP]
 > Начиная с версии 2.0.0, библиотека поддерживает асинхронные запросы, отдельные пути к ресурсам API и многое другое
 > _[(Инструкция по миграции с версии 1.x.x)](https://github.com/SecondThundeR/shikithon/wiki/%D0%9C%D0%B8%D0%B3%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81-v1-%D0%BD%D0%B0-v2)_
 
